@@ -1,0 +1,67 @@
+﻿<div class="preventive-wrapper">
+  <div class="preventive-header">
+    <h1 class="preventive-title">Service Contract Management</h1>
+    <button class="create-service-btn" (click)="createContract()">+ Create Service Contract</button>
+  </div>
+
+  <div class="table-status" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="table-wrapper">
+    <div class="table-container">
+      <table class="preventive-table">
+        <thead>
+          <tr>
+            <th>Contract ID</th>
+            <th>Contract Name</th>
+            <th>Vendor</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Coverage Type</th>
+            <th>Response SLA</th>
+            <th>Uptime SLA</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="!contracts.length && !isLoading">
+            <td colspan="10" class="empty-row">No service contracts available.</td>
+          </tr>
+          <tr *ngFor="let contract of contracts">
+            <td>{{ contract.contractId }}</td>
+            <td>{{ contract.contractName }}</td>
+            <td>{{ contract.vendor }}</td>
+            <td>{{ contract.startDate }}</td>
+            <td>{{ contract.endDate }}</td>
+            <td>{{ contract.coverageType }}</td>
+            <td>{{ contract.responseSla }}</td>
+            <td>{{ contract.uptimeSla }}</td>
+            <td>
+              <span class="status-chip" [ngClass]="{ 'status-green': contract.status === 'Active', 'status-grey': contract.status === 'Expired' }">
+                {{ contract.status }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button class="action-icon" aria-label="View contract">
+                <img src="assets/icons/Vector.svg" alt="View" />
+              </button>
+              <button class="action-icon" aria-label="Edit contract">
+                <img src="assets/icons/edit.svg" alt="Edit" />
+              </button>
+              <button class="action-icon danger" aria-label="Delete contract">
+                <img src="assets/icons/delete.svg" alt="Delete" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="loading-overlay" *ngIf="isLoading">
+      <div class="loader"></div>
+      <span>Loading contracts...</span>
+    </div>
+  </div>
+</div>

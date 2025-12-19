@@ -1,0 +1,9 @@
+<div class="stat-card">
+  <div class="stat-header">{{ title }}</div>
+  <div class="stat-value">{{ value }}</div>
+  <div class="stat-trend" [class.trend-up]="trendDirection === 'up'" [class.trend-down]="trendDirection === 'down'">
+    <span *ngIf="trendDirection === 'up'">↑</span>
+    <span *ngIf="trendDirection === 'down'">↓</span>
+    {{ trend }}
+  </div>
+</div>

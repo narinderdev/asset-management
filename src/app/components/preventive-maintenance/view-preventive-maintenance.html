@@ -1,0 +1,108 @@
+<div class="view-asset-page">
+  <div class="view-asset-header">
+    <button class="back-btn" (click)="goBack()" type="button">
+      <span aria-hidden="true">&larr;</span>
+      Back to preventive maintenance
+    </button>
+    <h1>Preventive Maintenance Details</h1>
+  </div>
+
+  <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <div class="loading-overlay" *ngIf="isLoading && !template">
+    <div class="loader"></div>
+    <span>Loading template...</span>
+  </div>
+
+  <div *ngIf="template" class="request-details">
+    <section class="detail-section">
+      <h2>Overview</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">PM ID</span>
+          <span class="value">{{ template.pmId ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Name</span>
+          <span class="value">{{ template.pmName ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Type</span>
+          <span class="value">{{ template.pmType ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Applies To</span>
+          <span class="value">{{ template.appliesToType ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Asset Name</span>
+          <span class="value">{{ template.assetName ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Asset Category</span>
+          <span class="value">{{ template.assetCategory ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Active</span>
+          <span class="value">{{ template.active ? 'Yes' : 'No' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h2>Schedule</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Plan Start Date</span>
+          <span class="value">{{ formatDate(template.planStartDate) }}</span>
+        </div>
+        <div>
+          <span class="label">Plan End Date</span>
+          <span class="value">{{ formatDate(template.planEndDate) }}</span>
+        </div>
+        <div>
+          <span class="label">Next Due Date</span>
+          <span class="value">{{ formatDate(template.nextDueDate) }}</span>
+        </div>
+        <div>
+          <span class="label">Last Generated Due</span>
+          <span class="value">{{ formatDate(template.lastGeneratedDueDate) }}</span>
+        </div>
+        <div>
+          <span class="label">Frequency</span>
+          <span class="value">{{ formatFrequency(template.frequencyValue, template.timeUnit) }}</span>
+        </div>
+        <div>
+          <span class="label">Meter Unit</span>
+          <span class="value">{{ template.meterUnit ?? '—' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h2>Automation</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Auto Generate WO</span>
+          <span class="value">{{ template.autoGenerateWo ? 'Yes' : 'No' }}</span>
+        </div>
+        <div>
+          <span class="label">Lead Time Days</span>
+          <span class="value">{{ template.leadTimeDays ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Linked Work Type</span>
+          <span class="value">{{ template.linkedWorkType ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Default Priority</span>
+          <span class="value">{{ template.defaultPriority ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Grace Days</span>
+          <span class="value">{{ template.graceDays ?? '—' }}</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

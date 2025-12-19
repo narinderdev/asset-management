@@ -1,0 +1,56 @@
+
+<div class="chart-card">
+  <h3 class="chart-title">Work Orders by Status</h3>
+  
+  <div class="chart-container">
+    <div class="donut-chart">
+      <svg viewBox="0 0 200 200" class="donut">
+        <!-- Pending (Red) -->
+        <circle
+          cx="100"
+          cy="100"
+          r="70"
+          fill="none"
+          stroke="#ef4444"
+          stroke-width="25"
+          class="donut-segment pending"
+          style="--dasharray: 44 396; --dashoffset-final: 0;"
+        ></circle>
+
+        <!-- In Progress (Orange) -->
+        <circle
+          cx="100"
+          cy="100"
+          r="70"
+          fill="none"
+          stroke="#f59e0b"
+          stroke-width="25"
+          class="donut-segment in-progress"
+          style="--dasharray: 132 308; --dashoffset-final: -44;"
+        ></circle>
+
+        <!-- Complete (Green) -->
+        <circle
+          cx="100"
+          cy="100"
+          r="70"
+          fill="none"
+          stroke="#10b981"
+          stroke-width="25"
+          class="donut-segment complete"
+          style="--dasharray: 220 220; --dashoffset-final: -176;"
+        ></circle>
+      </svg>
+    </div>
+    
+    <div class="chart-legend">
+      <div class="legend-item" *ngFor="let status of statuses">
+        <div class="legend-color" [style.background-color]="status.color"></div>
+        <div class="legend-details">
+          <div class="legend-value">{{ status.value }}</div>
+          <div class="legend-label">{{ status.label }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

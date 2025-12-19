@@ -1,0 +1,541 @@
+<div class="add-asset-container">
+  <!-- Header -->
+  <div class="add-asset-header">
+    <button
+      type="button"
+      class="btn-back"
+      aria-label="Back to assets"
+      (click)="onCancel()"
+    >
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path
+          d="M11 3L5 8L11 13"
+          stroke="#333333"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+    <div class="header-main">
+      <h2 class="title">{{ isEditMode ? 'Edit Asset' : 'Add New Asset' }}</h2>
+    </div>
+  </div>
+
+  <div class="loading-overlay" *ngIf="isEditMode && isLoadingDetails">
+    <div class="loader"></div>
+    <span>Loading asset details...</span>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tabs-container">
+    <div class="tabs">
+      <button 
+        *ngFor="let tab of tabs"
+        class="tab-button"
+        [class.active]="activeTab === tab.id"
+        (click)="setActiveTab(tab.id)">
+        {{ tab.label }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab Content -->
+  <fieldset class="tab-fieldset">
+    <div class="tab-content">
+    <!-- Asset Master Tab -->
+    <div *ngIf="activeTab === 'asset-master'" class="form-content">
+      <!-- Row 1 -->
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label-row">
+            <label class="form-label">
+              Asset ID<span class="required">*</span>
+            </label>
+            <div class="auto-generate-control" *ngIf="!isEditMode">
+              <input
+                id="auto-generate-asset-id"
+                type="checkbox"
+                [(ngModel)]="autoGenerateAssetId"
+                (change)="onAutoGenerateAssetIdChange()"
+              />
+              <label for="auto-generate-asset-id">Auto-generate</label>
+            </div>
+          </div>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Asset ID"
+            [(ngModel)]="assetMaster.assetId"
+            [disabled]="isEditMode || autoGenerateAssetId">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            Asset Name<span class="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Asset Name"
+            [(ngModel)]="assetMaster.assetName">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Short Description</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Description"
+            [(ngModel)]="assetMaster.shortDescription">
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            Asset Category<span class="required">*</span>
+          </label>
+          <select class="form-select" [(ngModel)]="assetMaster.assetCategory">
+            <option value="" disabled selected>Select</option>
+            <option *ngFor="let option of categoryOptions" [value]="option">
+              {{ option }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Asset Type</label>
+          <select class="form-select" [(ngModel)]="assetMaster.assetType">
+            <option value="" disabled selected>Select</option>
+            <option *ngFor="let option of typeOptions" [value]="option">
+              {{ option }}
+            </option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Row 3 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            Status<span class="required">*</span>
+          </label>
+          <select class="form-select" [(ngModel)]="assetMaster.status">
+            <option value="" disabled selected>Select</option>
+            <option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Criticality</label>
+          <select class="form-select" [(ngModel)]="assetMaster.criticality">
+            <option value="" disabled selected>Select</option>
+            <option *ngFor="let option of criticalityOptions" [value]="option">
+              {{ option }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Ownership</label>
+          <select class="form-select" [(ngModel)]="assetMaster.ownership">
+            <option value="" disabled selected>Select</option>
+            <option *ngFor="let option of ownershipOptions" [value]="option">
+              {{ option }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Row 4 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Asset Tag / Barcode / RFID</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Asset Tag / Barcode / RFID"
+            [(ngModel)]="assetMaster.assetTag">
+        </div>
+      </div>
+    </div>
+
+    <!-- Location & Organization Tab -->
+    <div *ngIf="activeTab === 'location-organization'" class="form-content">
+      <div class="form-row full-width-row">
+        <div class="form-group">
+          <label class="form-label">
+            Location<span class="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Location"
+            [(ngModel)]="locationOrg.location">
+        </div>
+      </div>
+    </div>
+
+    <!-- Technical & Manufacturer Tab -->
+    <div *ngIf="activeTab === 'technical-manufacturer'" class="form-content">
+      <!-- Row 1 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Manufacturer</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Manufacturer"
+            [(ngModel)]="technical.manufacturer">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Model</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Model"
+            [(ngModel)]="technical.model">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Serial Number</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Serial Number"
+            [(ngModel)]="technical.serialNumber">
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Year of Manufacture</label>
+          <input 
+            type="number" 
+            class="form-input" 
+            placeholder="Enter Year"
+            [(ngModel)]="technical.yearOfManufacture"
+            min="0"
+            max="9999"
+            (input)="onYearInput($event)">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Power Rating</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Power Rating"
+            [(ngModel)]="technical.powerRating">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Voltage</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Voltage"
+            [(ngModel)]="technical.voltage">
+        </div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Capacity</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Capacity"
+            [(ngModel)]="technical.capacity">
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial Tab -->
+    <div *ngIf="activeTab === 'financial'" class="form-content">
+      <!-- Row 1 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            Acquisition Date<span class="required">*</span>
+          </label>
+          <input 
+            type="date" 
+            class="form-input" 
+            [(ngModel)]="financial.acquisitionDate">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            Acquisition Cost<span class="required">*</span>
+          </label>
+          <input 
+            type="number" 
+            class="form-input" 
+            placeholder="$"
+            [(ngModel)]="financial.acquisitionCost">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Supplier</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Supplier"
+            [(ngModel)]="financial.supplier">
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">PO / Invoice Number</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter PO / Invoice Number"
+            [(ngModel)]="financial.poInvoiceNumber">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Depreciation Method</label>
+          <select class="form-select" [(ngModel)]="financial.depreciationMethod">
+            <option value="" disabled selected>Select</option>
+            <option *ngFor="let option of depreciationMethodOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Useful Life (years)</label>
+          <input 
+            type="number" 
+            class="form-input" 
+            placeholder="Enter Years"
+            [(ngModel)]="financial.usefulLife">
+        </div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Depreciation Start Date</label>
+          <input 
+            type="date" 
+            class="form-input" 
+            [(ngModel)]="financial.depreciationStartDate">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Salvage Value</label>
+          <input 
+            type="number" 
+            class="form-input" 
+            placeholder="$"
+            [(ngModel)]="financial.salvageValue">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Accumulated Depreciation</label>
+          <input 
+            type="number" 
+            class="form-input" 
+            placeholder="$"
+            [(ngModel)]="financial.accumulatedDepreciation">
+        </div>
+      </div>
+
+      <!-- Row 4 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Current Book Value</label>
+          <input 
+            type="number" 
+            class="form-input" 
+            placeholder="$"
+            [(ngModel)]="financial.currentBookValue">
+        </div>
+      </div>
+    </div>
+
+    <!-- Warranty & Lifecycle Tab -->
+    <div *ngIf="activeTab === 'warranty-lifecycle'" class="form-content">
+      <!-- Row 1 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Commissioning Date</label>
+          <input 
+            type="date" 
+            class="form-input" 
+            placeholder="DD/MM/YYYY"
+            [(ngModel)]="warranty.commissioningDate">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Warranty Start</label>
+          <input 
+            type="date" 
+            class="form-input" 
+            placeholder="DD/MM/YYYY"
+            [(ngModel)]="warranty.warrantyStart">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Warranty End</label>
+          <input 
+            type="date" 
+            class="form-input" 
+            placeholder="DD/MM/YYYY"
+            [(ngModel)]="warranty.warrantyEnd">
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Warranty Provider</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Warranty Provider"
+            [(ngModel)]="warranty.warrantyProvider">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Service Contract</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Service Contract"
+            [(ngModel)]="warranty.serviceContract">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Expected Useful Life</label>
+          <input 
+            type="number" 
+            class="form-input" 
+            placeholder="Enter Number"
+            [(ngModel)]="warranty.expectedUsefulLifeYears">
+        </div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Planned Replacement Date</label>
+          <input 
+            type="date" 
+            class="form-input" 
+            [(ngModel)]="warranty.plannedReplacementDate">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Last Maintenance Date</label>
+          <input 
+            type="date" 
+            class="form-input" 
+            [(ngModel)]="warranty.lastMaintenanceDate">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Next Planned Maintenance</label>
+          <input 
+            type="date" 
+            class="form-input" 
+            [(ngModel)]="warranty.nextPlannedMaintenance">
+        </div>
+      </div>
+    </div>
+
+    <!-- Safety & Operations Tab -->
+    <div *ngIf="activeTab === 'safety-operations'" class="form-content">
+      <!-- Row 1 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Safety Critical?</label>
+          <select class="form-select" [(ngModel)]="safety.safetyCritical">
+            <option value="" disabled selected>Select</option>
+            <option *ngFor="let option of safetyCriticalOptions" [value]="option">
+              {{ option }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Safety Notes</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Safety Notes"
+            [(ngModel)]="safety.safetyNotes">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Operating Instructions</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Link"
+            [(ngModel)]="safety.operatingInstructions">
+        </div>
+      </div>
+    </div>
+
+    <!-- Attachments Tab -->
+    <div *ngIf="activeTab === 'attachments'" class="form-content">
+      <div class="attachments-section">
+        <h3 class="attachments-title">Images of asset</h3>
+        
+        <div class="upload-box">
+          <div class="upload-content">
+            <button class="upload-link" (click)="onUploadFile()">Upload File</button>
+            <div class="file-info">
+              <input type="checkbox" class="file-checkbox" [(ngModel)]="attachments.fileSelected">
+              <span class="file-name">File.png</span>
+              <span class="file-status">No errors found</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="max-width: 350px; margin-top: 24px;">
+          <label class="form-label">File/URL</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Technical manuals, drawings, etc."
+            [(ngModel)]="attachments.fileUrl">
+        </div>
+      </div>
+    </div>
+    </div>
+  </fieldset>
+
+  <!-- Footer Buttons -->
+  <div class="tab-actions">
+    <div class="form-footer" *ngIf="!isEditMode">
+      <button class="btn-cancel" (click)="onCancel()">Cancel</button>
+      <button class="btn-save" (click)="onSave()">Save</button>
+    </div>
+    <div class="form-footer" *ngIf="isEditMode">
+      <button class="btn-cancel" (click)="onCancel()">Cancel</button>
+      <button
+        class="btn-save"
+        type="button"
+        (click)="onEditAction()"
+        [disabled]="isActiveTabSaving()"
+      >
+        {{ editActionLabel }}
+      </button>
+    </div>
+  </div>
+</div>

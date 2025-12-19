@@ -1,0 +1,96 @@
+<div class="view-asset-page">
+  <div class="view-asset-header">
+    <button class="back-btn" (click)="goBack()" type="button">
+      <span aria-hidden="true">&larr;</span>
+      Back to inventory
+    </button>
+    <h1>Inventory Item Details</h1>
+  </div>
+
+  <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <div class="loading-overlay" *ngIf="isLoading && !inventoryItem">
+    <div class="loader"></div>
+    <span>Loading inventory item...</span>
+  </div>
+
+  <div *ngIf="inventoryItem" class="request-details">
+    <section class="detail-section">
+      <h2>Overview</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Item ID</span>
+          <span class="value">{{ inventoryItem.itemId ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Name</span>
+          <span class="value">{{ inventoryItem.itemName ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Category</span>
+          <span class="value">{{ inventoryItem.category ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Manufacturer</span>
+          <span class="value">{{ inventoryItem.manufacturer ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Manufacturer Part#</span>
+          <span class="value">{{ inventoryItem.manufacturerPartNumber ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Primary Vendor</span>
+          <span class="value">{{ inventoryItem.primaryVendorName ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Active</span>
+          <span class="value">{{ inventoryItem.active ? 'Yes' : 'No' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h2>Stock</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Stock Level</span>
+          <span class="value">{{ inventoryItem.stockLevel ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Reorder Point</span>
+          <span class="value">{{ inventoryItem.reorderPoint ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Reorder Quantity</span>
+          <span class="value">{{ inventoryItem.reorderQuantity ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Min Stock Level</span>
+          <span class="value">{{ inventoryItem.minStockLevel ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Max Stock Level</span>
+          <span class="value">{{ inventoryItem.maxStockLevel ?? '—' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h2>Costs</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Cost per Unit</span>
+          <span class="value">{{ inventoryItem.costPerUnit ? '$' + inventoryItem.costPerUnit.toFixed(2) : '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Created At</span>
+          <span class="value">{{ formatDate(inventoryItem.createdAt) }}</span>
+        </div>
+        <div>
+          <span class="label">Updated At</span>
+          <span class="value">{{ formatDate(inventoryItem.updatedAt) }}</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

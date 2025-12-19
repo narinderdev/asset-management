@@ -1,0 +1,72 @@
+<div class="view-request-page">
+  <div class="view-request-header">
+    <button class="back-btn" type="button" aria-label="Back to teams" (click)="goBack()">
+      <span aria-hidden="true">&larr;</span>
+      Back to teams
+    </button>
+    <h1>Technician Team Details</h1>
+  </div>
+
+  <div *ngIf="errorMessage" class="status-message">{{ errorMessage }}</div>
+
+  <div class="loading-overlay" *ngIf="isLoading && !loaded">
+    <div class="loader"></div>
+    <span>Loading technician team details...</span>
+  </div>
+
+  <div *ngIf="team" class="request-details">
+    <section class="detail-section">
+      <h2>Overview</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Team Name</span>
+          <span class="value">{{ formatField(team.teamName) }}</span>
+        </div>
+        <div>
+          <span class="label">Status</span>
+          <span class="value">{{ formatEnum(team.status) }}</span>
+        </div>
+        <div>
+          <span class="label">Start Date</span>
+          <span class="value">{{ formatDate(team.startDate) }}</span>
+        </div>
+        <div>
+          <span class="label">End Date</span>
+          <span class="value">{{ formatDate(team.endDate) }}</span>
+        </div>
+        <div>
+          <span class="label">Team Leader</span>
+          <span class="value">{{ formatField(team.teamLeaderName) }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h2>Description</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Team Description</span>
+          <span class="value">{{ formatField(team.teamDescription) }}</span>
+        </div>
+        <div>
+          <span class="label">Notes</span>
+          <span class="value">{{ formatField(team.notes) }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section" *ngIf="team.technicians?.length">
+      <h2>Members</h2>
+      <div class="detail-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div *ngFor="let tech of team.technicians">
+          <span class="label">Name</span>
+          <span class="value" style="margin-bottom: 8px;">{{ getTechnicianName(tech) }}</span>
+          <span class="label">Role</span>
+          <span class="value">{{ formatEnum(tech.technicianType) }}</span>
+          <span class="label">Status</span>
+          <span class="value">{{ formatEnum(tech.status) }}</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

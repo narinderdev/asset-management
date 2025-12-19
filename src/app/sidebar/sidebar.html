@@ -1,0 +1,93 @@
+<div class="sidebar" [class.collapsed]="isCollapsed" [class.mobile-open]="mobileOpen">
+  <!-- User Profile -->
+  <div class="user-profile">
+    <div class="user-info">
+      <div class="user-avatar">
+        <img [src]="getIconPath('profile.svg')" alt="User" class="user-icon">
+      </div>
+      <span class="user-name" *ngIf="!isCollapsed">ByeWind</span>
+    </div>
+    <button class="toggle-btn" (click)="toggleSidebar()" *ngIf="!isCollapsed">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6" />
+      </svg>
+    </button>
+  </div>
+
+  <button
+    class="toggle-btn collapsed-toggle"
+    (click)="toggleSidebar()"
+    *ngIf="isCollapsed"
+    aria-label="Expand sidebar"
+  >
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <polyline points="9 6 15 12 9 18" />
+    </svg>
+  </button>
+
+  <!-- Navigation Menu -->
+  <nav class="sidebar-nav">
+    <ul class="menu-list">
+      <li
+        *ngFor="let item of menuItems"
+        class="menu-item"
+        [class.has-submenu]="item.hasSubmenu"
+        [class.active]="isMenuItemActive(item)"
+      >
+        <a
+          href="#"
+          class="menu-link"
+          (click)="handleMenuClick(item, $event)"
+          [class.active]="isMenuItemActive(item)"
+        >
+          <img
+            [src]="getMenuIconPath(item)"
+            [alt]="item.label"
+            class="menu-icon"
+          />
+          <span class="menu-label" *ngIf="!isCollapsed">{{ item.label }}</span>
+          <svg
+            *ngIf="item.hasSubmenu && !isCollapsed"
+            class="menu-arrow"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </a>
+
+        <ul
+          class="submenu"
+          *ngIf="item.hasSubmenu && expandedMenuLabel === item.label && !isCollapsed"
+        >
+          <li
+            *ngFor="let sub of item.submenu || []"
+            class="submenu-item"
+            [class.active]="isSubmenuActive(sub)"
+          >
+            <a
+              href="#"
+              class="submenu-link"
+              [class.active]="isSubmenuActive(sub)"
+              (click)="selectSubmenu(sub, $event)"
+            >
+              {{ sub.label }}
+            </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+</div>

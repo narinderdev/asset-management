@@ -1,0 +1,62 @@
+<div class="preventive-wrapper">
+  <div class="preventive-header">
+    <h1 class="preventive-title">Technician Teams</h1>
+    <button class="create-service-btn" type="button" (click)="addTeam()">+ Add Technician Team</button>
+  </div>
+
+  <div *ngIf="errorMessage" class="table-status">{{ errorMessage }}</div>
+
+  <div *ngIf="teams.length; else emptyState" class="table-wrapper">
+    <div class="table-container">
+      <table class="preventive-table">
+        <thead>
+          <tr>
+            <th>Team Name</th>
+            <th>Status</th>
+            <th>Active From</th>
+            <th>Active Till</th>
+            <th>Team Leader</th>
+            <th>Technicians</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let team of teams">
+            <td>{{ team.teamName ?? 'Unnamed Team' }}</td>
+            <td>{{ team.status ?? '-' }}</td>
+            <td>{{ team.startDate ?? '-' }}</td>
+            <td>{{ team.endDate ?? '-' }}</td>
+            <td>{{ team.teamLeaderName ?? '-' }}</td>
+            <td>{{ team.technicians?.length ?? 0 }}</td>
+            <td class="actions-cell">
+              <button class="action-icon" aria-label="View team" (click)="viewTeam(team)">
+                <img src="assets/icons/Vector.svg" alt="View" />
+              </button>
+              <button class="action-icon" aria-label="Edit team" (click)="editTeam(team)">
+                <img src="assets/icons/edit.svg" alt="Edit" />
+              </button>
+              <button class="action-icon danger" aria-label="Delete team" (click)="openDeleteModal(team)">
+                <img src="assets/icons/delete.svg" alt="Delete" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <ng-template #emptyState>
+    <div class="empty-state">
+      <span *ngIf="loading">Loading technician teams...</span>
+      <span *ngIf="!loading && !errorMessage">No technician teams found.</span>
+    </div>
+  </ng-template>
+  <app-delete-modal
+    [isOpen]="isDeleteModalOpen"
+    [deleting]="isDeleting"
+    title="Delete technician team"
+    message="Are you sure you want to delete this technician team?"
+    (cancel)="closeDeleteModal()"
+    (confirm)="confirmDelete()"
+  ></app-delete-modal>
+</div>

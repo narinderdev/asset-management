@@ -1,0 +1,66 @@
+<div class="create-team-page">
+  <section class="create-card">
+    <header class="create-header">
+      <button type="button" class="back-btn" aria-label="Back" (click)="onCancel()">
+        &larr;
+      </button>
+      <h2>{{ isEditMode ? 'Edit Team' : 'Add Technician Team' }}</h2>
+    </header>
+
+    <div class="form-loading" *ngIf="isEditMode && isLoadingDetails">
+      <div class="loading-indicator"></div>
+      <span>Loading team details...</span>
+    </div>
+
+    <div *ngIf="errorMessage" class="form-error">
+      {{ errorMessage }}
+    </div>
+
+    <form class="request-form" (ngSubmit)="onSubmit()" *ngIf="!isEditMode || !isLoadingDetails">
+      <div class="form-grid">
+        <label class="field">
+          <span>Team Name</span>
+          <input
+            type="text"
+            name="teamName"
+            [(ngModel)]="form.teamName"
+            required
+            placeholder="Team Alpha"
+          />
+        </label>
+        <label class="field">
+          <span>Status</span>
+          <select name="status" [(ngModel)]="form.status" required>
+            <option value="" disabled hidden>Select Status</option>
+            <option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Start Date</span>
+          <input type="date" name="startDate" [(ngModel)]="form.startDate" />
+        </label>
+        <label class="field">
+          <span>End Date</span>
+          <input type="date" name="endDate" [(ngModel)]="form.endDate" />
+        </label>
+        <label class="field">
+          <span>Team Description</span>
+          <input type="text" name="teamDescription" [(ngModel)]="form.teamDescription" placeholder="Describe the team" />
+        </label>
+        <label class="field">
+          <span>Notes</span>
+          <input name="notes" [(ngModel)]="form.notes" placeholder="Add notes"/>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="btn primary" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Saving...' : 'Save Team' }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

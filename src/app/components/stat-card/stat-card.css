@@ -1,0 +1,33 @@
+.stat-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.stat-header {
+  font-size: 16px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.stat-trend {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.trend-up {
+  color: #10b981;
+}
+
+.trend-down {
+  color: #ef4444;
+}

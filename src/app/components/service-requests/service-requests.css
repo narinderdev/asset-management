@@ -1,0 +1,257 @@
+.service-requests-wrapper {
+  padding: 30px;
+  padding-bottom: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #ebedef;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  min-height: 88vh;
+}
+
+.service-requests-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.service-requests-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.create-service-btn {
+  background-color: #3599ff;
+  color: #ffffff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.create-service-btn:hover {
+  background-color: #2c7ddb;
+}
+
+.table-wrapper {
+  position: relative;
+  min-height: 82vh;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.table-status {
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #d32f2f;
+}
+
+.service-requests-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.service-requests-table thead {
+  border-bottom: 1px solid #e4e4e4;
+  background-color: #fafafa;
+}
+
+.service-requests-table th,
+.service-requests-table td {
+  text-align: left;
+  padding: 16px;
+  border-bottom: 1px solid #f1f1f1;
+  white-space: nowrap;
+  color: #333;
+}
+
+.service-requests-table th {
+  font-weight: 600;
+  color: #5b5b5b;
+  font-size: 13px;
+}
+
+.service-requests-table tbody tr {
+  background-color: #ffffff;
+}
+
+.service-requests-table tbody tr:nth-child(even) {
+  background-color: #f8f8f8;
+}
+
+.priority-chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 400;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.priority-high {
+  background-color: #ffe8e6;
+  color: #d32f2f;
+}
+
+.priority-critical {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.priority-medium {
+  background-color: #fff4e5;
+  color: #f57c00;
+}
+
+.priority-low {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-new {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-in-progress {
+  background-color: #fff3e0;
+  color: #ef6c00;
+}
+
+.status-under-review {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.status-converted {
+  background-color: #eae6ff;
+  color: #6b21a8;
+}
+
+.status-rejected {
+  background-color: #ffe4e6;
+  color: #b91c1c;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.actions-cell .convert-btn {
+  margin-left: auto;
+}
+
+.action-button {
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.action-button.icon-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-button.icon-btn.danger {
+  background-color: #fff3f0;
+}
+
+.view-btn {
+  background-color: white;
+  color: #333;
+  padding: 0;
+  border-radius: 8px;
+}
+
+.view-btn:hover {
+  background-color: white;
+}
+
+.view-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.convert-btn {
+  background-color: #1fbe5f;
+  color: #ffffff;
+}
+
+.convert-btn:hover {
+  background-color: #16a34a;
+}
+
+.empty-row {
+  padding: 24px;
+  text-align: center;
+  color: #777;
+  font-size: 14px;
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #374151;
+  z-index: 5;
+}
+
+.loader {
+  width: 36px;
+  height: 36px;
+  border: 4px solid #60a5fa;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

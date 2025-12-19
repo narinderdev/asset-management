@@ -1,0 +1,106 @@
+<div class="create-request-page">
+  <section class="create-card">
+    <header class="create-header circle-header">
+      <button type="button" class="back-btn-circle" aria-label="Back to vendors" (click)="onCancel()">
+        <span aria-hidden="true">←</span>
+      </button>
+      <h2>{{ isEditMode ? "Edit Vendor" : "Add Vendor" }}</h2>
+    </header>
+
+    <form class="request-form" #vendorForm="ngForm" (ngSubmit)="onCreate(vendorForm)">
+      <div class="form-grid">
+        <label class="field">
+          <div class="field-label-row">
+            <span>Vendor ID</span>
+            <div class="auto-generate-control" *ngIf="!isEditMode">
+              <input
+                type="checkbox"
+                name="autoGenerateVendorId"
+                [(ngModel)]="autoGenerateVendorId"
+                (change)="onAutoGenerateVendorIdChange()"
+              />
+              <span>Auto-generate</span>
+            </div>
+          </div>
+          <input
+            type="text"
+            name="vendorId"
+            [(ngModel)]="vendor.vendorId"
+            [disabled]="isEditMode || autoGenerateVendorId"
+          />
+        </label>
+        <label class="field">
+          <span>Vendor Name <span class="required-star">*</span></span>
+          <input type="text" name="vendorName" [(ngModel)]="vendor.vendorName" placeholder="Enter Vendor Name" />
+        </label>
+        <label class="field">
+          <span>Address</span>
+          <input type="text" name="address" [(ngModel)]="vendor.address" placeholder="Enter Address" />
+        </label>
+
+        <label class="field">
+          <span>Contact Person <span class="required-star">*</span></span>
+          <input type="text" name="contactPerson" [(ngModel)]="vendor.contactPerson" placeholder="Enter Contact Person" />
+        </label>
+        <label class="field">
+          <span>Email <span class="required-star">*</span></span>
+          <input
+            type="email"
+            name="email"
+            required
+            email
+            [(ngModel)]="vendor.email"
+            placeholder="Enter Email"
+          />
+          <span
+            class="error"
+            *ngIf="
+              vendorForm.controls['email']?.invalid &&
+              (vendorForm.controls['email']?.touched || vendorForm.submitted)
+            "
+          >
+            Please enter a valid email.
+          </span>
+        </label>
+        <label class="field">
+          <span>Phone <span class="required-star">*</span></span>
+          <input
+            type="tel"
+            name="phone"
+            required
+            pattern="^[0-9]+$"
+            [(ngModel)]="vendor.phone"
+            placeholder="Enter Phone"
+          />
+          <span class="error" *ngIf="vendorForm.submitted && vendorForm.controls['phone']?.invalid">Please enter numbers only.</span>
+        </label>
+
+        <label class="field">
+          <span>Payment Terms</span>
+          <select name="paymentTerms" [(ngModel)]="vendor.paymentTerms">
+            <option value="" disabled hidden>Select Terms</option>
+            <option *ngFor="let option of paymentOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Rating</span>
+          <select name="rating" [(ngModel)]="vendor.rating">
+            <option value="" disabled hidden>Select Rating</option>
+            <option *ngFor="let rating of ratingOptions" [value]="rating">{{ rating }}</option>
+          </select>
+        </label>
+        <label class="field check-field">
+          <input type="checkbox" name="active" [(ngModel)]="vendor.active" />
+          <span>Active</span>
+        </label>
+      </div>
+
+      <div *ngIf="errorMessage" class="form-error">{{ errorMessage }}</div>
+      <div class="form-actions">
+        <button type="button" class="btn ghost" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="btn primary" [disabled]="isSubmitting || vendorForm.invalid">{{ isEditMode ? "Save Vendor" : "Create Vendor" }}</button>
+      </div>
+    </form>
+  </section>
+</div>
+

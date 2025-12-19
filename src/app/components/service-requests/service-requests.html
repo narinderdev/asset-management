@@ -1,0 +1,106 @@
+<div class="service-requests-wrapper">
+  <div class="service-requests-header">
+    <h1 class="service-requests-title">Service Request Management</h1>
+    <button class="create-service-btn" (click)="createServiceRequest()">+ Create Service Request</button>
+  </div>
+
+  <div class="table-status" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="table-wrapper">
+    <div class="table-container">
+      <table class="service-requests-table">
+        <thead>
+        <tr>
+          <th>Request ID</th>
+          <th>Request Date</th>
+          <th>Requester</th>
+          <th>Short Title</th>
+          <th>Maintenance Type</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="!serviceRequests.length && !isLoading">
+          <td colspan="8" class="empty-row">No service requests to display.</td>
+        </tr>
+        <tr *ngFor="let request of serviceRequests">
+          <td>{{ request.requestId }}</td>
+          <td>{{ request.requestDate }}</td>
+          <td>{{ request.requester }}</td>
+          <td>{{ request.shortTitle }}</td>
+          <td>{{ request.maintenanceType }}</td>
+          <td>
+            <span class="priority-chip" [ngClass]="getPriorityClass(request.priority)">
+              {{ request.priority }}
+            </span>
+          </td>
+          <td>
+            <span class="status-chip" [ngClass]="getStatusClass(request.status)">
+              {{ request.status }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <div class="icon-group">
+              <button
+                class="action-button icon-btn view-btn"
+                aria-label="View service request"
+                (click)="viewRequest(request)"
+              >
+                <img src="assets/icons/Vector.svg" alt="View request" class="view-icon" />
+              </button>
+              <button
+                class="action-button icon-btn edit-btn"
+                aria-label="Edit service request"
+                (click)="editRequest(request)"
+              >
+                <img src="assets/icons/edit.svg" alt="Edit request" class="view-icon" />
+              </button>
+              <button
+                class="action-button icon-btn delete-btn danger"
+                aria-label="Delete service request"
+                (click)="deleteRequest(request)"
+              >
+                <img src="assets/icons/delete.svg" alt="Delete request" class="view-icon" />
+              </button>
+            </div>
+            <button
+              class="action-button convert-btn"
+              (click)="convertToWorkOrder(request)"
+              *ngIf="request.status !== 'Converted to WO'"
+            >
+              Convert to WO
+            </button>
+          </td>
+        </tr>
+      </tbody>
+      </table>
+    </div>
+
+    <div class="loading-overlay" *ngIf="isLoading">
+      <div class="loader"></div>
+      <span>Loading service requests...</span>
+    </div>
+  </div>
+
+  <app-delete-modal
+    [isOpen]="isDeleteModalOpen"
+    title="Delete Service Request"
+    message="Are you sure you want to delete this service request?"
+    [deleting]="isDeleting"
+    (cancel)="closeDeleteModal()"
+    (confirm)="confirmDelete()"
+  ></app-delete-modal>
+  <app-delete-modal
+    [isOpen]="isConvertModalOpen"
+    title="Convert to Work Order"
+    message="Are you sure you want to convert this request into a work order?"
+    confirmLabel="Convert"
+    [deleting]="isConverting"
+    (cancel)="closeConvertModal()"
+    (confirm)="confirmConvert()"
+  ></app-delete-modal>
+</div>

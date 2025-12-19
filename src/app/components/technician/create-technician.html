@@ -1,0 +1,97 @@
+<div class="create-technician-page">
+  <section class="create-card">
+    <header class="create-header">
+      <button type="button" class="back-btn" aria-label="Back" (click)="onCancel()">
+        &larr;
+      </button>
+      <h2>{{ isEditMode ? 'Edit Technician' : 'Add Technician' }}</h2>
+    </header>
+
+    <div class="form-loading" *ngIf="isEditMode && isLoadingDetails">
+      <div class="loading-indicator"></div>
+      <span>Loading technician...</span>
+    </div>
+
+    <div *ngIf="errorMessage" class="form-error">
+      {{ errorMessage }}
+    </div>
+
+    <form class="request-form" (ngSubmit)="onSubmit()" *ngIf="!isEditMode || !isLoadingDetails">
+      <div class="form-grid">
+        <label class="field">
+          <span>First Name</span>
+          <input type="text" name="firstName" [(ngModel)]="form.firstName" placeholder="John" />
+        </label>
+        <label class="field">
+          <span>Last Name</span>
+          <input type="text" name="lastName" [(ngModel)]="form.lastName" placeholder="Smith" />
+        </label>
+        <label class="field">
+          <span>Technician Type</span>
+          <select name="technicianType" [(ngModel)]="form.technicianType">
+            <option value="" disabled hidden>Select Technician Type</option>
+            <option *ngFor="let type of technicianTypeOptions" [value]="type.value">
+              {{ type.label }}
+            </option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Phone Number</span>
+          <input type="tel" name="phoneNumber" [(ngModel)]="form.phoneNumber" placeholder="+1 (555) 123-4567" />
+        </label>
+        <label class="field">
+          <span>Email</span>
+          <input type="email" name="email" [(ngModel)]="form.email" placeholder="john.smith@example.com" />
+        </label>
+        <label class="field">
+          <span>Status</span>
+          <select name="status" [(ngModel)]="form.status">
+            <option value="" disabled hidden>Select Status</option>
+            <option *ngFor="let option of statusOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Skills</span>
+          <input type="text" name="skills" [(ngModel)]="form.skills" placeholder="e.g. HVAC, Electrical" />
+        </label>
+        <label class="field">
+          <span>Certifications</span>
+          <input type="text" name="certifications" [(ngModel)]="form.certifications" placeholder="e.g. Safety, EPA" />
+        </label>
+        <label class="field">
+          <span>Address</span>
+          <input type="text" name="address" [(ngModel)]="form.address" placeholder="123 Main St, City, Country" />
+        </label>
+        <label class="field">
+          <span>Hire Date</span>
+          <input type="date" name="hireDate" [(ngModel)]="form.hireDate" />
+        </label>
+        <label class="field">
+          <span>Work Shift</span>
+          <select name="workShift" [(ngModel)]="form.workShift">
+            <option value="" disabled hidden>Select Work Shift</option>
+            <option *ngFor="let shift of workShiftOptions" [value]="shift.value">
+              {{ shift.label }}
+            </option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Notes</span>
+          <input
+            name="notes"
+            [(ngModel)]="form.notes"
+            placeholder="Add notes"
+           
+          />
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="btn primary" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Saving...' : 'Save Technician' }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

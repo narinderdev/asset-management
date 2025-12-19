@@ -1,0 +1,68 @@
+<div class="view-request-page">
+  <div class="view-request-header">
+    <button class="back-btn" type="button" aria-label="Back to vendors" (click)="goBack()">
+      <span aria-hidden="true">&larr;</span>
+      Back to vendors
+    </button>
+    <h1>Vendor Details</h1>
+  </div>
+
+  <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <div class="loading-overlay" *ngIf="isLoading && !vendor">
+    <div class="loader"></div>
+    <span>Loading vendor...</span>
+  </div>
+
+  <div *ngIf="vendor" class="request-details">
+    <section class="detail-section">
+      <h2>Overview</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Vendor ID</span>
+          <span class="value">{{ vendor.vendorId ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Name</span>
+          <span class="value">{{ vendor.vendorName ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Contact Person</span>
+          <span class="value">{{ vendor.contactPerson ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Email</span>
+          <span class="value">{{ vendor.email ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Phone</span>
+          <span class="value">{{ vendor.phone ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Address</span>
+          <span class="value">{{ vendor.address ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Payment Terms</span>
+          <span class="value">{{ formatPaymentTermsLabel(vendor.paymentTerms) }}</span>
+        </div>
+        <div>
+          <span class="label">Rating</span>
+          <span class="value">{{ vendor.rating ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Status</span>
+          <span class="value">{{ vendor.active ? 'Active' : 'Inactive' }}</span>
+        </div>
+        <div>
+          <span class="label">Created</span>
+          <span class="value">{{ formatDateString(vendor.createdAt) }}</span>
+        </div>
+        <div>
+          <span class="label">Updated</span>
+          <span class="value">{{ formatDateString(vendor.updatedAt) }}</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

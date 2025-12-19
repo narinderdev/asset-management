@@ -1,0 +1,31 @@
+<div class="dashboard">
+   <div class="dashboard-sub">
+  <div class="dashboard-header">
+    <h1>Maintenance Dashboard</h1>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <app-stat-card 
+      *ngFor="let stat of stats"
+      [title]="stat.title"
+      [value]="stat.value"
+      [trend]="stat.trend"
+      [trendDirection]="stat.trendDirection">
+    </app-stat-card>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="charts-row">
+    <div class="chart-column">
+      <app-work-order-chart></app-work-order-chart>
+    </div>
+    <div class="chart-column">
+      <app-cost-chart></app-cost-chart>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <app-work-order-table></app-work-order-table>
+  </div>
+</div>

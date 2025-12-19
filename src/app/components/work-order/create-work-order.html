@@ -1,0 +1,142 @@
+﻿<div class="create-request-page">
+  <section class="create-card">
+    <header class="create-header">
+      <button
+        type="button"
+        class="back-btn"
+        aria-label="Back to work orders"
+        (click)="onCancel()"
+      >
+        ←
+      </button>
+      <h2>Create Work Order</h2>
+    </header>
+
+    <form class="request-form" (ngSubmit)="onCreate()">
+      <div class="form-grid">
+        <label class="field">
+          <div class="field-label-row">
+            <span>WO ID <span class="required-star">*</span></span>
+            <div class="auto-generate-control">
+              <input
+                type="checkbox"
+                name="autoGenerateWoId"
+                [(ngModel)]="autoGenerateWoId"
+                (change)="onAutoGenerateWoIdChange()"
+              />
+              <span>Auto-generate</span>
+            </div>
+          </div>
+          <input type="text" name="woId" [(ngModel)]="workOrder.woId" [disabled]="autoGenerateWoId" />
+        </label>
+        <label class="field">
+          <span>Linked Request ID</span>
+          <input type="text" name="linkedRequestId" [(ngModel)]="workOrder.linkedRequestId" placeholder="Enter Request ID" />
+        </label>
+        <label class="field">
+          <span>Asset (Optional)</span>
+          <select name="asset" [(ngModel)]="workOrder.asset">
+            <option value="" disabled hidden>Select Asset</option>
+            <option *ngFor="let asset of assetOptions" [value]="asset">{{ asset }}</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Location</span>
+          <input type="text" name="location" [(ngModel)]="workOrder.location" placeholder="Enter location" />
+        </label>
+        <label class="field">
+          <span>Work Type</span>
+          <select name="workType" [(ngModel)]="workOrder.workType">
+            <option value="" disabled hidden>Select Work Type</option>
+            <option *ngFor="let workType of workTypeOptions" [value]="workType">{{ workType }}</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Priority</span>
+          <select name="priority" [(ngModel)]="workOrder.priority">
+            <option value="" disabled hidden>Select Priority</option>
+            <option *ngFor="let priority of priorityOptions" [value]="priority">{{ priority }}</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>WO Title <span class="required-star">*</span></span>
+          <input type="text" name="woTitle" [(ngModel)]="workOrder.woTitle" placeholder="Enter WO Title" />
+        </label>
+        <label class="field">
+          <span>Description <span class="required-star">*</span></span>
+          <input
+            type="text"
+            name="description"
+            [(ngModel)]="workOrder.description"
+            placeholder="Enter Description"
+          />
+        </label>
+        <label class="field">
+          <span>Planner</span>
+          <select name="planner" [(ngModel)]="workOrder.planner">
+            <option value="" disabled hidden>Select Planner</option>
+            <option *ngFor="let planner of plannerOptions" [value]="planner">{{ planner }}</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Assigned Technician</span>
+          <select name="assignedTechnician" [(ngModel)]="workOrder.assignedTechnician">
+            <option value="" disabled hidden>Select Assigned Technician</option>
+            <option *ngFor="let technician of technicianOptions" [value]="technician">{{ technician }}</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Assigned Crew/Team</span>
+          <select name="assignedCrewTeam" [(ngModel)]="workOrder.assignedCrewTeam">
+            <option value="" disabled hidden>Select Assigned Crew/Team</option>
+            <option *ngFor="let crew of crewOptions" [value]="crew">{{ crew }}</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Planned Start Date</span>
+          <input type="date" name="plannedStartDate" [(ngModel)]="workOrder.plannedStartDate" />
+        </label>
+
+        <label class="field">
+          <span>Planned Start Time</span>
+          <input type="time" name="plannedStartTime" [(ngModel)]="workOrder.plannedStartTime" />
+        </label>
+        <label class="field">
+          <span>Planned End Date</span>
+          <input type="date" name="plannedEndDate" [(ngModel)]="workOrder.plannedEndDate" />
+        </label>
+        <label class="field">
+          <span>Planned End Time</span>
+          <input type="time" name="plannedEndTime" [(ngModel)]="workOrder.plannedEndTime" />
+        </label>
+
+        <label class="field">
+          <span>Target Completion Date</span>
+          <input type="date" name="targetCompletionDate" [(ngModel)]="workOrder.targetCompletionDate" />
+        </label>
+        <label class="field">
+          <span>Status</span>
+          <select name="status" [(ngModel)]="workOrder.status">
+            <option value="" disabled hidden>Select Status</option>
+            <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>WO Source</span>
+          <select name="woSource" [(ngModel)]="workOrder.woSource">
+            <option value="" disabled hidden>Select WO Source</option>
+            <option *ngFor="let source of woSourceOptions" [value]="source">{{ source }}</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="btn primary">Create Work Order</button>
+      </div>
+    </form>
+  </section>
+</div>

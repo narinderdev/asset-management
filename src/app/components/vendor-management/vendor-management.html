@@ -1,0 +1,73 @@
+﻿<div class="preventive-wrapper">
+  <div class="preventive-header">
+    <h1 class="preventive-title">Vendor Management</h1>
+    <button class="create-service-btn" (click)="addVendor()">+ Add Vendor</button>
+  </div>
+
+  <div class="table-status" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="table-wrapper">
+    <div class="table-container">
+      <table class="preventive-table">
+        <thead>
+          <tr>
+            <th>Vendor ID</th>
+            <th>Vendor Name</th>
+            <th>Contact Person</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Payment Terms</th>
+            <th>Rating</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="!vendors.length && !isLoading">
+            <td colspan="9" class="empty-row">No vendor records available.</td>
+          </tr>
+          <tr *ngFor="let vendor of vendors">
+            <td>{{ vendor.vendorId }}</td>
+            <td>{{ vendor.vendorName }}</td>
+            <td>{{ vendor.contactPerson }}</td>
+            <td>{{ vendor.email }}</td>
+            <td>{{ vendor.phone }}</td>
+            <td>{{ vendor.paymentTerms }}</td>
+            <td>{{ vendor.rating }}</td>
+            <td>
+              <span class="status-chip" [ngClass]="{ 'status-green': vendor.status === 'Active', 'status-grey': vendor.status === 'Inactive' }">
+                {{ vendor.status }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button class="action-icon" aria-label="View vendor" (click)="viewVendor(vendor)">
+                <img src="assets/icons/Vector.svg" alt="View" />
+              </button>
+              <button class="action-icon" aria-label="Edit vendor" (click)="editVendor(vendor)">
+                <img src="assets/icons/edit.svg" alt="Edit" />
+              </button>
+              <button class="action-icon danger" aria-label="Delete vendor" (click)="openDeleteModal(vendor)">
+                <img src="assets/icons/delete.svg" alt="Delete" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="loading-overlay" *ngIf="isLoading">
+      <div class="loader"></div>
+      <span>Loading vendors...</span>
+    </div>
+  </div>
+  <app-delete-modal
+    [isOpen]="isDeleteModalOpen"
+    [deleting]="isDeleting"
+    title="Delete vendor"
+    message="Are you sure you want to delete this vendor?"
+    (cancel)="closeDeleteModal()"
+    (confirm)="confirmDelete()"
+  ></app-delete-modal>
+</div>

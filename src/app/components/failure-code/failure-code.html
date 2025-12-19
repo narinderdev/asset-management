@@ -1,0 +1,56 @@
+﻿<div class="preventive-wrapper">
+  <div class="preventive-header">
+    <h1 class="preventive-title">Failure Codes & Reliability Library</h1>
+    <button class="create-service-btn" (click)="addFailureCode()">+ Add Failure Code</button>
+  </div>
+
+  <div class="table-status" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="table-wrapper">
+    <div class="table-container">
+      <table class="preventive-table">
+      <thead>
+        <tr>
+          <th>Symptom Code</th>
+          <th>Symptom Description</th>
+          <th>Cause Code</th>
+          <th>Cause Description</th>
+          <th>Action Code</th>
+          <th>Action Description</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="!entries.length && !isLoading">
+          <td colspan="7" class="empty-row">No failure codes recorded.</td>
+        </tr>
+        <tr *ngFor="let entry of entries">
+          <td>{{ entry.symptomCode }}</td>
+          <td>{{ entry.symptomDescription }}</td>
+          <td>{{ entry.causeCode }}</td>
+          <td>{{ entry.causeDescription }}</td>
+          <td>{{ entry.actionCode }}</td>
+          <td>{{ entry.actionDescription }}</td>
+          <td class="actions-cell">
+            <button class="action-icon" aria-label="View code">
+              <img src="assets/icons/Vector.svg" alt="View" />
+            </button>
+            <button class="action-icon" aria-label="Edit code">
+              <img src="assets/icons/edit.svg" alt="Edit" />
+            </button>
+            <button class="action-icon danger" aria-label="Delete code">
+              <img src="assets/icons/delete.svg" alt="Delete" />
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="loader"></div>
+    <span>Loading failure codes...</span>
+  </div>
+</div>

@@ -1,0 +1,147 @@
+<div class="create-request-page">
+  <section class="create-card">
+    <header class="create-header">
+      <button type="button" class="back-btn" aria-label="Back to inventory" (click)="onCancel()">←</button>
+      <h2>{{ isEditMode ? 'Edit Part/Inventory Item' : 'Add Part/Inventory Item' }}</h2>
+    </header>
+
+    <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <div class="form-wrapper">
+      <form class="request-form" (ngSubmit)="onCreate()" *ngIf="!isEditMode || hasLoadedDetails">
+      <div class="form-grid">
+        <label class="field">
+          <div class="field-label-row">
+            <span>Item ID</span>
+            <div class="auto-generate-control" *ngIf="!isEditMode">
+              <input
+                type="checkbox"
+                name="autoGenerateItemId"
+                [(ngModel)]="autoGenerateItemId"
+                (change)="onAutoGenerateItemIdChange()"
+              />
+              <span>Auto-generate</span>
+            </div>
+          </div>
+          <input
+            type="text"
+            name="itemId"
+            [(ngModel)]="inventoryItem.itemId"
+            [disabled]="isEditMode || autoGenerateItemId"
+          />
+        </label>
+        <label class="field">
+          <span>Item Name</span>
+          <input type="text" name="itemName" [(ngModel)]="inventoryItem.itemName" placeholder="Enter Item Name" />
+        </label>
+        <label class="field">
+          <span>Category</span>
+          <select name="category" [(ngModel)]="inventoryItem.category">
+            <option value="" disabled hidden>Select Category</option>
+            <option *ngFor="let category of categoryOptions" [ngValue]="category.value">
+              {{ category.label }}
+            </option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Unit of Measure</span>
+          <select name="unitOfMeasure" [(ngModel)]="inventoryItem.unitOfMeasure">
+            <option value="" disabled hidden>Select Unit</option>
+            <option *ngFor="let unit of unitOptions" [ngValue]="unit.value">
+              {{ unit.label }}
+            </option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Manufacturer</span>
+          <input
+            type="text"
+            name="manufacturer"
+            [(ngModel)]="inventoryItem.manufacturer"
+            placeholder="Enter Manufacturer"
+          />
+        </label>
+        <label class="field">
+          <span>Manufacturer Part Number</span>
+          <input
+            type="text"
+            name="manufacturerPartNumber"
+            [(ngModel)]="inventoryItem.manufacturerPartNumber"
+            placeholder="Manufacturer Part Number"
+          />
+        </label>
+
+        <label class="field">
+          <span>Stock Level</span>
+          <input type="number" name="stockLevel" [(ngModel)]="inventoryItem.stockLevel" min="0" />
+        </label>
+        <label class="field">
+          <span>Reorder Point</span>
+          <input type="number" name="reorderPoint" [(ngModel)]="inventoryItem.reorderPoint" min="0" />
+        </label>
+        <label class="field">
+          <span>Reorder Quantity</span>
+          <input type="number" name="reorderQuantity" [(ngModel)]="inventoryItem.reorderQuantity" min="0" />
+        </label>
+
+        <label class="field">
+          <span>Cost per Unit</span>
+          <input
+            type="number"
+            name="costPerUnit"
+            [(ngModel)]="inventoryItem.costPerUnit"
+            step="0.01"
+            min="0"
+          />
+        </label>
+        <label class="field">
+          <span>Min Stock Level</span>
+          <input type="number" name="minStockLevel" [(ngModel)]="inventoryItem.minStockLevel" min="0" />
+        </label>
+        <label class="field">
+          <span>Max Stock Level</span>
+          <input type="number" name="maxStockLevel" [(ngModel)]="inventoryItem.maxStockLevel" min="0" />
+        </label>
+
+        <label class="field">
+          <span>Primary Vendor</span>
+          <select name="primaryVendor" [(ngModel)]="inventoryItem.primaryVendorDbId">
+            <option [ngValue]="null" disabled hidden>Select Primary Vendor</option>
+            <option *ngFor="let vendor of vendorOptions" [ngValue]="vendor.id">
+              {{ vendor.label }}
+            </option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Active</span>
+          <select name="active" [(ngModel)]="inventoryItem.active">
+            <option *ngFor="let option of activeOptions" [ngValue]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+      </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn ghost" (click)="onCancel()">Cancel</button>
+          <button
+            type="submit"
+            class="btn primary"
+            [disabled]="isSubmitting || (isEditMode && (isLoadingDetails || !hasLoadedDetails))"
+          >
+            {{ isSubmitting
+              ? (isEditMode ? 'Updating...' : 'Creating...')
+              : (isEditMode ? 'Update Inventory' : 'Create Inventory')
+            }}
+          </button>
+        </div>
+      </form>
+
+      <div class="loading-overlay" *ngIf="isEditMode && isLoadingDetails">
+        <div class="loader"></div>
+        <span>Loading inventory item...</span>
+      </div>
+    </div>
+  </section>
+</div>

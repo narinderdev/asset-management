@@ -1,0 +1,155 @@
+<div class="view-request-page">
+  <div class="view-request-header">
+    <button class="back-btn" type="button" aria-label="Back to service requests" (click)="goBack()">
+      <span aria-hidden="true">&larr;</span>
+      Back to requests
+    </button>
+    <h1>Service Request Details</h1>
+  </div>
+
+  <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <div class="loading-overlay" *ngIf="isLoading && !requestLoaded">
+    <div class="loader"></div>
+    <span>Loading details...</span>
+  </div>
+
+  <div *ngIf="request" class="request-details">
+    <section class="detail-section">
+      <h2>Overview</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Request ID</span>
+          <span class="value">{{ request.requestId ?? request.id ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Title</span>
+          <span class="value">{{ request.shortTitle ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Requester</span>
+          <span class="value">{{ request.requesterName ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Requester Contact</span>
+          <span class="value">{{ request.requesterContact ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Location</span>
+          <span class="value">{{ request.location ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Date</span>
+          <span class="value">{{ formatDate(request.requestDate) }}</span>
+        </div>
+        <div>
+          <span class="label">Maintenance Type</span>
+          <span class="value">{{ request.maintenanceType ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Priority</span>
+          <span class="value">{{ request.priority ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Status</span>
+          <span class="value">{{ formatStatus(request.status) }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h2>Assignment</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Asset</span>
+          <span class="value">{{ request.assetName ?? request.assetId ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Assigned Technician</span>
+          <span class="value">{{ request.assignedTechnician ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Work Order</span>
+          <span class="value">{{ request.workOrderId ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Department</span>
+          <span class="value">{{ request.department ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Maintenance Team</span>
+          <span class="value">{{ request.maintenanceTeam ?? '—' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h2>Service Details</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Problem Description</span>
+          <span class="value">{{ request.problemDescription ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Preferred Date</span>
+          <span class="value">{{ formatDate(request.preferredDate) }}</span>
+        </div>
+        <div>
+          <span class="label">Preferred Time</span>
+          <span class="value">{{ request.preferredTime ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Safety Risk</span>
+          <span class="value">
+            {{
+              request.safetyRisk === undefined
+                ? '—'
+                : request.safetyRisk
+                  ? 'Yes'
+                  : 'No'
+            }}
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h2>Schedule</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Scheduled Start</span>
+          <span class="value">
+            {{ request.scheduledStart ? formatDate(request.scheduledStart) : '-' }}
+          </span>
+        </div>
+        <div>
+          <span class="label">Target Completion</span>
+          <span class="value">
+            {{ request.targetCompletionDate ? formatDate(request.targetCompletionDate) : '-' }}
+          </span>
+        </div>
+        <div>
+          <span class="label">Due Date</span>
+          <span class="value">
+            {{ request.dueDate ? formatDate(request.dueDate) : '-' }}
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section" *ngIf="request.description || request.notes">
+      <h2>Details</h2>
+      <div class="details-columns">
+        <div>
+          <h3>Description</h3>
+          <p>{{ request.description ?? '—' }}</p>
+        </div>
+        <div>
+          <h3>Notes</h3>
+          <p>{{ request.notes ?? '—' }}</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>

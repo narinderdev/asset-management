@@ -1,0 +1,73 @@
+﻿<div class="create-request-page">
+  <section class="create-card">
+    <header class="create-header">
+      <button type="button" class="back-btn" aria-label="Back" (click)="onCancel()">←</button>
+      <h2>Add Failure Code</h2>
+    </header>
+
+    <form class="request-form" (ngSubmit)="onCreate()">
+      <div class="form-grid">
+        <label class="field">
+          <span>Failure Symptom Code <span class="required-star">*</span></span>
+          <input
+            type="text"
+            name="symptomCode"
+            [(ngModel)]="failureCode.symptomCode"
+            placeholder="e.g., NOISE, OVERHEAT"
+          />
+        </label>
+        <label class="field">
+          <span>Symptom Description</span>
+          <input
+            type="text"
+            name="symptomDescription"
+            [(ngModel)]="failureCode.symptomDescription"
+            placeholder="Enter symptom description"
+          />
+        </label>
+        <label class="field">
+          <span>Failure Cause Code</span>
+          <input
+            type="text"
+            name="failureCauseCode"
+            [(ngModel)]="failureCode.failureCauseCode"
+            placeholder="e.g., BEARING FAILURE"
+          />
+        </label>
+
+        <label class="field">
+          <span>Cause Description</span>
+          <input
+            type="text"
+            name="causeDescription"
+            [(ngModel)]="failureCode.causeDescription"
+            placeholder="Enter cause description"
+          />
+        </label>
+        <label class="field">
+          <span>Action Code</span>
+          <input
+            type="text"
+            name="actionCode"
+            [(ngModel)]="failureCode.actionCode"
+            placeholder="e.g., REPLACE PART"
+          />
+        </label>
+        <label class="field">
+          <span>Action Description</span>
+          <input
+            type="text"
+            name="actionDescription"
+            [(ngModel)]="failureCode.actionDescription"
+            placeholder="Enter action description"
+          />
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="btn primary">Add Failure Code</button>
+      </div>
+    </form>
+  </section>
+</div>

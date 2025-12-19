@@ -1,0 +1,91 @@
+﻿<div class="preventive-wrapper">
+  <div class="preventive-header">
+    <h1 class="preventive-title">Parts & Inventory Management</h1>
+    <button class="create-service-btn" (click)="addVendor()">+ Add Inventory</button>
+  </div>
+
+  <div class="table-status" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="table-wrapper">
+    <div class="table-container">
+      <table class="preventive-table">
+        <thead>
+          <tr>
+            <th>Item ID</th>
+            <th>Item Name</th>
+            <th>Category</th>
+            <th>Manufacturer</th>
+            <th>Stock Level</th>
+            <th>Reorder Point</th>
+            <th>Cost per Unit</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="!inventory.length && !isLoading">
+            <td colspan="9" class="empty-row">No inventory records available.</td>
+          </tr>
+          <tr *ngFor="let item of inventory">
+            <td>{{ item.itemId }}</td>
+            <td>{{ item.itemName }}</td>
+            <td>{{ item.category }}</td>
+            <td>{{ item.manufacturer }}</td>
+            <td [ngClass]="{ 'low-stock': item.stockLevel <= item.reorderPoint }">{{ item.stockLevel }}</td>
+            <td>{{ item.reorderPoint }}</td>
+            <td>{{ item.costPerUnit }}</td>
+            <td>
+              <span class="status-chip"
+                    [ngClass]="{
+                      'status-green': item.status === 'In Stock',
+                      'status-red': item.status === 'Low Stock',
+                      'status-grey': item.status === 'Out of Stock'
+                    }">
+                {{ item.status }}
+              </span>
+            </td>
+            <td class="actions-cell">
+            <button
+              class="action-icon"
+              aria-label="View item"
+              (click)="viewInventory(item)"
+            >
+              <img src="assets/icons/Vector.svg" alt="View" />
+            </button>
+            <button
+              class="action-icon"
+              aria-label="Edit item"
+              (click)="editInventory(item)"
+            >
+              <img src="assets/icons/edit.svg" alt="Edit" />
+            </button>
+            <button
+              class="action-icon danger"
+              aria-label="Delete item"
+              (click)="promptDeleteInventory(item)"
+            >
+              <img src="assets/icons/delete.svg" alt="Delete" />
+            </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="loader"></div>
+    <span>Loading inventory...</span>
+  </div>
+
+  <app-delete-modal
+    [isOpen]="isDeleteModalOpen"
+    title="Delete Inventory Item"
+    message="Are you sure you want to delete this inventory item?"
+    [deleting]="isDeleting"
+    (cancel)="closeDeleteModal()"
+    (confirm)="confirmDeleteInventory()"
+  ></app-delete-modal>
+</div>
+</div>

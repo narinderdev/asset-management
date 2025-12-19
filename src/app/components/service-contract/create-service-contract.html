@@ -1,0 +1,75 @@
+﻿<div class="create-request-page">
+  <section class="create-card">
+    <header class="create-header">
+      <button type="button" class="back-btn" aria-label="Back to service contracts" (click)="onCancel()">
+        ←
+      </button>
+      <h2>Add Service Contract</h2>
+    </header>
+
+    <form class="request-form" (ngSubmit)="onCreate()">
+      <div class="form-grid">
+        <label class="field">
+          <span>Contract ID</span>
+          <input type="text" name="contractId" [(ngModel)]="contract.contractId" />
+        </label>
+        <label class="field">
+          <span>Contract Name <span class="required-star">*</span></span>
+          <select name="contractName" [(ngModel)]="contract.contractName">
+            <option value="" disabled hidden>Select Contract Name</option>
+            <option *ngFor="let name of contractNames" [value]="name">{{ name }}</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Vendor</span>
+          <select name="vendor" [(ngModel)]="contract.vendor">
+            <option value="" disabled hidden>Select Vendor</option>
+            <option *ngFor="let vendor of vendorOptions" [value]="vendor">{{ vendor }}</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Start Date</span>
+          <input type="date" name="startDate" [(ngModel)]="contract.startDate" />
+        </label>
+        <label class="field">
+          <span>End Date</span>
+          <input type="date" name="endDate" [(ngModel)]="contract.endDate" />
+        </label>
+        <label class="field">
+          <span>Covered Assets</span>
+          <select name="coveredAssets" [(ngModel)]="contract.coveredAssets">
+            <option value="" disabled hidden>Select Assets</option>
+            <option value="assets">List of linked assets</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Coverage Type</span>
+          <select name="coverageType" [(ngModel)]="contract.coverageType">
+            <option value="" disabled hidden>Select Coverage Type</option>
+            <option *ngFor="let coverage of coverageOptions" [value]="coverage">{{ coverage }}</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Response Time SLA</span>
+          <input type="text" name="responseTimeSla" [(ngModel)]="contract.responseTimeSla" />
+        </label>
+        <label class="field">
+          <span>Uptime SLA</span>
+          <input type="text" name="uptimeSla" [(ngModel)]="contract.uptimeSla" />
+        </label>
+
+        <label class="field" style="grid-column: span 1;">
+          <span>Notes</span>
+          <input type="text" name="notes" [(ngModel)]="contract.notes" placeholder="Enter notes" />
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="btn primary">Add Service Contract</button>
+      </div>
+    </form>
+  </section>
+</div>

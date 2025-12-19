@@ -1,0 +1,202 @@
+<div class="view-asset-page">
+  <div class="view-asset-header">
+    <button class="back-btn" type="button" aria-label="Back to work orders" (click)="goBack()">
+      <span aria-hidden="true">&larr;</span>
+      Back to work orders
+    </button>
+    <h1>Work Order Details</h1>
+  </div>
+
+  <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <div class="loading-overlay" *ngIf="isLoading && !workOrder">
+    <div class="loader"></div>
+    <span>Loading work order details...</span>
+  </div>
+
+  <div *ngIf="workOrder" class="request-details">
+    <section class="detail-section">
+      <h2>Overview</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Work Order ID</span>
+          <span class="value">{{ workOrder.workOrderId ?? `WO-${workOrder.id ?? ''}` }}</span>
+        </div>
+        <div>
+          <span class="label">Linked Request ID</span>
+          <span class="value">{{ workOrder.linkedServiceRequestId ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Title</span>
+          <span class="value">{{ workOrder.woTitle ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Status</span>
+          <span class="value">{{ workOrder.status ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Priority</span>
+          <span class="value">{{ workOrder.priority ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Technician</span>
+          <span class="value">{{ workOrder.assignedTechnicianName ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Work Type</span>
+          <span class="value">{{ workOrder.workType ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Planner</span>
+          <span class="value">{{ workOrder.planner ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Source</span>
+          <span class="value">{{ workOrder.source ?? '—' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h2>Asset & Request</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Asset</span>
+          <span class="value">{{ workOrder.assetName ?? workOrder.assetId ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Asset Db Id</span>
+          <span class="value">{{ workOrder.assetDbId ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Location</span>
+          <span class="value">{{ workOrder.location ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Service Request</span>
+          <span class="value">{{ workOrder.linkedServiceRequestId ?? '—' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h2>Schedule</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Planned Start</span>
+          <span class="value">{{ formatDate(workOrder.plannedStartDateTime) }}</span>
+        </div>
+        <div>
+          <span class="label">Planned End</span>
+          <span class="value">{{ formatDate(workOrder.plannedEndDateTime) }}</span>
+        </div>
+        <div>
+          <span class="label">Actual Start</span>
+          <span class="value">{{ formatDate(workOrder.actualStartDateTime) }}</span>
+        </div>
+        <div>
+          <span class="label">Actual End</span>
+          <span class="value">{{ formatDate(workOrder.actualEndDateTime) }}</span>
+        </div>
+        <div>
+          <span class="label">Target Completion</span>
+          <span class="value">{{ formatDate(workOrder.targetCompletionDate) }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h2>Estimates & Costs</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Estimated Labor Hours</span>
+          <span class="value">{{ workOrder.estimatedLaborHours ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Estimated Labor Cost</span>
+          <span class="value">{{ formatCurrency(workOrder.estimatedLaborCost) }}</span>
+        </div>
+        <div>
+          <span class="label">Estimated Material Cost</span>
+          <span class="value">{{ formatCurrency(workOrder.estimatedMaterialCost) }}</span>
+        </div>
+        <div>
+          <span class="label">Actual Labor Hours</span>
+          <span class="value">{{ workOrder.actualLaborHours ?? '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Actual Total Cost</span>
+          <span class="value">{{ formatCurrency(workOrder.actualTotalCost) }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section" *ngIf="workOrder.descriptionScope || workOrder.completionNotes || workOrder.failureCause || workOrder.remedyAction || workOrder.supervisorNotes">
+      <h2>Notes</h2>
+      <div class="detail-grid">
+        <div *ngIf="workOrder.descriptionScope">
+          <span class="label">Description Scope</span>
+          <span class="value">{{ workOrder.descriptionScope }}</span>
+        </div>
+        <div *ngIf="workOrder.completionNotes">
+          <span class="label">Completion Notes</span>
+          <span class="value">{{ workOrder.completionNotes }}</span>
+        </div>
+        <div *ngIf="workOrder.failureCause">
+          <span class="label">Failure Cause</span>
+          <span class="value">{{ workOrder.failureCause }}</span>
+        </div>
+        <div *ngIf="workOrder.remedyAction">
+          <span class="label">Remedy Action</span>
+          <span class="value">{{ workOrder.remedyAction }}</span>
+        </div>
+        <div *ngIf="workOrder.supervisorNotes">
+          <span class="label">Supervisor Notes</span>
+          <span class="value">{{ workOrder.supervisorNotes }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section" *ngIf="workOrder.plannedMaterials?.length">
+      <h2>Planned Materials</h2>
+      <div class="detail-grid">
+        <div *ngFor="let material of workOrder.plannedMaterials">
+          <span class="label">{{ material.itemName }}</span>
+          <span class="value">Qty: {{ material.quantityPlanned }}</span>
+          <span class="label">Unit Cost</span>
+          <span class="value">{{ formatCurrency(material.unitCostSnapshot) }}</span>
+          <span class="label">Total Cost</span>
+          <span class="value">{{ formatCurrency(material.totalCostSnapshot) }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section" *ngIf="workOrder.laborEntries?.length">
+      <h2>Labor Entries</h2>
+      <div class="detail-grid">
+        <div *ngFor="let labor of workOrder.laborEntries">
+          <span class="label">{{ labor.technicianName }}</span>
+          <span class="value">Hours: {{ labor.laborHours }}</span>
+          <span class="label">Date</span>
+          <span class="value">{{ formatDate(labor.laborDate) }}</span>
+          <span class="label">Cost</span>
+          <span class="value">{{ formatCurrency(labor.laborCost) }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section" *ngIf="workOrder.materialUsages?.length">
+      <h2>Material Usages</h2>
+      <div class="detail-grid">
+        <div *ngFor="let material of workOrder.materialUsages">
+          <span class="label">{{ material.itemName }}</span>
+          <span class="value">Qty Used: {{ material.quantityUsed }}</span>
+          <span class="label">Unit Cost</span>
+          <span class="value">{{ formatCurrency(material.unitCostSnapshot) }}</span>
+          <span class="label">Total Cost</span>
+          <span class="value">{{ formatCurrency(material.totalCostSnapshot) }}</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

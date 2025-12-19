@@ -1,0 +1,8 @@
+<div class="work-order-wrapper">
+  <div class="work-order-header">
+    <h1 class="work-order-title">Work Order Management</h1>
+    <button class="create-work-order-btn" (click)="createWorkOrder()">+ Create Work Order</button>
+  </div>
+
+  <app-work-order-table [loadLive]="true"></app-work-order-table>
+</div>

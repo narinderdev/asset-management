@@ -1,0 +1,126 @@
+<div class="assets-container">
+ <div class="assets-container-sub">
+  <!-- Header Section -->
+ <div class="assets-header">
+    <div class="header-left">
+      <h1 class="assets-title">Assets</h1>
+      <span class="assets-count">({{ currentPage }} - {{ itemsPerPage }} of {{ totalAssets }})</span>
+    </div>
+    <div class="header-right">
+      <button class="refresh-btn" (click)="refreshAssets()" title="Refresh">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+        </svg>
+      </button>
+      <button class="new-assets-btn" (click)="addNewAsset()">
+        + New Assets
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <div class="filter-inputs">
+      <input 
+        type="text" 
+        class="filter-input" 
+        placeholder="Asset ID"
+        [(ngModel)]="filterAssetId"
+        (input)="applyFilters()">
+      
+      <input 
+        type="text" 
+        class="filter-input" 
+        placeholder="Asset Name"
+        [(ngModel)]="filterAssetName"
+        (input)="applyFilters()">
+      
+      <input 
+        type="text" 
+        class="filter-input" 
+        placeholder="Category"
+        [(ngModel)]="filterCategory"
+        (input)="applyFilters()">
+      
+      <input 
+        type="text" 
+        class="filter-input" 
+        placeholder="Type"
+        [(ngModel)]="filterType"
+        (input)="applyFilters()">
+      
+      <button class="search-btn" (click)="searchAssets()">
+        Search
+      </button>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  <div class="table-status" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="table-wrapper">
+    <div class="table-container">
+      <table class="assets-table">
+        <thead>
+          <tr>
+            <th>Asset ID</th>
+          <th>Asset Name</th>
+          <th>Category</th>
+          <th>Type</th>
+          <th>Location</th>
+          <th>Last Serviced Date</th>
+          <th>Warranty Expiry</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="!filteredAssets.length && !isLoading">
+          <td colspan="9" class="empty-row">No assets found.</td>
+        </tr>
+        <tr *ngFor="let asset of filteredAssets">
+          <td>{{ asset.assetId }}</td>
+          <td>{{ asset.assetName }}</td>
+          <td>{{ asset.category }}</td>
+          <td>{{ asset.type }}</td>
+          <td>{{ asset.location }}</td>
+          <td>{{ asset.lastServicedDate }}</td>
+          <td>{{ asset.warrantyExpiry }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(asset.status)">
+              {{ asset.status }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <button class="action-icon" aria-label="View asset" (click)="viewAsset(asset)">
+              <img src="assets/icons/Vector.svg" alt="View asset" />
+            </button>
+            <button class="action-icon" aria-label="Edit asset" (click)="editAsset(asset)">
+              <img src="assets/icons/edit.svg" alt="Edit asset" />
+            </button>
+            <button class="action-icon danger" aria-label="Delete asset" (click)="deleteAsset(asset)">
+              <img src="assets/icons/delete.svg" alt="Delete asset" />
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="loading-overlay" *ngIf="isLoading">
+      <div class="loader"></div>
+      <span>Loading assets...</span>
+    </div>
+  </div>
+  <app-delete-modal
+    [isOpen]="isDeleteModalOpen"
+    title="Delete Asset"
+    message="Are you sure you want to delete this asset?"
+    [deleting]="isDeleting"
+    (cancel)="closeDeleteModal()"
+    (confirm)="confirmDeleteAsset()"
+  ></app-delete-modal>
+  </div>
+</div>

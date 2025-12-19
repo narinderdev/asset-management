@@ -1,0 +1,38 @@
+<ng-container *ngIf="!isLoginRoute; else authLayout">
+  <div
+    class="app-shell"
+    [class.sidebar-collapsed]="isSidebarCollapsed"
+    [class.mobile-sidebar-open]="isMobileSidebarVisible"
+  >
+    <app-sidebar
+      (collapsedChange)="onSidebarCollapseChange($event)"
+      (mobileClose)="closeMobileSidebar()"
+      [mobileOpen]="isMobileSidebarVisible"
+    ></app-sidebar>
+
+    <div class="mobile-header">
+      <button class="mobile-menu-btn" (click)="toggleMobileSidebar()" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <span class="mobile-title">Asset Management</span>
+    </div>
+
+    <div class="main-content">
+      <div class="main-content-sub">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+
+    <div class="sidebar-overlay" *ngIf="isMobileSidebarVisible" (click)="closeMobileSidebar()"></div>
+  </div>
+</ng-container>
+
+<ng-template #authLayout>
+  <div class="auth-shell">
+    <router-outlet></router-outlet>
+  </div>
+</ng-template>
+
+<div aria-live="polite" toastContainer></div>

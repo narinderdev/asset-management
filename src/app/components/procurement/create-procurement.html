@@ -1,0 +1,163 @@
+﻿<div class="create-request-page">
+  <section class="create-card">
+    <header class="create-header">
+      <button type="button" class="back-btn" aria-label="Back to procurement" (click)="onCancel()">
+        ←
+      </button>
+      <h2>Create Purchase Requisition</h2>
+    </header>
+
+    <form class="request-form" (ngSubmit)="onCreate()">
+      <div class="section-title">Header Details</div>
+      <div class="form-grid">
+        <label class="field">
+          <span>PR ID</span>
+          <input type="text" name="prId" [(ngModel)]="requisition.prId" />
+        </label>
+        <label class="field">
+          <span>Requester <span class="required-star">*</span></span>
+          <input type="text" name="requester" [(ngModel)]="requisition.requester" placeholder="e.g., John Doe / userId: 1042" />
+        </label>
+        <label class="field">
+          <span>Request Date</span>
+          <input type="date" name="requestDate" [(ngModel)]="requisition.requestDate" />
+        </label>
+
+        <label class="field">
+          <span>Required By Date <span class="required-star">*</span></span>
+          <input type="date" name="requiredBy" [(ngModel)]="requisition.requiredBy" />
+        </label>
+        <label class="field">
+          <span>Priority</span>
+          <select name="priority" [(ngModel)]="requisition.priority">
+            <option *ngFor="let option of priorityOptions" [value]="option">{{ option }}</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Required For Type</span>
+          <select name="requiredForType" [(ngModel)]="requisition.requiredForType">
+            <option value="" disabled hidden>Select</option>
+            <option *ngFor="let type of requiredForOptions" [value]="type">{{ type }}</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Department</span>
+          <input type="text" name="department" [(ngModel)]="requisition.department" placeholder="e.g., Operations / Maintenance" />
+        </label>
+        <label class="field">
+          <span>Cost Center</span>
+          <input type="text" name="costCenter" [(ngModel)]="requisition.costCenter" placeholder="e.g., CC-OPS-001" />
+        </label>
+        <label class="field">
+          <span>Currency</span>
+          <select name="currency" [(ngModel)]="requisition.currency">
+            <option *ngFor="let currency of currencyOptions" [value]="currency">{{ currency }}</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Preferred Vendor (Optional)</span>
+          <input type="text" name="preferredVendor" [(ngModel)]="requisition.preferredVendor" placeholder="Lookup Vendor" />
+        </label>
+        <label class="field">
+          <span>Required For Reference</span>
+          <input type="text" name="requiredForReference" [(ngModel)]="requisition.requiredForReference" placeholder="e.g., WO-..." />
+        </label>
+        <label class="field">
+          <span>Status</span>
+          <select name="status" [(ngModel)]="requisition.status">
+            <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Purpose / Notes</span>
+          <input type="text" name="purpose" [(ngModel)]="requisition.purpose" placeholder="Describe the purpose of this requisition..." />
+        </label>
+      </div>
+
+      <div class="line-items">
+        <div class="line-items-toolbar">
+          <div class="section-title">Line Items</div>
+          <button type="button" class="link-btn add-line-btn">+ Add Line Item</button>
+        </div>
+        <div class="line-items-header">
+          <div>Item Type</div>
+          <div>Item / Asset ID</div>
+          <div>Description</div>
+          <div>Qty</div>
+          <div>UOM</div>
+          <div>Est. Unit Price</div>
+          <div>Line Total</div>
+          <div>Suggested Vendor</div>
+          <div class="actions-column">Actions</div>
+        </div>
+
+        <div class="line-item-row">
+          <div class="line-field">
+            <select name="itemType" [(ngModel)]="lineItem.itemType">
+              <option value="Part">Part</option>
+              <option value="Service">Service</option>
+            </select>
+          </div>
+          <div class="line-field">
+            <input
+              type="text"
+              name="itemDescription"
+              [(ngModel)]="lineItem.itemDescription"
+              placeholder="e.g., ITEM-01 / ASSET-12"
+            />
+          </div>
+          <div class="line-field">
+            <input type="text" name="description" [(ngModel)]="lineItem.itemDescription" placeholder="Short description" />
+          </div>
+          <div class="line-field">
+            <input type="number" name="qty" [(ngModel)]="lineItem.qty" min="1" />
+          </div>
+          <div class="line-field">
+            <input type="text" name="uom" [(ngModel)]="lineItem.uom" />
+          </div>
+          <div class="line-field">
+            <input type="text" name="estimatedUnitPrice" [(ngModel)]="lineItem.estimatedUnitPrice" />
+          </div>
+          <div class="line-field">
+            <input type="text" value="0.00" readonly />
+          </div>
+          <div class="line-field">
+            <input
+              type="text"
+              name="suggestedVendor"
+              [(ngModel)]="lineItem.suggestedVendor"
+              placeholder="Optional vendor"
+            />
+          </div>
+          <div class="line-field actions-field">
+            <button type="button" class="icon-btn" aria-label="Remove line"></button>
+          </div>
+        </div>
+
+        <div class="line-summary">
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <strong>$8,196.00</strong>
+          </div>
+          <div class="summary-row">
+            <span>Estimated Tax (8%)</span>
+            <strong>$655.68</strong>
+          </div>
+          <div class="summary-row total">
+            <span>Grand Total</span>
+            <strong>$8,851.68</strong>
+            <small>USD</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" (click)="onCancel()">Save Draft</button>
+        <button type="submit" class="btn primary">Submit</button>
+      </div>
+    </form>
+  </section>
+</div>
