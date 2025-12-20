@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 
@@ -13,23 +14,22 @@ interface ProcurementRequest {
   prId: string;
   requester: string;
   date: string;
-  item: string;
-  qty: number;
   requiredBy: string;
-  priority: 'Low' | 'Medium' | 'High' | 'Unknown';
-  totalCost: string;
   status: string;
 }
 
 @Component({
   selector: 'app-procurement',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './procurement.html',
   styleUrls: ['./procurement.css']
 })
 export class ProcurementComponent implements OnInit {
   requests: ProcurementRequest[] = [];
+  filteredRequests: ProcurementRequest[] = [];
+  selectedStatus = 'ALL';
+  statusOptions = ['ALL', 'Approved', 'Submitted', 'Pending Approval', 'Rejected', 'Draft'];
   isLoading = false;
   errorMessage?: string;
 
@@ -63,48 +63,50 @@ export class ProcurementComponent implements OnInit {
         next: response => {
           const content = response.data?.content ?? [];
           this.requests = content.map(item => this.mapRequest(item));
+          this.filterRequests();
         },
         error: () => {
           this.errorMessage = 'Unable to load purchase requisitions. Please try again.';
           this.requests = [];
+          this.filteredRequests = [];
           this.cdr.detectChanges();
         }
       });
   }
 
   private mapRequest(item: PurchaseRequisitionItem): ProcurementRequest {
-    const line = item.lines?.[0];
     return {
       id: item.id ?? 0,
-      prId: item.prId ?? `PR-${item.id ?? ''}`,
-      requester: item.requester ?? '—',
-      date: item.requestDate ?? '—',
-      item: line?.itemName ?? line?.description ?? '—',
-      qty: line?.qtyRequested ?? 0,
-      requiredBy: item.requiredByDate ?? '—',
-      priority: this.normalizePriority(item.priority),
-      totalCost: this.formatCurrency(item.totalEstimatedCost),
+      prId: item.mrNumber ?? `MR-${item.id ?? ''}`,
+      requester: item.requestedByUserId ?? 'Unknown',
+      date: item.updatedAt ?? item.createdAt ?? '',
+      requiredBy: item.neededByDate ?? '',
       status: this.prettifyStatus(item.status)
     };
   }
 
-  private normalizePriority(value?: string): ProcurementRequest['priority'] {
-    if (!value) {
-      return 'Unknown';
+  filterRequests(): void {
+    if (this.selectedStatus === 'ALL') {
+      this.filteredRequests = [...this.requests];
+      return;
     }
+    this.filteredRequests = this.requests.filter(
+      req => req.status.toLowerCase() === this.selectedStatus.toLowerCase()
+    );
+  }
 
-    const normalized = value.toLowerCase();
-    if (normalized.includes('high')) {
-      return 'High';
+  statusClass(status: string): string {
+    const normalized = status.toLowerCase();
+    if (normalized.includes('approve')) {
+      return 'status-approved';
     }
-    if (normalized.includes('medium')) {
-      return 'Medium';
+    if (normalized.includes('submit')) {
+      return 'status-submitted';
     }
-    if (normalized.includes('low')) {
-      return 'Low';
+    if (normalized.includes('reject')) {
+      return 'status-rejected';
     }
-
-    return 'Unknown';
+    return 'status-neutral';
   }
 
   private prettifyStatus(value?: string): string {
@@ -117,16 +119,5 @@ export class ProcurementComponent implements OnInit {
       .split('_')
       .map(part => part.charAt(0).toUpperCase() + part.slice(1))
       .join(' ');
-  }
-
-  private formatCurrency(value?: number): string {
-    if (!value) {
-      return '$0.00';
-    }
-
-    return `$${value.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    })}`;
   }
 }

@@ -1,73 +1,70 @@
-﻿<div class="preventive-wrapper">
-  <div class="preventive-header">
-    <h1 class="preventive-title">Purchase Requisition</h1>
-    <button class="create-service-btn" (click)="createRequisition()">+ Create Purchase Requisition</button>
+<div class="procurement-container">
+  <div class="procurement-header">
+    <h1 class="procurement-title">Material Requisitions</h1>
+    <div class="header-actions">
+      <select class="status-filter" [(ngModel)]="selectedStatus" (change)="filterRequests()">
+        <option *ngFor="let status of statusOptions" [value]="status">
+          {{ status === 'ALL' ? 'All statuses' : status }}
+        </option>
+      </select>
+      <button class="create-service-btn" (click)="createRequisition()">+ Create MR</button>
+    </div>
   </div>
 
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-  <div class="table-wrapper" *ngIf="!isLoading && requests.length; else loadingState">
-    <table class="preventive-table">
-      <thead>
-        <tr>
-          <th>PR ID</th>
-          <th>Requester</th>
-          <th>Date</th>
-          <th>Item Description</th>
-          <th>Qty</th>
-          <th>Required By</th>
-          <th>Priority</th>
-          <th>Total Cost</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let request of requests">
-          <td>{{ request.prId }}</td>
-          <td>{{ request.requester }}</td>
-          <td>{{ request.date }}</td>
-          <td>{{ request.item }}</td>
-          <td>{{ request.qty }}</td>
-          <td>{{ request.requiredBy }}</td>
-          <td>
-            <span
-              class="priority-chip"
-              [ngClass]="{ 'priority-high': request.priority === 'High', 'priority-medium': request.priority === 'Medium' }"
-            >
-              {{ request.priority }}
-            </span>
-          </td>
-          <td>{{ request.totalCost }}</td>
-          <td>
-            <span class="status-chip" [ngClass]="{
-              'status-red': request.status === 'Pending Approval',
-              'status-green': request.status === 'Approved'
-            }">
-              {{ request.status }}
-            </span>
-          </td>
-          <td class="actions-cell">
-            <button class="action-icon" aria-label="View requisition">
-              <img src="assets/icons/Vector.svg" alt="View" />
-            </button>
-            <button class="action-icon" aria-label="Edit requisition">
-              <img src="assets/icons/edit.svg" alt="Edit" />
-            </button>
-            <button class="action-icon danger" aria-label="Delete requisition">
-              <img src="assets/icons/delete.svg" alt="Delete" />
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <ng-template #loadingState>
-    <div class="loading-overlay" *ngIf="isLoading">
-      <div class="loader"></div>
-      <span>Loading purchase requisitions...</span>
+  <div class="table-container">
+    <div class="table-wrapper" *ngIf="!isLoading && filteredRequests.length; else loadingState">
+      <table class="procurement-table">
+        <thead>
+          <tr>
+            <th>MR Number</th>
+            <th>Requested by</th>
+            <th>Needed by</th>
+            <th>Updated</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let request of filteredRequests">
+            <td>{{ request.prId }}</td>
+            <td>{{ request.requester }}</td>
+            <td>{{ request.requiredBy }}</td>
+            <td>{{ request.date }}</td>
+            <td>
+              <span class="status-chip" [ngClass]="statusClass(request.status)">
+                {{ request.status }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button class="action-icon" aria-label="View requisition">
+                <img src="assets/icons/Vector.svg" alt="View" />
+              </button>
+              <button class="action-icon" aria-label="Edit requisition">
+                <img src="assets/icons/edit.svg" alt="Edit" />
+              </button>
+              <button class="action-icon danger" aria-label="Delete requisition">
+                <img src="assets/icons/delete.svg" alt="Delete" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <div *ngIf="!isLoading" class="empty-state">No procurement requests available.</div>
-  </ng-template>
+
+    <ng-template #loadingState>
+      <ng-container *ngIf="isLoading; else emptyState">
+        <div class="loading-wrapper">
+          <div class="loading-overlay">
+            <div class="loader"></div>
+            <span>Loading purchase requisitions...</span>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #emptyState>
+        <div class="empty-state">No procurement requests available.</div>
+      </ng-template>
+    </ng-template>
+  </div>
 </div>

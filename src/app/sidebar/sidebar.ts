@@ -79,7 +79,13 @@ export class SidebarComponent {
       icon: 'clarity_two-way-arrows-line.svg',
       activeIcon: 'clarity_two-way-arrows-line (1).svg',
       label: 'Procurement',
-      route: '/procurement'
+      route: '/procurement',
+      hasSubmenu: true,
+      submenu: [
+        { label: 'Material Requisitions', route: '/procurement/material-requisitions' },
+        { label: 'Purchase Orders', route: '/procurement/purchase-orders' },
+        { label: 'Goods Receipts (GRN)', route: '/procurement/goods-receipts' }
+      ]
     },
     {
       icon: 'tec.svg',
@@ -139,9 +145,12 @@ export class SidebarComponent {
     event.preventDefault();
     if (item.hasSubmenu) {
       this.toggleSubmenu(item);
-      this.activeRoute = item.route;
-      this.router.navigateByUrl(item.route);
-      this.closeMobileIfNeeded();
+      const firstSub = item.submenu?.[0];
+      if (firstSub) {
+        this.activeRoute = firstSub.route;
+        this.router.navigateByUrl(firstSub.route);
+        this.closeMobileIfNeeded();
+      }
       return;
     }
 
@@ -158,7 +167,10 @@ export class SidebarComponent {
   }
 
   isMenuItemActive(item: MenuItem): boolean {
-    return this.activeRoute === item.route;
+    return (
+      this.activeRoute === item.route ||
+      this.activeRoute.startsWith(`${item.route}/`)
+    );
   }
 
   isSubmenuActive(sub: { label: string; route: string }): boolean {
