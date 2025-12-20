@@ -33,8 +33,17 @@ interface ApiAsset {
 }
 
 export interface AssetLocationDetails {
+  location?: string;
   primaryLocation?: string;
   functionalLocation?: string;
+  department?: string;
+  costCenter?: string;
+  assignedOwner?: string;
+  maintenanceTeam?: string;
+}
+
+export interface AssetLocationOrgPayload {
+  location?: string;
   department?: string;
   costCenter?: string;
   assignedOwner?: string;
@@ -109,7 +118,7 @@ export interface AssetCreatePayload {
   criticality?: string;
   ownership?: string;
   assetTag?: string;
-  location?: AssetLocationDetails;
+  location?: string | AssetLocationDetails;
   technicalDetails?: {
     manufacturer?: string;
     model?: string;
@@ -162,7 +171,7 @@ export interface AssetUpdatePayload {
     ownership?: string;
     assetTag?: string;
   };
-  locationOrg?: AssetCreatePayload['location'];
+  locationOrg?: AssetLocationOrgPayload;
   technicalDetails?: AssetCreatePayload['technicalDetails'];
   financialDetails?: AssetCreatePayload['financialDetails'];
   warrantyLifecycle?: AssetCreatePayload['warrantyLifecycle'];
@@ -213,7 +222,7 @@ export class AssetsService {
 
   updateLocation(
     id: string,
-    payload: AssetCreatePayload['location']
+    payload: AssetLocationOrgPayload
   ): Observable<AssetDetailResponse> {
     const headers = new HttpHeaders({
       'ngrok-skip-browser-warning': 'true'

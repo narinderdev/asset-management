@@ -1,12 +1,14 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ActivatedRoute, NavigationEnd, Params, Router } from '@angular/router';
 import { filter, finalize } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
 import { Asset } from '../../models/assets.models';
-import { AssetsService, AssetDetailResponse, AssetCreatePayload, AssetUpdatePayload } from '../../services/assets.service';
+import { AssetsService, AssetDetailResponse, AssetCreatePayload, AssetUpdatePayload, AssetLocationOrgPayload } from '../../services/assets.service';
+import { TechnicianTeam, TechnicianTeamResponse } from '../../services/technician.service';
 
 type AssetDetail = NonNullable<AssetDetailResponse['data']>;
 
@@ -30,6 +32,7 @@ export class AddAssetComponent implements OnInit {
   isSavingFinancial = false;
   isSavingWarranty = false;
   isSavingSafety = false;
+  private readonly maintenanceTeamsUrl = 'https://8cea6bac72b0.ngrok-free.app/api/technician-teams';
 
   // Tab options
   tabs = [
@@ -63,6 +66,7 @@ export class AddAssetComponent implements OnInit {
     assignedOwner: '',
     maintenanceTeam: ''
   };
+  maintenanceTeams: TechnicianTeam[] = [];
 
   // Technical & Manufacturer Data
   technical = {
@@ -145,6 +149,7 @@ export class AddAssetComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private assetsService: AssetsService,
+    private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private toastr: ToastrService
   ) {}
@@ -162,9 +167,11 @@ export class AddAssetComponent implements OnInit {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
         const currentTab = this.normalizeTab(this.route.snapshot.paramMap.get('tab') ?? this.defaultTab);
-        this.activeTab = this.tabs.some(tab => tab.id === currentTab) ? currentTab : this.defaultTab;
-        this.cdr.detectChanges();
-      });
+      this.activeTab = this.tabs.some(tab => tab.id === currentTab) ? currentTab : this.defaultTab;
+      this.cdr.detectChanges();
+    });
+
+    this.loadTechnicianTeams();
 
     const navigation = this.router.getCurrentNavigation();
     const asset = (navigation?.extras.state as { asset?: Asset })?.asset;
@@ -326,6 +333,7 @@ export class AddAssetComponent implements OnInit {
       this.locationOrg.maintenanceTeam = '';
     } else {
       this.locationOrg.location =
+        detailLocation.location ??
         detailLocation.primaryLocation ??
         detailLocation.functionalLocation ??
         '';
@@ -381,7 +389,12 @@ export class AddAssetComponent implements OnInit {
     if (typeof location === 'string') {
       return location;
     }
-    return location.primaryLocation ?? location.functionalLocation ?? '';
+    return (
+      location.location ??
+      location.primaryLocation ??
+      location.functionalLocation ??
+      ''
+    );
   }
 
   private toString(value?: string | number | null): string {
@@ -448,11 +461,9 @@ export class AddAssetComponent implements OnInit {
   }
 
   private buildLocationPayload():
-    AssetCreatePayload['location'] | undefined {
-    const normalizedLocation = this.normalizeLocationField(this.locationOrg.location);
-    const payload = {
-      primaryLocation: normalizedLocation,
-      functionalLocation: normalizedLocation,
+    AssetLocationOrgPayload | undefined {
+    const payload: AssetLocationOrgPayload = {
+      location: this.normalizeLocationField(this.locationOrg.location),
       department: this.normalizeLocationField(this.locationOrg.department),
       costCenter: this.normalizeLocationField(this.locationOrg.costCenter),
       assignedOwner: this.normalizeLocationField(this.locationOrg.assignedOwner),
@@ -461,6 +472,24 @@ export class AddAssetComponent implements OnInit {
 
     const hasValue = Object.values(payload).some(value => value !== undefined);
     return hasValue ? payload : undefined;
+  }
+
+  private loadTechnicianTeams(): void {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    this.http
+      .get<TechnicianTeamResponse>(this.maintenanceTeamsUrl, { headers })
+      .pipe(finalize(() => this.cdr.detectChanges()))
+      .subscribe({
+        next: (response: TechnicianTeamResponse) => {
+          this.maintenanceTeams = response.data?.teams ?? [];
+        },
+        error: () => {
+          console.error('Unable to load technician teams for dropdown');
+        }
+      });
   }
 
   private normalizeLocationField(value?: string): string | undefined {
@@ -560,7 +589,7 @@ export class AddAssetComponent implements OnInit {
       payload.assetId = this.assetMaster.assetId;
     }
 
-    const location = this.buildLocationPayload();
+    const location = this.normalizeLocationField(this.locationOrg.location);
     if (location) {
       payload.location = location;
     }

@@ -104,13 +104,25 @@
             [(ngModel)]="assetMaster.assetCategory">
         </div>
 
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label class="form-label">Asset Type</label>
           <input 
             type="text" 
             class="form-input" 
             placeholder="Enter Asset Type"
             [(ngModel)]="assetMaster.assetType">
+        </div> -->
+        
+        <div class="form-group">
+          <label class="form-label">
+            Status<span class="required">*</span>
+          </label>
+          <select class="form-select" [(ngModel)]="assetMaster.status">
+            <option value="" disabled selected>Select</option>
+            <option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
         </div>
         
          <div class="form-group">
@@ -126,17 +138,7 @@
 
       <!-- Row 3 -->
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">
-            Status<span class="required">*</span>
-          </label>
-          <select class="form-select" [(ngModel)]="assetMaster.status">
-            <option value="" disabled selected>Select</option>
-            <option *ngFor="let option of statusOptions" [value]="option.value">
-              {{ option.label }}
-            </option>
-          </select>
-        </div>
+        
 
         <div class="form-group">
           <label class="form-label">Criticality</label>
@@ -187,7 +189,7 @@
             placeholder="Enter Department"
             [(ngModel)]="locationOrg.department">
         </div>
-        
+
          <div class="form-group">
           <label class="form-label">Cost Center</label>
           <input
@@ -196,6 +198,7 @@
             placeholder="Enter Cost Center"
             [(ngModel)]="locationOrg.costCenter">
         </div>
+        
       </div>
 
       <div class="form-row">
@@ -209,17 +212,14 @@
         </div>
       <div class="form-group">
           <label class="form-label">Maintenance Team</label>
-          <input
-            type="text"
-            class="form-input"
-            placeholder="Enter Maintenance Team"
-            [(ngModel)]="locationOrg.maintenanceTeam">
+         <select class="form-select" [(ngModel)]="locationOrg.maintenanceTeam">
+            <option value="" disabled>Select</option>
+            <option *ngFor="let team of maintenanceTeams" [value]="team.teamName">
+              {{ team.teamName || 'Unnamed Team' }}
+            </option>
+          </select>
         </div>
        
-
-      
-        
-         
       </div>
     
        
@@ -388,26 +388,26 @@
             [(ngModel)]="financial.salvageValue">
         </div>
 
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label class="form-label">Accumulated Depreciation</label>
           <input 
             type="number" 
             class="form-input" 
             placeholder="$"
             [(ngModel)]="financial.accumulatedDepreciation">
-        </div>
+        </div> -->
       </div>
 
       <!-- Row 4 -->
       <div class="form-row">
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label class="form-label">Current Book Value</label>
           <input 
             type="number" 
             class="form-input" 
             placeholder="$"
             [(ngModel)]="financial.currentBookValue">
-        </div>
+        </div> -->
       </div>
     </div>
 
@@ -454,14 +454,14 @@
             [(ngModel)]="warranty.warrantyProvider">
         </div>
 
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label class="form-label">Service Contract</label>
           <input 
             type="text" 
             class="form-input" 
             placeholder="Service Contract"
             [(ngModel)]="warranty.serviceContract">
-        </div>
+        </div> -->
 
         <div class="form-group">
           <label class="form-label">Expected Useful Life</label>
@@ -471,10 +471,7 @@
             placeholder="Enter Number"
             [(ngModel)]="warranty.expectedUsefulLifeYears">
         </div>
-      </div>
-
-      <!-- Row 3 -->
-      <div class="form-row">
+        
         <div class="form-group">
           <label class="form-label">Planned Replacement Date</label>
           <input 
@@ -482,6 +479,11 @@
             class="form-input" 
             [(ngModel)]="warranty.plannedReplacementDate">
         </div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="form-row">
+        
 
         <div class="form-group">
           <label class="form-label">Last Maintenance Date</label>
