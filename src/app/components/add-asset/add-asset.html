@@ -29,6 +29,19 @@
 
   <!-- Tabs Navigation -->
   <div class="tabs-container">
+    <div class="mobile-tab-wrapper">
+      <label class="mobile-tab-label" for="mobile-tab-select">Select section</label>
+      <select
+        id="mobile-tab-select"
+        class="mobile-tab-select"
+        [ngModel]="activeTab"
+        (ngModelChange)="setActiveTab($event)">
+        <option *ngFor="let tab of tabs" [value]="tab.id">
+          {{ tab.label }}
+        </option>
+      </select>
+    </div>
+
     <div class="tabs">
       <button 
         *ngFor="let tab of tabs"
