@@ -119,3 +119,37 @@
   font-size: 14px;
   color: #666;
 }
+
+@media (max-width: 768px) {
+  .chart-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .donut-chart {
+    width: 160px;
+    height: 160px;
+  }
+
+  .chart-legend {
+    width: 100%;
+    gap: 12px;
+  }
+
+  .legend-item {
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+
+  .legend-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .legend-value {
+    font-size: 20px;
+  }
+}
