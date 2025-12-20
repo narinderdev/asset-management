@@ -1,0 +1,98 @@
+<div class="mr-view">
+  <header class="mr-view-header">
+    <div class="header-left">
+      <button class="back-btn" type="button" (click)="goBack()" aria-label="Back to list">&larr;</button>
+      <h2>MR Details</h2>
+    </div>
+    <div class="mr-view-actions">
+      <button class="btn success" type="button" *ngIf="!isApproved">Approve</button>
+      <button class="btn danger" type="button" (click)="openReject()" *ngIf="!isRejected">Reject</button>
+    </div>
+  </header>
+
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <span>Loading MR...</span>
+  </div>
+
+  <div class="mr-meta">
+    <div class="mr-id">{{ (mrDetail?.mrNumber) || mrState?.prId || ('MR-' + mrId) }}</div>
+    <span class="status-chip status-neutral">{{ mrDetail?.status || mrState?.status || 'Submitted' }}</span>
+  </div>
+
+  <div class="mr-cards">
+    <div class="card">
+      <div class="card-title">MR Details</div>
+      <div class="details-grid">
+        <div>
+          <span class="label">Requested By</span>
+          <span class="value">{{ mrDetail?.requestedByUserId || mrState?.requester || '-' }}</span>
+        </div>
+        <div>
+          <span class="label">Needed By</span>
+          <span class="value">{{ mrDetail?.neededByDate || mrState?.requiredBy || '-' }}</span>
+        </div>
+        <div>
+          <span class="label">Notes</span>
+          <span class="value">{{ mrDetail?.notes || mrState?.notes || '-' }}</span>
+        </div>
+        <div>
+          <span class="label">Created</span>
+          <span class="value">{{ mrDetail?.createdAt || mrState?.date || '-' }}</span>
+        </div>
+        <div>
+          <span class="label">Updated</span>
+          <span class="value">{{ mrDetail?.updatedAt || mrState?.date || '-' }}</span>
+        </div>
+        <div>
+          <span class="label">Approved By</span>
+          <span class="value">-</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Line Items</div>
+      <table class="line-table">
+        <thead>
+          <tr>
+            <th>Item / Asset ID</th>
+            <th>Item Name</th>
+            <th>Qty</th>
+            <th>UOM</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let line of (mrDetail?.lines || mrState?.lines || [])">
+            <td>{{ line.itemId }}</td>
+            <td>{{ line.remarks || line.itemName }}</td>
+            <td>{{ line.requestedQty }}</td>
+            <td>{{ line.uom }}</td>
+          </tr>
+          <tr *ngIf="!(mrDetail?.lines?.length) && !(mrState?.lines?.length)">
+            <td colspan="4" class="empty">No line items</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="isRejectModalOpen">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Reject MR</h3>
+      <button class="close-btn" type="button" (click)="closeReject()" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <label class="field">
+        <span>Rejection reason</span>
+        <textarea [(ngModel)]="rejectionReason" placeholder="Enter reason..."></textarea>
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" type="button" (click)="closeReject()">Cancel</button>
+      <button class="btn primary" type="button" (click)="submitReject()" [disabled]="isRejecting">Reject</button>
+    </div>
+  </div>
+</div>

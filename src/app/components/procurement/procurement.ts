@@ -47,6 +47,12 @@ export class ProcurementComponent implements OnInit {
     this.router.navigate(['/procurement/create']);
   }
 
+  viewRequisition(request: ProcurementRequest): void {
+    this.router.navigate(['/procurement/view', request.id], {
+      state: { mr: request }
+    });
+  }
+
   private loadRequisitions(): void {
     this.isLoading = true;
     this.errorMessage = undefined;

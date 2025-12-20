@@ -32,6 +32,7 @@ import { CreateTechnicianTeamComponent } from './components/technician/create-te
 import { ViewTechnicianTeamComponent } from './components/technician/view-technician-team';
 import { LoginComponent } from './components/login/login';
 import { RolesComponent } from './components/roles/roles';
+import { ViewProcurementComponent } from './components/procurement/view-procurement';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -74,6 +75,7 @@ export const routes: Routes = [
   { path: 'procurement/purchase-orders', component: ProcurementComponent },
   { path: 'procurement/goods-receipts', component: ProcurementComponent },
   { path: 'procurement/create', component: CreateProcurementComponent },
+  { path: 'procurement/view/:id', component: ViewProcurementComponent },
   { path: 'service-contracts', component: ServiceContractComponent },
   { path: 'service-contracts/create', component: CreateServiceContractComponent },
   { path: 'failure-codes', component: FailureCodeComponent },

@@ -69,6 +69,18 @@ export interface PurchaseRequisitionListResponse {
   data?: PurchaseRequisitionPage;
 }
 
+export interface PurchaseRequisitionDetailResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: PurchaseRequisitionItem;
+}
+
+export interface RejectMrPayload {
+  rejectedByUserId: string;
+  reason: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -99,5 +111,21 @@ export class ProcurementService {
     });
 
     return this.http.post(this.apiUrl, payload, { headers });
+  }
+
+  fetchMrById(id: number | string): Observable<PurchaseRequisitionDetailResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.get<PurchaseRequisitionDetailResponse>(`${this.apiUrl}/${id}`, { headers });
+  }
+
+  rejectMr(id: number | string, payload: RejectMrPayload): Observable<any> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.post(`${this.apiUrl}/${id}/reject`, payload, { headers });
   }
 }
