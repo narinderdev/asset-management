@@ -22,9 +22,7 @@ interface ApiAsset {
   assetType?: string;
   assetCategory?: string;
   status?: string;
-  location?: {
-    primaryLocation?: string;
-  };
+  location?: AssetLocationDetails;
   warrantyLifecycle?: {
     lastMaintenanceDate?: string;
     warrantyEnd?: string;
@@ -32,6 +30,15 @@ interface ApiAsset {
   financialDetails?: {
     acquisitionDate?: string;
   };
+}
+
+export interface AssetLocationDetails {
+  primaryLocation?: string;
+  functionalLocation?: string;
+  department?: string;
+  costCenter?: string;
+  assignedOwner?: string;
+  maintenanceTeam?: string;
 }
 
 export interface AssetDetailResponse {
@@ -49,14 +56,7 @@ export interface AssetDetailResponse {
     ownership?: string;
     assetTag?: string;
     shortDescription?: string;
-    location?: string | {
-      primaryLocation?: string;
-      functionalLocation?: string;
-      department?: string;
-      costCenter?: string;
-      assignedOwner?: string;
-      maintenanceTeam?: string;
-    };
+    location?: string | AssetLocationDetails;
     parentAssetId?: number | null;
     technicalDetails?: {
       manufacturer?: string;
@@ -109,7 +109,7 @@ export interface AssetCreatePayload {
   criticality?: string;
   ownership?: string;
   assetTag?: string;
-  location?: string;
+  location?: AssetLocationDetails;
   technicalDetails?: {
     manufacturer?: string;
     model?: string;

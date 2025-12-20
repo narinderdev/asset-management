@@ -22,6 +22,7 @@ export class AddAssetComponent implements OnInit {
   // Active tab
   activeTab: string = 'asset-master';
   private readonly defaultTab = 'asset-master';
+  private readonly locationTabId = 'location-organization';
   isEditMode = false;
 
   isSavingLocation = false;
@@ -56,7 +57,11 @@ export class AddAssetComponent implements OnInit {
 
   // Location & Organization Data
   locationOrg = {
-    location: ''
+    location: '',
+    department: '',
+    costCenter: '',
+    assignedOwner: '',
+    maintenanceTeam: ''
   };
 
   // Technical & Manufacturer Data
@@ -132,7 +137,7 @@ export class AddAssetComponent implements OnInit {
 
   activeAsset?: Asset;
   isLoadingDetails = false;
-  currentAssetId?: number;
+  currentAssetId?: string;
   isSavingAssetMaster = false;
   isUpdatingAsset = false;
 
@@ -147,7 +152,7 @@ export class AddAssetComponent implements OnInit {
   ngOnInit(): void {
     this.isEditMode = false;
     this.route.paramMap.subscribe(params => {
-      const tabFromUrl = params.get('tab') ?? this.defaultTab;
+      const tabFromUrl = this.normalizeTab(params.get('tab') ?? this.defaultTab);
       this.activeTab = this.tabs.some(tab => tab.id === tabFromUrl)
         ? tabFromUrl
         : this.defaultTab;
@@ -156,7 +161,7 @@ export class AddAssetComponent implements OnInit {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
-        const currentTab = this.route.snapshot.paramMap.get('tab') ?? this.defaultTab;
+        const currentTab = this.normalizeTab(this.route.snapshot.paramMap.get('tab') ?? this.defaultTab);
         this.activeTab = this.tabs.some(tab => tab.id === currentTab) ? currentTab : this.defaultTab;
         this.cdr.detectChanges();
       });
@@ -221,7 +226,11 @@ export class AddAssetComponent implements OnInit {
     this.assetMaster.assetType = asset.type;
     this.assetMaster.status = asset.status;
     this.assetMaster.shortDescription = asset.assetName;
-    this.locationOrg.location = asset.location;
+    this.locationOrg.location = asset.location ?? '';
+    this.locationOrg.department = '';
+    this.locationOrg.costCenter = '';
+    this.locationOrg.assignedOwner = '';
+    this.locationOrg.maintenanceTeam = '';
   }
 
   private loadAssetDetails(assetId: string): void {
@@ -236,7 +245,7 @@ export class AddAssetComponent implements OnInit {
         next: response => {
           if (response.data) {
             const detail = response.data;
-            this.currentAssetId = detail.id ?? this.currentAssetId;
+            this.currentAssetId = detail.id !== undefined ? String(detail.id) : this.currentAssetId;
             this.activeAsset = this.mapDetailToAsset(detail);
             this.populateFromDetail(detail);
           }
@@ -300,9 +309,31 @@ export class AddAssetComponent implements OnInit {
     this.assetMaster.status = detail.status ?? '';
     this.assetMaster.criticality = this.normalizeCriticality(detail.criticality);
     this.assetMaster.ownership = detail.ownership ?? '';
-    this.currentAssetId = detail.id ?? this.currentAssetId;
+    this.currentAssetId = detail.id !== undefined ? String(detail.id) : this.currentAssetId;
 
-    this.locationOrg.location = this.getDetailLocation(detail);
+    const detailLocation = detail.location;
+    if (!detailLocation) {
+      this.locationOrg.location = '';
+      this.locationOrg.department = '';
+      this.locationOrg.costCenter = '';
+      this.locationOrg.assignedOwner = '';
+      this.locationOrg.maintenanceTeam = '';
+    } else if (typeof detailLocation === 'string') {
+      this.locationOrg.location = detailLocation;
+      this.locationOrg.department = '';
+      this.locationOrg.costCenter = '';
+      this.locationOrg.assignedOwner = '';
+      this.locationOrg.maintenanceTeam = '';
+    } else {
+      this.locationOrg.location =
+        detailLocation.primaryLocation ??
+        detailLocation.functionalLocation ??
+        '';
+      this.locationOrg.department = detailLocation.department ?? '';
+      this.locationOrg.costCenter = detailLocation.costCenter ?? '';
+      this.locationOrg.assignedOwner = detailLocation.assignedOwner ?? '';
+      this.locationOrg.maintenanceTeam = detailLocation.maintenanceTeam ?? '';
+    }
 
     const technical = detail.technicalDetails ?? {};
     this.technical.manufacturer = technical.manufacturer ?? '';
@@ -418,8 +449,23 @@ export class AddAssetComponent implements OnInit {
 
   private buildLocationPayload():
     AssetCreatePayload['location'] | undefined {
-    const raw = this.locationOrg.location?.trim();
-    return raw ? raw : undefined;
+    const normalizedLocation = this.normalizeLocationField(this.locationOrg.location);
+    const payload = {
+      primaryLocation: normalizedLocation,
+      functionalLocation: normalizedLocation,
+      department: this.normalizeLocationField(this.locationOrg.department),
+      costCenter: this.normalizeLocationField(this.locationOrg.costCenter),
+      assignedOwner: this.normalizeLocationField(this.locationOrg.assignedOwner),
+      maintenanceTeam: this.normalizeLocationField(this.locationOrg.maintenanceTeam)
+    };
+
+    const hasValue = Object.values(payload).some(value => value !== undefined);
+    return hasValue ? payload : undefined;
+  }
+
+  private normalizeLocationField(value?: string): string | undefined {
+    const trimmed = value?.trim();
+    return trimmed ? trimmed : undefined;
   }
 
   private buildTechnicalPayload():
@@ -664,15 +710,15 @@ export class AddAssetComponent implements OnInit {
       }))
       .subscribe({
         next: response => {
-          const createdId = response.data?.id;
+          const createdId = response.data?.id ?? response.data?.assetId;
           if (!createdId) {
-            console.warn('Asset creation response did not include an ID');
+            console.warn('Asset creation response did not include an ID; staying on current tab');
             return;
           }
-          this.currentAssetId = createdId;
+          this.currentAssetId = String(createdId);
           this.assetMaster.assetId = response.data?.assetId ?? this.assetMaster.assetId;
           console.log('Asset created with ID', createdId);
-          this.navigateToTab('location-organization', { id: createdId });
+          this.navigateToTab(this.locationTabId, { id: createdId });
         },
         error: () => {
           console.error('Failed to create asset');
@@ -686,6 +732,13 @@ export class AddAssetComponent implements OnInit {
 
   get editActionLabel(): string {
     return this.isLastTab ? 'Update' : 'Next';
+  }
+
+  private normalizeTab(tabId: string): string {
+    if (tabId === 'location') {
+      return this.locationTabId;
+    }
+    return tabId;
   }
 
   isActiveTabSaving(): boolean {
