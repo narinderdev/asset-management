@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { RoleService } from '../../services/role.service';
+import { CreateRolePayload, Permission, PermissionModule, RoleService } from '../../services/role.service';
 import { SpinnerComponent } from '../spinner/spinner';
 import { Role } from '../../models/company-users.model';
 import { ToastrService } from 'ngx-toastr';
@@ -15,84 +15,17 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class RolesComponent implements OnInit {
   roles: Role[] = [];
-  permissions: any[] = [];
+  permissionModules: PermissionModule[] = [];
+  permissionMap: Record<string, Permission> = {};
   isLoading = false;
   isModalOpen = false;
   isSaving = false;
   submitted = false;
   addRoleForm!: FormGroup;
   activePermissionTab = 'dashboard';
-  tabPermissions: Record<string, string[]> = {};
+  tabPermissions: Record<string, Permission[]> = {};
 
-  permissionTabs = [
-    {
-      key: 'dashboard',
-      label: 'Dashboard',
-      permissions: ['VIEW_DASHBOARD'],
-    },
-    {
-      key: 'customers',
-      label: 'Customers',
-      permissions: [
-        'VIEW_CUSTOMERS',
-        'VIEW_CUSTOMER_DETAILS',
-        'CREATE_CUSTOMER',
-        'EDIT_CUSTOMER',
-        'DELETE_CUSTOMER',
-      ],
-    },
-    {
-      key: 'invoices',
-      label: 'Invoices',
-      permissions: [
-        'VIEW_INVOICES',
-        'VIEW_INVOICE_DETAILS',
-        'CREATE_INVOICE',
-        'EDIT_INVOICE',
-        'DELETE_INVOICE',
-        'SEND_INVOICE',
-      ],
-    },
-    {
-      key: 'payments',
-      label: 'Payments',
-      permissions: ['VIEW_PAYMENTS', 'VIEW_PAYMENT_DETAILS', 'CREATE_PAYMENT', 'APPLY_PAYMENT'],
-    },
-    {
-      key: 'reports',
-      label: 'Aging & Reports',
-      permissions: ['VIEW_AGING_REPORTS', 'EXPORT_AGING_REPORT', 'EXPORT_REPORTS'],
-    },
-    {
-      key: 'collections',
-      label: 'Collections & Disputes',
-      permissions: [
-        'VIEW_COLLECTIONS',
-        'VIEW_PROMISE_TO_PAY',
-        'CREATE_PROMISE_TO_PAY',
-        'UPDATE_PROMISE_TO_PAY',
-        'VIEW_DISPUTES',
-        'CREATE_DISPUTE',
-        'RESOLVE_DISPUTE',
-      ],
-    },
-    {
-      key: 'integration',
-      label: 'Integration',
-      permissions: [],
-    },
-    {
-      key: 'setup',
-      label: 'Setup / Admin',
-      permissions: [
-        'VIEW_SETUP_ADMIN',
-        'MANAGE_COMPANY_SETTINGS',
-        'MANAGE_USERS',
-        'MANAGE_ROLES',
-        'INVITE_USER',
-      ],
-    },
-  ];
+  permissionTabs: { key: string; label: string }[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -116,7 +49,11 @@ export class RolesComponent implements OnInit {
 
     this.roleService.getRoles().subscribe({
       next: (res) => {
-        this.roles = res.data ?? [];
+        const payload = res?.data;
+        const content = Array.isArray(payload)
+          ? payload
+          : (payload as any)?.content;
+        this.roles = Array.isArray(content) ? content : [];
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -130,46 +67,28 @@ export class RolesComponent implements OnInit {
   }
 
   loadPermissions() {
-    if (this.permissions.length) return;
+    if (this.permissionModules.length) return;
 
     this.roleService.getPermissions().subscribe({
       next: (res) => {
         const permissionData = Array.isArray(res) ? res : res?.data ?? [];
-        this.permissions = permissionData;
+        this.permissionModules = permissionData || [];
         this.buildTabPermissions();
         this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Failed to load permissions', err);
-        this.permissions = [];
+        this.permissionModules = [];
         this.cdr.detectChanges();
       },
     });
   }
 
-  permissionValue(perm: any) {
+  permissionLabel(perm: Permission | string) {
     if (typeof perm === 'string') {
-      return perm;
+      return this.permissionMap[perm]?.label || this.toTitleCase(perm);
     }
-    return perm?.id ?? perm?.code ?? perm;
-  }
-
-  permissionLabel(perm: any) {
-    let raw: any;
-    if (typeof perm === 'string') {
-      raw = perm;
-    } else {
-      raw = perm?.name || perm?.description || perm?.code || perm;
-    }
-    if (typeof raw !== 'string') {
-      return raw;
-    }
-
-    return raw
-      .toLowerCase()
-      .split('_')
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join(' ');
+    return perm.label || this.toTitleCase(perm.code);
   }
 
   openModal() {
@@ -182,7 +101,7 @@ export class RolesComponent implements OnInit {
     this.submitted = false;
     this.isModalOpen = true;
     const fallbackTab = this.permissionTabs.find((tab) => this.getPermissionsForTab(tab.key).length);
-    this.activePermissionTab = fallbackTab?.key || this.permissionTabs[0].key;
+    this.activePermissionTab = fallbackTab?.key || this.permissionTabs[0]?.key || '';
     this.loadPermissions();
     this.cdr.detectChanges();
   }
@@ -199,10 +118,10 @@ export class RolesComponent implements OnInit {
     this.isSaving = true;
     const formValue = this.addRoleForm.value;
 
-    const payload = {
+    const payload: CreateRolePayload = {
       name: formValue.name,
       description: formValue.description,
-      permissions: formValue.permissions || [],
+      permissionCodes: formValue.permissions || [],
     };
 
     this.roleService.createRoles(payload).subscribe({
@@ -222,12 +141,12 @@ export class RolesComponent implements OnInit {
     });
   }
 
-  isPermissionSelected(id: any) {
+  isPermissionSelected(id: string) {
     const selected = this.addRoleForm.get('permissions')?.value || [];
     return selected.includes(id);
   }
 
-  togglePermissionSelection(id: any) {
+  togglePermissionSelection(id: string) {
     const control = this.addRoleForm.get('permissions');
     if (!control) return;
 
@@ -241,32 +160,55 @@ export class RolesComponent implements OnInit {
 
   selectedPermissionLabels(): string[] {
     const selected = this.addRoleForm.get('permissions')?.value || [];
-    return selected.map((perm: any) => this.permissionLabel(perm));
+    return selected.map((code: string) => this.permissionLabel(code));
   }
 
-  getPermissionsForTab(tabKey: string): string[] {
+  getPermissionsForTab(tabKey: string): Permission[] {
     return this.tabPermissions[tabKey] || [];
   }
 
   setActiveTab(tabKey: string) {
+    if (!this.tabPermissions[tabKey]) {
+      return;
+    }
     this.activePermissionTab = tabKey;
     this.cdr.detectChanges();
   }
 
   private buildTabPermissions() {
-    const available = new Set(
-      this.permissions.map((perm) => this.permissionValue(perm))
-    );
-
+    this.permissionMap = {};
     this.tabPermissions = {};
-    this.permissionTabs.forEach((tab) => {
-      this.tabPermissions[tab.key] = tab.permissions.filter((perm) => available.has(perm));
+    this.permissionTabs = this.permissionModules.map((mod) => ({
+      key: this.normalizeKey(mod.module),
+      label: this.toTitleCase(mod.module),
+    }));
+
+    this.permissionModules.forEach((mod) => {
+      const key = this.normalizeKey(mod.module);
+      const perms = mod.permissions || [];
+      this.tabPermissions[key] = perms;
+      perms.forEach((perm) => {
+        this.permissionMap[perm.code] = perm;
+      });
     });
 
-    const currentList = this.tabPermissions[this.activePermissionTab];
-    if (!currentList || currentList.length === 0) {
+    const hasCurrent = (this.tabPermissions[this.activePermissionTab] || []).length > 0;
+    if (!hasCurrent) {
       const fallback = this.permissionTabs.find((tab) => (this.tabPermissions[tab.key] || []).length > 0);
-      this.activePermissionTab = fallback?.key || this.permissionTabs[0].key;
+      this.activePermissionTab = fallback?.key || this.permissionTabs[0]?.key || '';
     }
+  }
+
+  private normalizeKey(value: string): string {
+    return value?.toLowerCase();
+  }
+
+  private toTitleCase(raw: string): string {
+    if (!raw) return '';
+    return raw
+      .toLowerCase()
+      .split(/[_\s]+/)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
   }
 }

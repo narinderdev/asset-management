@@ -1,68 +1,92 @@
-.roles-container {
-  background: white;
-  padding: 24px;
-  margin-bottom: 40px;
-}
-
-.section-title {
-  font-size: 18px;
-  font-weight: bold;
-  color: #151d48;
-  margin-bottom: 12px;
-}
-
-.section-description {
-  font-size: 14px;
-  color: #6b7280;
-  margin-bottom: 24px;
+.roles-wrapper {
+  padding: 30px;
+  padding-bottom: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #ebedef;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  min-height: 88vh;
 }
 
 .roles-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
+  margin-bottom: 24px;
+}
+
+.roles-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
 }
 
 .btn-add {
-  background: #3b82f6;
-  padding: 10px 20px;
-  color: white;
+  background-color: #3599ff;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 6px;
   border: none;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-  border-radius: 8px;
   transition: all 0.2s;
-  margin-bottom: 24px;
+}
+
+.btn-add:hover {
+  background-color: #2c7ddb;
 }
 
 /* ROLE TABLE */
-.role-table {
+.table-wrapper {
+  position: relative;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.roles-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
-  margin-bottom: 20px;
 }
 
-.role-table th,
-.role-table td {
-  padding: 12px;
+.roles-table thead {
+  border-bottom: 1px solid #e4e4e4;
+  background-color: #fafafa;
+}
+
+.roles-table th,
+.roles-table td {
   text-align: left;
+  padding: 16px;
+  border-bottom: 1px solid #f1f1f1;
+  white-space: nowrap;
+  color: #333;
 }
 
-.role-table th {
-  background: #f9fafb;
-  color: #111827;
-  font-weight: bold;
+.roles-table th {
+  font-weight: 600;
+  color: #5b5b5b;
+  font-size: 13px;
 }
 
-.role-table tr:nth-child(odd) td {
-  background: #fdfdfd;
+.roles-table tbody tr {
+  background-color: #ffffff;
 }
 
-.role-table tr:nth-child(even) td {
-  background: #ffffff;
+.roles-table tbody tr:nth-child(even) {
+  background-color: #f8f8f8;
+}
+
+.empty-state {
+  padding: 24px;
+  text-align: center;
+  color: #777;
+  font-size: 14px;
 }
 
 .modal-backdrop {

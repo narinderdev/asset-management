@@ -10,13 +10,28 @@ interface ApiResponse<T = unknown> {
   message?: string;
   data?: T;
 }
+export type RolesResponse = ApiResponse<Role[] | { content?: Role[] }>;
 
-export type PermissionsResponse = ApiResponse<string[]> | string[];
+export interface Permission {
+  action: string;
+  code: string;
+  description: string;
+  id: number;
+  label: string;
+  module: string;
+}
+
+export interface PermissionModule {
+  module: string;
+  permissions: Permission[];
+}
+
+export type PermissionsResponse = ApiResponse<PermissionModule[]> | PermissionModule[];
 
 export interface CreateRolePayload {
   name: string;
   description: string;
-  permissions: string[];
+  permissionCodes: string[];
 }
 
 @Injectable({
@@ -24,18 +39,19 @@ export interface CreateRolePayload {
 })
 export class RoleService {
   private readonly apiUrl = `${environment.apiUrl}/api/roles`;
+  private readonly permissionsUrl = `${environment.apiUrl}/api/permissions`;
   private readonly headers = new HttpHeaders({
     'ngrok-skip-browser-warning': 'true'
   });
 
   constructor(private http: HttpClient) {}
 
-  getRoles(): Observable<ApiResponse<Role[]>> {
-    return this.http.get<ApiResponse<Role[]>>(this.apiUrl, { headers: this.headers });
+  getRoles(): Observable<RolesResponse> {
+    return this.http.get<RolesResponse>(this.apiUrl, { headers: this.headers });
   }
 
   getPermissions(): Observable<PermissionsResponse> {
-    return this.http.get<PermissionsResponse>(`${this.apiUrl}/permissions`, {
+    return this.http.get<PermissionsResponse>(this.permissionsUrl, {
       headers: this.headers
     });
   }

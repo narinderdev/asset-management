@@ -1,33 +1,32 @@
-<div class="roles-container">
+<div class="roles-wrapper">
   <div class="roles-header">
-    <div>
-      <h2 class="section-title">User Roles</h2>
-    </div>
-    <button class="btn-add" (click)="openModal()">Add Role</button>
+    <h2 class="roles-title">User Roles</h2>
+    <button class="btn-add" type="button" (click)="openModal()">+ Add Role</button>
   </div>
 
   <app-spinner *ngIf="isLoading"></app-spinner>
 
-  <!-- ROLES TABLE -->
-  <table class="role-table" *ngIf="!isLoading && roles.length > 0">
-    <thead>
-      <tr>
-        <th>Role Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <tr *ngFor="let r of roles">
-        <td>{{ r.name }}</td>
-        <td>{{ r.description }}</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <p *ngIf="!isLoading && roles.length === 0" class="section-description">
-    No roles found.
-  </p>
+  <div class="table-wrapper" *ngIf="!isLoading">
+    <div class="table-container" *ngIf="roles.length > 0; else emptyState">
+      <table class="roles-table">
+        <thead>
+          <tr>
+            <th>Role Name</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of roles">
+            <td>{{ r.name }}</td>
+            <td>{{ r.description }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #emptyState>
+      <div class="empty-state">No roles found.</div>
+    </ng-template>
+  </div>
 </div>
 
 <!-- ADD ROLE MODAL -->
@@ -78,12 +77,11 @@
               <label class="permission-option" *ngFor="let perm of getPermissionsForTab(activePermissionTab)">
                 <input
                   type="checkbox"
-                  [checked]="isPermissionSelected(perm)"
-                  (change)="togglePermissionSelection(perm)"
+                  [checked]="isPermissionSelected(perm.code)"
+                  (change)="togglePermissionSelection(perm.code)"
                 />
                 <div class="permission-text">
                   <span class="perm-name">{{ permissionLabel(perm) }}</span>
-                  <span class="perm-code">{{ perm }}</span>
                 </div>
               </label>
             </div>
