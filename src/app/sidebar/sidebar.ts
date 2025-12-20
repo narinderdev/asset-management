@@ -110,6 +110,10 @@ export class SidebarComponent {
   }
 
   toggleSidebar() {
+    if (this.mobileOpen) {
+      this.mobileClose.emit();
+      return;
+    }
     this.isCollapsed = !this.isCollapsed;
     this.collapsedChange.emit(this.isCollapsed);
   }
