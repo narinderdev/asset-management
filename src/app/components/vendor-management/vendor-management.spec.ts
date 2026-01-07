@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { ToastrService } from 'ngx-toastr';
 
 import { VendorManagementComponent } from './vendor-management';
 import { environment } from '../../../environments/environment';
@@ -11,7 +12,10 @@ describe('VendorManagementComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [VendorManagementComponent, HttpClientTestingModule]
+      imports: [VendorManagementComponent, HttpClientTestingModule],
+      providers: [
+        { provide: ToastrService, useValue: { success: vi.fn(), error: vi.fn() } }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(VendorManagementComponent);

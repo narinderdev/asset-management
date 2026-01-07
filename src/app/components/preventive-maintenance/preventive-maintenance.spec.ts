@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { ToastrService } from 'ngx-toastr';
 
 import { PreventiveMaintenanceComponent } from './preventive-maintenance';
 import { environment } from '../../../environments/environment';
@@ -11,7 +12,10 @@ describe('PreventiveMaintenanceComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PreventiveMaintenanceComponent, HttpClientTestingModule]
+      imports: [PreventiveMaintenanceComponent, HttpClientTestingModule],
+      providers: [
+        { provide: ToastrService, useValue: { success: vi.fn(), error: vi.fn() } }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(PreventiveMaintenanceComponent);
