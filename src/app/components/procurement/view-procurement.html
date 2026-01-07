@@ -5,8 +5,28 @@
       <h2>MR Details</h2>
     </div>
     <div class="mr-view-actions">
-      <button class="btn success" type="button" *ngIf="!isApproved">Approve</button>
-      <button class="btn danger" type="button" (click)="openReject()" *ngIf="!isRejected">Reject</button>
+      <ng-container *ngIf="!isApproved; else approvedActions">
+        <button
+          class="btn success"
+          type="button"
+          (click)="approveMr()"
+          [disabled]="isApproving || isRejected"
+        >
+          {{ isApproving ? 'Approving...' : 'Approve' }}
+        </button>
+        <button
+          class="btn danger"
+          type="button"
+          (click)="openReject()"
+          *ngIf="!isRejected"
+        >
+          Reject
+        </button>
+      </ng-container>
+      <ng-template #approvedActions>
+        <button class="btn primary" type="button" (click)="convertToPo()">Convert to PO</button>
+        <button class="btn ghost" type="button" (click)="goBack()">Back To List</button>
+      </ng-template>
     </div>
   </header>
 
@@ -93,6 +113,49 @@
     <div class="modal-actions">
       <button class="btn ghost" type="button" (click)="closeReject()">Cancel</button>
       <button class="btn primary" type="button" (click)="submitReject()" [disabled]="isRejecting">Reject</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="isPoModalOpen">
+  <div class="modal-card po-modal">
+    <div class="modal-header">
+      <h3>Convert MR &rarr; PO</h3>
+      <button class="close-btn" type="button" (click)="closePoModal()" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="po-form-grid">
+        <label class="field">
+          <span>Vendor</span>
+          <select [(ngModel)]="poForm.vendorId">
+            <option [ngValue]="null" disabled>Select vendor</option>
+            <option *ngFor="let vendor of vendorOptions" [ngValue]="vendor.id">{{ vendor.name }}</option>
+          </select>
+          <span class="helper" *ngIf="isLoadingVendors">Loading vendors...</span>
+          <span class="helper error" *ngIf="!isLoadingVendors && hasLoadedVendors && !vendorOptions.length">
+            No vendors found
+          </span>
+        </label>
+        <label class="field">
+          <span>Expected Delivery</span>
+          <input type="date" [(ngModel)]="poForm.expectedDelivery" />
+        </label>
+      </div>
+      <label class="field">
+        <span>Remarks</span>
+        <textarea [(ngModel)]="poForm.remarks" placeholder="Delivery instructions..."></textarea>
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" type="button" (click)="closePoModal()">Cancel</button>
+      <button
+        class="btn primary"
+        type="button"
+        (click)="createPo()"
+        [disabled]="isCreatingPo || !poForm.vendorId || !poForm.expectedDelivery"
+      >
+        {{ isCreatingPo ? 'Creating...' : 'Create PO' }}
+      </button>
     </div>
   </div>
 </div>

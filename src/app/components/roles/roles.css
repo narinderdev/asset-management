@@ -407,3 +407,67 @@
   color: #9ca3af;
   margin-top: 6px;
 }
+
+@media (max-width: 640px) {
+  .modal-backdrop {
+    padding: 10px;
+  }
+
+  .modal-card {
+    padding: 18px;
+    max-width: none;
+    height: calc(100vh - 310px);
+    max-height: none;
+  }
+
+  .modal-header h3 {
+    font-size: 18px;
+  }
+
+  .form-field {
+    margin-bottom: 12px;
+  }
+
+  .permissions-panel {
+    flex-direction: column;
+    height: auto;
+    max-height: 420px;
+  }
+
+  .permission-tabs {
+    flex: 0 0 auto;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+    flex-direction: row;
+    gap: 8px;
+    padding: 8px;
+    overflow-x: auto;
+  }
+
+  .permission-tab {
+    flex: 0 0 auto;
+    border-bottom: none;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+
+  .permission-content {
+    padding: 12px 10px;
+  }
+
+  .permission-option {
+    padding: 8px 10px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-secondary,
+  .btn-primary {
+    width: 100%;
+    text-align: center;
+  }
+}

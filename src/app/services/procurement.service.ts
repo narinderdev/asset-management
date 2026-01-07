@@ -81,6 +81,26 @@ export interface RejectMrPayload {
   reason: string;
 }
 
+export interface ApproveMrPayload {
+  approvedByUserId: string;
+}
+
+export interface ConvertToPoLineOverride {
+  mrLineId: number;
+  unitPrice: number;
+  orderedQty: number;
+  uom: string;
+  remarks?: string;
+}
+
+export interface ConvertToPoPayload {
+  vendorId: number;
+  createdByUserId: string;
+  expectedDeliveryDate: string;
+  remarks?: string;
+  lineOverrides: ConvertToPoLineOverride[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -127,5 +147,21 @@ export class ProcurementService {
     });
 
     return this.http.post(`${this.apiUrl}/${id}/reject`, payload, { headers });
+  }
+
+  approveMr(id: number | string, payload: ApproveMrPayload): Observable<any> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.post(`${this.apiUrl}/${id}/approve`, payload, { headers });
+  }
+
+  convertMrToPo(id: number | string, payload: ConvertToPoPayload): Observable<any> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.post(`${this.apiUrl}/${id}/convert-to-po`, payload, { headers });
   }
 }

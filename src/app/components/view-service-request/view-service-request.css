@@ -89,6 +89,8 @@
   font-size: 14px;
   color: #111827;
   font-weight: 400;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .details-columns {

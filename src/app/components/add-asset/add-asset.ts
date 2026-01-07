@@ -9,6 +9,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Asset } from '../../models/assets.models';
 import { AssetsService, AssetDetailResponse, AssetCreatePayload, AssetUpdatePayload, AssetLocationOrgPayload } from '../../services/assets.service';
 import { TechnicianTeam, TechnicianTeamResponse } from '../../services/technician.service';
+import { environment } from '../../../environments/environment';
 
 type AssetDetail = NonNullable<AssetDetailResponse['data']>;
 
@@ -32,7 +33,7 @@ export class AddAssetComponent implements OnInit {
   isSavingFinancial = false;
   isSavingWarranty = false;
   isSavingSafety = false;
-  private readonly maintenanceTeamsUrl = 'https://8cea6bac72b0.ngrok-free.app/api/technician-teams';
+  private readonly maintenanceTeamsUrl = `${environment.apiUrl}/api/technician-teams`;
 
   // Tab options
   tabs = [

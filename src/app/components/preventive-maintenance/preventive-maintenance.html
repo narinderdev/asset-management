@@ -1,7 +1,10 @@
 <div class="preventive-wrapper">
   <div class="preventive-header">
     <h1 class="preventive-title">Preventive Maintenance Template</h1>
-    <button class="create-service-btn" (click)="createServiceRequest()">+ Create Preventive Maintenance Template</button>
+    <button class="create-service-btn" (click)="createServiceRequest()">
+      <span class="label-full">+ Create Preventive Maintenance Template</span>
+      <span class="label-short">+ Create</span>
+    </button>
   </div>
 
   <div class="table-status" *ngIf="errorMessage">

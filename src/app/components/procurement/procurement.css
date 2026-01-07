@@ -53,6 +53,39 @@
   background-color: #2c7ddb;
 }
 
+@media (max-width: 640px) {
+  .procurement-container {
+    padding: 20px;
+  }
+
+  .procurement-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .procurement-title {
+    font-size: 22px;
+    line-height: 1.2;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .status-filter {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .create-service-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
 .status-message {
   padding: 12px 16px;
   color: #d32f2f;
