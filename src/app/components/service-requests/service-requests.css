@@ -127,8 +127,8 @@
 }
 
 .status-new {
-  background-color: #e8f5e9;
-  color: #2e7d32;
+  background-color: #e0f2fe;
+  color: #0369a1;
 }
 
 .status-in-progress {
@@ -144,6 +144,11 @@
 .status-converted {
   background-color: #eae6ff;
   color: #6b21a8;
+}
+
+.status-approved {
+  background-color: #e8f5e9;
+  color: #2e7d32;
 }
 
 .status-rejected {

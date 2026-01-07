@@ -279,6 +279,8 @@ export class ServiceRequestsComponent implements OnInit {
         return 'status-converted';
       case 'Rejected':
         return 'status-rejected';
+      case 'Approved':
+        return 'status-approved';
       default:
         return '';
     }

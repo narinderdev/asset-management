@@ -129,4 +129,20 @@ export class ServiceRequestService {
 
     return this.http.post<void>(`${this.apiUrl}/${id}/convert-to-wo`, null, { headers });
   }
+
+  approveRequest(id: string, approvedBy: string): Observable<void> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.post<void>(`${this.apiUrl}/${id}/approve`, { approvedBy }, { headers });
+  }
+
+  rejectRequest(id: string, reason: string): Observable<void> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.post<void>(`${this.apiUrl}/${id}/reject`, { reason }, { headers });
+  }
 }

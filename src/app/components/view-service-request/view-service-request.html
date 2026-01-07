@@ -1,10 +1,36 @@
 <div class="view-request-page">
-  <div class="view-request-header">
-    <button class="back-btn" type="button" aria-label="Back to service requests" (click)="goBack()">
-      <span aria-hidden="true">&larr;</span>
-      Back to requests
-    </button>
-    <h1>Service Request Details</h1>
+  <div class="page-header">
+    <div class="title-row">
+      <button class="back-btn" type="button" aria-label="Back to service requests" (click)="goBack()">
+        <span aria-hidden="true">←</span>
+      </button>
+      <h1>Service Request Details</h1>
+    </div>
+    <div
+      class="action-buttons"
+      *ngIf="request && (isStatusNew(request.status) || isStatusApproved(request.status))"
+    >
+      <ng-container *ngIf="isStatusNew(request.status)">
+        <button class="btn-accept" type="button" (click)="onAccept()">
+          <span class="btn-icon">✓</span>
+          Accept
+        </button>
+        <button class="btn-reject" type="button" (click)="onReject()">
+          <span class="btn-icon">✕</span>
+          Reject
+        </button>
+      </ng-container>
+
+      <button
+        class="btn-convert"
+        type="button"
+        *ngIf="isStatusApproved(request.status)"
+        (click)="showConvertModal = true"
+        [disabled]="isActionProcessing"
+      >
+        Convert to Work Order
+      </button>
+    </div>
   </div>
 
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
@@ -15,141 +41,183 @@
   </div>
 
   <div *ngIf="request" class="request-details">
-    <section class="detail-section">
+    <!-- Overview Section -->
+    <section class="card">
       <h2>Overview</h2>
-      <div class="detail-grid">
-        <div>
+      <div class="overview-grid">
+        <div class="grid-item">
           <span class="label">Request ID</span>
-          <span class="value">{{ request.requestId ?? request.id ?? '—' }}</span>
+          <span class="value">{{ request.requestId ?? request.id ?? '-' }}</span>
         </div>
-        <div>
+        <div class="grid-item">
           <span class="label">Title</span>
-          <span class="value">{{ request.shortTitle ?? '—' }}</span>
+          <span class="value">{{ request.shortTitle ?? '-' }}</span>
         </div>
-        <div>
+        <div class="grid-item">
           <span class="label">Requester</span>
-          <span class="value">{{ request.requesterName ?? '—' }}</span>
+          <span class="value">{{ request.requesterName ?? '-' }}</span>
         </div>
-        <div>
+        <div class="grid-item">
           <span class="label">Requester Contact</span>
-          <span class="value">{{ request.requesterContact ?? '—' }}</span>
+          <span class="value">{{ request.requesterContact ?? '-' }}</span>
         </div>
-        <div>
+        
+        <div class="grid-item">
           <span class="label">Location</span>
-          <span class="value">{{ request.location ?? '—' }}</span>
+          <span class="value">{{ request.location ?? '-' }}</span>
         </div>
-        <div>
+        <div class="grid-item">
           <span class="label">Date</span>
           <span class="value">{{ formatDate(request.requestDate) }}</span>
         </div>
-        <div>
+        <div class="grid-item">
           <span class="label">Maintenance Type</span>
-          <span class="value">{{ request.maintenanceType ?? '—' }}</span>
+          <span class="value">{{ request.maintenanceType ?? '-' }}</span>
         </div>
-        <div>
+        <div class="grid-item empty-cell"></div>
+        
+        <div class="grid-item">
           <span class="label">Priority</span>
-          <span class="value">{{ request.priority ?? '—' }}</span>
+          <span class="value">{{ request.priority ?? '-' }}</span>
         </div>
-        <div>
+        <div class="grid-item">
           <span class="label">Status</span>
-          <span class="value">{{ formatStatus(request.status) }}</span>
+          <span class="value status-badge" 
+                [ngClass]="{
+                  'status-rejected': request.status?.toLowerCase() === 'rejected',
+                  'status-pending': request.status?.toLowerCase() === 'pending',
+                  'status-approved': request.status?.toLowerCase() === 'approved',
+                  'status-in-progress': request.status?.toLowerCase() === 'in progress' || request.status?.toLowerCase() === 'in-progress',
+                  'status-completed': request.status?.toLowerCase() === 'completed'
+                }">
+            {{ formatStatus(request.status) }}
+          </span>
         </div>
       </div>
     </section>
 
-    <section class="detail-section">
+    <!-- Assignment Section -->
+    <section class="card">
       <h2>Assignment</h2>
-      <div class="detail-grid">
-        <div>
+      <div class="assignment-grid">
+        <div class="grid-item">
           <span class="label">Asset</span>
-          <span class="value">{{ request.assetName ?? request.assetId ?? '—' }}</span>
+          <span class="value">{{ request.assetName ?? request.assetId ?? '-' }}</span>
         </div>
-        <div>
+        <div class="grid-item">
           <span class="label">Assigned Technician</span>
-          <span class="value">{{ request.assignedTechnician ?? '—' }}</span>
+          <span class="value">{{ request.assignedTechnician ?? '-' }}</span>
         </div>
-        <div>
+        <div class="grid-item">
           <span class="label">Work Order</span>
-          <span class="value">{{ request.workOrderId ?? '—' }}</span>
+          <span class="value">{{ request.workOrderId ?? '-' }}</span>
         </div>
-        <div>
+        
+        <div class="grid-item">
           <span class="label">Department</span>
-          <span class="value">{{ request.department ?? '—' }}</span>
+          <span class="value">{{ request.department ?? '-' }}</span>
         </div>
-        <div>
+        <div class="grid-item">
           <span class="label">Maintenance Team</span>
-          <span class="value">{{ request.maintenanceTeam ?? '—' }}</span>
+          <span class="value">{{ request.maintenanceTeam ?? '-' }}</span>
         </div>
       </div>
     </section>
 
-    <section class="detail-section">
+    <!-- Service Details Section -->
+    <section class="card">
       <h2>Service Details</h2>
-      <div class="detail-grid">
-        <div>
+      <div class="service-details-grid">
+        <div class="grid-item full-width">
           <span class="label">Problem Description</span>
-          <span class="value">{{ request.problemDescription ?? '—' }}</span>
+          <span class="value">{{ request.problemDescription ?? '-' }}</span>
         </div>
-        <div>
+        
+        <div class="grid-item">
           <span class="label">Preferred Date</span>
           <span class="value">{{ formatDate(request.preferredDate) }}</span>
         </div>
-        <div>
+        <div class="grid-item">
           <span class="label">Preferred Time</span>
-          <span class="value">{{ request.preferredTime ?? '—' }}</span>
+          <span class="value">{{ request.preferredTime ?? '-' }}</span>
         </div>
-        <div>
+        <div class="grid-item">
           <span class="label">Safety Risk</span>
           <span class="value">
-            {{
-              request.safetyRisk === undefined
-                ? '—'
-                : request.safetyRisk
-                  ? 'Yes'
-                  : 'No'
-            }}
+            {{ request.safetyRisk === undefined ? '-' : (request.safetyRisk ? 'Yes' : 'No') }}
           </span>
         </div>
       </div>
     </section>
 
-    <section class="detail-section">
+    <!-- Schedule Section -->
+    <section class="card">
       <h2>Schedule</h2>
-      <div class="detail-grid">
-        <div>
+      <div class="schedule-grid">
+        <div class="grid-item">
           <span class="label">Scheduled Start</span>
-          <span class="value">
-            {{ request.scheduledStart ? formatDate(request.scheduledStart) : '-' }}
-          </span>
+          <span class="value">{{ request.scheduledStart ? formatDate(request.scheduledStart) : '-' }}</span>
         </div>
-        <div>
+        <div class="grid-item">
           <span class="label">Target Completion</span>
-          <span class="value">
-            {{ request.targetCompletionDate ? formatDate(request.targetCompletionDate) : '-' }}
-          </span>
+          <span class="value">{{ request.targetCompletionDate ? formatDate(request.targetCompletionDate) : '-' }}</span>
         </div>
-        <div>
+        <div class="grid-item">
           <span class="label">Due Date</span>
-          <span class="value">
-            {{ request.dueDate ? formatDate(request.dueDate) : '-' }}
-          </span>
+          <span class="value">{{ request.dueDate ? formatDate(request.dueDate) : '-' }}</span>
         </div>
       </div>
     </section>
+  </div>
 
-    <section class="detail-section" *ngIf="request.description || request.notes">
-      <h2>Details</h2>
-      <div class="details-columns">
-        <div>
-          <h3>Description</h3>
-          <p>{{ request.description ?? '—' }}</p>
-        </div>
-        <div>
-          <h3>Notes</h3>
-          <p>{{ request.notes ?? '—' }}</p>
-        </div>
+  <!-- Accept Modal -->
+  <div class="modal-backdrop" *ngIf="showAcceptModal">
+    <div class="confirm-modal">
+      <div class="modal-icon success">✓</div>
+      <h3>Accept Service Request?</h3>
+      <p>Are you sure you want to accept {{ request?.requestId || 'this service request' }}?</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" type="button" (click)="closeModals()" [disabled]="isActionProcessing">
+          Cancel
+        </button>
+        <button class="btn-success" type="button" (click)="confirmAccept()" [disabled]="isActionProcessing">
+          Save Changes
+        </button>
       </div>
-    </section>
+    </div>
+  </div>
 
+  <!-- Reject Modal -->
+  <div class="modal-backdrop" *ngIf="showRejectModal">
+    <div class="confirm-modal">
+      <div class="modal-icon danger">✕</div>
+      <h3>Reject Service Request?</h3>
+      <p>Are you sure you want to reject {{ request?.requestId || 'this service request' }}?</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" type="button" (click)="closeModals()" [disabled]="isActionProcessing">
+          Cancel
+        </button>
+        <button class="btn-danger" type="button" (click)="confirmReject()" [disabled]="isActionProcessing">
+          Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Convert Modal -->
+  <div class="modal-backdrop" *ngIf="showConvertModal">
+    <div class="confirm-modal">
+      <div class="modal-icon info">↻</div>
+      <h3>Convert to Work Order?</h3>
+      <p>Do you want to convert {{ request?.requestId || 'this service request' }} to a work order?</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" type="button" (click)="closeModals()" [disabled]="isActionProcessing">
+          No
+        </button>
+        <button class="btn-primary" type="button" (click)="onConvert()" [disabled]="isActionProcessing">
+          Yes, Convert
+        </button>
+      </div>
+    </div>
   </div>
 </div>

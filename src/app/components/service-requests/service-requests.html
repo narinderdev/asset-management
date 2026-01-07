@@ -67,13 +67,6 @@
                 <img src="assets/icons/delete.svg" alt="Delete request" class="view-icon" />
               </button>
             </div>
-            <button
-              class="action-button convert-btn"
-              (click)="convertToWorkOrder(request)"
-              *ngIf="request.status !== 'Converted to WO'"
-            >
-              Convert to WO
-            </button>
           </td>
         </tr>
       </tbody>

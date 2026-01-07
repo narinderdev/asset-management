@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 
 import { ServiceRequestService, ServiceRequestDetailResponse } from '../../services/service-request.service';
+import { ToastrService } from 'ngx-toastr';
 
 type ServiceRequestDetail = NonNullable<ServiceRequestDetailResponse['data']>;
 
@@ -26,12 +27,20 @@ export class ViewServiceRequestComponent implements OnInit {
   isLoading = false;
   errorMessage?: string;
   requestLoaded = false;
+  showAcceptModal = false;
+  showRejectModal = false;
+  isActionProcessing = false;
+  approvedBy = 'System';
+  rejectReason = 'Rejected via app';
+  showConvertModal = false;
+  private currentRequestId?: string;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private serviceRequestService: ServiceRequestService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -45,19 +54,22 @@ export class ViewServiceRequestComponent implements OnInit {
   }
 
   private loadRequest(id: string): void {
+    this.currentRequestId = id;
     this.isLoading = true;
     this.requestLoaded = false;
     this.errorMessage = undefined;
 
     this.serviceRequestService
       .fetchRequestById(id)
-      .pipe(finalize(() => {
-        this.isLoading = false;
-        if (!this.requestLoaded) {
-          this.requestLoaded = true;
-          this.cdr.detectChanges();
-        }
-      }))
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          if (!this.requestLoaded) {
+            this.requestLoaded = true;
+            this.cdr.detectChanges();
+          }
+        })
+      )
       .subscribe({
         next: response => {
           if (response.data) {
@@ -78,12 +90,12 @@ export class ViewServiceRequestComponent implements OnInit {
 
   formatDate(value?: string): string {
     if (!value) {
-      return '—';
+      return '-';
     }
 
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) {
-      return '—';
+      return '-';
     }
 
     return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
@@ -91,7 +103,7 @@ export class ViewServiceRequestComponent implements OnInit {
 
   formatStatus(value?: string): string {
     if (!value) {
-      return '—';
+      return '-';
     }
     const normalized = value.toUpperCase();
     return VIEW_STATUS_LABELS[normalized] ?? this.prettify(value);
@@ -99,12 +111,113 @@ export class ViewServiceRequestComponent implements OnInit {
 
   private prettify(text?: string): string {
     if (!text) {
-      return '—';
+      return '-';
     }
     return text
       .toLowerCase()
       .replace(/_/g, ' ')
       .replace(/\b\w/g, char => char.toUpperCase());
+  }
+
+  isStatusNew(status?: string): boolean {
+    return (status || '').toLowerCase() === 'new';
+  }
+
+  isStatusApproved(status?: string): boolean {
+    return (status || '').toLowerCase() === 'approved';
+  }
+
+  // Action handlers (currently placeholders).
+  onAccept(): void {
+    this.showAcceptModal = true;
+  }
+
+  onReject(): void {
+    this.showRejectModal = true;
+  }
+
+  onEdit(): void {
+    if (!this.request) return;
+    this.router.navigate(['/service-requests', this.request.id, 'edit']);
+  }
+
+  onConvert(): void {
+    const id = this.request?.id || this.currentRequestId;
+    if (!id || this.isActionProcessing) return;
+
+    this.isActionProcessing = true;
+    this.serviceRequestService
+      .convertToWorkOrder(id)
+      .pipe(
+        finalize(() => {
+          this.isActionProcessing = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.toastr.success('Service request converted to work order.');
+          this.showConvertModal = false;
+          this.router.navigate(['/service-requests']);
+        },
+        error: () => {
+          this.toastr.error('Unable to convert service request. Please try again.');
+        }
+      });
+  }
+
+  closeModals(): void {
+    this.showAcceptModal = false;
+    this.showRejectModal = false;
+    this.showConvertModal = false;
+  }
+
+  confirmAccept(): void {
+    const id = this.request?.id || this.currentRequestId;
+    if (!id) return;
+
+    this.isActionProcessing = true;
+    this.serviceRequestService
+      .approveRequest(id, this.approvedBy)
+      .pipe(
+        finalize(() => {
+          this.isActionProcessing = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.closeModals();
+          this.loadRequest(id);
+        },
+        error: () => {
+          this.errorMessage = 'Failed to approve request. Please try again.';
+        }
+      });
+  }
+
+  confirmReject(): void {
+    const id = this.request?.id || this.currentRequestId;
+    if (!id) return;
+
+    this.isActionProcessing = true;
+    this.serviceRequestService
+      .rejectRequest(id, this.rejectReason)
+      .pipe(
+        finalize(() => {
+          this.isActionProcessing = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.closeModals();
+          this.loadRequest(id);
+        },
+        error: () => {
+          this.errorMessage = 'Failed to reject request. Please try again.';
+        }
+      });
   }
 
   goBack(): void {
