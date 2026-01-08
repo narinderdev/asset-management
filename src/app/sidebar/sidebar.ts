@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { PermissionService } from '../services/permission.service';
+import { AuthService } from '../services/auth.service';
 
 interface MenuItem {
   icon: string;
@@ -26,6 +27,7 @@ export class SidebarComponent {
   isCollapsed = false;
   expandedMenuLabel?: string;
   activeRoute = '/dashboard';
+  showLogoutModal = false;
   @Output() mobileClose = new EventEmitter<void>();
 
   // Path to your icons folder
@@ -122,7 +124,11 @@ export class SidebarComponent {
     }
   ];
 
-  constructor(private router: Router, private permissions: PermissionService) {
+  constructor(
+    private router: Router,
+    private permissions: PermissionService,
+    private authService: AuthService
+  ) {
     this.activeRoute = this.router.url || this.activeRoute;
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
@@ -215,9 +221,27 @@ export class SidebarComponent {
   }
 
   signOut(): void {
+    this.showLogoutModal = true;
+  }
+
+  cancelLogout(): void {
+    this.showLogoutModal = false;
+  }
+
+  confirmLogout(): void {
+    const token = localStorage.getItem('authToken') || '';
+    this.authService.logout(token).subscribe({
+      next: () => this.finishLogout(),
+      error: () => this.finishLogout()
+    });
+  }
+
+  private finishLogout(): void {
     localStorage.removeItem('authToken');
     localStorage.removeItem('signupUserId');
     localStorage.removeItem('signupEmail');
+    this.permissions.clear();
+    this.showLogoutModal = false;
     this.router.navigate(['/login']);
     this.closeMobileIfNeeded();
   }

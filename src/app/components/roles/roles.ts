@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { SpinnerComponent } from '../spinner/spinner';
 import { RoleService } from '../../services/role.service';
 import { finalize } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { CreateRolePayload } from '../../services/role.service';
 
 interface PermissionRow {
   label: string;
@@ -34,7 +36,8 @@ export class RolesComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private roleService: RoleService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private toastr: ToastrService
   ) {
     this.addRoleForm = this.fb.group({
       name: [''],
@@ -156,7 +159,36 @@ export class RolesComponent implements OnInit {
 
   saveRole() {
     this.submitted = true;
-    this.isSaving = false;
+    if (this.addRoleForm.invalid) {
+      return;
+    }
+    const formValue = this.addRoleForm.value;
+    const payload: CreateRolePayload = {
+      name: formValue.name || '',
+      description: formValue.description || '',
+      permissionCodes: Array.isArray(formValue.permissions) ? formValue.permissions : []
+    };
+    this.isSaving = true;
+    this.roleService
+      .createRoles(payload)
+      .pipe(
+        finalize(() => {
+          this.isSaving = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: res => {
+          this.toastr.success(res?.message || 'Role created successfully');
+          this.isModalOpen = false;
+          this.fetchRoles();
+          this.cdr.detectChanges();
+        },
+        error: err => {
+          const msg = err?.error?.message || err?.message || 'Failed to create role';
+          this.toastr.error(msg);
+        }
+      });
   }
 
   getSelectedCount(): number {
@@ -179,14 +211,32 @@ export class RolesComponent implements OnInit {
       if (action === 'view' && code === this.requiredViewCode) {
         return;
       }
-      control?.setValue(current.filter((c: string) => c !== code));
+      const updated = current.filter((c: string) => c !== code);
+      // If removing view, also remove dependent actions
+      if (action === 'view') {
+        const deps = [row.permissions.create, row.permissions.update, row.permissions.delete].filter(Boolean);
+        control?.setValue(updated.filter(val => !deps.includes(val)));
+      } else {
+        control?.setValue(updated);
+      }
     } else {
-      control?.setValue([...current, code]);
+      const updated = [...current];
+      updated.push(code);
+      if (action !== 'view' && row.permissions.view && !updated.includes(row.permissions.view)) {
+        updated.push(row.permissions.view);
+      }
+      control?.setValue(updated);
     }
   }
 
   isViewDisabled(row: PermissionRow): boolean {
-    return !!this.requiredViewCode && row.permissions.view === this.requiredViewCode;
+    if (!!this.requiredViewCode && row.permissions.view === this.requiredViewCode) {
+      return true;
+    }
+    const control = this.addRoleForm.get('permissions');
+    const current = Array.isArray(control?.value) ? control?.value : [];
+    const deps = [row.permissions.create, row.permissions.update, row.permissions.delete].filter(Boolean);
+    return !!row.permissions.view && deps.some(code => current.includes(code as string));
   }
 
   viewRole(_: any) {}

@@ -101,3 +101,13 @@
   </div>
 
 </div>
+
+<div class="logout-modal-backdrop" *ngIf="showLogoutModal">
+  <div class="logout-modal">
+    <p>Are you sure you want to logout?</p>
+    <div class="logout-actions">
+      <button type="button" class="logout-btn secondary" (click)="cancelLogout()">No</button>
+      <button type="button" class="logout-btn primary" (click)="confirmLogout()">Yes</button>
+    </div>
+  </div>
+</div>

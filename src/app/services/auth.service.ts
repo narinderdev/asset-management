@@ -20,6 +20,13 @@ export interface LoginResponse {
   };
 }
 
+export interface ApiResponse<T = unknown> {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: T;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -34,5 +41,13 @@ export class AuthService {
     });
 
     return this.http.post<LoginResponse>(this.apiUrl, payload, { headers });
+  }
+
+  logout(token?: string): Observable<ApiResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    });
+    return this.http.post<ApiResponse>(`${this.apiUrl}/logout`, {}, { headers });
   }
 }
