@@ -294,3 +294,44 @@
   /* filter: brightness(1.5); */ /* Make lighter */
   /* filter: invert(0.3); */ /* Adjust color */
 }
+
+.sidebar-footer {
+  padding: 16px 20px 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.signout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.signout-btn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.signout-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.sidebar.collapsed .sidebar-footer {
+  padding: 12px 12px 20px;
+}
+
+.sidebar.collapsed .signout-btn {
+  justify-content: center;
+}
+
+.sidebar.collapsed .signout-label {
+  display: none;
+}

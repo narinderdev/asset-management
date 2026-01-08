@@ -16,6 +16,11 @@ export interface VerifyOtpPayload {
   otp: string;
 }
 
+export interface SetPasswordPayload {
+  email: string;
+  password: string;
+}
+
 export interface SignupResponse {
   statusCode?: number;
   status?: string;
@@ -50,5 +55,13 @@ export class SignupService {
     });
 
     return this.http.post<SignupResponse>(`${this.apiUrl}/verify`, payload, { headers });
+  }
+
+  setPassword(payload: SetPasswordPayload): Observable<SignupResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.post<SignupResponse>(`${this.apiUrl}/set-password`, payload, { headers });
   }
 }

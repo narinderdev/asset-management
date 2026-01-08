@@ -1,0 +1,74 @@
+<div class="preventive-wrapper">
+  <div class="preventive-header">
+    <h1 class="preventive-title">Users</h1>
+    <button class="create-service-btn" type="button" (click)="openInvite()">+ Invite User</button>
+  </div>
+
+  <div class="table-wrapper">
+    <div class="table-container">
+      <table class="preventive-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.role }}</td>
+            <td>
+              <span class="status-chip" [ngClass]="{ 'status-green': user.status === 'Active', 'status-grey': user.status === 'Inactive' }">
+                {{ user.status }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="showInviteModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <h2>Invite User</h2>
+          <p>Send an email invitation to give this person access.</p>
+        </div>
+        <button class="close-btn" (click)="closeInvite()" aria-label="Close invite form">×</button>
+      </div>
+
+      <div class="modal-body">
+        <label>First Name</label>
+        <input type="text" placeholder="Jane" [(ngModel)]="inviteForm.firstName" />
+
+        <label>Last Name</label>
+        <input type="text" placeholder="Doe" [(ngModel)]="inviteForm.lastName" />
+
+        <label>Email</label>
+        <input type="email" placeholder="jane@company.com" [(ngModel)]="inviteForm.email" />
+
+        <label>Role</label>
+        <select [(ngModel)]="inviteForm.roleId">
+          <option value="" disabled>Select Role</option>
+          <ng-container *ngIf="roleOptions.length; else loadingRolesTpl">
+            <option *ngFor="let role of roleOptions" [value]="role.id">{{ role.name }}</option>
+          </ng-container>
+        </select>
+        <ng-template #loadingRolesTpl>
+          <option value="" disabled>Loading roles...</option>
+        </ng-template>
+      </div>
+
+      <div class="modal-footer">
+        <button class="secondary" type="button" (click)="closeInvite()">Cancel</button>
+        <button class="primary" type="button" [disabled]="sendingInvite" (click)="sendInvite()">
+          {{ sendingInvite ? 'Sending...' : 'Send Invite' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

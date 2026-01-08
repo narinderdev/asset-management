@@ -100,9 +100,14 @@ export class SidebarComponent {
     },
     {
       icon: 'carbon_user-role.svg',
-      activeIcon: 'carbon_user-role (1).svg',
-      label: 'Roles & Permissions',
-      route: '/roles-permissions'
+      activeIcon: 'carbon_user-role.svg',
+      label: 'Roles / Users',
+      route: '/roles-permissions',
+      hasSubmenu: true,
+      submenu: [
+        { label: 'Roles', route: '/roles-permissions' },
+        { label: 'Users', route: '/users' }
+      ]
     }
   ];
 
@@ -143,6 +148,13 @@ export class SidebarComponent {
 
   handleMenuClick(item: MenuItem, event: MouseEvent) {
     event.preventDefault();
+    if (item.hasSubmenu && this.isCollapsed) {
+      this.isCollapsed = false;
+      this.collapsedChange.emit(this.isCollapsed);
+      this.expandedMenuLabel = item.label;
+      return;
+    }
+
     if (item.hasSubmenu) {
       this.toggleSubmenu(item);
       const firstSub = item.submenu?.[0];
@@ -175,6 +187,14 @@ export class SidebarComponent {
 
   isSubmenuActive(sub: { label: string; route: string }): boolean {
     return this.activeRoute === sub.route;
+  }
+
+  signOut(): void {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('signupUserId');
+    localStorage.removeItem('signupEmail');
+    this.router.navigate(['/login']);
+    this.closeMobileIfNeeded();
   }
 
   private closeMobileIfNeeded(): void {

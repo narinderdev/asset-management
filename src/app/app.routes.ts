@@ -36,12 +36,15 @@ import { RolesComponent } from './components/roles/roles';
 import { ViewProcurementComponent } from './components/procurement/view-procurement';
 import { VerifyOtpComponent } from './components/verify-otp/verify-otp';
 import { AuthGuard } from './guards/auth.guard';
+import { UsersComponent } from './components/users';
+import { SetPasswordComponent } from './components/set-password/set-password';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
   { path: 'login', component: LoginComponent },
   { path: 'sign-up', component: SignUpComponent },
   { path: 'verify-otp', component: VerifyOtpComponent },
+  { path: 'set-password', component: SetPasswordComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'assets/add-asset', component: AddAssetComponent, canActivate: [AuthGuard] },
   { path: 'assets/add-asset/:tab', component: AddAssetComponent, canActivate: [AuthGuard] },
@@ -85,5 +88,6 @@ export const routes: Routes = [
   { path: 'service-contracts/create', component: CreateServiceContractComponent, canActivate: [AuthGuard] },
   { path: 'failure-codes', component: FailureCodeComponent, canActivate: [AuthGuard] },
   { path: 'failure-codes/create', component: CreateFailureCodeComponent, canActivate: [AuthGuard] },
-  { path: 'roles-permissions', component: RolesComponent, canActivate: [AuthGuard] }
+  { path: 'roles-permissions', component: RolesComponent, canActivate: [AuthGuard] },
+  { path: 'users', component: UsersComponent, canActivate: [AuthGuard] }
 ];
