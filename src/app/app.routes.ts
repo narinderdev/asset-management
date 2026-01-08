@@ -31,12 +31,14 @@ import { TechnicianTeamsComponent } from './components/technician/technician-tea
 import { CreateTechnicianTeamComponent } from './components/technician/create-technician-team';
 import { ViewTechnicianTeamComponent } from './components/technician/view-technician-team';
 import { LoginComponent } from './components/login/login';
+import { SignUpComponent } from './components/sign-up/sign-up';
 import { RolesComponent } from './components/roles/roles';
 import { ViewProcurementComponent } from './components/procurement/view-procurement';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
   { path: 'login', component: LoginComponent },
+  { path: 'sign-up', component: SignUpComponent },
   { path: 'dashboard', component: DashboardComponent },
   { path: 'assets/add-asset', component: AddAssetComponent },
   { path: 'assets/add-asset/:tab', component: AddAssetComponent },

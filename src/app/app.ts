@@ -58,7 +58,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private updateLoginRoute(url: string) {
     const path = url.split('?')[0];
     const normalized = path.startsWith('/') ? path : `/${path}`;
-    this.isLoginRoute = normalized === '/login';
+    const authRoutes = ['/login', '/sign-up'];
+    this.isLoginRoute = authRoutes.includes(normalized);
     if (this.isLoginRoute) {
       this.isSidebarCollapsed = false;
       this.isMobileSidebarVisible = false;
