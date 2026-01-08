@@ -92,10 +92,40 @@
           (click)="togglePasswordVisibility('password')"
           [attr.aria-label]="passwordVisible ? 'Hide password' : 'Show password'"
         >
-          <img
-            [src]="passwordVisible ? '/assets/show.svg' : '/assets/eye%20(1).svg'"
-            [alt]="passwordVisible ? 'Hide password' : 'Show password'"
-          />
+          <ng-container *ngIf="passwordVisible; else passwordHiddenIcon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                stroke="currentColor"
+                fill="none"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <line
+                x1="1"
+                y1="1"
+                x2="23"
+                y2="23"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+          </ng-container>
+          <ng-template #passwordHiddenIcon>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                stroke="currentColor"
+                fill="none"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5" fill="none" />
+            </svg>
+          </ng-template>
         </button>
       </div>
       <small class="error" *ngIf="form.get('password')?.touched && form.get('password')?.invalid">
@@ -124,10 +154,40 @@
           (click)="togglePasswordVisibility('confirmPassword')"
           [attr.aria-label]="confirmPasswordVisible ? 'Hide confirm password' : 'Show confirm password'"
         >
-          <img
-            [src]="confirmPasswordVisible ? '/assets/show.svg' : '/assets/eye%20(1).svg'"
-            [alt]="confirmPasswordVisible ? 'Hide confirm password' : 'Show confirm password'"
-          />
+          <ng-container *ngIf="confirmPasswordVisible; else confirmPasswordHiddenIcon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                stroke="currentColor"
+                fill="none"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <line
+                x1="1"
+                y1="1"
+                x2="23"
+                y2="23"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+          </ng-container>
+          <ng-template #confirmPasswordHiddenIcon>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                stroke="currentColor"
+                fill="none"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5" fill="none" />
+            </svg>
+          </ng-template>
         </button>
       </div>
       <small class="error" *ngIf="form.touched && form.errors?.['mismatch']">
