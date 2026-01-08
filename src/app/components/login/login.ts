@@ -1,8 +1,11 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { isPlatformBrowser, CommonModule } from '@angular/common';
+import { Component, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { finalize } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 import { SpinnerComponent } from '../spinner/spinner';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -16,8 +19,17 @@ export class LoginComponent {
 
   loading = false;
   passwordVisible = false;
+  private isBrowser = false;
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private authService: AuthService,
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) platformId: object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
@@ -38,10 +50,41 @@ export class LoginComponent {
       return;
     }
 
+    const email = String(this.form.value.email || '').trim().toLowerCase();
+    const password = String(this.form.value.password || '').trim();
+
+    this.form.patchValue({ email, password });
+
     this.loading = true;
-    setTimeout(() => {
-      this.loading = false;
-      this.router.navigate(['dashboard']);
-    }, 850);
+    this.authService
+      .login({ email, password })
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          const statusCode = response?.statusCode;
+          const isSuccess = statusCode === 200 || statusCode === 201;
+          const token = (response as any)?.data?.token || (response as any)?.token;
+          const message = response?.message || (isSuccess ? 'Login successful' : 'Invalid credentials');
+
+          if (isSuccess) {
+            if (this.isBrowser && token) {
+              localStorage.setItem('authToken', token);
+            }
+            this.toastr.success(message);
+            this.router.navigate(['dashboard']);
+          } else {
+            this.toastr.error(message);
+          }
+        },
+        error: (err: any) => {
+          const message = err?.error?.message || 'Login failed. Please try again.';
+          this.toastr.error(message);
+        }
+      });
   }
 }
