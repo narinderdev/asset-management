@@ -75,9 +75,9 @@ describe('ViewProcurementComponent', () => {
 
   it('should expose approval state helpers', () => {
     component.mrDetail = { status: 'APPROVED' } as any;
-    expect(component.isApproved).toBeTrue();
+    expect(component.isApproved).toBe(true);
     component.mrDetail = { status: 'REJECTED' } as any;
-    expect(component.isRejected).toBeTrue();
+    expect(component.isRejected).toBe(true);
   });
 
   it('should create PO when form is valid', () => {
@@ -87,7 +87,9 @@ describe('ViewProcurementComponent', () => {
 
     component.createPo();
 
-    expect(procurementService.convertMrToPo).toHaveBeenCalledWith('1', jasmine.anything());
+    expect(procurementService.convertMrToPo).toHaveBeenCalled();
+    const call = procurementService.convertMrToPo.mock.calls.at(-1);
+    expect(call?.[0]).toBe('1');
     expect(toastrStub.success).toHaveBeenCalled();
   });
 });

@@ -82,7 +82,7 @@ describe('CreateServiceRequestComponent', () => {
     component.onCreate();
 
     expect(serviceStub.createRequest).toHaveBeenCalled();
-    const payload = serviceStub.createRequest.calls.mostRecent().args[0] as any;
+    const payload = serviceStub.createRequest.mock.calls.at(-1)?.[0] as any;
     expect(payload.assetId).toBe(1);
     expect(payload.maintenanceType).toBe('CORRECTIVE');
     expect(payload.priority).toBe('HIGH');
@@ -103,6 +103,8 @@ describe('CreateServiceRequestComponent', () => {
 
     component.onCreate();
 
-    expect(serviceStub.updateRequest).toHaveBeenCalledWith('REQ-2', expect.anything());
+    expect(serviceStub.updateRequest).toHaveBeenCalled();
+    const call = serviceStub.updateRequest.mock.calls.at(-1);
+    expect(call?.[0]).toBe('REQ-2');
   });
 });

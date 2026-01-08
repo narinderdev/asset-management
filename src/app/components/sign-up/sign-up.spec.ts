@@ -2,19 +2,20 @@ import { ChangeDetectorRef } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { vi } from 'vitest';
 
 import { SignupService } from '../../services/signup-service';
 import { SignUpComponent } from './sign-up';
 
 describe('SignUpComponent', () => {
   const createComponent = () => {
-    const signupService = { signup: jasmine.createSpy('signup') } as unknown as SignupService;
-    const router = { navigate: jasmine.createSpy('navigate') } as unknown as Router;
+    const signupService = { signup: vi.fn() } as unknown as SignupService;
+    const router = { navigate: vi.fn() } as unknown as Router;
     const toastr = {
-      success: jasmine.createSpy('success'),
-      error: jasmine.createSpy('error')
+      success: vi.fn(),
+      error: vi.fn()
     } as unknown as ToastrService;
-    const cdr = { detectChanges: jasmine.createSpy('detectChanges') } as unknown as ChangeDetectorRef;
+    const cdr = { detectChanges: vi.fn() } as unknown as ChangeDetectorRef;
 
     return new SignUpComponent(new FormBuilder(), signupService, router, toastr, cdr);
   };

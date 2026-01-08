@@ -83,7 +83,7 @@ describe('CreatePreventiveMaintenanceComponent', () => {
     expect(pmTemplateService.createTemplate).toHaveBeenCalled();
     const payload = pmTemplateService.createTemplate.mock.calls.at(-1)?.[0] as any;
     expect(payload.pmName).toBe('Oil Change');
-    expect(payload.autoGenerateWo).toBeTrue();
+    expect(payload.autoGenerateWo).toBe(true);
   });
 
   it('should call update when in edit mode', () => {
@@ -113,6 +113,8 @@ describe('CreatePreventiveMaintenanceComponent', () => {
 
     component.onCreate();
 
-    expect(pmTemplateService.updateTemplate).toHaveBeenCalledWith(10, jasmine.anything());
+    expect(pmTemplateService.updateTemplate).toHaveBeenCalled();
+    const lastCall = pmTemplateService.updateTemplate.mock.calls.at(-1);
+    expect(lastCall?.[0]).toBe(10);
   });
 });

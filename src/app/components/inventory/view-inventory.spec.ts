@@ -41,7 +41,7 @@ describe('ViewInventoryComponent', () => {
   });
 
   it('should format date gracefully', () => {
-    expect(component.formatDate(undefined)).toBe('ƒ?"');
-    expect(component.formatDate('invalid-date')).toBe('ƒ?"');
+    expect(component.formatDate(undefined)).toBe('—');
+    expect(component.formatDate('invalid-date')).toBe('—');
   });
 });

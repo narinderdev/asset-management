@@ -65,6 +65,8 @@ describe('CreateTechnicianTeamComponent', () => {
     (component as any).editTeamId = 2;
     component.onSubmit();
 
-    expect(serviceStub.updateTechnicianTeam).toHaveBeenCalledWith(2, jasmine.anything());
+    expect(serviceStub.updateTechnicianTeam).toHaveBeenCalled();
+    const call = serviceStub.updateTechnicianTeam.mock.calls.at(-1);
+    expect(call?.[0]).toBe(2);
   });
 });

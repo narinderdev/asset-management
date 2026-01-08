@@ -50,6 +50,7 @@ describe('CreateProcurementComponent', () => {
   });
 
   it('should populate line when item selected', () => {
+    component.lineItems[0].itemId = '1';
     component.onItemSelected(0);
     expect(component.lineItems[0].itemName).toBe('Bearing');
     expect(component.lineItems[0].uom).toBe('Each');

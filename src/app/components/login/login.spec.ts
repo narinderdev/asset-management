@@ -1,18 +1,32 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
+import { of } from 'rxjs';
 import { vi } from 'vitest';
 
 import { LoginComponent } from './login';
+import { AuthService } from '../../services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
   let router: Router;
+  const authStub = {
+    login: vi.fn().mockReturnValue(of({ statusCode: 200, data: { token: 'token' }, message: 'ok' }))
+  };
+  const toastrStub = {
+    success: vi.fn(),
+    error: vi.fn()
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LoginComponent, RouterTestingModule]
+      imports: [LoginComponent, RouterTestingModule],
+      providers: [
+        { provide: AuthService, useValue: authStub },
+        { provide: ToastrService, useValue: toastrStub }
+      ]
     }).compileComponents();
 
     router = TestBed.inject(Router);
@@ -26,9 +40,9 @@ describe('LoginComponent', () => {
   });
 
   it('should toggle password visibility', () => {
-    expect(component.passwordVisible).toBeFalse();
+    expect(component.passwordVisible).toBe(false);
     component.togglePasswordVisibility();
-    expect(component.passwordVisible).toBeTrue();
+    expect(component.passwordVisible).toBe(true);
   });
 
   it('should not submit when form is invalid', () => {
@@ -36,22 +50,16 @@ describe('LoginComponent', () => {
 
     component.submit();
 
-    expect(component.loading).toBeFalse();
+    expect(component.loading).toBe(false);
     expect(touchSpy).toHaveBeenCalled();
   });
 
   it('should navigate to dashboard on successful submit', () => {
-    vi.useFakeTimers();
     const navigateSpy = vi.spyOn(router, 'navigate');
     component.form.setValue({ email: 'user@example.com', password: 'password123' });
 
     component.submit();
-    expect(component.loading).toBeTrue();
-
-    vi.advanceTimersByTime(900);
-
     expect(navigateSpy).toHaveBeenCalledWith(['dashboard']);
-    expect(component.loading).toBeFalse();
-    vi.useRealTimers();
+    expect(component.loading).toBe(false);
   });
 });

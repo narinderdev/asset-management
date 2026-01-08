@@ -70,6 +70,8 @@ describe('CreateTechnicianComponent', () => {
     component.editTechnicianId = 8;
     component.onSubmit();
 
-    expect(serviceStub.updateTechnician).toHaveBeenCalledWith(8, jasmine.anything());
+    expect(serviceStub.updateTechnician).toHaveBeenCalled();
+    const call = serviceStub.updateTechnician.mock.calls.at(-1);
+    expect(call?.[0]).toBe(8);
   });
 });

@@ -46,6 +46,6 @@ describe('ViewPreventiveMaintenanceComponent', () => {
 
   it('should format frequency and date values', () => {
     expect(component.formatFrequency(5, 'WEEKS')).toBe('5 Weeks');
-    expect(component.formatDate(undefined)).toBe('ƒ?"');
+    expect(component.formatDate(undefined)).toBe('—');
   });
 });
