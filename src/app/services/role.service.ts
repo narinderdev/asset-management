@@ -34,6 +34,11 @@ export interface CreateRolePayload {
   permissionCodes: string[];
 }
 
+export interface PermissionResponseModule {
+  module: string;
+  permissions: Permission[];
+}
+
 @Injectable({
   providedIn: 'root'
 })

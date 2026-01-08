@@ -6,6 +6,7 @@ import { finalize } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { SpinnerComponent } from '../spinner/spinner';
 import { AuthService } from '../../services/auth.service';
+import { PermissionService } from '../../services/permission.service';
 
 @Component({
   selector: 'app-login',
@@ -25,6 +26,7 @@ export class LoginComponent {
     private fb: FormBuilder,
     private router: Router,
     private authService: AuthService,
+    private permissionService: PermissionService,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) platformId: object
@@ -69,11 +71,15 @@ export class LoginComponent {
           const statusCode = response?.statusCode;
           const isSuccess = statusCode === 200 || statusCode === 201;
           const token = (response as any)?.data?.token || (response as any)?.token;
+          const user = (response as any)?.data?.user;
           const message = response?.message || (isSuccess ? 'Login successful' : 'Invalid credentials');
 
           if (isSuccess) {
             if (this.isBrowser && token) {
               localStorage.setItem('authToken', token);
+              if (user) {
+                this.permissionService.setFromUser(user);
+              }
             }
             this.toastr.success(message);
             this.router.navigate(['dashboard']);

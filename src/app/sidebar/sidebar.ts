@@ -2,12 +2,14 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
+import { PermissionService } from '../services/permission.service';
 
 interface MenuItem {
   icon: string;
   activeIcon?: string;
   label: string;
   route: string;
+  module?: string;
   hasSubmenu?: boolean;
   submenu?: { label: string; route: string }[];
 }
@@ -31,7 +33,7 @@ export class SidebarComponent {
 
   @Output() collapsedChange = new EventEmitter<boolean>();
 
-  menuItems: MenuItem[] = [
+  private readonly baseMenuItems: MenuItem[] = [
     {
       icon: 'radix-icons_dashboard.svg',
       activeIcon: 'radix-icons_dashboard (1).svg',
@@ -42,6 +44,7 @@ export class SidebarComponent {
       icon: 'fluent_web-asset-24-regular.svg',
       label: 'Assets',
       route: '/assets',
+      module: 'ASSET',
       hasSubmenu: true,
       submenu: [{ label: 'All Assets', route: '/assets' }]
     },
@@ -49,37 +52,43 @@ export class SidebarComponent {
       icon: 'carbon_collapse-categories.svg',
       activeIcon: 'carbon_collapse-categories-active.svg',
       label: 'Service Requests',
-      route: '/service-requests'
+      route: '/service-requests',
+      module: 'SERVICE_REQUEST'
     },
     {
       icon: 'fluent-mdl2_work-flow.svg',
       activeIcon: 'fluent-mdl2_work-flow (1).svg',
       label: 'Work Orders',
-      route: '/work-orders'
+      route: '/work-orders',
+      module: 'WORK_ORDER'
     },
     {
       icon: 'streamline_hierarchy-10.svg',
       activeIcon: 'streamline_hierarchy-10 (1).svg',
       label: 'Preventive Maintenance',
-      route: '/preventive-maintenance'
+      route: '/preventive-maintenance',
+      module: 'PREVENTIVE_MAINTENANCE'
     },
     {
       icon: 'proicons_document.svg',
       activeIcon: 'proicons_document (1).svg',
       label: 'Inventory',
-      route: '/inventory'
+      route: '/inventory',
+      module: 'INVENTORY'
     },
     {
       icon: 'Icon.svg',
       activeIcon: 'Icon (1).svg',
       label: 'Vendor Management',
-      route: '/vendor-management'
+      route: '/vendor-management',
+      module: 'VENDOR'
     },
     {
       icon: 'clarity_two-way-arrows-line.svg',
       activeIcon: 'clarity_two-way-arrows-line (1).svg',
       label: 'Procurement',
       route: '/procurement',
+      module: 'PROCUREMENT',
       hasSubmenu: true,
       submenu: [
         { label: 'Material Requisitions', route: '/procurement/material-requisitions' },
@@ -92,6 +101,7 @@ export class SidebarComponent {
       activeIcon: 'tec.svg',
       label: 'Technician / Teams',
       route: '/technicians',
+      module: 'TECHNICIAN',
       hasSubmenu: true,
         submenu: [
         { label: 'Technician', route: '/technicians' },
@@ -103,6 +113,7 @@ export class SidebarComponent {
       activeIcon: 'carbon_user-role.svg',
       label: 'Roles / Users',
       route: '/roles-permissions',
+      module: 'ROLES',
       hasSubmenu: true,
       submenu: [
         { label: 'Roles', route: '/roles-permissions' },
@@ -111,7 +122,7 @@ export class SidebarComponent {
     }
   ];
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private permissions: PermissionService) {
     this.activeRoute = this.router.url || this.activeRoute;
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
@@ -144,6 +155,20 @@ export class SidebarComponent {
   getMenuIconPath(item: MenuItem): string {
     const iconName = this.isMenuItemActive(item) && item.activeIcon ? item.activeIcon : item.icon;
     return this.getIconPath(iconName);
+  }
+
+  get menuItems(): MenuItem[] {
+    const allowed = this.permissions.getAllowedModules();
+    if (!allowed || !allowed.length) {
+      return this.baseMenuItems;
+    }
+    const allowedSet = new Set(allowed.map((a: string) => a.toUpperCase()));
+    return this.baseMenuItems.filter(item => {
+      if (!item.module) {
+        return true;
+      }
+      return allowedSet.has(item.module.toUpperCase());
+    });
   }
 
   handleMenuClick(item: MenuItem, event: MouseEvent) {

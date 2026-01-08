@@ -1,214 +1,193 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CreateRolePayload, Permission, PermissionModule, RoleService } from '../../services/role.service';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { SpinnerComponent } from '../spinner/spinner';
-import { Role } from '../../models/company-users.model';
-import { ToastrService } from 'ngx-toastr';
+import { RoleService } from '../../services/role.service';
+import { finalize } from 'rxjs';
+
+interface PermissionRow {
+  label: string;
+  permissions: { view?: string; create?: string; update?: string; delete?: string };
+  isSubRow?: boolean;
+}
 
 @Component({
   selector: 'app-roles',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, SpinnerComponent],
   templateUrl: './roles.html',
-  styleUrls: ['./roles.css'],
+  styleUrls: ['./roles.css']
 })
 export class RolesComponent implements OnInit {
-  roles: Role[] = [];
-  permissionModules: PermissionModule[] = [];
-  permissionMap: Record<string, Permission> = {};
-  isLoading = false;
+  roles: any[] = [];
   isModalOpen = false;
+  isLoading = false;
   isSaving = false;
   submitted = false;
-  addRoleForm!: FormGroup;
-  activePermissionTab = 'dashboard';
-  tabPermissions: Record<string, Permission[]> = {};
-
-  permissionTabs: { key: string; label: string }[] = [];
+  addRoleForm: FormGroup;
+  permissionRows: PermissionRow[] = [];
+  canCreateRoles = true;
+  Math = Math;
+  pagination = { pageSize: 10, currentPage: 0, totalPages: 0, totalItems: 0 };
+  requiredViewCode = '';
 
   constructor(
     private fb: FormBuilder,
     private roleService: RoleService,
-    private cdr: ChangeDetectorRef,
-    private toastr: ToastrService
-  ) {}
-
-  ngOnInit() {
+    private cdr: ChangeDetectorRef
+  ) {
     this.addRoleForm = this.fb.group({
-      name: ['', Validators.required],
-      description: ['', Validators.required],
-      permissions: [[]],
-    });
-
-    this.loadRoles();
-  }
-
-  loadRoles() {
-    this.isLoading = true;
-
-    this.roleService.getRoles().subscribe({
-      next: (res) => {
-        const payload = res?.data;
-        const content = Array.isArray(payload)
-          ? payload
-          : (payload as any)?.content;
-        this.roles = Array.isArray(content) ? content : [];
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Failed to load roles', err);
-        this.roles = [];
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
+      name: [''],
+      description: [''],
+      permissions: [[]]
     });
   }
 
-  loadPermissions() {
-    if (this.permissionModules.length) return;
-
-    this.roleService.getPermissions().subscribe({
-      next: (res) => {
-        const permissionData = Array.isArray(res) ? res : res?.data ?? [];
-        this.permissionModules = permissionData || [];
-        this.buildTabPermissions();
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Failed to load permissions', err);
-        this.permissionModules = [];
-        this.cdr.detectChanges();
-      },
-    });
-  }
-
-  permissionLabel(perm: Permission | string) {
-    if (typeof perm === 'string') {
-      return this.permissionMap[perm]?.label || this.toTitleCase(perm);
+  formatRoleId(id: any): string {
+    if (!id && id !== 0) {
+      return '—';
     }
-    return perm.label || this.toTitleCase(perm.code);
+    return `ROL-${id}`;
+  }
+
+  formatModuleLabel(raw: string | undefined): string {
+    if (!raw) {
+      return '';
+    }
+    return raw
+      .toString()
+      .replace(/_/g, ' ')
+      .toLowerCase()
+      .split(' ')
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
   }
 
   openModal() {
-    this.addRoleForm.reset({
-      name: '',
-      description: '',
-      permissions: [],
-    });
-
-    this.submitted = false;
     this.isModalOpen = true;
-    const fallbackTab = this.permissionTabs.find((tab) => this.getPermissionsForTab(tab.key).length);
-    this.activePermissionTab = fallbackTab?.key || this.permissionTabs[0]?.key || '';
-    this.loadPermissions();
-    this.cdr.detectChanges();
+  }
+
+  ngOnInit() {
+    this.fetchRoles();
+    this.fetchPermissions();
+  }
+
+  private fetchRoles() {
+    this.isLoading = true;
+    this.roleService
+      .getRoles()
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: res => {
+          const data: any = res?.data;
+          const content = Array.isArray(data) ? data : data?.content;
+          this.roles = Array.isArray(content) ? content : [];
+          this.pagination.totalItems = this.roles.length;
+          this.pagination.totalPages = this.roles.length
+            ? Math.ceil(this.roles.length / this.pagination.pageSize)
+            : 0;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.roles = [];
+          this.pagination.totalItems = 0;
+          this.pagination.totalPages = 0;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  private fetchPermissions() {
+    this.roleService
+      .getPermissions()
+      .pipe(
+        finalize(() => {
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: res => {
+          const data: any = Array.isArray(res) ? res : res?.data;
+          const modules = Array.isArray(data) ? data : [];
+          this.permissionRows = modules.map((mod: any) => ({
+            label: mod.module || 'Module',
+            permissions: this.mapActions(mod.permissions || [], mod.module)
+          }));
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.permissionRows = [];
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  private mapActions(perms: any[], moduleName?: string): { view?: string; create?: string; update?: string; delete?: string } {
+    const out: any = {};
+    perms.forEach(p => {
+      const action = String(p?.action || '').toUpperCase();
+      if (action === 'VIEW' || action === 'ACCESS') {
+        out.view = p.code;
+      } else if (action === 'CREATE' || action === 'INVITE') {
+        out.create = p.code;
+      } else if (action === 'UPDATE') {
+        out.update = p.code;
+      } else if (action === 'DELETE') {
+        out.delete = p.code;
+      }
+    });
+    const moduleUpper = (moduleName || '').toUpperCase();
+    if (['INVITE_USER', 'MANAGE_ROLES', 'MANAGE_USERS'].includes(moduleUpper)) {
+      if (out.view && !out.create) {
+        out.create = out.view;
+      }
+    }
+    return out;
   }
 
   closeModal() {
     this.isModalOpen = false;
-    this.cdr.detectChanges();
   }
 
   saveRole() {
     this.submitted = true;
-    if (this.addRoleForm.invalid) return;
-
-    this.isSaving = true;
-    const formValue = this.addRoleForm.value;
-
-    const payload: CreateRolePayload = {
-      name: formValue.name,
-      description: formValue.description,
-      permissionCodes: formValue.permissions || [],
-    };
-
-    this.roleService.createRoles(payload).subscribe({
-      next: (res) => {
-        this.toastr.success(res?.message || 'Role created successfully');
-        this.isSaving = false;
-        this.isModalOpen = false;
-        this.loadRoles();
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Failed to create role', err);
-        this.toastr.error('Failed to create role');
-        this.isSaving = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.isSaving = false;
   }
 
-  isPermissionSelected(id: string) {
-    const selected = this.addRoleForm.get('permissions')?.value || [];
-    return selected.includes(id);
+  getSelectedCount(): number {
+    const val = this.addRoleForm.get('permissions')?.value;
+    return Array.isArray(val) ? val.length : 0;
   }
 
-  togglePermissionSelection(id: string) {
+  isPermissionSelected(code: string | undefined): boolean {
+    if (!code) return false;
+    const val = this.addRoleForm.get('permissions')?.value;
+    return Array.isArray(val) ? val.includes(code) : false;
+  }
+
+  onPermissionToggle(row: PermissionRow, action: 'view' | 'create' | 'update' | 'delete') {
+    const code = row.permissions[action];
+    if (!code) return;
     const control = this.addRoleForm.get('permissions');
-    if (!control) return;
-
-    const current = control.value || [];
-    if (current.includes(id)) {
-      control.setValue(current.filter((val: any) => val !== id));
+    const current = Array.isArray(control?.value) ? control?.value : [];
+    if (current.includes(code)) {
+      if (action === 'view' && code === this.requiredViewCode) {
+        return;
+      }
+      control?.setValue(current.filter((c: string) => c !== code));
     } else {
-      control.setValue([...current, id]);
+      control?.setValue([...current, code]);
     }
   }
 
-  selectedPermissionLabels(): string[] {
-    const selected = this.addRoleForm.get('permissions')?.value || [];
-    return selected.map((code: string) => this.permissionLabel(code));
+  isViewDisabled(row: PermissionRow): boolean {
+    return !!this.requiredViewCode && row.permissions.view === this.requiredViewCode;
   }
 
-  getPermissionsForTab(tabKey: string): Permission[] {
-    return this.tabPermissions[tabKey] || [];
-  }
-
-  setActiveTab(tabKey: string) {
-    if (!this.tabPermissions[tabKey]) {
-      return;
-    }
-    this.activePermissionTab = tabKey;
-    this.cdr.detectChanges();
-  }
-
-  private buildTabPermissions() {
-    this.permissionMap = {};
-    this.tabPermissions = {};
-    this.permissionTabs = this.permissionModules.map((mod) => ({
-      key: this.normalizeKey(mod.module),
-      label: this.toTitleCase(mod.module),
-    }));
-
-    this.permissionModules.forEach((mod) => {
-      const key = this.normalizeKey(mod.module);
-      const perms = mod.permissions || [];
-      this.tabPermissions[key] = perms;
-      perms.forEach((perm) => {
-        this.permissionMap[perm.code] = perm;
-      });
-    });
-
-    const hasCurrent = (this.tabPermissions[this.activePermissionTab] || []).length > 0;
-    if (!hasCurrent) {
-      const fallback = this.permissionTabs.find((tab) => (this.tabPermissions[tab.key] || []).length > 0);
-      this.activePermissionTab = fallback?.key || this.permissionTabs[0]?.key || '';
-    }
-  }
-
-  private normalizeKey(value: string): string {
-    return value?.toLowerCase();
-  }
-
-  private toTitleCase(raw: string): string {
-    if (!raw) return '';
-    return raw
-      .toLowerCase()
-      .split(/[_\s]+/)
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join(' ');
-  }
+  viewRole(_: any) {}
 }

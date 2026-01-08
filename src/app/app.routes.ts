@@ -32,7 +32,7 @@ import { CreateTechnicianTeamComponent } from './components/technician/create-te
 import { ViewTechnicianTeamComponent } from './components/technician/view-technician-team';
 import { LoginComponent } from './components/login/login';
 import { SignUpComponent } from './components/sign-up/sign-up';
-import { RolesComponent } from './components/roles/roles';
+import { RolesComponent } from './components/roles';
 import { ViewProcurementComponent } from './components/procurement/view-procurement';
 import { VerifyOtpComponent } from './components/verify-otp/verify-otp';
 import { AuthGuard } from './guards/auth.guard';
