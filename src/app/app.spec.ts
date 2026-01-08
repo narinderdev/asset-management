@@ -1,10 +1,16 @@
 import { TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { ToastrService } from 'ngx-toastr';
+
 import { App } from './app';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App],
+      imports: [App, RouterTestingModule],
+      providers: [
+        { provide: ToastrService, useValue: { success: vi.fn(), error: vi.fn() } }
+      ]
     }).compileComponents();
   });
 

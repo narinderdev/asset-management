@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ToastrService } from 'ngx-toastr';
 
 import { AssetsComponent } from './assets';
 import { environment } from '../../../environments/environment';
@@ -12,7 +13,10 @@ describe('AssetsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AssetsComponent, RouterTestingModule, HttpClientTestingModule]
+      imports: [AssetsComponent, RouterTestingModule, HttpClientTestingModule],
+      providers: [
+        { provide: ToastrService, useValue: { success: vi.fn(), error: vi.fn() } }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(AssetsComponent);
