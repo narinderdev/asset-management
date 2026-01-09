@@ -4,11 +4,11 @@
       <button type="button" class="back-btn" aria-label="Back to procurement" (click)="onCancel()">
         &larr;
       </button>
-      <h2>Create MR</h2>
+      <h2>{{ isEditMode ? 'Edit MR' : 'Create MR' }}</h2>
     </header>
 
-    <form class="request-form" (ngSubmit)="onCreate()">
-      <div class="section-title">Create Material Requisition (MR)</div>
+    <form class="request-form" (ngSubmit)="onSubmit()">
+      <div class="section-title">{{ isEditMode ? 'Update Material Requisition (MR)' : 'Create Material Requisition (MR)' }}</div>
       <div class="form-grid">
         <label class="field">
           <span>Requested By (userId/name)</span>
@@ -67,7 +67,9 @@
       </div>
 
       <div class="form-actions">
-        <button type="submit" class="btn primary" [disabled]="isSubmitting">Submit</button>
+        <button type="submit" class="btn primary" [disabled]="isSubmitting">
+          {{ isEditMode ? 'Update' : 'Submit' }}
+        </button>
       </div>
     </form>
   </section>

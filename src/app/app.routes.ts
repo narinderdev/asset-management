@@ -40,6 +40,7 @@ import { UsersComponent } from './components/users';
 import { SetPasswordComponent } from './components/set-password/set-password';
 import { PurchaseOrdersComponent } from './components/procurement/purchase-orders';
 import { ViewPurchaseOrderComponent } from './components/procurement/view-purchase-order';
+import { GoodsReceiptsComponent } from './components/procurement/goods-receipts';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -84,8 +85,9 @@ export const routes: Routes = [
   { path: 'procurement/material-requisitions', component: ProcurementComponent, canActivate: [AuthGuard] },
   { path: 'procurement/purchase-orders', component: PurchaseOrdersComponent, canActivate: [AuthGuard] },
   { path: 'procurement/purchase-orders/view/:id', component: ViewPurchaseOrderComponent, canActivate: [AuthGuard] },
-  { path: 'procurement/goods-receipts', component: ProcurementComponent, canActivate: [AuthGuard] },
+  { path: 'procurement/goods-receipts', component: GoodsReceiptsComponent, canActivate: [AuthGuard] },
   { path: 'procurement/create', component: CreateProcurementComponent, canActivate: [AuthGuard] },
+  { path: 'procurement/edit/:id', component: CreateProcurementComponent, canActivate: [AuthGuard] },
   { path: 'procurement/view/:id', component: ViewProcurementComponent, canActivate: [AuthGuard] },
   { path: 'service-contracts', component: ServiceContractComponent, canActivate: [AuthGuard] },
   { path: 'service-contracts/create', component: CreateServiceContractComponent, canActivate: [AuthGuard] },

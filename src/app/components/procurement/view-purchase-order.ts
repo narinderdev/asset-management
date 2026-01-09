@@ -1,13 +1,16 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
 
 import {
   ProcurementService,
   PurchaseOrderDetailResponse,
   PurchaseOrderItem,
-  PurchaseOrderLine
+  PurchaseOrderLine,
+  UpdatePoStatusPayload
 } from '../../services/procurement.service';
 
 interface UiPoLine {
@@ -23,7 +26,7 @@ interface UiPoLine {
 @Component({
   selector: 'app-view-purchase-order',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './view-purchase-order.html',
   styleUrls: ['./view-procurement.css']
 })
@@ -33,12 +36,23 @@ export class ViewPurchaseOrderComponent implements OnInit {
   lines: UiPoLine[] = [];
   isLoading = true;
   errorMessage?: string;
+  isMarkDeliveredOpen = false;
+  isMarking = false;
+  isCreateGrnOpen = false;
+  grnForm = {
+    receivedBy: '',
+    receivedAt: '',
+    notes: '',
+    lines: [] as { id?: number; itemId?: number; receiveNow: number; orderedQty: number; receivedQty: number; uom: string }[]
+  };
+  isSubmittingGrn = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private procurementService: ProcurementService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -53,6 +67,44 @@ export class ViewPurchaseOrderComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/procurement/purchase-orders']);
+  }
+
+  openMarkDelivered(): void {
+    this.isMarkDeliveredOpen = true;
+  }
+
+  closeMarkDelivered(): void {
+    this.isMarkDeliveredOpen = false;
+  }
+
+  confirmMarkDelivered(): void {
+    if (!this.poId || this.isMarking) {
+      return;
+    }
+    const payload: UpdatePoStatusPayload = {
+      newStatus: 'DELIVERED',
+      remarks: ''
+    };
+    this.isMarking = true;
+    this.procurementService
+      .updatePurchaseOrderStatus(this.poId, payload)
+      .pipe(
+        finalize(() => {
+          this.isMarking = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.toastr.success('PO marked as delivered');
+          this.closeMarkDelivered();
+          this.cdr.detectChanges();
+          this.fetchPo(this.poId as string);
+        },
+        error: () => {
+          this.toastr.error('Unable to update PO status');
+        }
+      });
   }
 
   private fetchPo(id: string): void {
@@ -71,6 +123,7 @@ export class ViewPurchaseOrderComponent implements OnInit {
         next: (res: PurchaseOrderDetailResponse) => {
           this.po = res.data;
           this.lines = (res.data?.lines ?? []).map(line => this.mapLine(line));
+          this.prepareGrnLines();
         },
         error: () => {
           this.errorMessage = 'Unable to load purchase order. Please try again.';
@@ -80,6 +133,14 @@ export class ViewPurchaseOrderComponent implements OnInit {
 
   get statusChip(): string {
     return this.prettify(this.po?.status) || 'Draft';
+  }
+
+  get isDraft(): boolean {
+    return (this.po?.status || '').toUpperCase() === 'DRAFT';
+  }
+
+  get isDelivered(): boolean {
+    return (this.po?.status || '').toUpperCase() === 'DELIVERED';
   }
 
   private mapLine(line: PurchaseOrderLine): UiPoLine {
@@ -103,5 +164,74 @@ export class ViewPurchaseOrderComponent implements OnInit {
       .split('_')
       .map(part => part.charAt(0).toUpperCase() + part.slice(1))
       .join(' ');
+  }
+
+  createGrn(): void {
+    this.isCreateGrnOpen = true;
+    if (!this.grnForm.receivedAt) {
+      this.grnForm.receivedAt = new Date().toISOString().slice(0, 16);
+    }
+  }
+
+  closeCreateGrn(): void {
+    this.isCreateGrnOpen = false;
+  }
+
+  submitGrn(): void {
+    if (!this.poId) {
+      this.toastr.error('Missing PO id.');
+      return;
+    }
+    const payload = this.buildGrnPayload();
+    if (!payload.lines.length) {
+      this.toastr.error('Please enter at least one receive quantity.');
+      return;
+    }
+    this.isSubmittingGrn = true;
+    this.procurementService
+      .createGrn(payload)
+      .pipe(
+        finalize(() => {
+          this.isSubmittingGrn = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.toastr.success('GRN created successfully.');
+          this.closeCreateGrn();
+          this.router.navigate(['/procurement/goods-receipts']);
+        },
+        error: () => {
+          this.toastr.error('Unable to create GRN. Please try again.');
+        }
+      });
+  }
+
+  private prepareGrnLines(): void {
+    this.grnForm.lines = this.lines.map(line => ({
+      id: line.id,
+      itemId: line.itemId,
+      orderedQty: line.orderedQty,
+      receivedQty: line.receivedQty,
+      receiveNow: 0,
+      uom: line.uom
+    }));
+  }
+
+  private buildGrnPayload() {
+    const lines = this.grnForm.lines
+      .filter(l => Number(l.receiveNow) > 0 && l.id !== undefined)
+      .map(l => ({
+        poLineId: Number(l.id),
+        receivedQty: Number(l.receiveNow)
+      }));
+
+    return {
+      poId: Number(this.poId),
+      receivedByUserId: this.grnForm.receivedBy || '',
+      notes: this.grnForm.notes || '',
+      lines
+    };
   }
 }

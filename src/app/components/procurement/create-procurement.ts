@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { ProcurementService, CreateMrPayload } from '../../services/procurement.service';
+import { Router, ActivatedRoute } from '@angular/router';
+import { ProcurementService, CreateMrPayload, PurchaseRequisitionItem, PurchaseRequisitionLine } from '../../services/procurement.service';
 import { InventoryService } from '../../services/inventory.service';
 
 interface LineItem {
@@ -22,6 +22,8 @@ interface LineItem {
 })
 export class CreateProcurementComponent implements OnInit {
   today = new Date().toISOString().split('T')[0];
+  isEditMode = false;
+  mrId?: string;
 
   requisition = {
     requestedBy: '',
@@ -45,16 +47,30 @@ export class CreateProcurementComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private procurementService: ProcurementService,
     private inventoryService: InventoryService
   ) {}
 
   ngOnInit(): void {
+    this.mrId = this.route.snapshot.paramMap.get('id') || undefined;
+    this.isEditMode = !!this.mrId;
     this.fetchItemOptions();
+    if (this.isEditMode && this.mrId) {
+      this.loadExistingMr(this.mrId);
+    }
   }
 
   onCancel(): void {
     this.router.navigate(['/procurement']);
+  }
+
+  onSubmit(): void {
+    if (this.isEditMode && this.mrId) {
+      this.onUpdate(this.mrId);
+    } else {
+      this.onCreate();
+    }
   }
 
   onCreate(): void {
@@ -67,6 +83,21 @@ export class CreateProcurementComponent implements OnInit {
       },
       error: err => {
         console.error('Failed to create MR', err);
+        this.isSubmitting = false;
+      }
+    });
+  }
+
+  private onUpdate(id: string): void {
+    const payload = this.buildPayload();
+    this.isSubmitting = true;
+    this.procurementService.updateMr(id, payload).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.router.navigate(['/procurement']);
+      },
+      error: err => {
+        console.error('Failed to update MR', err);
         this.isSubmitting = false;
       }
     });
@@ -135,5 +166,58 @@ export class CreateProcurementComponent implements OnInit {
         this.isLoadingItems = false;
       }
     });
+  }
+
+  private loadExistingMr(id: string): void {
+    this.procurementService.fetchMrById(id).subscribe({
+      next: res => {
+        const data: PurchaseRequisitionItem | undefined = res.data;
+        if (!data) {
+          return;
+        }
+        this.requisition = {
+          requestedBy: data.requestedByUserId || '',
+          neededBy: this.formatDateForInput(data.neededByDate) || this.today,
+          notes: data.notes || ''
+        };
+        const lines = data.lines || [];
+        this.lineItems = lines.length
+          ? lines.map(line => this.mapLine(line))
+          : [
+              {
+                itemId: '',
+                assetId: '',
+                itemName: '',
+                qty: 1,
+                uom: 'Each'
+              }
+            ];
+      },
+      error: err => {
+        console.error('Unable to load MR for edit', err);
+      }
+    });
+  }
+
+  private mapLine(line: PurchaseRequisitionLine): LineItem {
+    return {
+      itemId: line.itemId ? String(line.itemId) : '',
+      assetId: line.assetId ? String(line.assetId) : '',
+      itemName: line.itemName || line.description || line.remarks || '',
+      qty: Number(
+        line.requestedQty ??
+        line.qtyRequested ??
+        line.quantity ??
+        0
+      ) || 0,
+      uom: line.uom || 'Each'
+    };
+  }
+
+  private formatDateForInput(value?: string): string {
+    if (!value) return '';
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return '';
+    return date.toISOString().split('T')[0];
   }
 }

@@ -1,13 +1,18 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpErrorResponse } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class AuthTokenInterceptor implements HttpInterceptor {
   private readonly isBrowser: boolean;
 
-  constructor(@Inject(PLATFORM_ID) platformId: object) {
+  constructor(
+    @Inject(PLATFORM_ID) platformId: object,
+    private router: Router
+  ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
@@ -35,6 +40,14 @@ export class AuthTokenInterceptor implements HttpInterceptor {
       }
     });
 
-    return next.handle(authReq);
+    return next.handle(authReq).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (this.isBrowser && error?.status === 403) {
+          localStorage.removeItem('authToken');
+          this.router.navigate(['/login']);
+        }
+        return throwError(() => error);
+      })
+    );
   }
 }

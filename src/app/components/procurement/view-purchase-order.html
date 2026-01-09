@@ -5,6 +5,16 @@
       <h2>PO Details</h2>
     </div>
     <div class="mr-view-actions">
+      <button
+        class="btn success"
+        type="button"
+        *ngIf="isDraft"
+        (click)="openMarkDelivered()">Mark Delivered</button>
+      <button
+        class="btn primary"
+        type="button"
+        *ngIf="isDelivered"
+        (click)="createGrn()">Create GRN</button>
       <button class="btn ghost" type="button" (click)="goBack()">Back To List</button>
     </div>
   </header>
@@ -40,7 +50,7 @@
         </div>
         <div>
           <span class="label">Created By</span>
-          <span class="value">{{ po?.createdBy || '—' }}</span>
+          <span class="value">{{ po?.createdBy || po?.createdByUserId || '—' }}</span>
         </div>
       </div>
     </div>
@@ -83,3 +93,96 @@
   </div>
   <div *ngIf="errorMessage" class="status-message">{{ errorMessage }}</div>
 </ng-template>
+
+<div class="modal-backdrop" *ngIf="isMarkDeliveredOpen">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Mark Delivered</h3>
+      <button class="close-btn" type="button" (click)="closeMarkDelivered()" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to mark this PO as delivered?</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" type="button" (click)="closeMarkDelivered()">No</button>
+      <button class="btn primary" type="button" (click)="confirmMarkDelivered()" [disabled]="isMarking">
+        {{ isMarking ? 'Updating...' : 'Yes' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="isCreateGrnOpen">
+  <div class="modal-card po-modal wide">
+    <div class="modal-header">
+      <div>
+        <h3>Create GRN</h3>
+        <div class="subtext">For {{ po?.poNumber || ('PO-' + poId) }}</div>
+      </div>
+      <div class="status-chip status-approved">PO: {{ statusChip || 'Delivered' }}</div>
+      <button class="close-btn" type="button" (click)="closeCreateGrn()" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="po-form-grid">
+        <label class="field">
+          <span>PO Number</span>
+          <input type="text" [value]="po?.poNumber || ''" readonly />
+        </label>
+        <label class="field">
+          <span>Vendor</span>
+          <input type="text" [value]="po?.vendorName || ''" readonly />
+        </label>
+        <label class="field">
+          <span>Received by</span>
+          <input type="text" [(ngModel)]="grnForm.receivedBy" placeholder="e.g., store-01 / ajay" />
+        </label>
+        <label class="field">
+          <span>Received at</span>
+          <input type="datetime-local" [(ngModel)]="grnForm.receivedAt" />
+        </label>
+        <label class="field full-width">
+          <span>Notes (Optional)</span>
+          <input [(ngModel)]="grnForm.notes" placeholder="Delivery condition, invoice note, etc"/>
+        </label>
+      </div>
+
+      <div class="card mt-16">
+        <div class="card-title">Receive Lines (from PO lines)</div>
+        <table class="line-table">
+          <thead>
+            <tr>
+              <th>Item ID</th>
+              <th>Ordered</th>
+              <th>Receive Now</th>
+              <th>UOM</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let line of grnForm.lines">
+              <td>{{ line.itemId || '—' }}</td>
+              <td>{{ line.orderedQty }}</td>
+              <td>
+                <input
+                  type="number"
+                  min="0"
+                  [(ngModel)]="line.receiveNow"
+                class="inline-input"
+              />
+            </td>
+              <td>{{ line.uom || '—' }}</td>
+            </tr>
+            <tr *ngIf="!grnForm.lines.length">
+              <td colspan="4" class="empty">No lines available</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" type="button" (click)="closeCreateGrn()">Cancel</button>
+      <button class="btn primary" type="button" (click)="submitGrn()" [disabled]="isSubmittingGrn">
+        {{ isSubmittingGrn ? 'Creating...' : 'Create GRN' }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -53,6 +53,10 @@ export class ProcurementComponent implements OnInit {
     });
   }
 
+  editRequisition(request: ProcurementRequest): void {
+    this.router.navigate(['/procurement/edit', request.id]);
+  }
+
   private loadRequisitions(): void {
     this.isLoading = true;
     this.errorMessage = undefined;

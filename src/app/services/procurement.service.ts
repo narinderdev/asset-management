@@ -63,6 +63,7 @@ export interface PurchaseRequisitionLine {
   estimatedUnitPrice?: number;
   costPerUnit?: number;
   lineTotal?: number;
+  remarks?: string;
 }
 
 export interface PurchaseRequisitionListResponse {
@@ -84,6 +85,7 @@ export interface PurchaseOrderItem {
   poNumber?: string;
   vendorName?: string;
   vendorId?: number;
+  createdByUserId?: string;
   status?: string;
   expectedDeliveryDate?: string;
   remarks?: string;
@@ -116,6 +118,51 @@ export interface PurchaseOrderDetailResponse {
   status?: string;
   message?: string;
   data?: PurchaseOrderItem;
+}
+
+export interface UpdatePoStatusPayload {
+  newStatus: string;
+  remarks?: string;
+}
+
+export interface GoodsReceiptLine {
+  id?: number;
+  poLineId?: number;
+  itemId?: number;
+  receivedQty?: number;
+}
+
+export interface GoodsReceiptItem {
+  id?: number;
+  grnNumber?: string;
+  poId?: number;
+  vendorId?: number;
+  receivedByUserId?: string;
+  receivedAtUtc?: string;
+  dayKeyUtc?: string;
+  notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  lines?: GoodsReceiptLine[];
+}
+
+export interface GoodsReceiptListResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: GoodsReceiptItem[];
+}
+
+export interface CreateGrnLinePayload {
+  poLineId: number;
+  receivedQty: number;
+}
+
+export interface CreateGrnPayload {
+  poId: number;
+  receivedByUserId: string;
+  notes?: string;
+  lines: CreateGrnLinePayload[];
 }
 
 export interface RejectMrPayload {
@@ -208,6 +255,14 @@ export class ProcurementService {
     return this.http.post(`${this.apiUrl}/${id}/convert-to-po`, payload, { headers });
   }
 
+  updateMr(id: number | string, payload: CreateMrPayload): Observable<any> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.put(`${this.apiUrl}/${id}`, payload, { headers });
+  }
+
   fetchPurchaseOrders(page: number, size: number, sort: string[] = []): Observable<PurchaseOrderListResponse> {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -230,5 +285,42 @@ export class ProcurementService {
     });
 
     return this.http.get<PurchaseOrderDetailResponse>(`${this.poApiUrl}/${id}`, { headers });
+  }
+
+  fetchGoodsReceipts(poId?: number | string, from?: string, to?: string): Observable<GoodsReceiptListResponse> {
+    let params = new HttpParams();
+    if (poId !== undefined && poId !== null && poId !== '') {
+      params = params.set('poId', String(poId));
+    }
+    if (from) {
+      params = params.set('from', from);
+    }
+    if (to) {
+      params = params.set('to', to);
+    }
+
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.get<GoodsReceiptListResponse>(`${environment.apiUrl}/api/procurement/grn`, {
+      params,
+      headers
+    });
+  }
+
+  createGrn(payload: CreateGrnPayload): Observable<any> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.post(`${environment.apiUrl}/api/procurement/grn`, payload, { headers });
+  }
+
+  updatePurchaseOrderStatus(id: number | string, payload: UpdatePoStatusPayload): Observable<any> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.patch(`${this.poApiUrl}/${id}/status`, payload, { headers });
   }
 }
