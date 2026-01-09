@@ -2,10 +2,9 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { SpinnerComponent } from '../spinner/spinner';
-import { RoleService } from '../../services/role.service';
+import { RoleService, CreateRolePayload } from '../../services/role.service';
 import { finalize } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { CreateRolePayload } from '../../services/role.service';
 
 interface PermissionRow {
   label: string;
@@ -44,13 +43,6 @@ export class RolesComponent implements OnInit {
       description: [''],
       permissions: [[]]
     });
-  }
-
-  formatRoleId(id: any): string {
-    if (!id && id !== 0) {
-      return '—';
-    }
-    return `ROL-${id}`;
   }
 
   formatModuleLabel(raw: string | undefined): string {
@@ -212,7 +204,6 @@ export class RolesComponent implements OnInit {
         return;
       }
       const updated = current.filter((c: string) => c !== code);
-      // If removing view, also remove dependent actions
       if (action === 'view') {
         const deps = [row.permissions.create, row.permissions.update, row.permissions.delete].filter(Boolean);
         control?.setValue(updated.filter(val => !deps.includes(val)));

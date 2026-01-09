@@ -9,30 +9,22 @@
       <table class="roles-table">
         <thead>
           <tr>
-            <th>Role ID</th>
             <th>Role Name</th>
             <th>Description</th>
             <th>Status</th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngIf="!roles.length">
-            <td colspan="5" class="empty-row">No roles available.</td>
+            <td colspan="3" class="empty-row">No roles available.</td>
           </tr>
           <tr *ngFor="let r of roles">
-            <td>{{ formatRoleId(r.id) }}</td>
-            <td>{{ r.name || '—' }}</td>
-            <td>{{ r.description || '—' }}</td>
+            <td>{{ r.name || 'ƒ?"' }}</td>
+            <td>{{ r.description || 'ƒ?"' }}</td>
             <td>
               <span class="status-chip" [ngClass]="{ 'status-green': r.active !== false, 'status-grey': r.active === false }">
                 {{ r.active === false ? 'Inactive' : 'Active' }}
               </span>
-            </td>
-            <td class="actions-cell">
-              <button class="action-icon" type="button" (click)="viewRole(r)">
-                <img src="assets/icons/Vector.svg" alt="View" />
-              </button>
             </td>
           </tr>
         </tbody>
