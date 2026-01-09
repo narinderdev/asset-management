@@ -25,6 +25,7 @@ export class PermissionService {
       return;
     }
     const modules: Record<ModuleKey, ActionKey[]> = {};
+    const procurementModules = new Set(['MATERIAL_REQUISITION', 'PURCHASE_ORDER', 'GOODS_RECEIPT_NOTE']);
 
     const roles = user?.userRoles ?? [];
     roles.forEach((ur: any) => {
@@ -39,17 +40,9 @@ export class PermissionService {
         if (action) {
           modules[moduleKey].push(action);
         }
-        if (action === 'MANAGE_ROLES') {
-          modules['ROLES'] = modules['ROLES'] || [];
-          modules['ROLES'].push(action);
-        }
-        if (action === 'MANAGE_USERS' || moduleKey === 'MANAGE_USERS') {
-          modules['ROLES'] = modules['ROLES'] || [];
-          modules['ROLES'].push(action);
-        }
-        if (moduleKey === 'MANAGE_ROLES') {
-          modules['ROLES'] = modules['ROLES'] || [];
-          modules['ROLES'].push(action || 'ACCESS');
+        if (procurementModules.has(moduleKey)) {
+          modules['PROCUREMENT'] = modules['PROCUREMENT'] || [];
+          modules['PROCUREMENT'].push(action || 'ACCESS');
         }
       });
     });

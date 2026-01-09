@@ -58,7 +58,10 @@ export interface PurchaseRequisitionLine {
   description?: string;
   uom?: string;
   qtyRequested?: number;
+  requestedQty?: number;
+  quantity?: number;
   estimatedUnitPrice?: number;
+  costPerUnit?: number;
   lineTotal?: number;
 }
 

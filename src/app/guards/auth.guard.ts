@@ -14,14 +14,15 @@ export class AuthGuard implements CanActivate, CanActivateChild {
 
   private isLoggedIn(): boolean {
     if (!this.isBrowser) {
-      return false;
+      // On the server we cannot read localStorage; allow navigation and let the browser guard run.
+      return true;
     }
     return !!localStorage.getItem('authToken');
   }
 
   private hasSignupUser(): boolean {
     if (!this.isBrowser) {
-      return false;
+      return true;
     }
     return !!localStorage.getItem('signupUserId');
   }
@@ -31,6 +32,9 @@ export class AuthGuard implements CanActivate, CanActivateChild {
   }
 
   canActivate(): boolean | UrlTree {
+    if (!this.isBrowser) {
+      return true;
+    }
     if (this.isLoggedIn() || this.hasSignupUser()) {
       return true;
     }

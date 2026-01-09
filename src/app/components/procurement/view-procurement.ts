@@ -200,14 +200,12 @@ export class ViewProcurementComponent implements OnInit {
           qtyRequested?: number;
           quantity?: number;
           estimatedUnitPrice?: number;
+          costPerUnit?: number;
           remarks?: string;
           description?: string;
         }) => ({
           mrLineId: Number(line.id),
-          unitPrice:
-          line.estimatedUnitPrice !== undefined && line.estimatedUnitPrice !== null
-            ? Number(line.estimatedUnitPrice)
-            : 0,
+          unitPrice: this.getUnitPrice(line),
           orderedQty:
           line.requestedQty ??
           line.qtyRequested ??
@@ -256,6 +254,11 @@ export class ViewProcurementComponent implements OnInit {
           this.toastr.error('Unable to create PO. Please try again.');
         }
       });
+  }
+
+  private getUnitPrice(line: PurchaseRequisitionLine & { costPerUnit?: number; estimatedUnitPrice?: number }): number {
+    const price = line.costPerUnit ?? line.estimatedUnitPrice;
+    return price !== undefined && price !== null ? Number(price) : 0;
   }
 
   private loadVendors(): void {
