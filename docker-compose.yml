@@ -6,5 +6,5 @@ services:
     image: asset-management-web
     container_name: asset-management-web
     ports:
-      - "4300:4300"
+      - "4300:80"  # Changed from 4300:4300
     restart: unless-stopped

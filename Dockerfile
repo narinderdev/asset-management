@@ -14,5 +14,5 @@ ENV NODE_ENV=production
 COPY --from=build /app/dist/asset-management/browser /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 4300
+EXPOSE 80  # Changed from 4300
 CMD ["nginx", "-g", "daemon off;"]
