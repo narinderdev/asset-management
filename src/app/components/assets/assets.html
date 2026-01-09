@@ -7,11 +7,11 @@
       <span class="assets-count">({{ currentPage }} - {{ itemsPerPage }} of {{ totalAssets }})</span>
     </div>
     <div class="header-right">
-      <button class="refresh-btn" (click)="refreshAssets()" title="Refresh">
+      <!-- <button class="refresh-btn" (click)="refreshAssets()" title="Refresh">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
         </svg>
-      </button>
+      </button> -->
       <button
         class="new-assets-btn"
         *ngIf="canCreateAssets"
@@ -23,7 +23,7 @@
 
   <!-- Filter Section -->
   <div class="filter-section">
-    <div class="filter-inputs">
+    <!-- <div class="filter-inputs">
       <input 
         type="text" 
         class="filter-input" 
@@ -55,7 +55,7 @@
       <button class="search-btn" (click)="searchAssets()">
         Search
       </button>
-    </div>
+    </div> -->
   </div>
 
   <!-- Table Section -->

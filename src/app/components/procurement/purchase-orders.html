@@ -1,14 +1,6 @@
 <div class="procurement-container">
   <div class="procurement-header">
     <h1 class="procurement-title">Purchase Orders</h1>
-    <div class="header-actions">
-      <select class="status-filter" [(ngModel)]="selectedStatus" (change)="filterOrders()">
-        <option *ngFor="let status of statusOptions" [value]="status">
-          {{ status === 'ALL' ? 'All statuses' : status }}
-        </option>
-      </select>
-      <button class="create-service-btn" type="button" (click)="createPurchaseOrder()">+ Create PO</button>
-    </div>
   </div>
 
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
@@ -43,18 +35,6 @@
                 aria-label="View purchase order"
                 (click)="viewOrder(order)">
                 <img src="assets/icons/Vector.svg" alt="View" />
-              </button>
-              <button
-                class="action-icon"
-                aria-label="Edit purchase order"
-                (click)="editOrder(order)">
-                <img src="assets/icons/edit.svg" alt="Edit" />
-              </button>
-              <button
-                class="action-icon danger"
-                aria-label="Delete purchase order"
-                (click)="deleteOrder(order)">
-                <img src="assets/icons/delete.svg" alt="Delete" />
               </button>
             </td>
           </tr>

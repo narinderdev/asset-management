@@ -10,7 +10,7 @@ import { ApiTechnician, TechnicianService } from '../../services/technician.serv
   standalone: true,
   imports: [CommonModule],
   templateUrl: './view-technician.html',
-  styleUrls: ['../view-service-request/view-service-request.css']
+  styleUrls: ['../view-asset/view-asset.css']
 })
 export class ViewTechnicianComponent implements OnInit {
   technician?: ApiTechnician;

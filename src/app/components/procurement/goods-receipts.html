@@ -1,9 +1,6 @@
 <div class="procurement-container">
   <div class="procurement-header">
     <h1 class="procurement-title">Goods Receipts</h1>
-    <div class="header-actions">
-      <button class="create-service-btn" type="button" (click)="createGoodsReceipt()">+ Create GRN</button>
-    </div>
   </div>
 
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
@@ -20,7 +17,6 @@
             <th>Received At</th>
             <th>Updated</th>
             <th>Notes</th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -32,11 +28,6 @@
             <td>{{ receipt.receivedAt }}</td>
             <td>{{ receipt.updatedAt }}</td>
             <td>{{ receipt.notes }}</td>
-            <td class="actions-cell">
-              <button class="action-icon" aria-label="View goods receipt" (click)="viewReceipt(receipt)">
-                <img src="assets/icons/Vector.svg" alt="View" />
-              </button>
-            </td>
           </tr>
         </tbody>
       </table>

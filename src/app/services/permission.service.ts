@@ -44,6 +44,10 @@ export class PermissionService {
           modules['PROCUREMENT'] = modules['PROCUREMENT'] || [];
           modules['PROCUREMENT'].push(action || 'ACCESS');
         }
+        if (moduleKey === 'MANAGE_ROLES' || moduleKey === 'MANAGE_USERS') {
+          modules['ROLES'] = modules['ROLES'] || [];
+          modules['ROLES'].push(action || 'ACCESS');
+        }
       });
     });
 

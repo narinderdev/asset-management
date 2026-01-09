@@ -10,7 +10,7 @@ import { TechnicianService, TechnicianTeamDetailResponse, TechnicianTeamMember }
   standalone: true,
   imports: [CommonModule],
   templateUrl: './view-technician-team.html',
-  styleUrls: ['../view-service-request/view-service-request.css']
+  styleUrls: ['../view-asset/view-asset.css']
 })
 export class ViewTechnicianTeamComponent implements OnInit {
   team?: TechnicianTeamDetailResponse['data'];

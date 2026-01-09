@@ -136,7 +136,7 @@ export class ViewPurchaseOrderComponent implements OnInit {
   }
 
   get isDraft(): boolean {
-    return (this.po?.status || '').toUpperCase() === 'DRAFT';
+    return (this.po?.status || '').toUpperCase() === 'ISSUED';
   }
 
   get isDelivered(): boolean {

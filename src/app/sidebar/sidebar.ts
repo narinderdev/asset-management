@@ -67,8 +67,8 @@ export class SidebarComponent {
     {
       icon: 'streamline_hierarchy-10.svg',
       activeIcon: 'streamline_hierarchy-10 (1).svg',
-      label: 'Preventive Maintenance',
-      route: '/preventive-maintenance',
+      label: 'Maintenance',
+      route: '/maintenance',
       module: 'PREVENTIVE_MAINTENANCE'
     },
     {

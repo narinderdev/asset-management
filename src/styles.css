@@ -464,3 +464,12 @@ body {
   background: #93c5fd;
   cursor: not-allowed;
 }
+
+/* Disabled field styling for clarity */
+input:disabled,
+textarea:disabled,
+select:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+  cursor: not-allowed;
+}
