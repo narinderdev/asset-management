@@ -6,6 +6,7 @@ import { finalize } from 'rxjs/operators';
 import { InventoryService } from '../../services/inventory.service';
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
 import { ToastrService } from 'ngx-toastr';
+import { PermissionService } from '../../services/permission.service';
 
 interface InventoryItem {
   id?: number;
@@ -34,16 +35,27 @@ export class InventoryComponent implements OnInit {
   isDeleteModalOpen = false;
   itemToDelete?: InventoryItem;
   isDeleting = false;
+  canCreateInventory = false;
+  canEditInventory = false;
+  canDeleteInventory = false;
 
   constructor(
     private router: Router,
     private inventoryService: InventoryService,
     private cdr: ChangeDetectorRef,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private permissionService: PermissionService
   ) {}
 
   ngOnInit(): void {
+    this.setPermissions();
     this.loadInventory();
+  }
+
+  private setPermissions(): void {
+    this.canCreateInventory = this.permissionService.hasPermission('INVENTORY', 'CREATE');
+    this.canEditInventory = this.permissionService.hasPermission('INVENTORY', 'UPDATE');
+    this.canDeleteInventory = this.permissionService.hasPermission('INVENTORY', 'DELETE');
   }
 
   private loadInventory(): void {
@@ -111,6 +123,9 @@ export class InventoryComponent implements OnInit {
   }
 
   addVendor(): void {
+    if (!this.canCreateInventory) {
+      return;
+    }
     this.router.navigate(['/inventory/create']);
   }
 
@@ -123,6 +138,9 @@ export class InventoryComponent implements OnInit {
   }
 
   editInventory(item: InventoryItem): void {
+    if (!this.canEditInventory) {
+      return;
+    }
     if (!item.id) {
       return;
     }
@@ -131,6 +149,9 @@ export class InventoryComponent implements OnInit {
   }
 
   promptDeleteInventory(item: InventoryItem): void {
+    if (!this.canDeleteInventory) {
+      return;
+    }
     this.itemToDelete = item;
     this.isDeleteModalOpen = true;
   }
@@ -142,7 +163,7 @@ export class InventoryComponent implements OnInit {
   }
 
   confirmDeleteInventory(): void {
-    if (!this.itemToDelete?.id) {
+    if (!this.canDeleteInventory || !this.itemToDelete?.id) {
       return;
     }
 

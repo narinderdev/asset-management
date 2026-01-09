@@ -12,7 +12,10 @@
           <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
         </svg>
       </button>
-      <button class="new-assets-btn" (click)="addNewAsset()">
+      <button
+        class="new-assets-btn"
+        *ngIf="canCreateAssets"
+        (click)="addNewAsset()">
         + New Assets
       </button>
     </div>
@@ -97,10 +100,18 @@
             <button class="action-icon" aria-label="View asset" (click)="viewAsset(asset)">
               <img src="assets/icons/Vector.svg" alt="View asset" />
             </button>
-            <button class="action-icon" aria-label="Edit asset" (click)="editAsset(asset)">
+            <button
+              class="action-icon"
+              aria-label="Edit asset"
+              *ngIf="canEditAssets"
+              (click)="editAsset(asset)">
               <img src="assets/icons/edit.svg" alt="Edit asset" />
             </button>
-            <button class="action-icon danger" aria-label="Delete asset" (click)="deleteAsset(asset)">
+            <button
+              class="action-icon danger"
+              aria-label="Delete asset"
+              *ngIf="canDeleteAssets"
+              (click)="deleteAsset(asset)">
               <img src="assets/icons/delete.svg" alt="Delete asset" />
             </button>
           </td>

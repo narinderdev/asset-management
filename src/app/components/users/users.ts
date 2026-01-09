@@ -5,6 +5,7 @@ import { finalize } from 'rxjs';
 import { RoleService } from '../../services/role.service';
 import { UserService } from '../../services/user.service';
 import { ToastrService } from 'ngx-toastr';
+import { PermissionService } from '../../services/permission.service';
 
 interface UserRow {
   name: string;
@@ -35,15 +36,20 @@ export class UsersComponent {
   };
 
   roleOptions: { id: number; name: string }[] = [];
+  canInviteUsers = false;
 
   constructor(
     private roleService: RoleService,
     private userService: UserService,
     private toastr: ToastrService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private permissionService: PermissionService
   ) {}
 
   openInvite(): void {
+    if (!this.canInviteUsers) {
+      return;
+    }
     if (!this.roleOptions.length) {
       this.fetchRoles();
     }
@@ -51,6 +57,9 @@ export class UsersComponent {
   }
 
   ngOnInit() {
+    this.canInviteUsers = this.permissionService.hasPermission('INVITE_USER', 'CREATE') ||
+      this.permissionService.hasPermission('INVITE_USER', 'ACCESS') ||
+      this.permissionService.hasPermission('MANAGE_USERS', 'INVITE');
     this.fetchUsers();
   }
 

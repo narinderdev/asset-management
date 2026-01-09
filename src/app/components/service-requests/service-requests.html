@@ -1,7 +1,10 @@
 <div class="service-requests-wrapper">
   <div class="service-requests-header">
     <h1 class="service-requests-title">Service Request Management</h1>
-    <button class="create-service-btn" (click)="createServiceRequest()">+ Create Service Request</button>
+    <button
+      class="create-service-btn"
+      *ngIf="canCreateRequests"
+      (click)="createServiceRequest()">+ Create Service Request</button>
   </div>
 
   <div class="table-status" *ngIf="errorMessage">
@@ -55,6 +58,7 @@
               <button
                 class="action-button icon-btn edit-btn"
                 aria-label="Edit service request"
+                *ngIf="canEditRequests"
                 (click)="editRequest(request)"
               >
                 <img src="assets/icons/edit.svg" alt="Edit request" class="view-icon" />
@@ -62,6 +66,7 @@
               <button
                 class="action-button icon-btn delete-btn danger"
                 aria-label="Delete service request"
+                *ngIf="canDeleteRequests"
                 (click)="deleteRequest(request)"
               >
                 <img src="assets/icons/delete.svg" alt="Delete request" class="view-icon" />

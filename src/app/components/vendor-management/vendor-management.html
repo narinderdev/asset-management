@@ -1,7 +1,10 @@
 ﻿<div class="preventive-wrapper">
   <div class="preventive-header">
     <h1 class="preventive-title">Vendor Management</h1>
-    <button class="create-service-btn" (click)="addVendor()">+ Add Vendor</button>
+    <button
+      class="create-service-btn"
+      *ngIf="canCreateVendors"
+      (click)="addVendor()">+ Add Vendor</button>
   </div>
 
   <div class="table-status" *ngIf="errorMessage">
@@ -45,10 +48,18 @@
               <button class="action-icon" aria-label="View vendor" (click)="viewVendor(vendor)">
                 <img src="assets/icons/Vector.svg" alt="View" />
               </button>
-              <button class="action-icon" aria-label="Edit vendor" (click)="editVendor(vendor)">
+              <button
+                class="action-icon"
+                aria-label="Edit vendor"
+                *ngIf="canEditVendors"
+                (click)="editVendor(vendor)">
                 <img src="assets/icons/edit.svg" alt="Edit" />
               </button>
-              <button class="action-icon danger" aria-label="Delete vendor" (click)="openDeleteModal(vendor)">
+              <button
+                class="action-icon danger"
+                aria-label="Delete vendor"
+                *ngIf="canDeleteVendors"
+                (click)="openDeleteModal(vendor)">
                 <img src="assets/icons/delete.svg" alt="Delete" />
               </button>
             </td>

@@ -7,6 +7,7 @@ import { finalize } from 'rxjs/operators';
 import { ServiceRequestService, ServiceRequestsApiResponse } from '../../services/service-request.service';
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
 import { ToastrService } from 'ngx-toastr';
+import { PermissionService } from '../../services/permission.service';
 
 type PriorityLabel = 'Critical' | 'High' | 'Medium' | 'Low';
 
@@ -60,16 +61,27 @@ export class ServiceRequestsComponent implements OnInit {
   isConvertModalOpen = false;
   requestToConvert?: ServiceRequest;
   isConverting = false;
+  canCreateRequests = false;
+  canEditRequests = false;
+  canDeleteRequests = false;
 
   constructor(
     private router: Router,
     private serviceRequestService: ServiceRequestService,
     private cdr: ChangeDetectorRef,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private permissionService: PermissionService
   ) {}
 
   ngOnInit(): void {
+    this.setPermissions();
     this.loadRequests();
+  }
+
+  private setPermissions(): void {
+    this.canCreateRequests = this.permissionService.hasPermission('SERVICE_REQUEST', 'CREATE');
+    this.canEditRequests = this.permissionService.hasPermission('SERVICE_REQUEST', 'UPDATE');
+    this.canDeleteRequests = this.permissionService.hasPermission('SERVICE_REQUEST', 'DELETE');
   }
 
   private loadRequests(): void {
@@ -151,6 +163,9 @@ export class ServiceRequestsComponent implements OnInit {
   }
 
   createServiceRequest(): void {
+    if (!this.canCreateRequests) {
+      return;
+    }
     this.router.navigate(['/service-requests/create']);
   }
 
@@ -172,6 +187,9 @@ export class ServiceRequestsComponent implements OnInit {
   }
 
   editRequest(request: ServiceRequest): void {
+    if (!this.canEditRequests) {
+      return;
+    }
     console.log('Editing service request', this.getRequestIdentifier(request));
     const id = this.getRequestIdentifier(request);
     if (!id) {
@@ -181,6 +199,9 @@ export class ServiceRequestsComponent implements OnInit {
   }
 
   deleteRequest(request: ServiceRequest): void {
+    if (!this.canDeleteRequests) {
+      return;
+    }
     this.requestToDelete = request;
     this.isDeleteModalOpen = true;
   }
@@ -198,7 +219,7 @@ export class ServiceRequestsComponent implements OnInit {
   }
 
   confirmDelete(): void {
-    if (!this.requestToDelete) {
+    if (!this.canDeleteRequests || !this.requestToDelete) {
       return;
     }
     const identifier = this.getRequestIdentifier(this.requestToDelete);

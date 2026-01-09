@@ -52,6 +52,7 @@
                 class="action-button icon-btn view-btn"
                 type="button"
                 aria-label="View work order"
+                *ngIf="canViewWorkOrders"
                 (click)="viewWorkOrder(order)"
               >
                 <img src="assets/icons/Vector.svg" alt="View work order" class="view-icon" />
@@ -60,6 +61,7 @@
                 class="action-button icon-btn edit-btn"
                 type="button"
                 aria-label="Edit work order"
+                *ngIf="canEditWorkOrders"
                 (click)="editWorkOrder(order)"
               >
                 <img src="assets/icons/edit.svg" alt="Edit work order" class="view-icon" />
@@ -68,6 +70,7 @@
                 class="action-button icon-btn delete-btn danger"
                 type="button"
                 aria-label="Delete work order"
+                *ngIf="canDeleteWorkOrders"
                 (click)="promptDeleteWorkOrder(order)"
               >
                 <img src="assets/icons/delete.svg" alt="Delete work order" class="view-icon" />

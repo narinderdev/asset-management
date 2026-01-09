@@ -1,7 +1,10 @@
 <div class="preventive-wrapper">
   <div class="preventive-header">
     <h1 class="preventive-title">Preventive Maintenance Template</h1>
-    <button class="create-service-btn" (click)="createServiceRequest()">
+    <button
+      class="create-service-btn"
+      *ngIf="canCreatePm"
+      (click)="createServiceRequest()">
       <span class="label-full">+ Create Preventive Maintenance Template</span>
       <span class="label-short">+ Create</span>
     </button>
@@ -53,6 +56,7 @@
             <button
               class="action-icon"
               aria-label="Edit template"
+              *ngIf="canEditPm"
               (click)="editTemplate(template)"
             >
               <img src="assets/icons/edit.svg" alt="Edit" />
@@ -60,6 +64,7 @@
             <button
               class="action-icon danger"
               aria-label="Delete template"
+              *ngIf="canDeletePm"
               (click)="promptDeleteTemplate(template)"
             >
               <img src="assets/icons/delete.svg" alt="Delete" />

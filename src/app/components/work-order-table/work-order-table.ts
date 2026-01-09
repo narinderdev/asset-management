@@ -7,6 +7,7 @@ import { finalize } from 'rxjs/operators';
 import { WorkOrderService } from '../../services/work-order.service';
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
 import { ToastrService } from 'ngx-toastr';
+import { PermissionService } from '../../services/permission.service';
 
 interface WorkOrder {
   id: string;
@@ -46,20 +47,31 @@ export class WorkOrderTable implements OnInit {
   isDeleteModalOpen = false;
   orderToDelete?: WorkOrder;
   isDeleting = false;
+   canViewWorkOrders = false;
+   canEditWorkOrders = false;
+   canDeleteWorkOrders = false;
 
   constructor(
     private workOrderService: WorkOrderService,
     private cdr: ChangeDetectorRef,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private permissionService: PermissionService
   ) {}
 
   ngOnInit(): void {
+    this.setPermissions();
     if (this.loadLive) {
       this.loadWorkOrders();
     } else {
       this.workOrders = this.getStaticWorkOrders();
     }
+  }
+
+  private setPermissions(): void {
+    this.canViewWorkOrders = this.permissionService.hasPermission('WORK_ORDER', 'VIEW');
+    this.canEditWorkOrders = this.permissionService.hasPermission('WORK_ORDER', 'UPDATE');
+    this.canDeleteWorkOrders = this.permissionService.hasPermission('WORK_ORDER', 'DELETE');
   }
 
   private loadWorkOrders(): void {
@@ -140,6 +152,9 @@ export class WorkOrderTable implements OnInit {
   }
 
   viewWorkOrder(order: WorkOrder): void {
+    if (!this.canViewWorkOrders) {
+      return;
+    }
     const identifier = this.getWorkOrderIdentifier(order);
     if (!identifier) {
       console.warn('Missing identifier for work order', order);
@@ -149,6 +164,9 @@ export class WorkOrderTable implements OnInit {
   }
 
   editWorkOrder(order: WorkOrder): void {
+    if (!this.canEditWorkOrders) {
+      return;
+    }
     const identifier = this.getWorkOrderIdentifier(order);
     if (!identifier) {
       console.warn('Missing identifier for editing work order', order);
@@ -158,6 +176,9 @@ export class WorkOrderTable implements OnInit {
   }
 
   promptDeleteWorkOrder(order: WorkOrder): void {
+    if (!this.canDeleteWorkOrders) {
+      return;
+    }
     this.orderToDelete = order;
     this.isDeleteModalOpen = true;
   }
@@ -170,7 +191,7 @@ export class WorkOrderTable implements OnInit {
   }
 
   confirmDeleteWorkOrder(): void {
-    if (!this.orderToDelete) {
+    if (!this.canDeleteWorkOrders || !this.orderToDelete) {
       return;
     }
 

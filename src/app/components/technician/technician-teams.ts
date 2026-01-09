@@ -6,6 +6,7 @@ import { finalize } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
 import { TechnicianService, TechnicianTeam } from '../../services/technician.service';
+import { PermissionService } from '../../services/permission.service';
 
 @Component({
   selector: 'app-technician-teams',
@@ -21,19 +22,33 @@ export class TechnicianTeamsComponent implements OnInit {
   isDeleteModalOpen = false;
   isDeleting = false;
   teamToDelete?: TechnicianTeam;
+  canCreateTeams = false;
+  canEditTeams = false;
+  canDeleteTeams = false;
 
   constructor(
     private readonly technicianService: TechnicianService,
     private readonly cdr: ChangeDetectorRef,
     private readonly router: Router,
-    private readonly toastr: ToastrService
+    private readonly toastr: ToastrService,
+    private readonly permissionService: PermissionService
   ) {}
 
   ngOnInit(): void {
+    this.setPermissions();
     this.loadTeams();
   }
 
+  private setPermissions(): void {
+    this.canCreateTeams = this.permissionService.hasPermission('TECHNICIAN_TEAM', 'CREATE');
+    this.canEditTeams = this.permissionService.hasPermission('TECHNICIAN_TEAM', 'UPDATE');
+    this.canDeleteTeams = this.permissionService.hasPermission('TECHNICIAN_TEAM', 'DELETE');
+  }
+
   addTeam(): void {
+    if (!this.canCreateTeams) {
+      return;
+    }
     this.router.navigate(['/technicians/teams/create']);
   }
 
@@ -45,6 +60,9 @@ export class TechnicianTeamsComponent implements OnInit {
   }
 
   editTeam(team: TechnicianTeam): void {
+    if (!this.canEditTeams) {
+      return;
+    }
     if (!team.id) {
       return;
     }
@@ -52,6 +70,9 @@ export class TechnicianTeamsComponent implements OnInit {
   }
 
   openDeleteModal(team: TechnicianTeam): void {
+    if (!this.canDeleteTeams) {
+      return;
+    }
     if (!team.id) {
       return;
     }
@@ -66,7 +87,7 @@ export class TechnicianTeamsComponent implements OnInit {
   }
 
   confirmDelete(): void {
-    if (!this.teamToDelete?.id) {
+    if (!this.canDeleteTeams || !this.teamToDelete?.id) {
       return;
     }
 

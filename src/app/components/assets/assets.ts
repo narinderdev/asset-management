@@ -8,6 +8,7 @@ import { AssetsService } from '../../services/assets.service';
 import { finalize } from 'rxjs/operators';
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
 import { ToastrService } from 'ngx-toastr';
+import { PermissionService } from '../../services/permission.service';
 
 interface ApiAssetResponse {
   data?: {
@@ -62,16 +63,27 @@ export class AssetsComponent implements OnInit {
   isDeleteModalOpen = false;
   assetToDelete?: Asset;
   isDeleting = false;
+  canCreateAssets = false;
+  canEditAssets = false;
+  canDeleteAssets = false;
 
   constructor(
     private router: Router,
     private assetsService: AssetsService,
     private cdr: ChangeDetectorRef,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private permissionService: PermissionService
   ) {}
 
   ngOnInit(): void {
+    this.setPermissions();
     this.loadAssets();
+  }
+
+  private setPermissions(): void {
+    this.canCreateAssets = this.permissionService.hasPermission('ASSET', 'CREATE');
+    this.canEditAssets = this.permissionService.hasPermission('ASSET', 'UPDATE');
+    this.canDeleteAssets = this.permissionService.hasPermission('ASSET', 'DELETE');
   }
 
   private loadAssets(): void {
@@ -187,10 +199,16 @@ export class AssetsComponent implements OnInit {
   }
 
   addNewAsset(): void {
+    if (!this.canCreateAssets) {
+      return;
+    }
     this.router.navigate(['/assets/add-asset']);
   }
 
   editAsset(asset: Asset): void {
+    if (!this.canEditAssets) {
+      return;
+    }
     const id = asset.id?.toString();
     if (!id) {
       console.warn('Unable to edit asset without identifier');
@@ -211,6 +229,9 @@ export class AssetsComponent implements OnInit {
   }
 
   deleteAsset(asset: Asset): void {
+    if (!this.canDeleteAssets) {
+      return;
+    }
     this.assetToDelete = asset;
     this.isDeleteModalOpen = true;
   }
@@ -223,7 +244,7 @@ export class AssetsComponent implements OnInit {
   }
 
   confirmDeleteAsset(): void {
-    if (!this.assetToDelete) {
+    if (!this.canDeleteAssets || !this.assetToDelete) {
       return;
     }
 

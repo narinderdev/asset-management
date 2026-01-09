@@ -1,7 +1,10 @@
 ﻿<div class="preventive-wrapper">
   <div class="preventive-header">
     <h1 class="preventive-title">Parts & Inventory Management</h1>
-    <button class="create-service-btn" (click)="addVendor()">+ Add Inventory</button>
+    <button
+      class="create-service-btn"
+      *ngIf="canCreateInventory"
+      (click)="addVendor()">+ Add Inventory</button>
   </div>
 
   <div class="table-status" *ngIf="errorMessage">
@@ -34,19 +37,19 @@
             <td>{{ item.category }}</td>
             <td>{{ item.manufacturer }}</td>
             <td [ngClass]="{ 'low-stock': item.stockLevel <= item.reorderPoint }">{{ item.stockLevel }}</td>
-            <td>{{ item.reorderPoint }}</td>
-            <td>{{ item.costPerUnit }}</td>
-            <td>
-              <span class="status-chip"
+          <td>{{ item.reorderPoint }}</td>
+          <td>{{ item.costPerUnit }}</td>
+          <td>
+            <span class="status-chip"
                     [ngClass]="{
                       'status-green': item.status === 'In Stock',
                       'status-red': item.status === 'Low Stock',
                       'status-grey': item.status === 'Out of Stock'
                     }">
-                {{ item.status }}
-              </span>
-            </td>
-            <td class="actions-cell">
+              {{ item.status }}
+            </span>
+          </td>
+          <td class="actions-cell">
             <button
               class="action-icon"
               aria-label="View item"
@@ -57,6 +60,7 @@
             <button
               class="action-icon"
               aria-label="Edit item"
+              *ngIf="canEditInventory"
               (click)="editInventory(item)"
             >
               <img src="assets/icons/edit.svg" alt="Edit" />
@@ -64,6 +68,7 @@
             <button
               class="action-icon danger"
               aria-label="Delete item"
+              *ngIf="canDeleteInventory"
               (click)="promptDeleteInventory(item)"
             >
               <img src="assets/icons/delete.svg" alt="Delete" />

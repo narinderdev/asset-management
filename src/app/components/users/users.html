@@ -1,7 +1,11 @@
 <div class="preventive-wrapper">
   <div class="preventive-header">
     <h1 class="preventive-title">Users</h1>
-    <button class="create-service-btn" type="button" (click)="openInvite()">+ Invite User</button>
+    <button
+      class="create-service-btn"
+      type="button"
+      *ngIf="canInviteUsers"
+      (click)="openInvite()">+ Invite User</button>
   </div>
 
   <div class="table-wrapper">

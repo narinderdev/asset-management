@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { VendorService } from '../../services/vendor.service';
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
+import { PermissionService } from '../../services/permission.service';
 
 interface Vendor {
   id?: number;
@@ -47,16 +48,27 @@ export class VendorManagementComponent implements OnInit {
   isDeleteModalOpen = false;
   vendorToDelete?: Vendor;
   isDeleting = false;
+  canCreateVendors = false;
+  canEditVendors = false;
+  canDeleteVendors = false;
 
   constructor(
     private router: Router,
     private vendorService: VendorService,
     private cdr: ChangeDetectorRef,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private permissionService: PermissionService
   ) {}
 
   ngOnInit(): void {
+    this.setPermissions();
     this.loadVendors();
+  }
+
+  private setPermissions(): void {
+    this.canCreateVendors = this.permissionService.hasPermission('VENDOR', 'CREATE');
+    this.canEditVendors = this.permissionService.hasPermission('VENDOR', 'UPDATE');
+    this.canDeleteVendors = this.permissionService.hasPermission('VENDOR', 'DELETE');
   }
 
   private loadVendors(): void {
@@ -110,6 +122,9 @@ export class VendorManagementComponent implements OnInit {
   }
 
   editVendor(vendor: Vendor): void {
+    if (!this.canEditVendors) {
+      return;
+    }
     if (!vendor.id) {
       console.warn('Cannot edit vendor without an ID', vendor);
       return;
@@ -118,6 +133,9 @@ export class VendorManagementComponent implements OnInit {
   }
 
   openDeleteModal(vendor: Vendor): void {
+    if (!this.canDeleteVendors) {
+      return;
+    }
     this.vendorToDelete = vendor;
     this.isDeleteModalOpen = true;
   }
@@ -129,7 +147,7 @@ export class VendorManagementComponent implements OnInit {
   }
 
   confirmDelete(): void {
-    if (!this.vendorToDelete?.id) {
+    if (!this.canDeleteVendors || !this.vendorToDelete?.id) {
       return;
     }
 
@@ -153,6 +171,9 @@ export class VendorManagementComponent implements OnInit {
   }
 
   addVendor(): void {
+    if (!this.canCreateVendors) {
+      return;
+    }
     this.router.navigate(['/vendor-management/create']);
   }
 }

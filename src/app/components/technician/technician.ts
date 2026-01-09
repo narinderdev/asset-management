@@ -6,6 +6,7 @@ import { finalize } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
 import { ApiTechnician, TechnicianService } from '../../services/technician.service';
+import { PermissionService } from '../../services/permission.service';
 
 type Availability = 'Active' | 'On Leave' | 'Unavailable';
 
@@ -32,19 +33,33 @@ export class TechnicianComponent implements OnInit {
   isDeleteModalOpen = false;
   technicianToDelete?: Technician;
   isDeleting = false;
+  canCreateTechnicians = false;
+  canEditTechnicians = false;
+  canDeleteTechnicians = false;
 
   constructor(
     private readonly technicianService: TechnicianService,
     private readonly cdr: ChangeDetectorRef,
     private readonly router: Router,
-    private readonly toastr: ToastrService
+    private readonly toastr: ToastrService,
+    private readonly permissionService: PermissionService
   ) {}
 
   ngOnInit(): void {
+    this.setPermissions();
     this.loadTechnicians();
   }
 
+  private setPermissions(): void {
+    this.canCreateTechnicians = this.permissionService.hasPermission('TECHNICIAN', 'CREATE');
+    this.canEditTechnicians = this.permissionService.hasPermission('TECHNICIAN', 'UPDATE');
+    this.canDeleteTechnicians = this.permissionService.hasPermission('TECHNICIAN', 'DELETE');
+  }
+
   addTechnician(): void {
+    if (!this.canCreateTechnicians) {
+      return;
+    }
     this.router.navigate(['/technicians/create']);
   }
 
@@ -56,6 +71,9 @@ export class TechnicianComponent implements OnInit {
   }
 
   editTechnician(technician: Technician): void {
+    if (!this.canEditTechnicians) {
+      return;
+    }
     if (!technician.id) {
       return;
     }
@@ -91,6 +109,9 @@ export class TechnicianComponent implements OnInit {
   }
 
   openDeleteModal(technician: Technician): void {
+    if (!this.canDeleteTechnicians) {
+      return;
+    }
     if (!technician.id) {
       return;
     }
@@ -105,7 +126,7 @@ export class TechnicianComponent implements OnInit {
   }
 
   confirmDelete(): void {
-    if (!this.technicianToDelete?.id) {
+    if (!this.canDeleteTechnicians || !this.technicianToDelete?.id) {
       return;
     }
 

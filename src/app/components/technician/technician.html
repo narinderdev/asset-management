@@ -1,7 +1,10 @@
 <div class="preventive-wrapper">
   <div class="preventive-header">
     <h1 class="preventive-title">Technicians</h1>
-    <button class="create-service-btn" (click)="addTechnician()">+ Add Technician</button>
+    <button
+      class="create-service-btn"
+      *ngIf="canCreateTechnicians"
+      (click)="addTechnician()">+ Add Technician</button>
   </div>
 
   <div class="table-status" *ngIf="errorMessage">{{ errorMessage }}</div>
@@ -40,10 +43,18 @@
             <button class="action-icon" aria-label="View technician" (click)="viewTechnician(tech)">
               <img src="assets/icons/Vector.svg" alt="View" />
             </button>
-            <button class="action-icon" aria-label="Edit technician" (click)="editTechnician(tech)">
+            <button
+              class="action-icon"
+              aria-label="Edit technician"
+              *ngIf="canEditTechnicians"
+              (click)="editTechnician(tech)">
               <img src="assets/icons/edit.svg" alt="Edit" />
             </button>
-            <button class="action-icon danger" aria-label="Delete technician" (click)="openDeleteModal(tech)">
+            <button
+              class="action-icon danger"
+              aria-label="Delete technician"
+              *ngIf="canDeleteTechnicians"
+              (click)="openDeleteModal(tech)">
               <img src="assets/icons/delete.svg" alt="Delete" />
             </button>
           </td>

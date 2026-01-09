@@ -7,6 +7,7 @@ import { finalize } from 'rxjs/operators';
 import { PmTemplateService } from '../../services/pm-template.service';
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
 import { ToastrService } from 'ngx-toastr';
+import { PermissionService } from '../../services/permission.service';
 
 interface PreventiveMaintenanceTemplate {
   id?: number;
@@ -33,16 +34,27 @@ export class PreventiveMaintenanceComponent implements OnInit {
   isDeleteModalOpen = false;
   templateToDelete?: PreventiveMaintenanceTemplate;
   isDeleting = false;
+  canCreatePm = false;
+  canEditPm = false;
+  canDeletePm = false;
 
   constructor(
     private router: Router,
     private pmTemplateService: PmTemplateService,
     private toastr: ToastrService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private permissionService: PermissionService
   ) {}
 
   ngOnInit(): void {
+    this.setPermissions();
     this.loadTemplates();
+  }
+
+  private setPermissions(): void {
+    this.canCreatePm = this.permissionService.hasPermission('PREVENTIVE_MAINTENANCE', 'CREATE');
+    this.canEditPm = this.permissionService.hasPermission('PREVENTIVE_MAINTENANCE', 'UPDATE');
+    this.canDeletePm = this.permissionService.hasPermission('PREVENTIVE_MAINTENANCE', 'DELETE');
   }
 
   private loadTemplates(): void {
@@ -124,6 +136,9 @@ export class PreventiveMaintenanceComponent implements OnInit {
   }
 
   createServiceRequest(): void {
+    if (!this.canCreatePm) {
+      return;
+    }
     this.router.navigate(['/preventive-maintenance/create']);
   }
 
@@ -137,6 +152,9 @@ export class PreventiveMaintenanceComponent implements OnInit {
   }
 
   editTemplate(template: PreventiveMaintenanceTemplate): void {
+    if (!this.canEditPm) {
+      return;
+    }
     const id = template.id;
     if (!id) {
       return;
@@ -146,6 +164,9 @@ export class PreventiveMaintenanceComponent implements OnInit {
   }
 
   promptDeleteTemplate(template: PreventiveMaintenanceTemplate): void {
+    if (!this.canDeletePm) {
+      return;
+    }
     this.templateToDelete = template;
     this.isDeleteModalOpen = true;
   }
@@ -157,7 +178,7 @@ export class PreventiveMaintenanceComponent implements OnInit {
   }
 
   confirmDeleteTemplate(): void {
-    if (!this.templateToDelete?.id) {
+    if (!this.canDeletePm || !this.templateToDelete?.id) {
       return;
     }
 
