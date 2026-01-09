@@ -219,7 +219,7 @@ export class ServiceRequestsComponent implements OnInit {
   }
 
   confirmDelete(): void {
-    if (!this.canDeleteRequests || !this.requestToDelete) {
+    if (!this.requestToDelete) {
       return;
     }
     const identifier = this.getRequestIdentifier(this.requestToDelete);

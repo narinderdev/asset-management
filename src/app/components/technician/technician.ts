@@ -126,7 +126,7 @@ export class TechnicianComponent implements OnInit {
   }
 
   confirmDelete(): void {
-    if (!this.canDeleteTechnicians || !this.technicianToDelete?.id) {
+    if (!this.technicianToDelete?.id) {
       return;
     }
 

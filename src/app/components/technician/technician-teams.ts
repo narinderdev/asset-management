@@ -87,7 +87,7 @@ export class TechnicianTeamsComponent implements OnInit {
   }
 
   confirmDelete(): void {
-    if (!this.canDeleteTeams || !this.teamToDelete?.id) {
+    if (!this.teamToDelete?.id) {
       return;
     }
 
