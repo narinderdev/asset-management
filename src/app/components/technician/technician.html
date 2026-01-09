@@ -9,7 +9,7 @@
 
   <div class="table-status" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-  <div class="table-wrapper" *ngIf="technicians.length; else emptyState">
+  <div class="table-wrapper">
     <table class="preventive-table">
       <thead>
         <tr>
@@ -22,6 +22,9 @@
         </tr>
       </thead>
       <tbody>
+        <tr *ngIf="!technicians.length && !loading">
+          <td colspan="6" class="empty-row">No technicians to display.</td>
+        </tr>
         <tr *ngFor="let tech of technicians">
           <td>{{ tech.name }}</td>
           <td>{{ tech.role }}</td>
@@ -62,14 +65,11 @@
       </tbody>
     </table>
   </div>
+  <div class="loading-overlay" *ngIf="loading">
+    <div class="loader"></div>
+    <span>Loading technicians...</span>
+  </div>
 
-  <ng-template #emptyState>
-    <div class="empty-state">
-      <span *ngIf="loading">Loading technicians...</span>
-      <span *ngIf="!loading && errorMessage">{{ errorMessage }}</span>
-      <span *ngIf="!loading && !errorMessage">No technicians available.</span>
-    </div>
-  </ng-template>
   <app-delete-modal
     [isOpen]="isDeleteModalOpen"
     [deleting]="isDeleting"

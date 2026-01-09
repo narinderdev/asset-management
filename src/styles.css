@@ -138,10 +138,12 @@ body {
 }
 
 .empty-row {
-  text-align: center;
-  padding: 32px 0;
-  color: #777;
+  text-align: left;
+  padding: 18px 16px;
+  color: #6b7280;
   font-size: 14px;
+  background: #fafafa;
+  border-top: 1px solid #e5e7eb;
 }
 
 .loading-overlay {

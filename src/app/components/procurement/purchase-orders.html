@@ -6,7 +6,7 @@
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
 
   <div class="table-container">
-    <div class="table-wrapper" *ngIf="!isLoading && filteredOrders.length; else loadingState">
+    <div class="table-wrapper">
       <table class="procurement-table">
         <thead>
           <tr>
@@ -19,6 +19,9 @@
           </tr>
         </thead>
         <tbody>
+          <tr *ngIf="!filteredOrders.length && !isLoading">
+            <td colspan="6" class="empty-row">No purchase orders to display.</td>
+          </tr>
           <tr *ngFor="let order of filteredOrders">
             <td>{{ order.poNumber }}</td>
             <td>{{ order.vendor }}</td>
@@ -41,19 +44,9 @@
         </tbody>
       </table>
     </div>
-
-    <ng-template #loadingState>
-      <ng-container *ngIf="isLoading; else emptyState">
-        <div class="loading-wrapper">
-          <div class="loading-overlay">
-            <div class="loader"></div>
-            <span>Loading purchase orders...</span>
-          </div>
-        </div>
-      </ng-container>
-      <ng-template #emptyState>
-        <div class="empty-state">No purchase orders available.</div>
-      </ng-template>
-    </ng-template>
+    <div class="loading-overlay" *ngIf="isLoading">
+      <div class="loader"></div>
+      <span>Loading purchase orders...</span>
+    </div>
   </div>
 </div>

@@ -29,7 +29,7 @@
         </thead>
         <tbody>
           <tr *ngIf="!inventory.length && !isLoading">
-            <td colspan="9" class="empty-row">No inventory records available.</td>
+            <td colspan="9" class="empty-row">No inventory records to display.</td>
           </tr>
           <tr *ngFor="let item of inventory">
             <td>{{ item.itemId }}</td>

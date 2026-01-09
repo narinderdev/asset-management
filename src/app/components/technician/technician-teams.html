@@ -10,7 +10,7 @@
 
   <div *ngIf="errorMessage" class="table-status">{{ errorMessage }}</div>
 
-  <div *ngIf="teams.length; else emptyState" class="table-wrapper">
+  <div class="table-wrapper">
     <div class="table-container">
       <table class="preventive-table">
         <thead>
@@ -25,6 +25,9 @@
           </tr>
         </thead>
         <tbody>
+          <tr *ngIf="!teams.length && !loading">
+            <td colspan="7" class="empty-row">No technician teams to display.</td>
+          </tr>
           <tr *ngFor="let team of teams">
             <td>{{ team.teamName ?? 'Unnamed Team' }}</td>
             <td>{{ team.status ?? '-' }}</td>
@@ -55,14 +58,12 @@
         </tbody>
       </table>
     </div>
+    <div class="loading-overlay" *ngIf="loading">
+      <div class="loader"></div>
+      <span>Loading technician teams...</span>
+    </div>
   </div>
 
-  <ng-template #emptyState>
-    <div class="empty-state">
-      <span *ngIf="loading">Loading technician teams...</span>
-      <span *ngIf="!loading && !errorMessage">No technician teams found.</span>
-    </div>
-  </ng-template>
   <app-delete-modal
     [isOpen]="isDeleteModalOpen"
     [deleting]="isDeleting"

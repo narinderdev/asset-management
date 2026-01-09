@@ -6,7 +6,7 @@
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
 
   <div class="table-container">
-    <div class="table-wrapper" *ngIf="!isLoading && receipts.length; else loadingState">
+    <div class="table-wrapper">
       <table class="procurement-table">
         <thead>
           <tr>
@@ -20,6 +20,9 @@
           </tr>
         </thead>
         <tbody>
+          <tr *ngIf="!receipts.length && !isLoading">
+            <td colspan="7" class="empty-row">No goods receipts to display.</td>
+          </tr>
           <tr *ngFor="let receipt of receipts">
             <td>{{ receipt.grnNumber }}</td>
             <td>{{ receipt.poId }}</td>
@@ -32,19 +35,9 @@
         </tbody>
       </table>
     </div>
-
-    <ng-template #loadingState>
-      <ng-container *ngIf="isLoading; else emptyState">
-        <div class="loading-wrapper">
-          <div class="loading-overlay">
-            <div class="loader"></div>
-            <span>Loading goods receipts...</span>
-          </div>
-        </div>
-      </ng-container>
-      <ng-template #emptyState>
-        <div class="empty-state">No goods receipts available.</div>
-      </ng-template>
-    </ng-template>
+    <div class="loading-overlay" *ngIf="isLoading">
+      <div class="loader"></div>
+      <span>Loading goods receipts...</span>
+    </div>
   </div>
 </div>
