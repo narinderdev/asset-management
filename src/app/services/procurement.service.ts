@@ -79,6 +79,45 @@ export interface PurchaseRequisitionDetailResponse {
   data?: PurchaseRequisitionItem;
 }
 
+export interface PurchaseOrderItem {
+  id?: number;
+  poNumber?: string;
+  vendorName?: string;
+  vendorId?: number;
+  status?: string;
+  expectedDeliveryDate?: string;
+  remarks?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  totalAmount?: number;
+  lines?: PurchaseOrderLine[];
+  createdBy?: string;
+}
+
+export interface PurchaseOrderListResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: PurchaseRequisitionPage<PurchaseOrderItem>;
+}
+
+export interface PurchaseOrderLine {
+  id?: number;
+  itemId?: number;
+  orderedQty?: number;
+  receivedQty?: number;
+  unitPrice?: number;
+  uom?: string;
+  remarks?: string;
+}
+
+export interface PurchaseOrderDetailResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: PurchaseOrderItem;
+}
+
 export interface RejectMrPayload {
   rejectedByUserId: string;
   reason: string;
@@ -109,6 +148,7 @@ export interface ConvertToPoPayload {
 })
 export class ProcurementService {
   private readonly apiUrl = `${environment.apiUrl}/api/procurement/mr`;
+  private readonly poApiUrl = `${environment.apiUrl}/api/procurement/po`;
 
   constructor(private http: HttpClient) {}
 
@@ -166,5 +206,29 @@ export class ProcurementService {
     });
 
     return this.http.post(`${this.apiUrl}/${id}/convert-to-po`, payload, { headers });
+  }
+
+  fetchPurchaseOrders(page: number, size: number, sort: string[] = []): Observable<PurchaseOrderListResponse> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    sort.forEach(value => {
+      params = params.append('sort', value);
+    });
+
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.get<PurchaseOrderListResponse>(this.poApiUrl, { params, headers });
+  }
+
+  fetchPurchaseOrderById(id: number | string): Observable<PurchaseOrderDetailResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.get<PurchaseOrderDetailResponse>(`${this.poApiUrl}/${id}`, { headers });
   }
 }

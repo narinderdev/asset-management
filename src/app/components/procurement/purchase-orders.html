@@ -1,0 +1,79 @@
+<div class="procurement-container">
+  <div class="procurement-header">
+    <h1 class="procurement-title">Purchase Orders</h1>
+    <div class="header-actions">
+      <select class="status-filter" [(ngModel)]="selectedStatus" (change)="filterOrders()">
+        <option *ngFor="let status of statusOptions" [value]="status">
+          {{ status === 'ALL' ? 'All statuses' : status }}
+        </option>
+      </select>
+      <button class="create-service-btn" type="button" (click)="createPurchaseOrder()">+ Create PO</button>
+    </div>
+  </div>
+
+  <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <div class="table-container">
+    <div class="table-wrapper" *ngIf="!isLoading && filteredOrders.length; else loadingState">
+      <table class="procurement-table">
+        <thead>
+          <tr>
+            <th>PO Number</th>
+            <th>Vendor</th>
+            <th>Expected Delivery</th>
+            <th>Updated</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of filteredOrders">
+            <td>{{ order.poNumber }}</td>
+            <td>{{ order.vendor }}</td>
+            <td>{{ order.expectedDelivery }}</td>
+            <td>{{ order.updatedAt }}</td>
+            <td>
+              <span class="status-chip" [ngClass]="statusClass(order.status)">
+                {{ order.status }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button
+                class="action-icon"
+                aria-label="View purchase order"
+                (click)="viewOrder(order)">
+                <img src="assets/icons/Vector.svg" alt="View" />
+              </button>
+              <button
+                class="action-icon"
+                aria-label="Edit purchase order"
+                (click)="editOrder(order)">
+                <img src="assets/icons/edit.svg" alt="Edit" />
+              </button>
+              <button
+                class="action-icon danger"
+                aria-label="Delete purchase order"
+                (click)="deleteOrder(order)">
+                <img src="assets/icons/delete.svg" alt="Delete" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #loadingState>
+      <ng-container *ngIf="isLoading; else emptyState">
+        <div class="loading-wrapper">
+          <div class="loading-overlay">
+            <div class="loader"></div>
+            <span>Loading purchase orders...</span>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #emptyState>
+        <div class="empty-state">No purchase orders available.</div>
+      </ng-template>
+    </ng-template>
+  </div>
+</div>

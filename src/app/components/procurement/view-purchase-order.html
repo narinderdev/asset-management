@@ -1,0 +1,85 @@
+<div class="mr-view" *ngIf="!isLoading && po; else loadingState">
+  <header class="mr-view-header">
+    <div class="header-left">
+      <button class="back-btn" type="button" (click)="goBack()" aria-label="Back to list">&larr;</button>
+      <h2>PO Details</h2>
+    </div>
+    <div class="mr-view-actions">
+      <button class="btn ghost" type="button" (click)="goBack()">Back To List</button>
+    </div>
+  </header>
+
+  <div class="mr-meta">
+    <div class="mr-id">{{ po?.poNumber || ('PO-' + poId) }}</div>
+    <span class="status-chip status-neutral">{{ statusChip || 'Submitted' }}</span>
+  </div>
+
+  <div class="mr-cards">
+    <div class="card">
+      <div class="card-title">PO Details</div>
+      <div class="details-grid">
+        <div>
+          <span class="label">Vendor</span>
+          <span class="value">{{ po?.vendorName || '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Expected Delivery</span>
+          <span class="value">{{ po?.expectedDeliveryDate || '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Remarks</span>
+          <span class="value">{{ po?.remarks || '-' }}</span>
+        </div>
+        <div>
+          <span class="label">Created</span>
+          <span class="value">{{ po?.createdAt || '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Updated</span>
+          <span class="value">{{ po?.updatedAt || '—' }}</span>
+        </div>
+        <div>
+          <span class="label">Created By</span>
+          <span class="value">{{ po?.createdBy || '—' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Line Items</div>
+      <table class="line-table">
+        <thead>
+          <tr>
+            <th>Item ID</th>
+            <th>Ordered Qty</th>
+            <th>Received Qty</th>
+            <th>Unit Price</th>
+            <th>UOM</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let line of lines">
+            <td>{{ line.itemId || '—' }}</td>
+            <td>{{ line.orderedQty }}</td>
+            <td>{{ line.receivedQty }}</td>
+            <td>{{ line.unitPrice }}</td>
+            <td>{{ line.uom || '—' }}</td>
+            <td>{{ line.remarks || '—' }}</td>
+          </tr>
+          <tr *ngIf="!lines.length">
+            <td colspan="6" class="empty">No line items</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingState>
+  <div class="loading-overlay">
+    <div class="spinner"></div>
+    <span>Loading PO...</span>
+  </div>
+  <div *ngIf="errorMessage" class="status-message">{{ errorMessage }}</div>
+</ng-template>

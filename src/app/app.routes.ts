@@ -38,6 +38,8 @@ import { VerifyOtpComponent } from './components/verify-otp/verify-otp';
 import { AuthGuard } from './guards/auth.guard';
 import { UsersComponent } from './components/users';
 import { SetPasswordComponent } from './components/set-password/set-password';
+import { PurchaseOrdersComponent } from './components/procurement/purchase-orders';
+import { ViewPurchaseOrderComponent } from './components/procurement/view-purchase-order';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -80,7 +82,8 @@ export const routes: Routes = [
   { path: 'vendor-management/view/:id', component: ViewVendorComponent, canActivate: [AuthGuard] },
   { path: 'procurement', component: ProcurementComponent, canActivate: [AuthGuard] },
   { path: 'procurement/material-requisitions', component: ProcurementComponent, canActivate: [AuthGuard] },
-  { path: 'procurement/purchase-orders', component: ProcurementComponent, canActivate: [AuthGuard] },
+  { path: 'procurement/purchase-orders', component: PurchaseOrdersComponent, canActivate: [AuthGuard] },
+  { path: 'procurement/purchase-orders/view/:id', component: ViewPurchaseOrderComponent, canActivate: [AuthGuard] },
   { path: 'procurement/goods-receipts', component: ProcurementComponent, canActivate: [AuthGuard] },
   { path: 'procurement/create', component: CreateProcurementComponent, canActivate: [AuthGuard] },
   { path: 'procurement/view/:id', component: ViewProcurementComponent, canActivate: [AuthGuard] },
