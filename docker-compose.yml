@@ -1,0 +1,10 @@
+services:
+  asset-management-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: asset-management-web
+    container_name: asset-management-web
+    ports:
+      - "4300:80" 
+    restart: unless-stopped
