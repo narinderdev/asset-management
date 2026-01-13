@@ -24,7 +24,7 @@
       </thead>
       <tbody>
         <tr *ngIf="!entries.length && !isLoading">
-          <td colspan="7" class="empty-row">No failure codes recorded.</td>
+          <td colspan="7" class="empty-row">No failure codes to display.</td>
         </tr>
         <tr *ngFor="let entry of entries">
           <td>{{ entry.symptomCode }}</td>

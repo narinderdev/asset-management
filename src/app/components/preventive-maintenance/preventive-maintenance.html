@@ -31,7 +31,7 @@
       </thead>
       <tbody>
         <tr *ngIf="!templates.length && !isLoading">
-          <td colspan="8" class="empty-row">No preventive maintenance templates available.</td>
+          <td colspan="8" class="empty-row">No preventive maintenance templates to display.</td>
         </tr>
         <tr *ngFor="let template of templates">
           <td>{{ template.pmId }}</td>

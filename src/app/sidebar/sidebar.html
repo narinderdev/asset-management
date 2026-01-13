@@ -5,7 +5,7 @@
       <div class="user-avatar">
         <img [src]="getIconPath('profile.svg')" alt="User" class="user-icon">
       </div>
-      <span class="user-name" *ngIf="!isCollapsed">ByeWind</span>
+      <span class="user-name" *ngIf="!isCollapsed">{{ userName }}</span>
     </div>
     <button class="toggle-btn" (click)="toggleSidebar()" *ngIf="!isCollapsed">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

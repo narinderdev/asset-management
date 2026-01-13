@@ -10,11 +10,20 @@ import { CommonModule } from '@angular/common';
 })
 export class CostChart {
   data = [
-    { month: 'Jan', height: 58 },
-    { month: 'Feb', height: 42 },
-    { month: 'Mar', height: 55 },
-    { month: 'Apr', height: 48 },
-    { month: 'May', height: 66 },
-    { month: 'Jun', height: 60 }
+    { month: 'Jan', value: 58 },
+    { month: 'Feb', value: 42 },
+    { month: 'Mar', value: 55 },
+    { month: 'Apr', value: 48 },
+    { month: 'May', value: 66 },
+    { month: 'Jun', value: 60 }
   ];
+
+  get maxValue(): number {
+    return this.data.reduce((max, item) => Math.max(max, item.value), 0) || 1;
+  }
+
+  barHeight(value: number): number {
+    const max = this.maxValue;
+    return max === 0 ? 0 : (value / max) * 100;
+  }
 }

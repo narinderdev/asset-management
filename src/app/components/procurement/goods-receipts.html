@@ -9,51 +9,47 @@
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
 
   <div class="table-container">
-    <div class="table-wrapper" *ngIf="!isLoading && receipts.length; else loadingState">
-      <table class="procurement-table">
-        <thead>
-          <tr>
-            <th>GRN Number</th>
-            <th>PO ID</th>
-            <th>Vendor ID</th>
-            <th>Received By</th>
-            <th>Received At</th>
-            <th>Updated</th>
-            <th>Notes</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let receipt of receipts">
-            <td>{{ receipt.grnNumber }}</td>
-            <td>{{ receipt.poId }}</td>
-            <td>{{ receipt.vendorId }}</td>
-            <td>{{ receipt.receivedBy }}</td>
-            <td>{{ receipt.receivedAt }}</td>
-            <td>{{ receipt.updatedAt }}</td>
-            <td>{{ receipt.notes }}</td>
-            <td class="actions-cell">
-              <button class="action-icon" aria-label="View goods receipt" (click)="viewReceipt(receipt)">
-                <img src="assets/icons/Vector.svg" alt="View" />
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <div class="table-wrapper">
+      <div class="table-container">
+        <table class="procurement-table">
+          <thead>
+            <tr>
+              <th>GRN Number</th>
+              <th>PO ID</th>
+              <th>Vendor ID</th>
+              <th>Received By</th>
+              <th>Received At</th>
+              <th>Updated</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="!receipts.length && !isLoading">
+              <td colspan="8" class="empty-row">No goods receipts to display.</td>
+            </tr>
+            <tr *ngFor="let receipt of receipts">
+              <td>{{ receipt.grnNumber }}</td>
+              <td>{{ receipt.poId }}</td>
+              <td>{{ receipt.vendorId }}</td>
+              <td>{{ receipt.receivedBy }}</td>
+              <td>{{ receipt.receivedAt }}</td>
+              <td>{{ receipt.updatedAt }}</td>
+              <td>{{ receipt.notes }}</td>
+              <td class="actions-cell">
+                <button class="action-icon" aria-label="View goods receipt" (click)="viewReceipt(receipt)">
+                  <img src="assets/icons/Vector.svg" alt="View" />
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <ng-template #loadingState>
-      <ng-container *ngIf="isLoading; else emptyState">
-        <div class="loading-wrapper">
-          <div class="loading-overlay">
-            <div class="loader"></div>
-            <span>Loading goods receipts...</span>
-          </div>
-        </div>
-      </ng-container>
-      <ng-template #emptyState>
-        <div class="empty-state">No goods receipts available.</div>
-      </ng-template>
-    </ng-template>
+      <div class="loading-overlay" *ngIf="isLoading">
+        <div class="loader"></div>
+        <span>Loading goods receipts...</span>
+      </div>
+    </div>
   </div>
 </div>

@@ -81,7 +81,7 @@
       </thead>
       <tbody>
         <tr *ngIf="!filteredAssets.length && !isLoading">
-          <td colspan="9" class="empty-row">No assets found.</td>
+          <td colspan="9" class="empty-row">No assets to display.</td>
         </tr>
         <tr *ngFor="let asset of filteredAssets">
           <td>{{ asset.assetId }}</td>

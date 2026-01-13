@@ -180,13 +180,6 @@
   gap: 8px;
 }
 
-.empty-state {
-  padding: 24px;
-  text-align: center;
-  color: #777;
-  font-size: 14px;
-}
-
 .low-stock {
   color: #d32f2f;
   font-weight: 600;

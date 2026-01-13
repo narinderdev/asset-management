@@ -22,7 +22,7 @@
       </thead>
       <tbody>
         <tr *ngIf="!workOrders.length && !isLoading">
-          <td colspan="8" class="empty-row">No work orders to show.</td>
+          <td colspan="8" class="empty-row">No work orders to display.</td>
         </tr>
         <tr *ngFor="let order of workOrders">
           <td class="id-cell">{{ order.id }}</td>

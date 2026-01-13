@@ -1,0 +1,85 @@
+<div class="mr-view" *ngIf="!isLoading && grn; else loadingState">
+  <header class="mr-view-header">
+    <div class="header-left">
+      <button class="back-btn" type="button" (click)="goBack()" aria-label="Back to list">&larr;</button>
+      <h2>GRN Details</h2>
+    </div>
+    <div class="mr-view-actions">
+      <button class="btn ghost" type="button" (click)="goBack()">Back To List</button>
+    </div>
+  </header>
+
+  <div class="mr-meta">
+    <div class="mr-id">{{ grn?.grnNumber || ('GRN-' + grnId) }}</div>
+    <span class="status-chip status-neutral">{{ statusChip || 'Submitted' }}</span>
+  </div>
+
+  <div class="mr-cards">
+    <div class="card">
+      <div class="card-title">GRN Details</div>
+      <div class="details-grid">
+        <div>
+          <span class="label">PO ID</span>
+          <span class="value">{{ grn?.poId ?? '-' }}</span>
+        </div>
+        <div>
+          <span class="label">Vendor</span>
+          <span class="value">{{ grn?.vendorId ?? '-' }}</span>
+        </div>
+        <div>
+          <span class="label">Received By</span>
+          <span class="value">{{ grn?.receivedByUserId ?? '-' }}</span>
+        </div>
+        <div>
+          <span class="label">Received At</span>
+          <span class="value">{{ grn?.receivedAtUtc ?? '-' }}</span>
+        </div>
+        <div>
+          <span class="label">Notes</span>
+          <span class="value">{{ grn?.notes || '-' }}</span>
+        </div>
+        <div>
+          <span class="label">Created</span>
+          <span class="value">{{ grn?.createdAt ?? '-' }}</span>
+        </div>
+        <div>
+          <span class="label">Updated</span>
+          <span class="value">{{ grn?.updatedAt ?? '-' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Line Items</div>
+      <table class="line-table">
+        <thead>
+          <tr>
+            <th>Item / Asset ID</th>
+            <th>Item Name</th>
+            <th>Qty</th>
+            <th>UOM</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let line of lines">
+            <td>{{ line.itemId || '-' }}</td>
+            <td>{{ line.itemName || '-' }}</td>
+            <td>{{ line.receivedQty }}</td>
+            <td>{{ line.uom || '-' }}</td>
+          </tr>
+          <tr *ngIf="!lines.length">
+            <td colspan="4" class="empty">No lines available</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingState>
+  <div class="loading-overlay">
+    <div class="spinner"></div>
+    <span>Loading GRN...</span>
+  </div>
+  <div *ngIf="errorMessage" class="status-message">{{ errorMessage }}</div>
+</ng-template>

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { ChangeDetectorRef } from '@angular/core';
+import { finalize } from 'rxjs/operators';
 import { ProcurementService, CreateMrPayload, PurchaseRequisitionItem, PurchaseRequisitionLine } from '../../services/procurement.service';
 import { InventoryService } from '../../services/inventory.service';
 
@@ -49,7 +51,8 @@ export class CreateProcurementComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private procurementService: ProcurementService,
-    private inventoryService: InventoryService
+    private inventoryService: InventoryService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -91,16 +94,22 @@ export class CreateProcurementComponent implements OnInit {
   private onUpdate(id: string): void {
     const payload = this.buildPayload();
     this.isSubmitting = true;
-    this.procurementService.updateMr(id, payload).subscribe({
-      next: () => {
-        this.isSubmitting = false;
-        this.router.navigate(['/procurement']);
-      },
-      error: err => {
-        console.error('Failed to update MR', err);
-        this.isSubmitting = false;
-      }
-    });
+    this.procurementService
+      .updateMr(id, payload)
+      .pipe(
+        finalize(() => {
+          this.isSubmitting = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/procurement']);
+        },
+        error: err => {
+          console.error('Failed to update MR', err);
+        }
+      });
   }
 
   onItemSelected(index: number): void {
@@ -192,6 +201,9 @@ export class CreateProcurementComponent implements OnInit {
                 uom: 'Each'
               }
             ];
+        // Ensure template updates after async patching values
+        this.lineItems = [...this.lineItems];
+        this.cdr.detectChanges();
       },
       error: err => {
         console.error('Unable to load MR for edit', err);
@@ -217,7 +229,15 @@ export class CreateProcurementComponent implements OnInit {
   private formatDateForInput(value?: string): string {
     if (!value) return '';
     const date = new Date(value);
-    if (isNaN(date.getTime())) return '';
-    return date.toISOString().split('T')[0];
+    if (!isNaN(date.getTime())) {
+      return date.toISOString().split('T')[0];
+    }
+    // Fallback for DD-MM-YYYY
+    const match = value.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+    if (match) {
+      const [_, dd, mm, yyyy] = match;
+      return `${yyyy}-${mm}-${dd}`;
+    }
+    return '';
   }
 }

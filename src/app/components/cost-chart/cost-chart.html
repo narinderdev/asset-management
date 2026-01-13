@@ -21,7 +21,7 @@
         <div class="bar-wrapper" *ngFor="let item of data; let i = index">
           <div
             class="bar"
-            [style.height.%]="item.height"
+            [style.height.%]="barHeight(item.value)"
             [style.--grow-delay]="(i * 0.1) + 's'"
           ></div>
           <div class="bar-label" [style.--label-delay]="(i * 0.1 + 0.35) + 's'">

@@ -130,6 +130,8 @@ export interface GoodsReceiptLine {
   poLineId?: number;
   itemId?: number;
   receivedQty?: number;
+  itemName?: string;
+  uom?: string;
 }
 
 export interface GoodsReceiptItem {
@@ -137,6 +139,7 @@ export interface GoodsReceiptItem {
   grnNumber?: string;
   poId?: number;
   vendorId?: number;
+  status?: string;
   receivedByUserId?: string;
   receivedAtUtc?: string;
   dayKeyUtc?: string;
@@ -151,6 +154,13 @@ export interface GoodsReceiptListResponse {
   status?: string;
   message?: string;
   data?: GoodsReceiptItem[];
+}
+
+export interface GoodsReceiptDetailResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: GoodsReceiptItem;
 }
 
 export interface CreateGrnLinePayload {
@@ -314,6 +324,16 @@ export class ProcurementService {
       'ngrok-skip-browser-warning': 'true'
     });
     return this.http.post(`${environment.apiUrl}/api/procurement/grn`, payload, { headers });
+  }
+
+  fetchGoodsReceiptById(id: number | string): Observable<GoodsReceiptDetailResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.get<GoodsReceiptDetailResponse>(`${environment.apiUrl}/api/procurement/grn/${id}`, {
+      headers
+    });
   }
 
   updatePurchaseOrderStatus(id: number | string, payload: UpdatePoStatusPayload): Observable<any> {

@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 
 import {
@@ -34,7 +35,8 @@ export class GoodsReceiptsComponent implements OnInit {
 
   constructor(
     private procurementService: ProcurementService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -83,6 +85,6 @@ export class GoodsReceiptsComponent implements OnInit {
   }
 
   viewReceipt(row: GoodsReceiptRow): void {
-    console.log('View GRN', row);
+    this.router.navigate(['/procurement/goods-receipts/view', row.id]);
   }
 }

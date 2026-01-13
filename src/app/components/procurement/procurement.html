@@ -14,57 +14,60 @@
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
 
   <div class="table-container">
-    <div class="table-wrapper" *ngIf="!isLoading && filteredRequests.length; else loadingState">
-      <table class="procurement-table">
-        <thead>
-          <tr>
-            <th>MR Number</th>
-            <th>Requested by</th>
-            <th>Needed by</th>
-            <th>Updated</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let request of filteredRequests">
-            <td>{{ request.prId }}</td>
-            <td>{{ request.requester }}</td>
-            <td>{{ request.requiredBy }}</td>
-            <td>{{ request.date }}</td>
-            <td>
-              <span class="status-chip" [ngClass]="statusClass(request.status)">
-                {{ request.status }}
-              </span>
-            </td>
-            <td class="actions-cell">
-              <button class="action-icon" aria-label="View requisition" (click)="viewRequisition(request)">
-                <img src="assets/icons/Vector.svg" alt="View" />
-              </button>
-              <button class="action-icon" aria-label="Edit requisition" (click)="editRequisition(request)">
-                <img src="assets/icons/edit.svg" alt="Edit" />
-              </button>
-              <button class="action-icon danger" aria-label="Delete requisition">
-                <img src="assets/icons/delete.svg" alt="Delete" />
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <div class="table-wrapper">
+      <div class="table-container">
+        <table class="procurement-table">
+          <thead>
+            <tr>
+              <th>MR Number</th>
+              <th>Requested by</th>
+              <th>Needed by</th>
+              <th>Updated</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="!filteredRequests.length && !isLoading">
+              <td colspan="6" class="empty-row">No material requisitions to display.</td>
+            </tr>
+            <tr *ngFor="let request of filteredRequests">
+              <td>{{ request.prId }}</td>
+              <td>{{ request.requester }}</td>
+              <td>{{ request.requiredBy }}</td>
+              <td>{{ request.date }}</td>
+              <td>
+                <span class="status-chip" [ngClass]="statusClass(request.status)">
+                  {{ request.status }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button class="action-icon" aria-label="View requisition" (click)="viewRequisition(request)">
+                  <img src="assets/icons/Vector.svg" alt="View" />
+                </button>
+                <button
+                  class="action-icon"
+                  aria-label="Edit requisition"
+                  *ngIf="!request.isLocked"
+                  (click)="editRequisition(request)">
+                  <img src="assets/icons/edit.svg" alt="Edit" />
+                </button>
+                <button
+                  class="action-icon danger"
+                  aria-label="Delete requisition"
+                  *ngIf="!request.isLocked">
+                  <img src="assets/icons/delete.svg" alt="Delete" />
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <ng-template #loadingState>
-      <ng-container *ngIf="isLoading; else emptyState">
-        <div class="loading-wrapper">
-          <div class="loading-overlay">
-            <div class="loader"></div>
-            <span>Loading purchase requisitions...</span>
-          </div>
-        </div>
-      </ng-container>
-      <ng-template #emptyState>
-        <div class="empty-state">No material requisitions available.</div>
-      </ng-template>
-    </ng-template>
+      <div class="loading-overlay" *ngIf="isLoading">
+        <div class="loader"></div>
+        <span>Loading purchase requisitions...</span>
+      </div>
+    </div>
   </div>
 </div>

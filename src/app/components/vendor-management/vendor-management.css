@@ -142,13 +142,6 @@
   overflow-x: auto;
 }
 
-.empty-row {
-  text-align: center;
-  padding: 32px 0;
-  color: #777;
-  font-size: 14px;
-}
-
 .loading-overlay {
   position: absolute;
   inset: 0;

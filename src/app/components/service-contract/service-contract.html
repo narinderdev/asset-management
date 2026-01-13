@@ -27,7 +27,7 @@
         </thead>
         <tbody>
           <tr *ngIf="!contracts.length && !isLoading">
-            <td colspan="10" class="empty-row">No service contracts available.</td>
+            <td colspan="10" class="empty-row">No service contracts to display.</td>
           </tr>
           <tr *ngFor="let contract of contracts">
             <td>{{ contract.contractId }}</td>

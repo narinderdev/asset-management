@@ -16,6 +16,7 @@ interface ProcurementRequest {
   date: string;
   requiredBy: string;
   status: string;
+  isLocked: boolean;
 }
 
 @Component({
@@ -91,7 +92,8 @@ export class ProcurementComponent implements OnInit {
       requester: item.requestedByUserId ?? 'Unknown',
       date: item.updatedAt ?? item.createdAt ?? '',
       requiredBy: item.neededByDate ?? '',
-      status: this.prettifyStatus(item.status)
+      status: this.prettifyStatus(item.status),
+      isLocked: this.isApprovedOrConverted(item.status)
     };
   }
 
@@ -107,6 +109,9 @@ export class ProcurementComponent implements OnInit {
 
   statusClass(status: string): string {
     const normalized = status.toLowerCase();
+    if (normalized.includes('convert')) {
+      return 'status-converted';
+    }
     if (normalized.includes('approve')) {
       return 'status-approved';
     }
@@ -124,10 +129,23 @@ export class ProcurementComponent implements OnInit {
       return 'Draft';
     }
 
+    const normalized = value.toLowerCase();
+    if (normalized.includes('convert')) {
+      return 'Converted to PO';
+    }
+
     return value
       .toLowerCase()
       .split('_')
       .map(part => part.charAt(0).toUpperCase() + part.slice(1))
       .join(' ');
+  }
+
+  private isApprovedOrConverted(status?: string): boolean {
+    if (!status) {
+      return false;
+    }
+    const normalized = status.toLowerCase();
+    return normalized.includes('approved') || normalized.includes('converted');
   }
 }

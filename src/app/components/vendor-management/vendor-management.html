@@ -29,7 +29,7 @@
         </thead>
         <tbody>
           <tr *ngIf="!vendors.length && !isLoading">
-            <td colspan="9" class="empty-row">No vendor records available.</td>
+            <td colspan="9" class="empty-row">No vendors to display.</td>
           </tr>
           <tr *ngFor="let vendor of vendors">
             <td>{{ vendor.vendorId }}</td>

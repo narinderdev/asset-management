@@ -1,9 +1,9 @@
 .table-card {
-  background: white;
-  border-radius: 8px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-top: 24px;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  margin-top: 0;
 }
 
 .table-title {
@@ -13,33 +13,28 @@
   margin: 0 0 20px 0;
 }
 
-.table-container {
-  overflow-x: auto;
-}
-
 .work-order-table {
   width: 100%;
   border-collapse: collapse;
 }
 
 .work-order-table thead {
-  background: #f9fafb;
-  border-bottom: 2px solid #e5e7eb;
+  background: #fafafa;
+  border-bottom: 1px solid #e4e4e4;
 }
 
 .work-order-table th {
-  padding: 12px 16px;
+  padding: 16px;
   text-align: left;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  color: #919aac;
-  /* text-transform: uppercase; */
-  letter-spacing: 0.5px;
+  color: #5b5b5b;
+  letter-spacing: 0.3px;
 }
 
 .work-order-table td {
   padding: 16px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f1f1f1;
   font-size: 14px;
   color: #333;
 }
@@ -179,13 +174,7 @@
 
 .table-wrapper {
   position: relative;
-}
-
-.empty-row {
-  text-align: center;
-  padding: 32px 0;
-  color: #777;
-  font-size: 14px;
+  min-height: 82vh;
 }
 
 .loading-overlay {

@@ -94,13 +94,11 @@
 
 .table-container {
   overflow-x: auto;
-  border: 1px solid #eaeaea;
-  border-radius: 8px;
 }
 
 .table-wrapper {
   overflow-x: auto;
-  min-height: 220px;
+  min-height: 82vh;
   position: relative;
   background: #fff;
 }
@@ -156,6 +154,11 @@
   color: #1b7f2c;
 }
 
+.status-chip.status-converted {
+  background-color: #e8f1ff;
+  color: #1e40af;
+}
+
 .status-chip.status-submitted {
   background-color: #fff4e6;
   color: #d97706;
@@ -203,13 +206,6 @@
 .action-icon.danger {
   background-color: transparent;
   color: #d32f2f;
-}
-
-.empty-state {
-  padding: 24px;
-  text-align: center;
-  color: #777;
-  font-size: 14px;
 }
 
 .loading-wrapper {

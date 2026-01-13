@@ -222,13 +222,6 @@
   background-color: #16a34a;
 }
 
-.empty-row {
-  padding: 24px;
-  text-align: center;
-  color: #777;
-  font-size: 14px;
-}
-
 .loading-overlay {
   position: absolute;
   inset: 0;

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
@@ -22,13 +22,14 @@ interface MenuItem {
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css'
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   @Input() mobileOpen = false;
   isCollapsed = false;
   expandedMenuLabel?: string;
   activeRoute = '/dashboard';
   showLogoutModal = false;
   @Output() mobileClose = new EventEmitter<void>();
+  userName = 'User';
 
   // Path to your icons folder
   iconPath = '/assets/icons/';
@@ -44,11 +45,10 @@ export class SidebarComponent {
     },
     {
       icon: 'fluent_web-asset-24-regular.svg',
+      activeIcon: 'fluent_web-asset-24-regular (1).svg',
       label: 'Assets',
       route: '/assets',
-      module: 'ASSET',
-      hasSubmenu: true,
-      submenu: [{ label: 'All Assets', route: '/assets' }]
+      module: 'ASSET'
     },
     {
       icon: 'carbon_collapse-categories.svg',
@@ -135,6 +135,11 @@ export class SidebarComponent {
       .subscribe(event => {
         this.activeRoute = event.urlAfterRedirects || event.url;
       });
+  }
+
+  ngOnInit(): void {
+    const name = this.permissions.getCurrentUserName();
+    this.userName = name || 'User';
   }
 
   toggleSidebar() {

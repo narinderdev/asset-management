@@ -143,6 +143,14 @@ export class ViewPurchaseOrderComponent implements OnInit {
     return (this.po?.status || '').toUpperCase() === 'DELIVERED';
   }
 
+  get isIssued(): boolean {
+    return (this.po?.status || '').toUpperCase() === 'ISSUED';
+  }
+
+  get canMarkDelivered(): boolean {
+    return this.isDraft || this.isIssued;
+  }
+
   private mapLine(line: PurchaseOrderLine): UiPoLine {
     return {
       id: line.id,

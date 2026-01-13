@@ -9,67 +9,69 @@
 
   <div class="table-status" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-  <div class="table-wrapper" *ngIf="technicians.length; else emptyState">
-    <table class="preventive-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Role</th>
-          <th>Team</th>
-          <th>Location</th>
-          <th>Availability</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let tech of technicians">
-          <td>{{ tech.name }}</td>
-          <td>{{ tech.role }}</td>
-          <td>{{ tech.team }}</td>
-          <td>{{ tech.location }}</td>
-          <td>
-            <span
-              class="status-chip"
-              [ngClass]="{
-                'status-green': tech.availability === 'Active',
-                'status-red': tech.availability === 'Unavailable',
-                'status-grey': tech.availability === 'On Leave'
-              }"
-            >
-              {{ formatStatus(tech.availability) }}
-            </span>
-          </td>
-          <td class="actions-cell">
-            <button class="action-icon" aria-label="View technician" (click)="viewTechnician(tech)">
-              <img src="assets/icons/Vector.svg" alt="View" />
-            </button>
-            <button
-              class="action-icon"
-              aria-label="Edit technician"
-              *ngIf="canEditTechnicians"
-              (click)="editTechnician(tech)">
-              <img src="assets/icons/edit.svg" alt="Edit" />
-            </button>
-            <button
-              class="action-icon danger"
-              aria-label="Delete technician"
-              *ngIf="canDeleteTechnicians"
-              (click)="openDeleteModal(tech)">
-              <img src="assets/icons/delete.svg" alt="Delete" />
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <ng-template #emptyState>
-    <div class="empty-state">
-      <span *ngIf="loading">Loading technicians...</span>
-      <span *ngIf="!loading && errorMessage">{{ errorMessage }}</span>
-      <span *ngIf="!loading && !errorMessage">No technicians available.</span>
+  <div class="table-wrapper">
+    <div class="table-container">
+      <table class="preventive-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Team</th>
+            <th>Location</th>
+            <th>Availability</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="!technicians.length && !loading">
+            <td colspan="6" class="empty-row">No technicians to display.</td>
+          </tr>
+          <tr *ngFor="let tech of technicians">
+            <td>{{ tech.name }}</td>
+            <td>{{ tech.role }}</td>
+            <td>{{ tech.team }}</td>
+            <td>{{ tech.location }}</td>
+            <td>
+              <span
+                class="status-chip"
+                [ngClass]="{
+                  'status-green': tech.availability === 'Active',
+                  'status-red': tech.availability === 'Unavailable',
+                  'status-grey': tech.availability === 'On Leave'
+                }"
+              >
+                {{ formatStatus(tech.availability) }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button class="action-icon" aria-label="View technician" (click)="viewTechnician(tech)">
+                <img src="assets/icons/Vector.svg" alt="View" />
+              </button>
+              <button
+                class="action-icon"
+                aria-label="Edit technician"
+                *ngIf="canEditTechnicians"
+                (click)="editTechnician(tech)">
+                <img src="assets/icons/edit.svg" alt="Edit" />
+              </button>
+              <button
+                class="action-icon danger"
+                aria-label="Delete technician"
+                *ngIf="canDeleteTechnicians"
+                (click)="openDeleteModal(tech)">
+                <img src="assets/icons/delete.svg" alt="Delete" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-  </ng-template>
+
+    <div class="loading-overlay" *ngIf="loading">
+      <div class="loader"></div>
+      <span>Loading technicians...</span>
+    </div>
+  </div>
   <app-delete-modal
     [isOpen]="isDeleteModalOpen"
     [deleting]="isDeleting"
