@@ -5,7 +5,7 @@
       <h2>MR Details</h2>
     </div>
     <div class="mr-view-actions">
-      <ng-container *ngIf="!isApproved; else approvedActions">
+      <ng-container *ngIf="!isApproved && !isConvertedToPo; else approvedActions">
         <button
           class="btn success"
           type="button"
@@ -18,13 +18,20 @@
           class="btn danger"
           type="button"
           (click)="openReject()"
-          *ngIf="!isRejected"
+          *ngIf="!isRejected && !isConvertedToPo"
         >
           Reject
         </button>
       </ng-container>
       <ng-template #approvedActions>
-        <button class="btn primary" type="button" (click)="convertToPo()">Convert to PO</button>
+        <button
+          class="btn primary"
+          type="button"
+          (click)="convertToPo()"
+          *ngIf="!isConvertedToPo"
+        >
+          Convert to PO
+        </button>
         <button class="btn ghost" type="button" (click)="goBack()">Back To List</button>
       </ng-template>
     </div>
@@ -37,7 +44,9 @@
 
   <div class="mr-meta">
     <div class="mr-id">{{ (mrDetail?.mrNumber) || mrState?.prId || ('MR-' + mrId) }}</div>
-    <span class="status-chip status-neutral">{{ mrDetail?.status || mrState?.status || 'Submitted' }}</span>
+    <span class="status-chip status-neutral">
+      {{ formatStatus(mrDetail?.status || mrState?.status) }}
+    </span>
   </div>
 
   <div class="mr-cards">

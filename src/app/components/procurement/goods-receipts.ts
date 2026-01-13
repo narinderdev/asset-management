@@ -44,7 +44,7 @@ export class GoodsReceiptsComponent implements OnInit {
   }
 
   createGoodsReceipt(): void {
-    console.log('Navigate to create GRN (hook up route when available)');
+    this.router.navigate(['/procurement/goods-receipts/create']);
   }
 
   private loadReceipts(): void {

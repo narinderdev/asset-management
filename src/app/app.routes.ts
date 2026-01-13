@@ -42,6 +42,8 @@ import { PurchaseOrdersComponent } from './components/procurement/purchase-order
 import { ViewPurchaseOrderComponent } from './components/procurement/view-purchase-order';
 import { GoodsReceiptsComponent } from './components/procurement/goods-receipts';
 import { ViewGoodsReceiptComponent } from './components/procurement/view-goods-receipt';
+import { CreatePurchaseOrderComponent } from './components/procurement/create-purchase-order';
+import { CreateGrnComponent } from './components/procurement/create-grn';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -85,8 +87,10 @@ export const routes: Routes = [
   { path: 'procurement', component: ProcurementComponent, canActivate: [AuthGuard] },
   { path: 'procurement/material-requisitions', component: ProcurementComponent, canActivate: [AuthGuard] },
   { path: 'procurement/purchase-orders', component: PurchaseOrdersComponent, canActivate: [AuthGuard] },
+  { path: 'procurement/purchase-orders/create', component: CreatePurchaseOrderComponent, canActivate: [AuthGuard] },
   { path: 'procurement/purchase-orders/view/:id', component: ViewPurchaseOrderComponent, canActivate: [AuthGuard] },
   { path: 'procurement/goods-receipts', component: GoodsReceiptsComponent, canActivate: [AuthGuard] },
+  { path: 'procurement/goods-receipts/create', component: CreateGrnComponent, canActivate: [AuthGuard] },
   { path: 'procurement/goods-receipts/view/:id', component: ViewGoodsReceiptComponent, canActivate: [AuthGuard] },
   { path: 'procurement/create', component: CreateProcurementComponent, canActivate: [AuthGuard] },
   { path: 'procurement/edit/:id', component: CreateProcurementComponent, canActivate: [AuthGuard] },

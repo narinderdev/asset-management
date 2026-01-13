@@ -200,6 +200,25 @@ export interface ConvertToPoPayload {
   lineOverrides: ConvertToPoLineOverride[];
 }
 
+export interface CreatePoLine {
+  itemId: number;
+  orderedQty: number;
+  uom: string;
+  unitPrice?: number;
+  remarks?: string;
+}
+
+export interface CreatePoPayload {
+  vendorId: number;
+  expectedDeliveryDate: string;
+  remarks?: string;
+  createdByUserId: string;
+  mrId?: number;
+  neededByDate?: string;
+  notes?: string;
+  lines: CreatePoLine[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -342,5 +361,13 @@ export class ProcurementService {
     });
 
     return this.http.patch(`${this.poApiUrl}/${id}/status`, payload, { headers });
+  }
+
+  createPurchaseOrder(payload: CreatePoPayload): Observable<any> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.post(this.poApiUrl, payload, { headers });
   }
 }

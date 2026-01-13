@@ -158,6 +158,18 @@ export class ViewProcurementComponent implements OnInit {
     return (status || '').toLowerCase() === 'approved';
   }
 
+  get isConvertedToPo(): boolean {
+    const status = this.mrDetail?.status || this.mrState?.status;
+    return (status || '').toLowerCase() === 'converted_to_po' || (status || '').toLowerCase() === 'converted to po';
+  }
+
+  formatStatus(status: string | undefined | null): string {
+    if (!status) {
+      return 'Submitted';
+    }
+    return status.replace(/_/g, ' ').trim();
+  }
+
   convertToPo(): void {
     this.isPoModalOpen = true;
     if (!this.vendorOptions.length && !this.isLoadingVendors) {

@@ -121,7 +121,7 @@ export class PurchaseOrdersComponent implements OnInit {
   }
 
   createPurchaseOrder(): void {
-    this.router.navigate(['/procurement/create']);
+    this.router.navigate(['/procurement/purchase-orders/create']);
   }
 
   viewOrder(order: PurchaseOrderRow): void {
@@ -129,19 +129,5 @@ export class PurchaseOrdersComponent implements OnInit {
       return;
     }
     this.router.navigate(['/procurement/purchase-orders/view', order.id]);
-  }
-
-  editOrder(order: PurchaseOrderRow): void {
-    if (!order.id) {
-      return;
-    }
-    this.router.navigate(['/procurement/purchase-orders/view', order.id], {
-      queryParams: { mode: 'edit' }
-    });
-  }
-
-  deleteOrder(order: PurchaseOrderRow): void {
-    // Hook delete flow here when API is ready.
-    console.log('Delete purchase order', order);
   }
 }

@@ -1,0 +1,59 @@
+<div class="create-request-page">
+  <section class="create-card">
+    <header class="create-header">
+      <button type="button" class="back-btn" aria-label="Back to goods receipts" (click)="cancel()">
+        &larr;
+      </button>
+      <h2>Create GRN</h2>
+    </header>
+
+    <form class="request-form" (ngSubmit)="submit()">
+      <div class="section-title">Goods Receipt Details</div>
+      <div class="form-grid">
+        <label class="field">
+          <span>PO Id</span>
+          <input type="number" name="poId" [(ngModel)]="form.poId" required />
+        </label>
+        <label class="field">
+          <span>Received By User Id</span>
+          <input type="text" name="receivedBy" [(ngModel)]="form.receivedByUserId" required />
+        </label>
+        <label class="field">
+          <span>Notes (optional)</span>
+          <input type="text" name="notes" [(ngModel)]="form.notes" placeholder="Additional notes..." />
+        </label>
+      </div>
+
+      <div class="line-items">
+        <div class="line-items-toolbar">
+          <div class="section-title">Lines</div>
+          <button type="button" class="link-btn add-line-btn" (click)="addLine()">+ Add Line</button>
+        </div>
+        <div class="line-items-header">
+          <div>PO Line Id</div>
+          <div>Received Qty</div>
+          <div class="actions-column">Actions</div>
+        </div>
+
+        <div class="line-item-row" *ngFor="let line of lines; let i = index">
+          <div class="line-field">
+            <input type="number" name="poLineId-{{ i }}" [(ngModel)]="line.poLineId" placeholder="e.g., 12" />
+          </div>
+          <div class="line-field">
+            <input type="number" name="receivedQty-{{ i }}" [(ngModel)]="line.receivedQty" min="0" />
+          </div>
+          <div class="line-field actions-field">
+            <button type="button" class="icon-btn" aria-label="Remove line" (click)="removeLine(i)"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" (click)="cancel()">Cancel</button>
+        <button type="submit" class="btn primary" [disabled]="isSubmitting || !form.poId || !form.receivedByUserId">
+          {{ isSubmitting ? 'Creating...' : 'Create GRN' }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>
