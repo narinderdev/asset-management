@@ -103,6 +103,122 @@
   font-family: inherit;
 }
 
+.custom-multiselect {
+  position: relative;
+}
+
+.multi-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 10px 12px;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.multi-trigger:hover {
+  border-color: #c4c4c4;
+}
+
+.multi-trigger.disabled {
+  cursor: not-allowed;
+  background-color: #f7f7f7;
+  color: #999999;
+}
+
+.multi-text {
+  color: #333333;
+  font-weight: 500;
+}
+
+.multi-text.placeholder {
+  color: #8a8a8a;
+  font-weight: 400;
+}
+
+.chevron {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid #666666;
+  transition: transform 0.2s;
+}
+
+.chevron.open {
+  transform: rotate(180deg);
+}
+
+.multi-panel {
+  position: absolute;
+  z-index: 10;
+  top: calc(72% + 2px);
+  left: 0;
+  right: 0;
+  max-height: 220px;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.multi-panel.has-selection {
+  top: calc(100% + 2px);
+}
+
+.multi-header {
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #555555;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.multi-header .link-btn {
+  background: none;
+  border: none;
+  color: #3599ff;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0;
+}
+
+.multi-option {
+  padding: 8px 14px;
+}
+
+.multi-option label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #333333;
+  cursor: pointer;
+}
+
+.multi-option:hover {
+  background-color: #f7fbff;
+}
+
+.multi-option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #3599ff;
+}
+
+.multi-helper {
+  padding: 8px 14px;
+  font-size: 13px;
+  color: #777777;
+}
+
 .field select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23666666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");

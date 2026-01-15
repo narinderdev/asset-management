@@ -65,7 +65,7 @@ export interface TechnicianTeam {
   startDate?: string;
   endDate?: string;
   notes?: string;
-  teamLeaderId?: number;
+  teamLeaderId?: number | null;
   teamLeaderName?: string;
   technicians?: TechnicianTeamMember[];
 }
@@ -115,6 +115,8 @@ export interface CreateTechnicianTeamPayload {
   endDate?: string;
   teamDescription?: string;
   notes?: string;
+  technicianIds?: number[];
+  teamLeaderId?: number | null;
 }
 
 export interface TechnicianCreateResponse {

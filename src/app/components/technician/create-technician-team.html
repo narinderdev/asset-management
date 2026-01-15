@@ -53,6 +53,51 @@
           <span>Notes</span>
           <input name="notes" [(ngModel)]="form.notes" placeholder="Add notes"/>
         </label>
+        <label class="field custom-multiselect">
+          <span>Team Members</span>
+          <div
+            class="multi-trigger"
+            [class.disabled]="isLoadingTechnicians"
+            (click)="toggleMemberDropdown()"
+          >
+            <span class="multi-text" [class.placeholder]="!form.technicianIds.length">
+              {{ selectedMembersLabel }}
+            </span>
+            <span class="chevron" [class.open]="isMemberDropdownOpen"></span>
+          </div>
+          <div
+            class="multi-panel"
+            [class.has-selection]="form.technicianIds.length"
+            *ngIf="isMemberDropdownOpen"
+          >
+            <div class="multi-header">
+              <span>Select members</span>
+              <button type="button" class="link-btn" (click)="closeMemberDropdown()">Done</button>
+            </div>
+            <div class="multi-option" *ngFor="let tech of technicianOptions">
+              <label>
+                <input
+                  type="checkbox"
+                  [checked]="form.technicianIds.includes(tech.id)"
+                  (change)="toggleTechnicianSelection(tech.id, $event.target.checked)"
+                />
+                {{ tech.name }}
+              </label>
+            </div>
+            <div class="multi-helper" *ngIf="isLoadingTechnicians">Loading technicians...</div>
+            <div class="multi-helper" *ngIf="!isLoadingTechnicians && !technicianOptions.length">No technicians found</div>
+          </div>
+        </label>
+        <label class="field">
+          <span>Team Leader</span>
+          <select name="teamLeaderId" [(ngModel)]="form.teamLeaderId" [disabled]="!selectedTechnicianOptions.length">
+            <option [ngValue]="null" disabled hidden>Select leader</option>
+            <option *ngFor="let tech of selectedTechnicianOptions" [ngValue]="tech.id">
+              {{ tech.name }}
+            </option>
+          </select>
+          <span class="helper" *ngIf="!selectedTechnicianOptions.length">Select team members to choose a leader</span>
+        </label>
       </div>
 
       <div class="form-actions">

@@ -19,7 +19,7 @@
               />
             </svg>
           </span>
-          <input type="text" formControlName="firstName" placeholder="Jane" />
+          <input type="text" name="firstName" formControlName="firstName" placeholder="Jane" />
         </div>
         <small class="error" *ngIf="form.get('firstName')?.touched && form.get('firstName')?.invalid">
           First name must be at least 2 letters.
@@ -41,7 +41,7 @@
               />
             </svg>
           </span>
-          <input type="text" formControlName="lastName" placeholder="Doe" />
+          <input type="text" name="lastName" formControlName="lastName" placeholder="Doe" />
         </div>
         <small class="error" *ngIf="form.get('lastName')?.touched && form.get('lastName')?.invalid">
           Last name must be at least 2 letters.
@@ -60,6 +60,7 @@
         </span>
         <input
           type="email"
+          name="email"
           formControlName="email"
           placeholder="name@company.com"
           class="email-input-lowercase"
@@ -82,6 +83,7 @@
         </span>
         <input
           [type]="passwordVisible ? 'text' : 'password'"
+          name="password"
           formControlName="password"
           placeholder="Create a password"
           (blur)="onPasswordBlur()"
@@ -144,6 +146,7 @@
         </span>
         <input
           [type]="confirmPasswordVisible ? 'text' : 'password'"
+          name="confirmPassword"
           formControlName="confirmPassword"
           placeholder="Confirm your password"
           (blur)="onConfirmPasswordBlur()"

@@ -42,8 +42,7 @@ export class CreatePurchaseOrderComponent implements OnInit {
   poInfo = {
     vendorId: null as number | null,
     expectedDelivery: this.today,
-    remarks: '',
-    mrId: null as number | null
+    remarks: ''
   };
 
   lineItems: LineItem[] = [
@@ -141,7 +140,6 @@ export class CreatePurchaseOrderComponent implements OnInit {
       expectedDeliveryDate: this.poInfo.expectedDelivery,
       remarks: this.poInfo.remarks,
       createdByUserId: this.requisition.requestedBy || '',
-      mrId: this.poInfo.mrId ?? undefined,
       neededByDate: this.requisition.neededBy,
       notes: this.requisition.notes,
       lines

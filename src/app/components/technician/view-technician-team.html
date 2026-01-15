@@ -1,5 +1,5 @@
-<div class="view-request-page">
-  <div class="view-request-header">
+<div class="view-asset-page">
+  <div class="view-asset-header">
     <button class="back-btn" type="button" aria-label="Back to teams" (click)="goBack()">
       <span aria-hidden="true">&larr;</span>
       Back to teams
@@ -38,6 +38,10 @@
           <span class="label">Team Leader</span>
           <span class="value">{{ formatField(team.teamLeaderName) }}</span>
         </div>
+        <div>
+          <span class="label">Members</span>
+          <span class="value">{{ team.technicians?.length ?? 0 }}</span>
+        </div>
       </div>
     </section>
 
@@ -57,10 +61,10 @@
 
     <section class="detail-section" *ngIf="team.technicians?.length">
       <h2>Members</h2>
-      <div class="detail-grid" style="grid-template-columns: repeat(3, 1fr);">
+      <div class="detail-grid">
         <div *ngFor="let tech of team.technicians">
           <span class="label">Name</span>
-          <span class="value" style="margin-bottom: 8px;">{{ getTechnicianName(tech) }}</span>
+          <span class="value">{{ getTechnicianName(tech) }}</span>
           <span class="label">Role</span>
           <span class="value">{{ formatEnum(tech.technicianType) }}</span>
           <span class="label">Status</span>

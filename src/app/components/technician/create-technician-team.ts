@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -18,6 +18,8 @@ interface TechnicianTeamForm extends CreateTechnicianTeamPayload {
   endDate: string;
   teamDescription: string;
   notes: string;
+  technicianIds: number[];
+  teamLeaderId: number | null;
 }
 
 @Component({
@@ -32,11 +34,14 @@ export class CreateTechnicianTeamComponent implements OnInit {
   isSubmitting = false;
   isEditMode = false;
   isLoadingDetails = false;
+  isLoadingTechnicians = false;
+  isMemberDropdownOpen = false;
   errorMessage?: string;
   statusOptions = [
     { value: 'ACTIVE', label: 'Active' },
     { value: 'INACTIVE', label: 'Inactive' }
   ];
+  technicianOptions: { id: number; name: string }[] = [];
   private editTeamId?: number;
 
   constructor(
@@ -44,10 +49,12 @@ export class CreateTechnicianTeamComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly technicianService: TechnicianService,
     private readonly toastr: ToastrService,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
+    private readonly host: ElementRef
   ) {}
 
   ngOnInit(): void {
+    this.loadTechnicians();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
@@ -125,18 +132,25 @@ export class CreateTechnicianTeamComponent implements OnInit {
       startDate: team.startDate ?? '',
       endDate: team.endDate ?? '',
       teamDescription: team.teamDescription ?? '',
-      notes: team.notes ?? ''
+      notes: team.notes ?? '',
+      technicianIds: (team.technicians ?? [])
+        .map(tech => tech.id)
+        .filter((id): id is number => typeof id === 'number'),
+      teamLeaderId: team.teamLeaderId ?? null
     };
   }
 
   private buildPayload(): CreateTechnicianTeamPayload {
+    const technicianIds = (this.form.technicianIds || []).filter((id): id is number => typeof id === 'number');
     return {
       teamName: this.form.teamName.trim(),
       status: this.form.status,
-      startDate: this.form.startDate || undefined,
-      endDate: this.form.endDate || undefined,
+      startDate: this.form.startDate || '',
+      endDate: this.form.endDate || '',
       teamDescription: this.form.teamDescription.trim(),
-      notes: this.form.notes.trim()
+      notes: this.form.notes.trim(),
+      technicianIds,
+      teamLeaderId: technicianIds.includes(this.form.teamLeaderId as number) ? this.form.teamLeaderId : null
     };
   }
 
@@ -147,7 +161,90 @@ export class CreateTechnicianTeamComponent implements OnInit {
       startDate: '',
       endDate: '',
       teamDescription: '',
-      notes: ''
+      notes: '',
+      technicianIds: [],
+      teamLeaderId: null
     };
+  }
+
+  private loadTechnicians(): void {
+    this.isLoadingTechnicians = true;
+    this.technicianService
+      .fetchTechnicians(0, 100)
+      .pipe(finalize(() => {
+        this.isLoadingTechnicians = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: response => {
+          const technicians = response.data?.technicians ?? [];
+          this.technicianOptions = technicians
+            .map(tech => ({
+              id: tech.id ?? 0,
+              name: tech.fullName || `${tech.firstName ?? ''} ${tech.lastName ?? ''}`.trim() || 'Unnamed technician'
+            }))
+            .filter(tech => !!tech.id);
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.technicianOptions = [];
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  get selectedTechnicianOptions(): { id: number; name: string }[] {
+    return this.technicianOptions.filter(opt => this.form.technicianIds.includes(opt.id));
+  }
+
+  get selectedMembersLabel(): string {
+    if (!this.form.technicianIds.length) {
+      return 'Select team members';
+    }
+    const names = this.selectedTechnicianOptions.map(opt => opt.name);
+    if (!names.length) {
+      return `${this.form.technicianIds.length} selected`;
+    }
+    const [first, second, ...rest] = names;
+    if (rest.length === 0) {
+      return [first, second].filter(Boolean).join(', ');
+    }
+    return `${first}${second ? ', ' + second : ''} +${rest.length}`;
+  }
+
+  toggleMemberDropdown(): void {
+    if (this.isLoadingTechnicians) {
+      return;
+    }
+    this.isMemberDropdownOpen = !this.isMemberDropdownOpen;
+  }
+
+  closeMemberDropdown(): void {
+    this.isMemberDropdownOpen = false;
+  }
+
+  toggleTechnicianSelection(id: number, checked: boolean): void {
+    if (checked) {
+      if (!this.form.technicianIds.includes(id)) {
+        this.form.technicianIds = [...this.form.technicianIds, id];
+      }
+    } else {
+      this.form.technicianIds = this.form.technicianIds.filter(existingId => existingId !== id);
+      if (this.form.teamLeaderId === id) {
+        this.form.teamLeaderId = null;
+      }
+    }
+    this.cdr.detectChanges();
+  }
+
+  @HostListener('document:click', ['$event'])
+  handleOutsideClick(event: Event): void {
+    if (!this.isMemberDropdownOpen) {
+      return;
+    }
+    if (!this.host.nativeElement.contains(event.target)) {
+      this.closeMemberDropdown();
+      this.cdr.detectChanges();
+    }
   }
 }

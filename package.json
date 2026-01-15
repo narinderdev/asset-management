@@ -5,9 +5,11 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:asset-management": "node dist/asset-management/server/server.mjs"
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:demo": "set SLOWMO=250&& set HEADLESS=false&& playwright test --project=chromium --trace=on",
+    "e2e:report": "playwright show-report"
   },
   "prettier": {
     "printWidth": 100,
@@ -44,6 +46,7 @@
     "@angular/build": "^21.0.3",
     "@angular/cli": "^21.0.3",
     "@angular/compiler-cli": "^21.0.0",
+    "@playwright/test": "^1.57.0",
     "@types/express": "^5.0.1",
     "@types/jasmine": "^5.1.13",
     "@types/node": "^20.17.19",
