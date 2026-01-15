@@ -52,7 +52,6 @@ export class AssetsComponent implements OnInit {
   filterAssetId = '';
   filterAssetName = '';
   filterCategory = '';
-  filterType = '';
 
   totalAssets = 0;
   currentPage = 1;
@@ -178,10 +177,7 @@ export class AssetsComponent implements OnInit {
       const matchesCategory = !this.filterCategory ||
         filterText(asset.category).includes(filterText(this.filterCategory));
 
-      const matchesType = !this.filterType ||
-        filterText(asset.type).includes(filterText(this.filterType));
-
-      return matchesAssetId && matchesAssetName && matchesCategory && matchesType;
+      return matchesAssetId && matchesAssetName && matchesCategory;
     });
   }
 
@@ -193,7 +189,6 @@ export class AssetsComponent implements OnInit {
     this.filterAssetId = '';
     this.filterAssetName = '';
     this.filterCategory = '';
-    this.filterType = '';
     this.currentPage = 1;
     this.loadAssets();
   }

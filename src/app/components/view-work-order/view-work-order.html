@@ -1,13 +1,86 @@
-<div class="view-asset-page">
+﻿<div class="view-asset-page">
   <div class="view-asset-header">
     <button class="back-btn" type="button" aria-label="Back to work orders" (click)="goBack()">
       <span aria-hidden="true">&larr;</span>
       Back to work orders
     </button>
-    <h1>Work Order Details</h1>
+    <div class="header-title">
+      <h1>Work Order Details</h1>
+      <button
+        class="approve-btn"
+        type="button"
+        *ngIf="workOrder?.status?.toUpperCase() === 'NEW'"
+        (click)="openApproveModal()"
+      >
+        Approve
+      </button>
+      <button
+        class="approve-btn schedule"
+        type="button"
+        *ngIf="workOrder?.status?.toUpperCase() === 'APPROVED'"
+        (click)="openScheduleModal()"
+      >
+        Schedule
+      </button>
+      <button
+        class="approve-btn inprogress"
+        type="button"
+        *ngIf="workOrder?.status?.toUpperCase() === 'SCHEDULED'"
+        [disabled]="isMarkingInProgress"
+        (click)="quickStartInProgress()"
+      >
+        {{ isMarkingInProgress ? 'Updating...' : 'In Progress' }}
+      </button>
+      <ng-container *ngIf="workOrder?.status?.toUpperCase() === 'IN_PROGRESS' && !hasCheckedIn()">
+        <button class="approve-btn clock ghost-clock" type="button" (click)="markComplete()">
+          Complete
+        </button>
+        <button
+          class="approve-btn clock"
+          type="button"
+          [disabled]="isClockingIn"
+          (click)="clockIn()"
+        >
+          {{ isClockingIn ? 'Clocking in...' : 'Clock In' }}
+        </button>
+      </ng-container>
+      <ng-container *ngIf="workOrder?.status?.toUpperCase() === 'IN_PROGRESS' && hasCheckedIn()">
+        <button class="approve-btn clock ghost-clock" type="button" (click)="markComplete()">
+          Complete
+        </button>
+        <button
+          class="approve-btn clock"
+          type="button"
+          [disabled]="isClockingOut"
+          (click)="clockOut()"
+        >
+          {{ isClockingOut ? 'Clocking out...' : 'Clock Out' }}
+        </button>
+      </ng-container>
+      <ng-container *ngIf="workOrder?.status?.toUpperCase() === 'COMPLETED'">
+        <button
+          class="approve-btn close-btn"
+          type="button"
+          [disabled]="isClosing"
+          (click)="openCloseModal()"
+        >
+          Close
+        </button>
+        <button
+          class="approve-btn close-btn ghost-close"
+          type="button"
+          *ngIf="workOrder?.status?.toUpperCase() === 'CLOSED'"
+          (click)="goBack()"
+        >
+          Back to list
+        </button>
+      </ng-container>
+    </div>
   </div>
 
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <div class="status-message" *ngIf="inProgressError">{{ inProgressError }}</div>
+  <div class="status-message" *ngIf="clockingError">{{ clockingError }}</div>
 
   <div class="loading-overlay" *ngIf="isLoading && !workOrder">
     <div class="loader"></div>
@@ -20,183 +93,439 @@
       <div class="detail-grid">
         <div>
           <span class="label">Work Order ID</span>
-          <span class="value">{{ workOrder.workOrderId ?? `WO-${workOrder.id ?? ''}` }}</span>
-        </div>
-        <div>
-          <span class="label">Linked Request ID</span>
-          <span class="value">{{ workOrder.linkedServiceRequestId ?? '—' }}</span>
+          <span class="value">{{ workOrder.workOrderId ?? 'N/A' }}</span>
         </div>
         <div>
           <span class="label">Title</span>
-          <span class="value">{{ workOrder.woTitle ?? '—' }}</span>
+          <span class="value">{{ workOrder.woTitle ?? 'N/A' }}</span>
         </div>
         <div>
           <span class="label">Status</span>
-          <span class="value">{{ workOrder.status ?? '—' }}</span>
+          <span class="value">{{ workOrder.status ?? 'N/A' }}</span>
         </div>
         <div>
           <span class="label">Priority</span>
-          <span class="value">{{ workOrder.priority ?? '—' }}</span>
-        </div>
-        <div>
-          <span class="label">Technician</span>
-          <span class="value">{{ workOrder.assignedTechnicianName ?? '—' }}</span>
+          <span class="value">{{ workOrder.priority ?? 'N/A' }}</span>
         </div>
         <div>
           <span class="label">Work Type</span>
-          <span class="value">{{ workOrder.workType ?? '—' }}</span>
-        </div>
-        <div>
-          <span class="label">Planner</span>
-          <span class="value">{{ workOrder.planner ?? '—' }}</span>
+          <span class="value">{{ workOrder.workType ?? 'N/A' }}</span>
         </div>
         <div>
           <span class="label">Source</span>
-          <span class="value">{{ workOrder.source ?? '—' }}</span>
+          <span class="value">{{ workOrder.source ?? 'N/A' }}</span>
         </div>
       </div>
     </section>
 
     <section class="detail-section">
-      <h2>Asset & Request</h2>
+      <h2>Asset</h2>
       <div class="detail-grid">
         <div>
-          <span class="label">Asset</span>
-          <span class="value">{{ workOrder.assetName ?? workOrder.assetId ?? '—' }}</span>
+          <span class="label">Asset Name</span>
+          <span class="value">{{ workOrder.assetName ?? 'N/A' }}</span>
+        </div>
+        <div>
+          <span class="label">Asset ID</span>
+          <span class="value">{{ workOrder.assetId ?? 'N/A' }}</span>
         </div>
         <div>
           <span class="label">Asset Db Id</span>
-          <span class="value">{{ workOrder.assetDbId ?? '—' }}</span>
+          <span class="value">{{ workOrder.assetDbId ?? 'N/A' }}</span>
         </div>
         <div>
           <span class="label">Location</span>
-          <span class="value">{{ workOrder.location ?? '—' }}</span>
-        </div>
-        <div>
-          <span class="label">Service Request</span>
-          <span class="value">{{ workOrder.linkedServiceRequestId ?? '—' }}</span>
+          <span class="value">{{ workOrder.location ?? 'N/A' }}</span>
         </div>
       </div>
     </section>
 
     <section class="detail-section">
-      <h2>Schedule</h2>
+      <h2>Scope</h2>
       <div class="detail-grid">
         <div>
-          <span class="label">Planned Start</span>
-          <span class="value">{{ formatDate(workOrder.plannedStartDateTime) }}</span>
-        </div>
-        <div>
-          <span class="label">Planned End</span>
-          <span class="value">{{ formatDate(workOrder.plannedEndDateTime) }}</span>
-        </div>
-        <div>
-          <span class="label">Actual Start</span>
-          <span class="value">{{ formatDate(workOrder.actualStartDateTime) }}</span>
-        </div>
-        <div>
-          <span class="label">Actual End</span>
-          <span class="value">{{ formatDate(workOrder.actualEndDateTime) }}</span>
+          <span class="label">Description Scope</span>
+          <span class="value">{{ workOrder.descriptionScope ?? 'N/A' }}</span>
         </div>
         <div>
           <span class="label">Target Completion</span>
           <span class="value">{{ formatDate(workOrder.targetCompletionDate) }}</span>
         </div>
+        <div>
+          <span class="label">Before Photo</span>
+          <span class="value">
+            <a *ngIf="workOrder.beforePhotoUrl" [href]="workOrder.beforePhotoUrl" target="_blank" rel="noreferrer">
+              {{ workOrder.beforePhotoUrl }}
+            </a>
+            <span *ngIf="!workOrder.beforePhotoUrl">N/A</span>
+          </span>
+        </div>
       </div>
     </section>
 
     <section class="detail-section">
-      <h2>Estimates & Costs</h2>
+      <h2>Activity</h2>
       <div class="detail-grid">
         <div>
-          <span class="label">Estimated Labor Hours</span>
-          <span class="value">{{ workOrder.estimatedLaborHours ?? '—' }}</span>
+          <span class="label">Planned Materials</span>
+          <span class="value">{{ workOrder.plannedMaterials?.length ?? 0 }}</span>
         </div>
         <div>
-          <span class="label">Estimated Labor Cost</span>
-          <span class="value">{{ formatCurrency(workOrder.estimatedLaborCost) }}</span>
+          <span class="label">Labor Entries</span>
+          <span class="value">{{ workOrder.laborEntries?.length ?? 0 }}</span>
         </div>
         <div>
-          <span class="label">Estimated Material Cost</span>
-          <span class="value">{{ formatCurrency(workOrder.estimatedMaterialCost) }}</span>
+          <span class="label">Material Usages</span>
+          <span class="value">{{ workOrder.materialUsages?.length ?? 0 }}</span>
         </div>
         <div>
-          <span class="label">Actual Labor Hours</span>
-          <span class="value">{{ workOrder.actualLaborHours ?? '—' }}</span>
+          <span class="label">Checklist Items</span>
+          <span class="value">{{ workOrder.checklistItems?.length ?? 0 }}</span>
         </div>
         <div>
-          <span class="label">Actual Total Cost</span>
-          <span class="value">{{ formatCurrency(workOrder.actualTotalCost) }}</span>
+          <span class="label">Check Logs</span>
+          <span class="value">{{ workOrder.checkLogs?.length ?? 0 }}</span>
         </div>
       </div>
     </section>
 
-    <section class="detail-section" *ngIf="workOrder.descriptionScope || workOrder.completionNotes || workOrder.failureCause || workOrder.remedyAction || workOrder.supervisorNotes">
-      <h2>Notes</h2>
+    <section class="detail-section">
+      <h2>Audit</h2>
       <div class="detail-grid">
-        <div *ngIf="workOrder.descriptionScope">
-          <span class="label">Description Scope</span>
-          <span class="value">{{ workOrder.descriptionScope }}</span>
+        <div>
+          <span class="label">Created At</span>
+          <span class="value">{{ formatDate(workOrder.createdAt) }}</span>
         </div>
-        <div *ngIf="workOrder.completionNotes">
-          <span class="label">Completion Notes</span>
-          <span class="value">{{ workOrder.completionNotes }}</span>
-        </div>
-        <div *ngIf="workOrder.failureCause">
-          <span class="label">Failure Cause</span>
-          <span class="value">{{ workOrder.failureCause }}</span>
-        </div>
-        <div *ngIf="workOrder.remedyAction">
-          <span class="label">Remedy Action</span>
-          <span class="value">{{ workOrder.remedyAction }}</span>
-        </div>
-        <div *ngIf="workOrder.supervisorNotes">
-          <span class="label">Supervisor Notes</span>
-          <span class="value">{{ workOrder.supervisorNotes }}</span>
+        <div>
+          <span class="label">Updated At</span>
+          <span class="value">{{ formatDate(workOrder.updatedAt) }}</span>
         </div>
       </div>
     </section>
 
-    <section class="detail-section" *ngIf="workOrder.plannedMaterials?.length">
-      <h2>Planned Materials</h2>
-      <div class="detail-grid">
-        <div *ngFor="let material of workOrder.plannedMaterials">
-          <span class="label">{{ material.itemName }}</span>
-          <span class="value">Qty: {{ material.quantityPlanned }}</span>
-          <span class="label">Unit Cost</span>
-          <span class="value">{{ formatCurrency(material.unitCostSnapshot) }}</span>
-          <span class="label">Total Cost</span>
-          <span class="value">{{ formatCurrency(material.totalCostSnapshot) }}</span>
-        </div>
-      </div>
-    </section>
+    <!-- Approve Modal -->
+    <div class="modal-overlay" *ngIf="showApproveModal">
+      <div class="modal">
+        <h3>Approve Work Order</h3>
+        <form (ngSubmit)="submitApproval()" class="modal-form">
+          <label class="field">
+            <span>Approved By</span>
+            <input type="email" name="approvedBy" [(ngModel)]="approveForm.approvedBy" required />
+          </label>
+          <label class="field">
+            <span>Estimated Labor Hours</span>
+            <input
+              type="number"
+              name="estimatedLaborHours"
+              min="0"
+              step="0.1"
+              [(ngModel)]="approveForm.estimatedLaborHours"
+              required
+            />
+          </label>
+          <label class="field">
+            <span>Estimated Material Cost</span>
+            <input
+              type="number"
+              name="estimatedMaterialCost"
+              min="0"
+              step="0.01"
+              [(ngModel)]="approveForm.estimatedMaterialCost"
+              required
+            />
+          </label>
+          <label class="field">
+            <span>Approval Notes</span>
+            <textarea name="approvalNotes" [(ngModel)]="approveForm.approvalNotes" rows="3"></textarea>
+          </label>
 
-    <section class="detail-section" *ngIf="workOrder.laborEntries?.length">
-      <h2>Labor Entries</h2>
-      <div class="detail-grid">
-        <div *ngFor="let labor of workOrder.laborEntries">
-          <span class="label">{{ labor.technicianName }}</span>
-          <span class="value">Hours: {{ labor.laborHours }}</span>
-          <span class="label">Date</span>
-          <span class="value">{{ formatDate(labor.laborDate) }}</span>
-          <span class="label">Cost</span>
-          <span class="value">{{ formatCurrency(labor.laborCost) }}</span>
-        </div>
-      </div>
-    </section>
+          <div class="modal-error" *ngIf="approveError">{{ approveError }}</div>
 
-    <section class="detail-section" *ngIf="workOrder.materialUsages?.length">
-      <h2>Material Usages</h2>
-      <div class="detail-grid">
-        <div *ngFor="let material of workOrder.materialUsages">
-          <span class="label">{{ material.itemName }}</span>
-          <span class="value">Qty Used: {{ material.quantityUsed }}</span>
-          <span class="label">Unit Cost</span>
-          <span class="value">{{ formatCurrency(material.unitCostSnapshot) }}</span>
-          <span class="label">Total Cost</span>
-          <span class="value">{{ formatCurrency(material.totalCostSnapshot) }}</span>
+          <div class="modal-actions">
+            <button type="button" class="btn ghost" (click)="closeApproveModal()" [disabled]="isApproving">
+              Cancel
+            </button>
+            <button type="submit" class="btn primary" [disabled]="isApproving">
+              {{ isApproving ? 'Approving...' : 'Approve' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Complete Modal -->
+    <div class="modal-overlay" *ngIf="showCompleteModal">
+      <div class="modal">
+        <h3>Complete Work Order</h3>
+        <form (ngSubmit)="submitCompletion()" class="modal-form">
+          <label class="field">
+            <span>Actual Start DateTime</span>
+            <input type="datetime-local" name="actualStartDateTime" [(ngModel)]="completeForm.actualStartDateTime" />
+          </label>
+          <label class="field">
+            <span>Actual End DateTime</span>
+            <input type="datetime-local" name="actualEndDateTime" [(ngModel)]="completeForm.actualEndDateTime" />
+          </label>
+          <label class="field">
+            <span>Completion Notes</span>
+            <textarea name="completionNotes" rows="3" [(ngModel)]="completeForm.completionNotes"></textarea>
+          </label>
+          <label class="field">
+            <span>Failure Cause</span>
+            <input type="text" name="failureCause" [(ngModel)]="completeForm.failureCause" />
+          </label>
+          <label class="field">
+            <span>Remedy Action</span>
+            <input type="text" name="remedyAction" [(ngModel)]="completeForm.remedyAction" />
+          </label>
+          <div class="material-form photos-row">
+            <div class="field">
+              <span>Before Photo</span>
+              <input type="file" name="beforePhotoUrl" accept="image/*" (change)="onBeforePhotoSelected($event)" />
+            </div>
+            <div class="field">
+              <span>After Photo</span>
+              <input type="file" name="afterPhotoUrl" accept="image/*" (change)="onAfterPhotoSelected($event)" />
+            </div>
+          </div>
+
+          <div class="planned-materials">
+            <div class="planned-materials-header">
+              <span class="label">Labor Entries</span>
+            </div>
+            <div class="material-form wide four-cols labor-row">
+              <select name="laborTechnicianId" [(ngModel)]="newLabor.technicianId">
+                <option [ngValue]="undefined" disabled hidden>Select Technician</option>
+                <option *ngFor="let tech of technicianOptions" [ngValue]="tech.id">
+                  {{ tech.fullName || (tech.firstName + ' ' + tech.lastName) || tech.id }}
+                </option>
+              </select>
+              <input type="number" placeholder="Hours" min="0" step="0.1" [(ngModel)]="newLabor.laborHours" name="laborHours" />
+              <input type="number" placeholder="Hourly Rate" min="0" step="0.01" [(ngModel)]="newLabor.hourlyRate" name="hourlyRate" />
+              <button type="button" class="btn ghost inline-add" (click)="addLaborEntry()">Add</button>
+            </div>
+            <div class="material-form two-cols">
+              <input type="text" placeholder="Labor Date (YYYY-MM-DD)" [(ngModel)]="newLabor.laborDate" name="laborDate" />
+              <input type="text" placeholder="Notes" [(ngModel)]="newLabor.notes" name="laborNotes" />
+            </div>
+            <div class="planned-materials-list" *ngIf="completeForm.laborEntries?.length">
+              <div class="planned-material-row" *ngFor="let lab of completeForm.laborEntries; let i = index">
+                <span class="value">{{ lab.laborHours ?? '--' }}</span>
+                <span class="value">{{ lab.hourlyRate ?? '--' }}</span>
+                <span class="value">{{ lab.laborDate || '--' }}</span>
+                <span class="value">{{ lab.notes || '--' }}</span>
+                <button type="button" class="remove-btn" (click)="removeLaborEntry(i)" aria-label="Remove"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M9 6l.89-2.67A1 1 0 0 1 10.83 3h2.34a1 1 0 0 1 .94.66L15 6m-7 0v13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6m-8 0h10" /><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M10 11v5m4-5v5" /></svg></button>
+              </div>
+            </div>
+          </div>
+
+            <div class="planned-materials">
+              <div class="planned-materials-header">
+                <span class="label">Materials Used</span>
+              </div>
+              <div class="material-form wide three-cols">
+                <select name="inventoryItemUsedPrefill" [(ngModel)]="prefillMaterialUsed.inventoryItemId">
+                  <option [ngValue]="undefined" disabled hidden>Select inventory</option>
+                  <option *ngFor="let item of inventoryOptions" [ngValue]="item.id">
+                    {{ item.name }}
+                  </option>
+                </select>
+                <input
+                  type="number"
+                  placeholder="Qty Used"
+                  min="0"
+                  step="0.01"
+                  [(ngModel)]="prefillMaterialUsed.quantityUsed"
+                  name="quantityUsedPrefill"
+                />
+                <span></span>
+              </div>
+
+            <div class="material-form wide three-cols">
+              <select name="inventoryItemUsed" [(ngModel)]="newMaterialUsed.inventoryItemId">
+                <option [ngValue]="undefined" disabled hidden>Select inventory</option>
+                <option *ngFor="let item of inventoryOptions" [ngValue]="item.id">
+                  {{ item.name }}
+                </option>
+              </select>
+              <input type="number" placeholder="Qty Used" min="0" step="0.01" [(ngModel)]="newMaterialUsed.quantityUsed" name="quantityUsed" />
+              <button type="button" class="btn ghost inline-add" (click)="addMaterialUsed()">Add</button>
+            </div>
+            
+            <div class="planned-materials-list" *ngIf="completeForm.materialsUsed?.length">
+              <div class="planned-material-row" *ngFor="let mat of completeForm.materialsUsed; let i = index">
+                <span class="value">{{ mat.inventoryItemId ?? '--' }}</span>
+                <span class="value">{{ mat.quantityUsed ?? '--' }}</span>
+                <button type="button" class="remove-btn" (click)="removeMaterialUsed(i)" aria-label="Remove"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M9 6l.89-2.67A1 1 0 0 1 10.83 3h2.34a1 1 0 0 1 .94.66L15 6m-7 0v13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6m-8 0h10" /><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M10 11v5m4-5v5" /></svg></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-error" *ngIf="completeError">{{ completeError }}</div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn ghost" (click)="closeCompleteModal()" [disabled]="isCompleting">
+              Cancel
+            </button>
+            <button type="submit" class="btn primary" [disabled]="isCompleting">
+              {{ isCompleting ? 'Completing...' : 'Complete' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Schedule Modal -->
+    <div class="modal-overlay" *ngIf="showScheduleModal">
+      <div class="modal">
+        <h3>Schedule Work Order</h3>
+        <form (ngSubmit)="submitSchedule()" class="modal-form">
+          <div class="field">
+            <span>Assignment</span>
+            <div class="assignment-row">
+              <label class="radio-option">
+                <input
+                  type="radio"
+                  name="assignmentMode"
+                  value="TECHNICIAN"
+                  [(ngModel)]="assignmentMode"
+                />
+                <span>Technician</span>
+              </label>
+              <label class="radio-option">
+                <input
+                  type="radio"
+                  name="assignmentMode"
+                  value="TEAM"
+                  [(ngModel)]="assignmentMode"
+                />
+                <span>Team</span>
+              </label>
+            </div>
+            <div *ngIf="assignmentMode === 'TECHNICIAN'">
+              <select [(ngModel)]="selectedTechnicianId" name="selectedTechnicianId">
+                <option [ngValue]="undefined" disabled hidden>Select technician</option>
+                <option *ngFor="let tech of technicianOptions" [ngValue]="tech.id">
+                  {{ tech.fullName || (tech.firstName + ' ' + tech.lastName) || tech.id }}
+                </option>
+              </select>
+            </div>
+            <div *ngIf="assignmentMode === 'TEAM'">
+              <select [(ngModel)]="selectedTeamId" name="selectedTeamId">
+                <option [ngValue]="undefined" disabled hidden>Select team</option>
+                <option *ngFor="let team of teamOptions" [ngValue]="team.id">
+                  {{ team.teamName || ('Team #' + team.id) }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <label class="field">
+            <span>Planned Start DateTime</span>
+            <input
+              type="datetime-local"
+              name="plannedStartDateTime"
+              [(ngModel)]="scheduleForm.plannedStartDateTime"
+            />
+          </label>
+          <label class="field">
+            <span>Planned End DateTime</span>
+            <input
+              type="datetime-local"
+              name="plannedEndDateTime"
+              [(ngModel)]="scheduleForm.plannedEndDateTime"
+            />
+          </label>
+          <label class="field">
+            <span>Planner</span>
+            <input type="text" name="planner" [(ngModel)]="scheduleForm.planner" />
+          </label>
+          <label class="field">
+            <span>Pre-check Notes</span>
+            <textarea name="preCheckNotes" [(ngModel)]="scheduleForm.preCheckNotes" rows="3"></textarea>
+          </label>
+
+          <div class="planned-materials">
+            <div class="planned-materials-header">
+              <span class="label">Planned Materials</span>
+            </div>
+            <div class="material-form wide">
+              <select [(ngModel)]="selectedInventoryId" name="inventoryItemId">
+                <option [ngValue]="undefined" disabled hidden>Select item</option>
+                <option *ngFor="let item of inventoryOptions" [ngValue]="item.id">
+                  {{ item.name }}
+                </option>
+              </select>
+              <input
+                type="number"
+                placeholder="Quantity"
+              [(ngModel)]="newMaterial.quantity"
+              name="quantity"
+              min="0.01"
+              step="0.01"
+            />
+              <button type="button" class="btn ghost inline-add" (click)="addPlannedMaterial()">Add</button>
+            </div>
+
+            <div class="planned-materials-list" *ngIf="plannedMaterials.length">
+              <div class="planned-material-row" *ngFor="let mat of plannedMaterials; let i = index">
+                <span class="value">
+                  {{ getInventoryName(mat.inventoryItemId) }}
+                </span>
+                <span class="value">{{ mat.quantity }}</span>
+                <span class="value">{{ mat.uom }}</span>
+                <span class="value">{{ mat.notes || '--' }}</span>
+                <button type="button" class="remove-btn" (click)="removePlannedMaterial(i)" aria-label="Remove"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M9 6l.89-2.67A1 1 0 0 1 10.83 3h2.34a1 1 0 0 1 .94.66L15 6m-7 0v13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6m-8 0h10" /><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M10 11v5m4-5v5" /></svg></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-error" *ngIf="scheduleError">{{ scheduleError }}</div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn ghost" (click)="closeScheduleModal()" [disabled]="isScheduling">
+              Cancel
+            </button>
+            <button type="submit" class="btn primary" [disabled]="isScheduling">
+              {{ isScheduling ? 'Scheduling...' : 'Schedule' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Close Modal -->
+    <div class="modal-overlay" *ngIf="showCloseModal">
+      <div class="modal small-modal">
+        <h3>Close Work Order</h3>
+        <div class="modal-form">
+          <label class="field">
+            <span>Notes</span>
+            <textarea name="closeNotes" rows="3" [(ngModel)]="closeNotes"></textarea>
+          </label>
+          <div class="modal-error" *ngIf="closeError">{{ closeError }}</div>
+          <div class="modal-actions">
+            <button type="button" class="btn ghost" (click)="closeCloseModal()" [disabled]="isClosing">No</button>
+            <button type="button" class="btn primary" (click)="closeWorkOrder()" [disabled]="isClosing">
+              {{ isClosing ? 'Closing...' : 'Yes, close' }}
+            </button>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
+
   </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

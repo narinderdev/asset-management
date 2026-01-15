@@ -88,6 +88,7 @@ export class WorkOrderTable implements OnInit {
         next: (response) => {
           const orders = response.data?.workOrders ?? [];
           this.workOrders = orders.map(order => this.toWorkOrder(order));
+          this.errorMessage = undefined;
         },
         error: () => {
           this.errorMessage = 'Unable to load work orders. Please try again later.';

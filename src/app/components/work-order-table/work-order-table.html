@@ -1,7 +1,7 @@
 <div class="table-card">
   <!-- <h3 class="table-title">Recent Work Orders</h3> -->
   
-  <div class="table-status" *ngIf="errorMessage">
+  <div class="table-status" *ngIf="errorMessage && !workOrders.length">
     {{ errorMessage }}
   </div>
 

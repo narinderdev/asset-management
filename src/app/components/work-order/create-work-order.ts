@@ -1,7 +1,9 @@
-﻿import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { WorkOrderService, CreateWorkOrderRequest } from '../../services/work-order.service';
+import { AssetsService } from '../../services/assets.service';
 
 @Component({
   selector: 'app-create-work-order',
@@ -10,55 +12,99 @@ import { Router } from '@angular/router';
   templateUrl: './create-work-order.html',
   styleUrls: ['./create-work-order.css']
 })
-export class CreateWorkOrderComponent {
+export class CreateWorkOrderComponent implements OnInit {
   dateToday = new Date().toISOString().split('T')[0];
+  assetsLoading = false;
 
   workOrder = {
-    woId: 'WO-2023-0012',
-    linkedRequestId: '',
-    asset: '',
+    assetId: null as number | null,
     location: '',
     workType: '',
     priority: '',
     woTitle: '',
-    description: '',
-    planner: '',
-    assignedTechnician: '',
-    assignedCrewTeam: '',
-    plannedStartDate: this.dateToday,
-    plannedStartTime: '',
-    plannedEndDate: this.dateToday,
-    plannedEndTime: '',
+    descriptionScope: '',
     targetCompletionDate: this.dateToday,
-    status: '',
-    woSource: ''
+    attachmentUrl: '',
+    attachmentFile: null as File | null
   };
 
-  assetOptions = ['Chiller #1', 'Generator A', 'Conveyor Belt 3'];
-  workTypeOptions = ['Corrective', 'Preventive', 'Inspection', 'Emergency'];
-  priorityOptions = ['Low', 'Medium', 'High', 'Critical'];
-  plannerOptions = ['In-House Planner', 'External Planner', 'Operations Planner'];
-  technicianOptions = ['Alex King', 'Dana Rivers', 'Morgan Brooks'];
-  crewOptions = ['Team Alpha', 'Team Bravo', 'Field Ops'];
-  statusOptions = ['Planned', 'In Progress', 'Pending', 'Completed', 'On Hold'];
-  woSourceOptions = ['Service Request', 'Inspection', 'Maintenance Plan', 'Manual Entry'];
+  isSubmitting = false;
 
-  autoGenerateWoId = false;
+  assetOptions: Array<{ id: number; label: string }> = [];
+  workTypeOptions = ['CORRECTIVE', 'PREVENTIVE', 'INSPECTION', 'EMERGENCY'];
+  priorityOptions = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private workOrderService: WorkOrderService,
+    private assetsService: AssetsService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    this.loadAssets();
+  }
 
   onCancel(): void {
     this.router.navigate(['/work-orders']);
   }
 
-  onAutoGenerateWoIdChange(): void {
-    if (this.autoGenerateWoId) {
-      this.workOrder.woId = '';
-    }
+  onAttachmentSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files.length > 0 ? input.files[0] : null;
+    this.workOrder.attachmentFile = file;
+    this.workOrder.attachmentUrl = file ? file.name : '';
+  }
+
+  private loadAssets(): void {
+    this.assetsLoading = true;
+    this.assetsService.fetchAssets(0, 50).subscribe({
+      next: (response) => {
+        const content = response?.data?.content ?? [];
+        this.assetOptions = content
+          .filter((asset) => asset.id && (asset.assetName || asset.assetId))
+          .map((asset) => ({
+            id: asset.id as number,
+            label: (asset.assetName || asset.assetId || `Asset #${asset.id}`) as string
+          }));
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Failed to load assets', error);
+        this.assetsLoading = false;
+        this.cdr.detectChanges();
+      },
+      complete: () => {
+        this.assetsLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   onCreate(): void {
-    console.log('Creating work order', this.workOrder);
-    this.router.navigate(['/work-orders']);
+    const payload: CreateWorkOrderRequest = {
+      assetId: this.workOrder.assetId ?? undefined,
+      location: this.workOrder.location || undefined,
+      workType: this.workOrder.workType,
+      priority: this.workOrder.priority,
+      woTitle: this.workOrder.woTitle,
+      descriptionScope: this.workOrder.descriptionScope,
+      targetCompletionDate: this.workOrder.targetCompletionDate,
+      attachmentUrl: this.workOrder.attachmentUrl || undefined
+    };
+
+    this.isSubmitting = true;
+    this.workOrderService.createWorkOrder(payload).subscribe({
+      next: () => {
+        this.router.navigate(['/work-orders']);
+      },
+      error: (error) => {
+        console.error('Failed to create work order', error);
+        this.isSubmitting = false;
+      },
+      complete: () => {
+        this.isSubmitting = false;
+      }
+    });
   }
 }

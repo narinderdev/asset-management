@@ -45,13 +45,6 @@
         [(ngModel)]="filterCategory"
         (input)="applyFilters()">
       
-      <input 
-        type="text" 
-        class="filter-input" 
-        placeholder="Type"
-        [(ngModel)]="filterType"
-        (input)="applyFilters()">
-      
       <button class="search-btn" (click)="searchAssets()">
         Search
       </button>
@@ -71,7 +64,6 @@
             <th>Asset ID</th>
           <th>Asset Name</th>
           <th>Category</th>
-          <th>Type</th>
           <th>Location</th>
           <th>Last Serviced Date</th>
           <th>Warranty Expiry</th>
@@ -81,13 +73,12 @@
       </thead>
       <tbody>
         <tr *ngIf="!filteredAssets.length && !isLoading">
-          <td colspan="9" class="empty-row">No assets to display.</td>
+          <td colspan="8" class="empty-row">No assets to display.</td>
         </tr>
         <tr *ngFor="let asset of filteredAssets">
           <td>{{ asset.assetId }}</td>
           <td>{{ asset.assetName }}</td>
           <td>{{ asset.category }}</td>
-          <td>{{ asset.type }}</td>
           <td>{{ asset.location }}</td>
           <td>{{ asset.lastServicedDate }}</td>
           <td>{{ asset.warrantyExpiry }}</td>
