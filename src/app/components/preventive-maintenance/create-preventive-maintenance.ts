@@ -6,8 +6,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import {
   PmTemplateService,
-  PmTemplateDetailResponse,
-  CreatePreventiveMaintenancePayload
+  CreatePreventiveMaintenancePayload,
+  PreventiveMaintenanceDetailResponse,
+  PreventiveMaintenanceDetail,
+  UpdatePreventiveMaintenancePayload
 } from '../../services/pm-template.service';
 import { AssetsService } from '../../services/assets.service';
 import { finalize } from 'rxjs/operators';
@@ -123,7 +125,9 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
     const payload = this.buildMaintenancePayload();
     const successMessage = this.isEditMode ? 'Preventive maintenance template saved.' : 'Preventive maintenance template created successfully.';
     const errorMessage = this.isEditMode ? 'Unable to save PM template. Please try again.' : 'Unable to create PM template. Please try again.';
-    const request$: Observable<any> = this.pmTemplateService.createPreventiveMaintenance(payload);
+    const request$: Observable<any> = this.isEditMode && this.editTemplateId
+      ? this.pmTemplateService.updatePreventiveMaintenance(this.editTemplateId, this.buildUpdatePayload(payload))
+      : this.pmTemplateService.createPreventiveMaintenance(payload);
 
     request$.pipe(
       finalize(() => {
@@ -163,6 +167,13 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
     };
 
     return payload;
+  }
+
+  private buildUpdatePayload(base: CreatePreventiveMaintenancePayload): UpdatePreventiveMaintenancePayload {
+    return {
+      ...base,
+      active: true
+    };
   }
 
   private toNumberOrUndefined(value?: string | number | null) {
@@ -213,35 +224,40 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
     this.hasLoadedDetails = false;
     this.errorMessage = undefined;
 
-    this.pmTemplateService.fetchTemplateById(id).pipe(
+    this.pmTemplateService.fetchPreventiveMaintenanceById(id).pipe(
       finalize(() => {
         this.isLoadingDetails = false;
         this.cdr.detectChanges();
       })
     ).subscribe({
-      next: (response: PmTemplateDetailResponse) => {
-        const template = response.data;
-        if (!template) {
-          this.errorMessage = response.message ?? 'Unable to load template for editing.';
+      next: (response: PreventiveMaintenanceDetailResponse | PreventiveMaintenanceDetail) => {
+        const data: PreventiveMaintenanceDetail | undefined = (response as PreventiveMaintenanceDetailResponse)?.data
+          ?? (response as PreventiveMaintenanceDetail);
+        if (!data) {
+          this.errorMessage = (response as PreventiveMaintenanceDetailResponse)?.message ?? 'Unable to load template for editing.';
           this.hasLoadedDetails = true;
           this.cdr.detectChanges();
           return;
         }
 
+        const normalizedStartDate = data.startDate
+          ? data.startDate.split('T')[0]
+          : this.dateToday;
+
         this.template = {
           ...this.createTemplateDefaults(),
-          assetId: template.assetDbId ?? null,
-          location: template.assetCategory ?? '',
-          title: template.pmName ?? '',
-          priority: template.defaultPriority ?? 'LOW',
-          scheduleType: template.frequencyType ?? 'TIME_BASED',
-          leadTimeDays: String(template.leadTimeDays ?? ''),
-          startDate: template.planStartDate ?? this.dateToday,
-          intervalUnit: template.timeUnit ?? 'DAYS',
-          intervalValue: String(template.frequencyValue ?? ''),
-          meterType: template.meterUnit ?? 'RUN_HOURS',
-          meterIntervalValue: '',
-          currentMeterReading: ''
+          assetId: data.assetId ?? null,
+          location: data.location ?? '',
+          title: data.title ?? '',
+          priority: data.priority ?? 'LOW',
+          scheduleType: data.scheduleType ?? 'TIME_BASED',
+          leadTimeDays: String(data.leadTimeDays ?? ''),
+          startDate: normalizedStartDate,
+          intervalUnit: data.intervalUnit ?? 'DAYS',
+          intervalValue: String(data.intervalValue ?? ''),
+          meterType: data.meterType ?? 'RUN_HOURS',
+          meterIntervalValue: String(data.meterIntervalValue ?? ''),
+          currentMeterReading: String(data.currentMeterReading ?? '')
         };
         this.hasLoadedDetails = true;
         this.cdr.detectChanges();

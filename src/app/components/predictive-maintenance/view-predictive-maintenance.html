@@ -1,0 +1,68 @@
+<div class="view-wrapper">
+  <div class="view-header">
+    <button class="back-btn" type="button" (click)="goBack()">&larr;</button>
+    <h2>Predictive Maintenance Details</h2>
+  </div>
+
+  <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <div class="status-message info" *ngIf="isLoading">Loading predictive maintenance details...</div>
+
+  <div class="details-grid" *ngIf="threshold && !isLoading">
+    <div class="detail-item">
+      <span class="label">Asset</span>
+      <span class="value">{{ threshold.assetName || ('Asset ' + threshold.assetId) }}</span>
+    </div>
+    <div class="detail-item">
+      <span class="label">Meter Type</span>
+      <span class="value">{{ threshold.meterType }}</span>
+    </div>
+    <div class="detail-item">
+      <span class="label">Warning Threshold</span>
+      <span class="value">{{ threshold.warningThreshold }}</span>
+    </div>
+    <div class="detail-item">
+      <span class="label">Critical Threshold</span>
+      <span class="value">{{ threshold.criticalThreshold }}</span>
+    </div>
+    <div class="detail-item">
+      <span class="label">Auto Create WO</span>
+      <span class="value">{{ threshold.autoCreateWo ? 'Yes' : 'No' }}</span>
+    </div>
+    <div class="detail-item">
+      <span class="label">Default Priority</span>
+      <span class="value">{{ threshold.defaultPriority }}</span>
+    </div>
+    <div class="detail-item">
+      <span class="label">Cooldown Hours</span>
+      <span class="value">{{ threshold.cooldownHours }}</span>
+    </div>
+    <div class="detail-item">
+      <span class="label">Last Triggered Severity</span>
+      <span class="value">{{ threshold.lastTriggeredSeverity || 'N/A' }}</span>
+    </div>
+  </div>
+
+  <div class="readings-section" *ngIf="threshold?.meterReadings?.length">
+    <h3>Meter Readings</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Reading</th>
+          <th>Type</th>
+          <th>Time</th>
+          <th>Severity</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let reading of threshold.meterReadings">
+          <td>{{ reading.readingValue }}</td>
+          <td>{{ reading.meterType }}</td>
+          <td>{{ reading.readingTime | date:'medium' }}</td>
+          <td>{{ reading.severity || 'N/A' }}</td>
+          <td>{{ reading.notes || '—' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

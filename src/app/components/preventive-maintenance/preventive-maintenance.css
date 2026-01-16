@@ -97,6 +97,10 @@
   overflow: hidden;
 }
 
+.table-wrapper.has-error .table-container {
+  display: none;
+}
+
 .table-container {
   overflow-x: auto;
 }

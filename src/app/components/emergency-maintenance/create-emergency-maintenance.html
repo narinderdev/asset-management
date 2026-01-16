@@ -1,0 +1,63 @@
+<div class="create-request-page">
+  <section class="create-card">
+    <header class="create-header">
+      <button
+        type="button"
+        class="back-btn"
+        aria-label="Back to emergency maintenance"
+        (click)="onCancel()"
+      >
+        &larr;
+      </button>
+      <h2>{{ isEditMode ? 'Edit Emergency Maintenance' : 'Create Emergency Maintenance' }}</h2>
+    </header>
+
+    <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <form class="request-form" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <label class="field">
+          <span>Asset <span class="required-star">*</span></span>
+          <select name="assetId" [(ngModel)]="form.assetId" required>
+            <option [ngValue]="null">Select Asset</option>
+            <option *ngFor="let asset of assetOptions" [ngValue]="asset.id">
+              {{ asset.label }}
+            </option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Location</span>
+          <input type="text" name="location" [(ngModel)]="form.location" placeholder="e.g., Building 1 - Floor 2" />
+        </label>
+
+        <label class="field">
+          <span>Failure Description <span class="required-star">*</span></span>
+          <input name="failureDescription" [(ngModel)]="form.failureDescription" required rows="3"/>
+        </label>
+
+        <label class="field">
+          <span>Failure Time <span class="required-star">*</span></span>
+          <input type="datetime-local" name="failureTime" [(ngModel)]="form.failureTime" required />
+        </label>
+
+        <label class="field">
+          <span>Reporter</span>
+          <input type="text" name="reporter" [(ngModel)]="form.reporter" />
+        </label>
+
+        <label class="field checkbox-field">
+          <span>Send Notification</span>
+          <input type="checkbox" name="sendNotification" [(ngModel)]="form.sendNotification" />
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="btn primary" [disabled]="isSubmitting">
+          {{ isSubmitting ? (isEditMode ? 'Updating...' : 'Saving...') : (isEditMode ? 'Update Emergency Maintenance' : 'Save Emergency Maintenance') }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

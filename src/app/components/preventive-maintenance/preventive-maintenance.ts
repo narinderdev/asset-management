@@ -36,6 +36,12 @@ export class PreventiveMaintenanceComponent implements OnInit {
   canCreatePm = false;
   canEditPm = false;
   canDeletePm = false;
+  headingText = 'Preventive Maintenance Template';
+  createButtonText = '+ Create Preventive Maintenance Template';
+  deleteMessage = 'Are you sure you want to delete this preventive maintenance template?';
+  isPredictiveMode = false;
+  isEmergencyMode = false;
+  emptyStateText = 'No preventive maintenance templates to display.';
 
   constructor(
     private router: Router,
@@ -47,6 +53,22 @@ export class PreventiveMaintenanceComponent implements OnInit {
 
   ngOnInit(): void {
     this.setPermissions();
+    this.isPredictiveMode = this.router.url.includes('/maintenance/predictive');
+    this.isEmergencyMode = this.router.url.includes('/maintenance/emergency');
+    if (this.isPredictiveMode) {
+      this.headingText = 'Predictive Maintenance';
+      this.createButtonText = '+ Create Predictive Maintenance';
+      this.emptyStateText = 'No predictive maintenance items to display.';
+      this.deleteMessage = 'Are you sure you want to delete this predictive maintenance item?';
+    } else if (this.isEmergencyMode) {
+      this.headingText = 'Emergency Maintenance';
+      this.createButtonText = '+ Create Emergency Maintenance';
+      this.emptyStateText = 'No emergency maintenance items to display.';
+      this.deleteMessage = 'Delete is not available for emergency maintenance.';
+    } else {
+      this.emptyStateText = 'No preventive maintenance templates to display.';
+      this.deleteMessage = 'Are you sure you want to delete this preventive maintenance template?';
+    }
     this.loadTemplates();
   }
 
@@ -60,23 +82,69 @@ export class PreventiveMaintenanceComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = undefined;
 
-    this.pmTemplateService
-      .fetchPreventiveMaintenance(0, 20)
-      .pipe(finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }))
-      .subscribe({
-        next: response => {
-          const content = response.data?.content ?? [];
-          this.templates = content.map(template => this.mapTemplate(template));
+    if (this.isPredictiveMode) {
+      this.pmTemplateService
+        .fetchPredictiveThresholds(0, 20)
+        .pipe(finalize(() => {
+          this.isLoading = false;
           this.cdr.detectChanges();
-        },
-        error: () => {
-          this.errorMessage = 'Unable to load preventive maintenance templates. Please try again later.';
+        }))
+        .subscribe({
+          next: response => {
+            const content: Array<{
+              id?: number;
+              assetId?: number;
+              assetName?: string;
+              meterType?: string;
+              autoCreateWo?: boolean;
+              defaultPriority?: string;
+              meterReadings?: Array<{ readingTime?: string }>;
+            }> = (response.data as any)?.thresholds ?? response.data?.content ?? [];
+            this.templates = content.map(template => this.mapPredictive(template));
+            this.cdr.detectChanges();
+          },
+          error: () => {
+            this.errorMessage = 'Unable to load predictive maintenance items. Please try again later.';
+            this.cdr.detectChanges();
+          }
+        });
+    } else if (this.isEmergencyMode) {
+      this.pmTemplateService
+        .fetchEmergencyMaintenance(0, 20)
+        .pipe(finalize(() => {
+          this.isLoading = false;
           this.cdr.detectChanges();
-        }
-      });
+        }))
+        .subscribe({
+          next: response => {
+            const incidents = response.data?.incidents ?? [];
+            this.templates = incidents.map(incident => this.mapEmergency(incident));
+            this.cdr.detectChanges();
+          },
+          error: () => {
+            this.errorMessage = 'Unable to load emergency maintenance items. Please try again later.';
+            this.cdr.detectChanges();
+          }
+        });
+    } else {
+      this.pmTemplateService
+        .fetchPreventiveMaintenance(0, 20)
+        .pipe(finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }))
+        .subscribe({
+          next: response => {
+            const content = response.data?.content ?? [];
+            this.templates = content.map(template => this.mapTemplate(template));
+            this.cdr.detectChanges();
+          },
+          error: () => {
+            this.errorMessage = 'Unable to load preventive maintenance templates. Please try again later.';
+            this.cdr.detectChanges();
+          }
+        });
+    }
   }
 
   private mapTemplate(template: {
@@ -111,6 +179,52 @@ export class PreventiveMaintenanceComponent implements OnInit {
     };
   }
 
+  private mapEmergency(incident: {
+    id?: number;
+    assetId?: number;
+    assetName?: string;
+    location?: string;
+    failureDescription?: string;
+    failureTime?: string;
+    workOrder?: {
+      priority?: string;
+    };
+  }): PreventiveMaintenanceTemplate {
+    return {
+      id: incident.id,
+      title: incident.failureDescription ?? incident.workOrder?.priority ?? 'N/A',
+      active: true,
+      assetName: incident.assetName ?? (incident.assetId ? `Asset ${incident.assetId}` : 'N/A'),
+      location: incident.location ?? 'N/A',
+      startDate: this.formatDate(incident.failureTime),
+      priority: this.prettify(incident.workOrder?.priority ?? 'N/A')
+    };
+  }
+
+  private mapPredictive(template: {
+    id?: number;
+    assetId?: number;
+    assetName?: string;
+    meterType?: string;
+    autoCreateWo?: boolean;
+    defaultPriority?: string;
+    meterReadings?: Array<{
+      readingTime?: string;
+    }>;
+  }): PreventiveMaintenanceTemplate {
+    const latestReadingTime = template.meterReadings?.[0]?.readingTime;
+
+    return {
+      id: template.id,
+      title: template.assetName ?? (template.assetId ? `Asset ${template.assetId}` : 'N/A'),
+      active: Boolean(template.autoCreateWo),
+      assetName: template.assetName ?? 'N/A',
+      location: 'N/A',
+      startDate: this.formatDate(latestReadingTime),
+      priority: this.prettify(template.defaultPriority ?? 'N/A')
+    };
+  }
+
   private formatDate(value?: string): string {
     if (!value) {
       return 'N/A';
@@ -140,7 +254,13 @@ export class PreventiveMaintenanceComponent implements OnInit {
     if (!this.canCreatePm) {
       return;
     }
-    this.router.navigate(['/preventive-maintenance/create']);
+    if (this.isPredictiveMode) {
+      this.router.navigate(['/predictive-maintenance/create']);
+    } else if (this.isEmergencyMode) {
+      this.router.navigate(['/emergency-maintenance/create']);
+    } else {
+      this.router.navigate(['/preventive-maintenance/create']);
+    }
   }
 
   viewTemplate(template: PreventiveMaintenanceTemplate): void {
@@ -149,7 +269,13 @@ export class PreventiveMaintenanceComponent implements OnInit {
       return;
     }
 
-    this.router.navigate(['/preventive-maintenance/view', id]);
+    if (this.isPredictiveMode) {
+      this.router.navigate(['/predictive-maintenance/view', id]);
+    } else if (this.isEmergencyMode) {
+      this.router.navigate(['/emergency-maintenance/view', id]);
+    } else {
+      this.router.navigate(['/preventive-maintenance/view', id]);
+    }
   }
 
   editTemplate(template: PreventiveMaintenanceTemplate): void {
@@ -161,7 +287,13 @@ export class PreventiveMaintenanceComponent implements OnInit {
       return;
     }
 
-    this.router.navigate(['/preventive-maintenance/edit', id]);
+    if (this.isPredictiveMode) {
+      this.router.navigate(['/predictive-maintenance/edit', id]);
+    } else if (this.isEmergencyMode) {
+      this.router.navigate(['/emergency-maintenance/edit', id]);
+    } else {
+      this.router.navigate(['/preventive-maintenance/edit', id]);
+    }
   }
 
   promptDeleteTemplate(template: PreventiveMaintenanceTemplate): void {
@@ -183,21 +315,33 @@ export class PreventiveMaintenanceComponent implements OnInit {
       return;
     }
 
+    if (this.isEmergencyMode) {
+      this.toastr.error('Delete is not available for this maintenance type yet.');
+      this.closeDeleteModal();
+      return;
+    }
+
     this.isDeleting = true;
 
-    this.pmTemplateService.deleteTemplate(this.templateToDelete.id).pipe(
+    const delete$ = this.isPredictiveMode
+      ? this.pmTemplateService.deletePredictiveThreshold(this.templateToDelete.id)
+      : this.pmTemplateService.deletePreventiveMaintenance(this.templateToDelete.id);
+
+    delete$.pipe(
       finalize(() => {
         this.isDeleting = false;
       })
     ).subscribe({
       next: () => {
-        this.toastr.success('Preventive maintenance template deleted.');
+        this.toastr.success(this.isPredictiveMode ? 'Predictive maintenance item deleted.' : 'Preventive maintenance template deleted.');
         this.closeDeleteModal();
         this.loadTemplates();
+        this.cdr.detectChanges();
       },
       error: () => {
         this.toastr.error('Unable to delete template. Please try again.');
         this.closeDeleteModal();
+        this.cdr.detectChanges();
       }
     });
   }

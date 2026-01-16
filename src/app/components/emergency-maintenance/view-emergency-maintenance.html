@@ -1,0 +1,100 @@
+<div class="view-asset-page">
+  <div class="view-asset-header">
+    <button class="back-btn" (click)="goBack()" type="button">
+      <span aria-hidden="true">&larr;</span>
+      Back to emergency maintenance
+    </button>
+    <h1>Emergency Maintenance Details</h1>
+  </div>
+
+  <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <div class="loading-overlay" *ngIf="isLoading && !incident">
+    <div class="loader"></div>
+    <span>Loading incident...</span>
+  </div>
+
+  <div *ngIf="incident" class="request-details">
+    <section class="detail-section">
+      <h2>Overview</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Work Order Number</span>
+          <span class="value">{{ incident.workOrderNumber || 'N/A' }}</span>
+        </div>
+        <div>
+          <span class="label">Title</span>
+          <span class="value">{{ incident.failureDescription || 'N/A' }}</span>
+        </div>
+        <div>
+          <span class="label">Asset</span>
+          <span class="value">{{ incident.assetName || incident.assetId || 'N/A' }}</span>
+        </div>
+        <div>
+          <span class="label">Location</span>
+          <span class="value">{{ incident.location || 'N/A' }}</span>
+        </div>
+        <div>
+          <span class="label">Reporter</span>
+          <span class="value">{{ incident.reporter || 'N/A' }}</span>
+        </div>
+        <div>
+          <span class="label">Created At</span>
+          <span class="value">{{ formatDateTime(incident.createdAt) }}</span>
+        </div>
+        <div>
+          <span class="label">Updated At</span>
+          <span class="value">{{ formatDateTime(incident.updatedAt) }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h2>Timing</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Failure Time</span>
+          <span class="value">{{ formatDateTime(incident.failureTime) }}</span>
+        </div>
+        <div>
+          <span class="label">Downtime Start</span>
+          <span class="value">{{ formatDateTime(incident.downtimeStart) }}</span>
+        </div>
+        <div>
+          <span class="label">Downtime End</span>
+          <span class="value">{{ formatDateTime(incident.downtimeEnd) }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section" *ngIf="incident.workOrder">
+      <h2>Work Order</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">WO Title</span>
+          <span class="value">{{ incident.workOrder?.woTitle || 'N/A' }}</span>
+        </div>
+        <div>
+          <span class="label">Work Type</span>
+          <span class="value">{{ incident.workOrder?.workType || 'N/A' }}</span>
+        </div>
+        <div>
+          <span class="label">Priority</span>
+          <span class="value">{{ incident.workOrder?.priority || 'N/A' }}</span>
+        </div>
+        <div>
+          <span class="label">Planned Start</span>
+          <span class="value">{{ formatDateTime(incident.workOrder?.plannedStartDateTime) }}</span>
+        </div>
+        <div>
+          <span class="label">Planned End</span>
+          <span class="value">{{ formatDateTime(incident.workOrder?.plannedEndDateTime) }}</span>
+        </div>
+        <div>
+          <span class="label">Target Completion Date</span>
+          <span class="value">{{ formatDate(incident.workOrder?.targetCompletionDate) }}</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

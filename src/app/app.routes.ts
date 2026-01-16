@@ -44,6 +44,10 @@ import { GoodsReceiptsComponent } from './components/procurement/goods-receipts'
 import { ViewGoodsReceiptComponent } from './components/procurement/view-goods-receipt';
 import { CreatePurchaseOrderComponent } from './components/procurement/create-purchase-order';
 import { CreateGrnComponent } from './components/procurement/create-grn';
+import { CreatePredictiveMaintenanceComponent } from './components/predictive-maintenance/create-predictive-maintenance';
+import { ViewPredictiveMaintenanceComponent } from './components/predictive-maintenance/view-predictive-maintenance';
+import { CreateEmergencyMaintenanceComponent } from './components/emergency-maintenance/create-emergency-maintenance';
+import { ViewEmergencyMaintenanceComponent } from './components/emergency-maintenance/view-emergency-maintenance';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -80,6 +84,12 @@ export const routes: Routes = [
   { path: 'preventive-maintenance/create', component: CreatePreventiveMaintenanceComponent, canActivate: [AuthGuard] },
   { path: 'preventive-maintenance/edit/:id', component: CreatePreventiveMaintenanceComponent, canActivate: [AuthGuard] },
   { path: 'preventive-maintenance/view/:id', component: ViewPreventiveMaintenanceComponent, canActivate: [AuthGuard] },
+  { path: 'predictive-maintenance/create', component: CreatePredictiveMaintenanceComponent, canActivate: [AuthGuard] },
+  { path: 'predictive-maintenance/edit/:id', component: CreatePredictiveMaintenanceComponent, canActivate: [AuthGuard] },
+  { path: 'predictive-maintenance/view/:id', component: ViewPredictiveMaintenanceComponent, canActivate: [AuthGuard] },
+  { path: 'emergency-maintenance/create', component: CreateEmergencyMaintenanceComponent, canActivate: [AuthGuard] },
+  { path: 'emergency-maintenance/view/:id', component: ViewEmergencyMaintenanceComponent, canActivate: [AuthGuard] },
+  { path: 'emergency-maintenance/edit/:id', component: CreateEmergencyMaintenanceComponent, canActivate: [AuthGuard] },
   { path: 'inventory', component: InventoryComponent, canActivate: [AuthGuard] },
   { path: 'inventory/create', component: CreateInventoryComponent, canActivate: [AuthGuard] },
   { path: 'inventory/edit/:id', component: CreateInventoryComponent, canActivate: [AuthGuard] },
