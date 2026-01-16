@@ -25,12 +25,12 @@
           <th>Start Date</th>
           <th>Priority</th>
           <th>Active</th>
-          <th>Actions</th>
+          <th *ngIf="!isPredictiveMode">Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngIf="!templates.length && !isLoading">
-          <td colspan="7" class="empty-row">{{ emptyStateText }}</td>
+          <td [attr.colspan]="isPredictiveMode ? 6 : 7" class="empty-row">{{ emptyStateText }}</td>
         </tr>
         <tr *ngFor="let template of templates">
           <td>{{ template.title }}</td>
@@ -43,7 +43,7 @@
               {{ template.active ? 'Yes' : 'No' }}
             </span>
           </td>
-          <td class="actions-cell">
+          <td class="actions-cell" *ngIf="!isPredictiveMode">
             <button
               class="action-icon"
               aria-label="View template"

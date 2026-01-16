@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 interface PmTemplatesApiResponse {
@@ -317,7 +318,12 @@ export class PmTemplateService {
       'ngrok-skip-browser-warning': 'true'
     });
 
-    return this.http.get<PredictiveThresholdItem>(`${this.predictiveApiUrl}/${id}`, { headers });
+    return this.http
+      .get<{ data?: PredictiveThresholdItem; threshold?: PredictiveThresholdItem } & PredictiveThresholdItem>(
+        `${this.predictiveApiUrl}/${id}`,
+        { headers }
+      )
+      .pipe(map(response => response.data ?? response.threshold ?? response));
   }
 
   createPredictiveThreshold(payload: PredictiveThresholdPayload): Observable<void> {

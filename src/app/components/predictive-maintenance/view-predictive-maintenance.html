@@ -4,7 +4,7 @@
     <h2>Predictive Maintenance Details</h2>
   </div>
 
-  <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <div class="status-message" *ngIf="errorMessage && !threshold">{{ errorMessage }}</div>
   <div class="status-message info" *ngIf="isLoading">Loading predictive maintenance details...</div>
 
   <div class="details-grid" *ngIf="threshold && !isLoading">
@@ -60,7 +60,7 @@
           <td>{{ reading.meterType }}</td>
           <td>{{ reading.readingTime | date:'medium' }}</td>
           <td>{{ reading.severity || 'N/A' }}</td>
-          <td>{{ reading.notes || '—' }}</td>
+          <td>{{ reading.notes || 'N/A' }}</td>
         </tr>
       </tbody>
     </table>

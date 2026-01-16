@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { PmTemplateService } from '../../services/pm-template.service';
@@ -19,7 +19,8 @@ export class ViewPredictiveMaintenanceComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private pmTemplateService: PmTemplateService
+    private pmTemplateService: PmTemplateService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -41,13 +42,23 @@ export class ViewPredictiveMaintenanceComponent implements OnInit {
 
     this.pmTemplateService
       .fetchPredictiveThresholdById(id)
-      .pipe(finalize(() => (this.isLoading = false)))
+      .pipe(finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }))
       .subscribe({
         next: data => {
-          this.threshold = data;
+          if (data) {
+            this.threshold = data;
+            this.errorMessage = undefined;
+          } else {
+            this.errorMessage = 'Predictive maintenance details not found.';
+          }
+          this.cdr.detectChanges();
         },
         error: () => {
           this.errorMessage = 'Unable to load predictive maintenance details.';
+          this.cdr.detectChanges();
         }
       });
   }
