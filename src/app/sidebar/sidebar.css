@@ -121,18 +121,24 @@
   color: #ffffff;
 }
 .menu-item.has-submenu.active > .menu-link .menu-label {
-  color: #1a1a1a;
+  color: #ffffff;
 }
 .menu-item.active > .menu-link .menu-icon,
 .menu-link.active .menu-icon {
   filter: none;
 }
 
-.menu-item.has-submenu.active > .menu-link .menu-icon {
-  filter: none;
+.menu-item.has-submenu.active > .menu-link {
+  background-color: #708090;
+  color: #ffffff;
 }
 
-.menu-item.has-submenu > .menu-link {
+.menu-item.has-submenu.active > .menu-link .menu-icon {
+  /* Make monochrome icons display as white on active background */
+  filter: brightness(0) invert(1);
+}
+
+.menu-item.has-submenu:not(.active) > .menu-link {
   background-color: transparent;
 }
 

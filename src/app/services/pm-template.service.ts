@@ -72,6 +72,22 @@ export interface CreatePmTemplatePayload {
   defaultPriority?: string;
 }
 
+export interface CreatePreventiveMaintenancePayload {
+  assetId?: number;
+  location?: string;
+  title: string;
+  workType: string;
+  priority: string;
+  scheduleType: string;
+  leadTimeDays?: number;
+  startDate?: string;
+  intervalUnit?: string;
+  intervalValue?: number;
+  meterType?: string;
+  meterIntervalValue?: number;
+  currentMeterReading?: number;
+}
+
 export interface CreatePmTemplateResponse {
   statusCode?: number;
   status?: string;
@@ -79,13 +95,94 @@ export interface CreatePmTemplateResponse {
   data?: ApiPmTemplate;
  }
 
+interface PreventiveMaintenanceItem {
+  id?: number;
+  assetId?: number;
+  assetName?: string;
+  location?: string;
+  title?: string;
+  workType?: string;
+  priority?: string;
+  scheduleType?: string;
+  leadTimeDays?: number;
+  startDate?: string;
+  intervalUnit?: string;
+  intervalValue?: number;
+  meterType?: string;
+  meterIntervalValue?: number;
+  currentMeterReading?: number;
+  nextDueDate?: string;
+}
+
+interface PreventiveMaintenanceListResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: {
+    totalElements?: number;
+    totalPages?: number;
+    size?: number;
+    content?: PreventiveMaintenanceItem[];
+  };
+}
+
+export interface PreventiveMaintenanceDetail {
+  id?: number;
+  planCode?: string;
+  title?: string;
+  assetId?: number;
+  assetCode?: string;
+  assetName?: string;
+  location?: string;
+  workType?: string;
+  priority?: string;
+  scheduleType?: string;
+  leadTimeDays?: number;
+  startDate?: string;
+  intervalUnit?: string;
+  intervalValue?: number;
+  meterType?: string;
+  meterIntervalValue?: number;
+  currentMeterReading?: number;
+  nextDueDate?: string;
+  nextDueMeter?: number;
+  lastGeneratedDueDate?: string;
+  active?: boolean;
+}
+
+export interface PreventiveMaintenanceDetailResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: PreventiveMaintenanceDetail;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class PmTemplateService {
   private readonly apiUrl = `${environment.apiUrl}/api/pm-templates`;
+  private readonly maintenanceApiUrl = `${environment.apiUrl}/api/maintenance/preventive`;
 
   constructor(private http: HttpClient) {}
+
+  fetchPreventiveMaintenance(page: number, size: number): Observable<PreventiveMaintenanceListResponse> {
+    const pageable = JSON.stringify({ page, size, sort: [] });
+    const params = new HttpParams().set('pageable', pageable);
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.get<PreventiveMaintenanceListResponse>(this.maintenanceApiUrl, { params, headers });
+  }
+
+  fetchPreventiveMaintenanceById(id: number | string): Observable<PreventiveMaintenanceDetailResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.get<PreventiveMaintenanceDetailResponse>(`${this.maintenanceApiUrl}/${id}`, { headers });
+  }
 
   fetchTemplates(page: number, size: number): Observable<PmTemplatesApiResponse> {
     const pageable = JSON.stringify({ page, size, sort: [] });
@@ -102,6 +199,13 @@ export class PmTemplateService {
       'ngrok-skip-browser-warning': 'true'
     });
     return this.http.post<CreatePmTemplateResponse>(this.apiUrl, payload, { headers });
+  }
+
+  createPreventiveMaintenance(payload: CreatePreventiveMaintenancePayload): Observable<CreatePmTemplateResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.post<CreatePmTemplateResponse>(this.maintenanceApiUrl, payload, { headers });
   }
 
   updateTemplate(id: number | string, payload: CreatePmTemplatePayload): Observable<CreatePmTemplateResponse> {

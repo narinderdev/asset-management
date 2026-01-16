@@ -11,13 +11,12 @@ import { PermissionService } from '../../services/permission.service';
 
 interface PreventiveMaintenanceTemplate {
   id?: number;
-  pmId: string;
-  name: string;
-  type: string;
-  appliesTo: string;
-  frequency: string;
-  autoGenerate: boolean;
-  nextDue: string;
+  title: string;
+  active: boolean;
+  assetName: string;
+  location: string;
+  startDate: string;
+  priority: string;
 }
 
 @Component({
@@ -62,7 +61,7 @@ export class PreventiveMaintenanceComponent implements OnInit {
     this.errorMessage = undefined;
 
     this.pmTemplateService
-      .fetchTemplates(0, 20)
+      .fetchPreventiveMaintenance(0, 20)
       .pipe(finalize(() => {
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -71,53 +70,55 @@ export class PreventiveMaintenanceComponent implements OnInit {
         next: response => {
           const content = response.data?.content ?? [];
           this.templates = content.map(template => this.mapTemplate(template));
+          this.cdr.detectChanges();
         },
         error: () => {
           this.errorMessage = 'Unable to load preventive maintenance templates. Please try again later.';
+          this.cdr.detectChanges();
         }
       });
   }
 
   private mapTemplate(template: {
     id?: number;
+    assetId?: number;
+    assetName?: string;
     pmId?: string;
     pmName?: string;
+    title?: string;
     pmType?: string;
+    workType?: string;
     appliesToType?: string;
+    location?: string;
     frequencyValue?: number;
+    intervalValue?: number;
     timeUnit?: string;
+    intervalUnit?: string;
     autoGenerateWo?: boolean;
     nextDueDate?: string;
+    startDate?: string;
+    priority?: string;
+    active?: boolean;
   }): PreventiveMaintenanceTemplate {
     return {
       id: template.id,
-      pmId: template.pmId ?? '—',
-      name: template.pmName ?? 'Unnamed Template',
-      type: this.prettify(template.pmType),
-      appliesTo: template.appliesToType ?? 'Assets',
-      frequency: this.describeFrequency(template.frequencyValue, template.timeUnit),
-      autoGenerate: Boolean(template.autoGenerateWo),
-      nextDue: this.formatDate(template.nextDueDate)
+      title: template.title ?? template.pmName ?? 'N/A',
+      active: Boolean(template.active),
+      assetName: template.assetName ?? (template.assetId ? `Asset ${template.assetId}` : 'N/A'),
+      location: template.location ?? template.appliesToType ?? 'N/A',
+      startDate: this.formatDate(template.startDate),
+      priority: this.prettify(template.priority ?? 'N/A')
     };
-  }
-
-  private describeFrequency(value?: number, unit?: string): string {
-    if (!value) {
-      return unit ?? '—';
-    }
-
-    const normalizedUnit = unit ? this.prettify(unit) : 'Days';
-    return `${value} ${normalizedUnit}`;
   }
 
   private formatDate(value?: string): string {
     if (!value) {
-      return '—';
+      return 'N/A';
     }
 
     const parsed = new Date(value);
     if (Number.isNaN(parsed.getTime())) {
-      return '—';
+      return 'N/A';
     }
 
     return parsed.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
@@ -125,7 +126,7 @@ export class PreventiveMaintenanceComponent implements OnInit {
 
   private prettify(value?: string): string {
     if (!value) {
-      return '—';
+      return 'N/A';
     }
 
     return value

@@ -6,36 +6,31 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import {
   PmTemplateService,
-  CreatePmTemplatePayload,
-  PmTemplateDetailResponse
+  PmTemplateDetailResponse,
+  CreatePreventiveMaintenancePayload
 } from '../../services/pm-template.service';
 import { AssetsService } from '../../services/assets.service';
 import { finalize } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 
 interface SelectOption {
   label: string;
   value: string | number | boolean;
 }
 
-interface PmTemplateForm {
-  pmId: string;
-  pmName: string;
-  pmType: string;
-  appliesToType: string;
-  assetDbId: number | null;
-  assetCategory: string;
-  planStartDate: string;
-  planEndDate: string;
-  frequencyType: string;
-  frequencyValue: string;
-  timeUnit: string;
-  meterUnit: string;
-  graceDays: string;
-  generateWOAutomatically: string;
+interface PreventiveMaintenanceForm {
+  assetId: number | null;
+  location: string;
+  title: string;
+  priority: string;
+  scheduleType: string;
   leadTimeDays: string;
-  linkedWorkType: string;
-  defaultPriority: string;
+  startDate: string;
+  intervalUnit: string;
+  intervalValue: string;
+  meterType: string;
+  meterIntervalValue: string;
+  currentMeterReading: string;
 }
 
 @Component({
@@ -48,8 +43,7 @@ interface PmTemplateForm {
 export class CreatePreventiveMaintenanceComponent implements OnInit {
   dateToday = new Date().toISOString().split('T')[0];
 
-  template: PmTemplateForm = this.createTemplateDefaults();
-  autoGeneratePmId = false;
+  template: PreventiveMaintenanceForm = this.createTemplateDefaults();
 
   isSubmitting = false;
   errorMessage?: string;
@@ -60,29 +54,9 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
 
   assetOptions: Array<{ id: number; label: string }> = [];
 
-  pmTypeOptions: SelectOption[] = [
-    { label: 'Inspection', value: 'INSPECTION' },
-    { label: 'Lubrication', value: 'LUBRICATION' },
-    { label: 'Calibration', value: 'CALIBRATION' },
-    { label: 'Overhaul', value: 'OVERHAUL' },
-    { label: 'Other', value: 'OTHER' }
-  ];
-  appliesToOptions: SelectOption[] = [
-    { label: 'Asset', value: 'ASSET' },
-    { label: 'Category', value: 'CATEGORY' }
-  ];
-  frequencyTypeOptions: SelectOption[] = [
+  scheduleTypeOptions: SelectOption[] = [
     { label: 'Time Based', value: 'TIME_BASED' },
-    { label: 'Meter Based', value: 'METER_BASED' }
-  ];
-  generateOptions: SelectOption[] = [
-    { label: 'Yes', value: 'Yes' },
-    { label: 'No', value: 'No' }
-  ];
-  workTypeOptions: SelectOption[] = [
-    { label: 'Preventive', value: 'PREVENTIVE' },
-    { label: 'Corrective', value: 'CORRECTIVE' },
-    { label: 'Predictive', value: 'PREDICTIVE' }
+    { label: 'Usage Based', value: 'USAGE_BASED' }
   ];
   priorityOptions: SelectOption[] = [
     { label: 'Low', value: 'LOW' },
@@ -90,15 +64,17 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
     { label: 'High', value: 'HIGH' },
     { label: 'Critical', value: 'CRITICAL' }
   ];
-  timeUnitOptions: SelectOption[] = [
+  intervalUnitOptions: SelectOption[] = [
     { label: 'Days', value: 'DAYS' },
     { label: 'Weeks', value: 'WEEKS' },
     { label: 'Months', value: 'MONTHS' },
     { label: 'Years', value: 'YEARS' }
   ];
-  meterUnitOptions: SelectOption[] = [
-    { label: 'Hours', value: 'HOURS' },
-    { label: 'Cycles', value: 'CYCLES' }
+  meterTypeOptions: SelectOption[] = [
+    { label: 'Run Hours', value: 'RUN_HOURS' },
+    { label: 'Cycles', value: 'CYCLES' },
+    { label: 'Mileage', value: 'MILEAGE' },
+    { label: 'Temperature', value: 'TEMPERATURE' }
   ];
 
   private routeSub?: Subscription;
@@ -129,13 +105,7 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/preventive-maintenance']);
-  }
-
-  onAutoGeneratePmIdChange(): void {
-    if (this.autoGeneratePmId) {
-      this.template.pmId = '';
-    }
+    this.router.navigate(['/maintenance/preventive']);
   }
 
   onCreate(): void {
@@ -150,18 +120,12 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
     this.errorMessage = undefined;
     this.isSubmitting = true;
 
-    const payload = this.buildPayload();
-    const operation = this.isEditMode && this.editTemplateId
-      ? this.pmTemplateService.updateTemplate(this.editTemplateId, payload)
-      : this.pmTemplateService.createTemplate(payload);
-    const successMessage = this.isEditMode
-      ? 'Preventive maintenance template updated successfully.'
-      : 'Preventive maintenance template created successfully.';
-    const errorMessage = this.isEditMode
-      ? 'Unable to update PM template. Please try again.'
-      : 'Unable to create PM template. Please try again.';
+    const payload = this.buildMaintenancePayload();
+    const successMessage = this.isEditMode ? 'Preventive maintenance template saved.' : 'Preventive maintenance template created successfully.';
+    const errorMessage = this.isEditMode ? 'Unable to save PM template. Please try again.' : 'Unable to create PM template. Please try again.';
+    const request$: Observable<any> = this.pmTemplateService.createPreventiveMaintenance(payload);
 
-    operation.pipe(
+    request$.pipe(
       finalize(() => {
         this.isSubmitting = false;
         this.cdr.detectChanges();
@@ -169,7 +133,7 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
     ).subscribe({
       next: () => {
         this.toastr.success(successMessage);
-        this.router.navigate(['/preventive-maintenance']);
+        this.router.navigate(['/maintenance/preventive']);
       },
       error: () => {
         this.errorMessage = errorMessage;
@@ -178,36 +142,35 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
     });
   }
 
-  private buildPayload() {
-    const selectedAssetId = this.template.assetDbId;
-    const payload: CreatePmTemplatePayload = {
-      pmName: this.template.pmName,
-      pmType: this.template.pmType,
-      appliesToType: this.template.appliesToType,
-      assetCategory: this.template.assetCategory,
-      planStartDate: this.template.planStartDate,
-      planEndDate: this.template.planEndDate || undefined,
-      frequencyType: this.template.frequencyType,
-      frequencyValue: Number(this.template.frequencyValue || 0),
-      timeUnit: this.template.timeUnit,
-      meterUnit: this.template.meterUnit,
-      graceDays: Number(this.template.graceDays || 0),
-      autoGenerateWo: this.template.generateWOAutomatically === 'Yes',
-      leadTimeDays: Number(this.template.leadTimeDays || 0),
-      linkedWorkType: this.template.linkedWorkType,
-      defaultPriority: this.template.defaultPriority
+  private buildMaintenancePayload() {
+    const intervalValue = this.toNumberOrUndefined(this.template.intervalValue);
+    const meterIntervalValue = this.toNumberOrUndefined(this.template.meterIntervalValue) ?? intervalValue;
+
+    const payload: CreatePreventiveMaintenancePayload = {
+      assetId: this.template.assetId ?? undefined,
+      location: this.template.location || undefined,
+      title: this.template.title,
+      workType: 'PREVENTIVE',
+      priority: this.template.priority || 'LOW',
+      scheduleType: this.template.scheduleType || 'TIME_BASED',
+      leadTimeDays: this.toNumberOrUndefined(this.template.leadTimeDays),
+      startDate: this.template.startDate || undefined,
+      intervalUnit: this.template.intervalUnit || undefined,
+      intervalValue,
+      meterType: this.template.meterType || undefined,
+      meterIntervalValue,
+      currentMeterReading: this.toNumberOrUndefined(this.template.currentMeterReading)
     };
 
-    const pmIdValue = this.template.pmId?.trim();
-    if (pmIdValue && (!this.autoGeneratePmId || this.isEditMode)) {
-      payload.pmId = pmIdValue;
-    }
-
-    if (selectedAssetId !== null && selectedAssetId !== undefined) {
-      payload.assetDbId = selectedAssetId;
-    }
-
     return payload;
+  }
+
+  private toNumberOrUndefined(value?: string | number | null) {
+    if (value === null || value === undefined || value === '') {
+      return undefined;
+    }
+    const parsed = Number(value);
+    return Number.isNaN(parsed) ? undefined : parsed;
   }
 
   private loadAssetOptions(): void {
@@ -242,7 +205,6 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
     this.isLoadingDetails = false;
     this.errorMessage = undefined;
     this.template = this.createTemplateDefaults();
-    this.autoGeneratePmId = false;
     this.cdr.detectChanges();
   }
 
@@ -266,26 +228,20 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
           return;
         }
 
-        this.autoGeneratePmId = false;
         this.template = {
           ...this.createTemplateDefaults(),
-          pmId: template.pmId ?? '',
-          pmName: template.pmName ?? '',
-          pmType: template.pmType ?? '',
-          appliesToType: template.appliesToType ?? 'ASSET',
-          assetDbId: template.assetDbId ?? null,
-          assetCategory: template.assetCategory ?? '',
-          planStartDate: template.planStartDate ?? this.dateToday,
-          planEndDate: template.planEndDate ?? '',
-          frequencyType: template.frequencyType ?? '',
-          frequencyValue: String(template.frequencyValue ?? ''),
-          timeUnit: template.timeUnit ?? 'HOURS',
-          meterUnit: template.meterUnit ?? 'HOURS',
-          graceDays: String(template.graceDays ?? ''),
-          generateWOAutomatically: template.autoGenerateWo ? 'Yes' : 'No',
-          leadTimeDays: String(template.leadTimeDays ?? '7'),
-          linkedWorkType: template.linkedWorkType ?? 'PREVENTIVE',
-          defaultPriority: template.defaultPriority ?? 'LOW'
+          assetId: template.assetDbId ?? null,
+          location: template.assetCategory ?? '',
+          title: template.pmName ?? '',
+          priority: template.defaultPriority ?? 'LOW',
+          scheduleType: template.frequencyType ?? 'TIME_BASED',
+          leadTimeDays: String(template.leadTimeDays ?? ''),
+          startDate: template.planStartDate ?? this.dateToday,
+          intervalUnit: template.timeUnit ?? 'DAYS',
+          intervalValue: String(template.frequencyValue ?? ''),
+          meterType: template.meterUnit ?? 'RUN_HOURS',
+          meterIntervalValue: '',
+          currentMeterReading: ''
         };
         this.hasLoadedDetails = true;
         this.cdr.detectChanges();
@@ -298,25 +254,20 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
     });
   }
 
-  private createTemplateDefaults(): PmTemplateForm {
+  private createTemplateDefaults(): PreventiveMaintenanceForm {
     return {
-      pmId: '',
-      pmName: '',
-      pmType: '',
-      appliesToType: '',
-      assetDbId: null,
-      assetCategory: '',
-      planStartDate: '',
-      planEndDate: '',
-      frequencyType: '',
-      frequencyValue: '',
-      timeUnit: '',
-      meterUnit: '',
-      graceDays: '',
-      generateWOAutomatically: '',
+      assetId: null,
+      location: '',
+      title: '',
+      priority: 'LOW',
+      scheduleType: 'TIME_BASED',
       leadTimeDays: '',
-      linkedWorkType: '',
-      defaultPriority: ''
+      startDate: this.dateToday,
+      intervalUnit: 'DAYS',
+      intervalValue: '',
+      meterType: 'RUN_HOURS',
+      meterIntervalValue: '',
+      currentMeterReading: ''
     };
   }
 }

@@ -67,9 +67,15 @@ export class SidebarComponent implements OnInit {
     {
       icon: 'streamline_hierarchy-10.svg',
       activeIcon: 'streamline_hierarchy-10 (1).svg',
-      label: 'Preventive Maintenance',
-      route: '/preventive-maintenance',
-      module: 'PREVENTIVE_MAINTENANCE'
+      label: 'Maintenance',
+      route: '/maintenance',
+      module: 'PREVENTIVE_MAINTENANCE',
+      hasSubmenu: true,
+      submenu: [
+        { label: 'Preventive Maintenance', route: '/maintenance/preventive' },
+        { label: 'Predictive Maintenance', route: '/maintenance/predictive' },
+        { label: 'Emergency Maintenance', route: '/maintenance/emergency' }
+      ]
     },
     {
       icon: 'proicons_document.svg',

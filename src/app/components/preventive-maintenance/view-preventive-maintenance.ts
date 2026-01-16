@@ -3,9 +3,11 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 
-import { PmTemplateService, PmTemplateDetailResponse } from '../../services/pm-template.service';
-
-type PmTemplateDetail = NonNullable<PmTemplateDetailResponse['data']>;
+import {
+  PmTemplateService,
+  PreventiveMaintenanceDetailResponse,
+  PreventiveMaintenanceDetail
+} from '../../services/pm-template.service';
 
 @Component({
   selector: 'app-view-preventive-maintenance',
@@ -15,7 +17,7 @@ type PmTemplateDetail = NonNullable<PmTemplateDetailResponse['data']>;
   styleUrls: ['./view-preventive-maintenance.css']
 })
 export class ViewPreventiveMaintenanceComponent implements OnInit {
-  template?: PmTemplateDetail;
+  template?: PreventiveMaintenanceDetail;
   isLoading = false;
   errorMessage?: string;
 
@@ -41,21 +43,23 @@ export class ViewPreventiveMaintenanceComponent implements OnInit {
     this.errorMessage = undefined;
 
     this.pmTemplateService
-      .fetchTemplateById(id)
+      .fetchPreventiveMaintenanceById(id)
       .pipe(finalize(() => {
         this.isLoading = false;
         this.cdr.detectChanges();
       }))
       .subscribe({
-        next: response => {
+        next: (response: PreventiveMaintenanceDetailResponse) => {
           if (response.data) {
             this.template = response.data;
           } else {
             this.errorMessage = response.message ?? 'Template not found.';
           }
+          this.cdr.detectChanges();
         },
         error: () => {
           this.errorMessage = 'Unable to load template details.';
+          this.cdr.detectChanges();
         }
       });
   }
@@ -66,12 +70,12 @@ export class ViewPreventiveMaintenanceComponent implements OnInit {
 
   formatDate(value?: string): string {
     if (!value) {
-      return '—';
+      return 'N/A';
     }
 
     const parsed = new Date(value);
     if (Number.isNaN(parsed.getTime())) {
-      return '—';
+      return 'N/A';
     }
 
     return parsed.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
@@ -79,7 +83,7 @@ export class ViewPreventiveMaintenanceComponent implements OnInit {
 
   formatFrequency(value?: number, unit?: string): string {
     if (!value) {
-      return '—';
+      return 'N/A';
     }
 
     const normalized = unit ? this.prettify(unit) : 'Days';

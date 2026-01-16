@@ -7,7 +7,7 @@
         aria-label="Back to preventive maintenance"
         (click)="onCancel()"
       >
-        ←
+        &larr;
       </button>
       <h2>{{ isEditMode ? 'Edit Preventive Maintenance Template' : 'Create Preventive Maintenance Template' }}</h2>
     </header>
@@ -17,56 +17,8 @@
     <form class="request-form" (ngSubmit)="onCreate()">
       <div class="form-grid">
         <label class="field">
-          <div class="field-label-row">
-            <span>PM ID</span>
-            <div class="auto-generate-control" *ngIf="!isEditMode">
-              <input
-                type="checkbox"
-                name="autoGeneratePmId"
-                [(ngModel)]="autoGeneratePmId"
-                (change)="onAutoGeneratePmIdChange()"
-              />
-              <span>Auto-generate</span>
-            </div>
-          </div>
-          <input
-            type="text"
-            name="pmId"
-            [(ngModel)]="template.pmId"
-            [disabled]="isEditMode || autoGeneratePmId"
-          />
-        </label>
-        <label class="field">
-          <span>PM Name <span class="required-star">*</span></span>
-          <input
-            type="text"
-            name="pmName"
-            [(ngModel)]="template.pmName"
-            placeholder="e.g., Quarterly Inspection - Transformer"
-          />
-        </label>
-        <label class="field">
-          <span>PM Type <span class="required-star">*</span></span>
-          <select name="pmType" [(ngModel)]="template.pmType">
-            <option value="" disabled hidden>Select Type</option>
-            <option *ngFor="let type of pmTypeOptions" [value]="type.value">
-              {{ type.label }}
-            </option>
-          </select>
-        </label>
-
-        <label class="field">
-          <span>Applies To <span class="required-star">*</span></span>
-          <select name="appliesTo" [(ngModel)]="template.appliesToType">
-            <option value="" disabled hidden>Select</option>
-            <option *ngFor="let target of appliesToOptions" [value]="target.value">
-              {{ target.label }}
-            </option>
-          </select>
-        </label>
-        <label class="field">
-          <span>Asset (Optional)</span>
-          <select name="asset" [(ngModel)]="template.assetDbId">
+          <span>Asset</span>
+          <select name="assetId" [(ngModel)]="template.assetId">
             <option [ngValue]="null">Select Asset</option>
             <option *ngFor="let asset of assetOptions" [ngValue]="asset.id">
               {{ asset.label }}
@@ -74,94 +26,98 @@
           </select>
         </label>
         <label class="field">
-          <span>Asset Category</span>
-          <input type="text" name="assetCategory" [(ngModel)]="template.assetCategory" />
-        </label>
-
-        <label class="field">
-          <span>Plan Start Date</span>
-          <input type="date" name="planStartDate" [(ngModel)]="template.planStartDate" />
-        </label>
-        <label class="field">
-          <span>Plan End Date (Optional)</span>
-          <input type="date" name="planEndDate" [(ngModel)]="template.planEndDate" />
-        </label>
-
-        <label class="field">
-          <span>Frequency Type <span class="required-star">*</span></span>
-          <select name="frequencyType" [(ngModel)]="template.frequencyType">
-            <option value="" disabled hidden>Select Type</option>
-            <option *ngFor="let freq of frequencyTypeOptions" [value]="freq.value">
-              {{ freq.label }}
-            </option>
-          </select>
+          <span>Title <span class="required-star">*</span></span>
+          <input
+            type="text"
+            name="title"
+            [(ngModel)]="template.title"
+            placeholder="e.g., Quarterly Inspection - Transformer"
+            required
+          />
         </label>
         <label class="field">
-          <span>Frequency Value</span>
-          <input type="number" name="frequencyValue" [(ngModel)]="template.frequencyValue" placeholder="e.g., 30" />
-        </label>
-        <label class="field">
-          <span>Grace Days</span>
-          <input type="number" name="graceDays" [(ngModel)]="template.graceDays" placeholder="e.g., 5" />
-        </label>
-
-        <label class="field">
-          <span>Time Unit</span>
-          <select name="timeUnit" [(ngModel)]="template.timeUnit">
-            <option *ngFor="let unit of timeUnitOptions" [value]="unit.value">
-              {{ unit.label }}
-            </option>
-          </select>
-        </label>
-        <label class="field">
-          <span>Meter Unit</span>
-          <select name="meterUnit" [(ngModel)]="template.meterUnit">
-            <option *ngFor="let unit of meterUnitOptions" [value]="unit.value">
-              {{ unit.label }}
-            </option>
-          </select>
-        </label>
-
-        <label class="field">
-          <span>Generate WOs Automatically? <span class="required-star">*</span></span>
-          <select name="generateWOAutomatically" [(ngModel)]="template.generateWOAutomatically">
-            <option value="" disabled hidden>Select</option>
-            <option *ngFor="let option of generateOptions" [value]="option.value">
-              {{ option.label }}
-            </option>
-          </select>
-        </label>
-        <label class="field">
-          <span>Lead Time to Generate WO (Days before due date)</span>
-          <input type="number" name="leadTime" [(ngModel)]="template.leadTimeDays" />
-        </label>
-        <label class="field">
-          <span>Linked Work Type</span>
-          <select name="linkedWorkType" [(ngModel)]="template.linkedWorkType">
-            <option value="" disabled hidden>Select Work Type</option>
-            <option *ngFor="let workType of workTypeOptions" [value]="workType.value">
-              {{ workType.label }}
-            </option>
-          </select>
-        </label>
-
-        <label class="field">
-          <span>Default Priority</span>
-          <select name="defaultPriority" [(ngModel)]="template.defaultPriority">
+          <span>Priority <span class="required-star">*</span></span>
+          <select name="priority" [(ngModel)]="template.priority" required>
             <option value="" disabled hidden>Select Priority</option>
             <option *ngFor="let priority of priorityOptions" [value]="priority.value">
               {{ priority.label }}
             </option>
           </select>
         </label>
+
+        <label class="field">
+          <span>Location</span>
+          <input type="text" name="location" [(ngModel)]="template.location" placeholder="e.g., Building 1 - Floor 2" />
+        </label>
+        <label class="field">
+          <span>Start Date</span>
+          <input type="date" name="startDate" [(ngModel)]="template.startDate" placeholder="dd-mm-yyyy" />
+        </label>
+
+        <label class="field">
+          <span>Schedule Type <span class="required-star">*</span></span>
+          <select name="scheduleType" [(ngModel)]="template.scheduleType" required>
+            <option value="" disabled hidden>Select Type</option>
+            <option *ngFor="let schedule of scheduleTypeOptions" [value]="schedule.value">
+              {{ schedule.label }}
+            </option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Interval Unit <span class="required-star">*</span></span>
+          <select name="intervalUnit" [(ngModel)]="template.intervalUnit" required>
+            <option value="" disabled hidden>Select Unit</option>
+            <option *ngFor="let unit of intervalUnitOptions" [value]="unit.value">
+              {{ unit.label }}
+            </option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Interval Value</span>
+          <input type="number" name="intervalValue" [(ngModel)]="template.intervalValue" placeholder="e.g., 30" />
+        </label>
+        <label class="field">
+          <span>Meter Type</span>
+          <select name="meterType" [(ngModel)]="template.meterType">
+            <option *ngFor="let unit of meterTypeOptions" [value]="unit.value">
+              {{ unit.label }}
+            </option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Meter Interval Value</span>
+          <input
+            type="number"
+            name="meterIntervalValue"
+            [(ngModel)]="template.meterIntervalValue"
+            placeholder="e.g., 250"
+          />
+        </label>
+        <label class="field">
+          <span>Lead Time to Generate WO (Days before due date)</span>
+          <input type="number" name="leadTimeDays" [(ngModel)]="template.leadTimeDays" />
+        </label>
+
+        <label class="field">
+          <span>Current Meter Reading</span>
+          <input
+            type="number"
+            name="currentMeterReading"
+            [(ngModel)]="template.currentMeterReading"
+            placeholder="e.g., 1200"
+          />
+        </label>
       </div>
 
       <div class="form-actions">
         <button type="button" class="btn ghost" (click)="onCancel()">Cancel</button>
         <button type="submit" class="btn primary" [disabled]="isSubmitting || !hasLoadedDetails">
-          {{ isSubmitting ? (isEditMode ? 'Updating…' : 'Creating…') : (isEditMode ? 'Update PM Template' : 'Create PM Template') }}
+          {{ isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update PM Template' : 'Create PM Template') }}
         </button>
       </div>
     </form>
   </section>
 </div>
+

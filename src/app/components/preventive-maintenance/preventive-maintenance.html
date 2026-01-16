@@ -19,32 +19,30 @@
       <table class="preventive-table">
       <thead>
         <tr>
-          <th>PM ID</th>
-          <th>PM Name</th>
-          <th>PM Type</th>
-          <th>Applies To</th>
-          <th>Frequency</th>
-          <th>Auto Generate</th>
-          <th>Next Due</th>
+          <th>Title</th>
+          <th>Asset Name</th>
+          <th>Location</th>
+          <th>Start Date</th>
+          <th>Priority</th>
+          <th>Active</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngIf="!templates.length && !isLoading">
-          <td colspan="8" class="empty-row">No preventive maintenance templates to display.</td>
+          <td colspan="7" class="empty-row">No preventive maintenance templates to display.</td>
         </tr>
         <tr *ngFor="let template of templates">
-          <td>{{ template.pmId }}</td>
-          <td>{{ template.name }}</td>
-          <td>{{ template.type }}</td>
-          <td>{{ template.appliesTo }}</td>
-          <td>{{ template.frequency }}</td>
+          <td>{{ template.title }}</td>
+          <td>{{ template.assetName }}</td>
+          <td>{{ template.location }}</td>
+          <td>{{ template.startDate }}</td>
+          <td>{{ template.priority }}</td>
           <td>
-            <span class="status-chip" [ngClass]="{ 'status-green': template.autoGenerate }">
-              {{ template.autoGenerate ? 'Yes' : 'No' }}
+            <span class="status-chip" [ngClass]="{ 'status-green': template.active }">
+              {{ template.active ? 'Yes' : 'No' }}
             </span>
           </td>
-          <td>{{ template.nextDue }}</td>
           <td class="actions-cell">
             <button
               class="action-icon"

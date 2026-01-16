@@ -19,28 +19,36 @@
       <h2>Overview</h2>
       <div class="detail-grid">
         <div>
-          <span class="label">PM ID</span>
-          <span class="value">{{ template.pmId ?? '—' }}</span>
+          <span class="label">Plan Code</span>
+          <span class="value">{{ template.planCode || 'N/A' }}</span>
         </div>
         <div>
-          <span class="label">Name</span>
-          <span class="value">{{ template.pmName ?? '—' }}</span>
+          <span class="label">Title</span>
+          <span class="value">{{ template.title || 'N/A' }}</span>
         </div>
         <div>
-          <span class="label">Type</span>
-          <span class="value">{{ template.pmType ?? '—' }}</span>
+          <span class="label">Work Type</span>
+          <span class="value">{{ template.workType || 'N/A' }}</span>
         </div>
         <div>
-          <span class="label">Applies To</span>
-          <span class="value">{{ template.appliesToType ?? '—' }}</span>
+          <span class="label">Priority</span>
+          <span class="value">{{ template.priority || 'N/A' }}</span>
         </div>
         <div>
           <span class="label">Asset Name</span>
-          <span class="value">{{ template.assetName ?? '—' }}</span>
+          <span class="value">{{ template.assetName || 'N/A' }}</span>
         </div>
         <div>
-          <span class="label">Asset Category</span>
-          <span class="value">{{ template.assetCategory ?? '—' }}</span>
+          <span class="label">Asset Code</span>
+          <span class="value">{{ template.assetCode || 'N/A' }}</span>
+        </div>
+        <div>
+          <span class="label">Asset ID</span>
+          <span class="value">{{ template.assetId ?? 'N/A' }}</span>
+        </div>
+        <div>
+          <span class="label">Location</span>
+          <span class="value">{{ template.location || 'N/A' }}</span>
         </div>
         <div>
           <span class="label">Active</span>
@@ -53,12 +61,16 @@
       <h2>Schedule</h2>
       <div class="detail-grid">
         <div>
-          <span class="label">Plan Start Date</span>
-          <span class="value">{{ formatDate(template.planStartDate) }}</span>
+          <span class="label">Schedule Type</span>
+          <span class="value">{{ template.scheduleType || 'N/A' }}</span>
         </div>
         <div>
-          <span class="label">Plan End Date</span>
-          <span class="value">{{ formatDate(template.planEndDate) }}</span>
+          <span class="label">Lead Time Days</span>
+          <span class="value">{{ template.leadTimeDays ?? 'N/A' }}</span>
+        </div>
+        <div>
+          <span class="label">Start Date</span>
+          <span class="value">{{ formatDate(template.startDate) }}</span>
         </div>
         <div>
           <span class="label">Next Due Date</span>
@@ -69,38 +81,34 @@
           <span class="value">{{ formatDate(template.lastGeneratedDueDate) }}</span>
         </div>
         <div>
-          <span class="label">Frequency</span>
-          <span class="value">{{ formatFrequency(template.frequencyValue, template.timeUnit) }}</span>
-        </div>
-        <div>
-          <span class="label">Meter Unit</span>
-          <span class="value">{{ template.meterUnit ?? '—' }}</span>
+          <span class="label">Next Due Meter</span>
+          <span class="value">{{ template.nextDueMeter ?? 'N/A' }}</span>
         </div>
       </div>
     </section>
 
     <section class="detail-section">
-      <h2>Automation</h2>
+      <h2>Intervals</h2>
       <div class="detail-grid">
         <div>
-          <span class="label">Auto Generate WO</span>
-          <span class="value">{{ template.autoGenerateWo ? 'Yes' : 'No' }}</span>
+          <span class="label">Interval Value</span>
+          <span class="value">{{ template.intervalValue ?? 'N/A' }}</span>
         </div>
         <div>
-          <span class="label">Lead Time Days</span>
-          <span class="value">{{ template.leadTimeDays ?? '—' }}</span>
+          <span class="label">Interval Unit</span>
+          <span class="value">{{ template.intervalUnit || 'N/A' }}</span>
         </div>
         <div>
-          <span class="label">Linked Work Type</span>
-          <span class="value">{{ template.linkedWorkType ?? '—' }}</span>
+          <span class="label">Meter Type</span>
+          <span class="value">{{ template.meterType || 'N/A' }}</span>
         </div>
         <div>
-          <span class="label">Default Priority</span>
-          <span class="value">{{ template.defaultPriority ?? '—' }}</span>
+          <span class="label">Meter Interval Value</span>
+          <span class="value">{{ template.meterIntervalValue ?? 'N/A' }}</span>
         </div>
         <div>
-          <span class="label">Grace Days</span>
-          <span class="value">{{ template.graceDays ?? '—' }}</span>
+          <span class="label">Current Meter Reading</span>
+          <span class="value">{{ template.currentMeterReading ?? 'N/A' }}</span>
         </div>
       </div>
     </section>
