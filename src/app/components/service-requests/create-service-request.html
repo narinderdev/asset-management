@@ -1,12 +1,7 @@
 <div class="create-request-page">
   <section class="create-card">
-        <header class="create-header">
-      <button
-        type="button"
-        class="back-btn"
-        aria-label="Back to service requests"
-        (click)="onCancel()"
-      >
+    <header class="create-header">
+      <button type="button" class="back-btn" aria-label="Back to service requests" (click)="onCancel()">
         &larr;
       </button>
       <h2>{{ isEditMode ? 'Edit Service Request' : 'Create Service Request' }}</h2>
@@ -18,31 +13,19 @@
       <span>Loading request...</span>
     </div>
 
-    <form
-      class="request-form"
-      (ngSubmit)="onCreate()"
-      *ngIf="!isEditMode || hasLoadedDetails"
-    >
+    <form class="request-form" (ngSubmit)="onCreate()" *ngIf="!isEditMode || hasLoadedDetails">
       <div class="form-grid">
         <label class="field">
           <div class="field-label-row">
             <span>Request ID</span>
             <div class="auto-generate-control" *ngIf="!isEditMode">
-              <input
-                type="checkbox"
-                name="autoGenerateRequestId"
-                [(ngModel)]="autoGenerateRequestId"
-                (change)="onAutoGenerateRequestIdChange()"
-              />
+              <input type="checkbox" name="autoGenerateRequestId" [(ngModel)]="autoGenerateRequestId"
+                (change)="onAutoGenerateRequestIdChange()" />
               <span>Auto-generate</span>
             </div>
           </div>
-          <input
-            type="text"
-            name="requestId"
-            [(ngModel)]="request.requestId"
-            [disabled]="isEditMode || autoGenerateRequestId"
-          />
+          <input type="text" name="requestId" [(ngModel)]="request.requestId"
+            [disabled]="isEditMode || autoGenerateRequestId" />
         </label>
         <label class="field">
           <span>Request Date</span>
@@ -50,26 +33,19 @@
         </label>
         <label class="field">
           <span>Requester Name *</span>
-          <input
-            type="text"
-            name="requesterName"
-            [(ngModel)]="request.requesterName"
-            placeholder="Select User"
-          />
+          <input type="text" name="requesterName" [(ngModel)]="request.requesterName" placeholder="Select User" />
         </label>
         <label class="field">
           <span>Requester Contact</span>
-          <input type="text" name="requesterContact" [(ngModel)]="request.requesterContact" placeholder="Email or Phone" />
+          <input type="text" name="requesterContact" [(ngModel)]="request.requesterContact"
+            placeholder="Email or Phone" />
         </label>
         <label class="field">
           <span>Department</span>
-          <select name="department" [(ngModel)]="request.department">
-            <option value="" disabled hidden>Select Department</option>
-            <option *ngFor="let department of departmentOptions" [value]="department">{{ department }}</option>
-          </select>
+          <input type="text" name="department" [(ngModel)]="request.department" placeholder="Enter department" />
         </label>
         <label class="field">
-          <span>Asset (Optional)</span>
+          <span>Asset</span>
           <select name="asset" [(ngModel)]="request.asset" [disabled]="!assetOptions.length">
             <option value="" disabled>
               {{ assetOptions.length ? 'Select Asset' : 'No assets available' }}
@@ -97,22 +73,13 @@
         </label>
         <label class="field">
           <span>Short Title *</span>
-          <input
-            type="text"
-            name="shortTitle"
-            [(ngModel)]="request.shortTitle"
-            placeholder="Brief description of the issue"
-          />
+          <input type="text" name="shortTitle" [(ngModel)]="request.shortTitle"
+            placeholder="Brief description of the issue" />
         </label>
         <label class="field">
           <span>Problem Description *</span>
-          <input
-            type="text"
-            name="problemDescription"
-            [(ngModel)]="request.problemDescription"
-          
-            placeholder="Detailed description of the problem"
-          />
+          <input type="text" name="problemDescription" [(ngModel)]="request.problemDescription"
+            placeholder="Detailed description of the problem" />
         </label>
         <label class="field">
           <span>Preferred Date</span>
@@ -122,13 +89,13 @@
           <span>Preferred Time</span>
           <input type="time" name="preferredTime" [(ngModel)]="request.preferredTime" />
         </label>
-        <label class="field">
+        <!-- <label class="field">
           <span>Status</span>
           <select name="status" [(ngModel)]="request.status">
             <option value="" disabled hidden>Select Status</option>
             <option *ngFor="let status of statusOptions" [value]="status.value">{{ status.label }}</option>
           </select>
-        </label>
+        </label> -->
       </div>
 
       <label class="checkbox-field">
@@ -143,7 +110,8 @@
       <div class="form-actions">
         <button type="button" class="btn ghost" (click)="onCancel()">Cancel</button>
         <button type="submit" class="btn primary" [disabled]="isSubmitting">
-          {{ isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Service Request' : 'Create Service Request') }}
+          {{ isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Service Request' :
+          'Create Service Request') }}
         </button>
       </div>
     </form>

@@ -130,6 +130,11 @@
   color: #065f46;
 }
 
+.status-approved {
+  background: #e0f2fe;
+  color: #075985;
+}
+
 .status-progress {
   background: #dbeafe;
   color: #1e40af;
@@ -138,6 +143,26 @@
 .status-pending {
   background: #e0f2fe;
   color: #0284c7;
+}
+
+.status-scheduled {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.status-new {
+  background: #fff4e6;
+  color: #c2410c;
+}
+
+.status-draft {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.status-neutral {
+  background: #f5f5f5;
+  color: #374151;
 }
 
 .action-btn {

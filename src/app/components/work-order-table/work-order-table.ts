@@ -25,6 +25,7 @@ interface ApiWorkOrder {
   id?: number;
   assetName?: string;
   assignedTechnician?: string;
+  assignedTechnicianName?: string;
   woTitle?: string;
   priority?: string;
   status?: string;
@@ -102,7 +103,7 @@ export class WorkOrderTable implements OnInit {
       apiId: order.id,
       title: order.woTitle ?? 'Work Order',
       asset: order.assetName ?? 'Unassigned Asset',
-      technician: order.assignedTechnician ?? 'Unassigned',
+      technician: order.assignedTechnicianName ?? order.assignedTechnician ?? 'Unassigned',
       dueDate: this.formatDate(order.plannedEndDateTime ?? order.targetCompletionDate),
       priority: this.normalizePriority(order.priority),
       status: this.normalizeStatus(order.status)
@@ -145,10 +146,38 @@ export class WorkOrderTable implements OnInit {
         return 'In Progress';
       case 'COMPLETED':
         return 'Completed';
+      case 'SCHEDULED':
+        return 'Scheduled';
+      case 'APPROVED':
+        return 'Approved';
+      case 'NEW':
+        return 'New';
       case 'PENDING':
         return 'Pending';
       default:
         return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+    }
+  }
+
+  statusClass(status?: string): string {
+    const normalized = (status || '').toLowerCase();
+    switch (normalized) {
+      case 'completed':
+        return 'status-completed';
+      case 'in progress':
+        return 'status-progress';
+      case 'pending':
+        return 'status-pending';
+      case 'scheduled':
+        return 'status-scheduled';
+      case 'approved':
+        return 'status-approved';
+      case 'new':
+        return 'status-new';
+      case 'draft':
+        return 'status-draft';
+      default:
+        return 'status-neutral';
     }
   }
 

@@ -21,6 +21,11 @@ export interface ApiTechnician {
   teamId?: number;
   teamName?: string;
   teamLeader?: boolean;
+  teamMemberships?: Array<{
+    teamId?: number;
+    teamLeader?: boolean;
+    teamName?: string;
+  }>;
 }
 
 export interface TechnicianListResponse {

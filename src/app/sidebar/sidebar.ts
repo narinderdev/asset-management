@@ -221,9 +221,11 @@ export class SidebarComponent implements OnInit {
   }
 
   isMenuItemActive(item: MenuItem): boolean {
+    const subActive = item.submenu?.some(sub => this.activeRoute === sub.route || this.activeRoute.startsWith(`${sub.route}/`));
     return (
       this.activeRoute === item.route ||
-      this.activeRoute.startsWith(`${item.route}/`)
+      this.activeRoute.startsWith(`${item.route}/`) ||
+      !!subActive
     );
   }
 

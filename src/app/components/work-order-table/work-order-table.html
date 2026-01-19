@@ -40,9 +40,7 @@
           </td>
           <td>
             <span class="status-badge"
-                  [class.status-completed]="order.status === 'Completed'"
-                  [class.status-progress]="order.status === 'In Progress'"
-                  [class.status-pending]="order.status === 'Pending'">
+                  [ngClass]="statusClass(order.status)">
               {{ order.status }}
             </span>
           </td>

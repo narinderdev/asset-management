@@ -150,11 +150,12 @@ export class TechnicianComponent implements OnInit {
   }
 
   private mapTechnician(apiTech: ApiTechnician): Technician {
+    const teamFromMembership = apiTech.teamMemberships?.[0]?.teamName;
     return {
       id: apiTech.id ?? 0,
       name: this.extractFullName(apiTech),
       role: this.formatTechnicianType(apiTech.technicianType),
-      team: apiTech.teamName ?? 'Unassigned',
+      team: teamFromMembership || apiTech.teamName || 'Unassigned',
       location: apiTech.address ?? 'N/A',
       availability: this.mapAvailability(apiTech.status)
     };

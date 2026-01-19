@@ -138,21 +138,8 @@
           </select>
         </div>
         
-         <div class="form-group">
-          <label class="form-label">Asset Tag / Barcode / RFID</label>
-          <input 
-            type="text" 
-            class="form-input" 
-            placeholder="Enter Asset Tag / Barcode / RFID"
-            [(ngModel)]="assetMaster.assetTag">
-        </div>
-
-      </div>
-
-      <!-- Row 3 -->
-      <div class="form-row">
         
-
+        
         <div class="form-group">
           <label class="form-label">Criticality</label>
           <select class="form-select" [(ngModel)]="assetMaster.criticality">
@@ -163,6 +150,14 @@
           </select>
         </div>
 
+      </div>
+
+      <!-- Row 3 -->
+      <div class="form-row">
+        
+
+        
+
         <div class="form-group">
           <label class="form-label">Ownership</label>
           <select class="form-select" [(ngModel)]="assetMaster.ownership">
@@ -172,6 +167,15 @@
             </option>
           </select>
         </div>
+        
+         <!-- <div class="form-group">
+          <label class="form-label">Asset Tag / Barcode / RFID</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Asset Tag / Barcode / RFID"
+            [(ngModel)]="assetMaster.assetTag">
+        </div> -->
       </div>
 
       <!-- Row 4 -->
@@ -285,7 +289,7 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Power Rating</label>
+          <label class="form-label">Power Rating If Applicable</label>
           <input 
             type="text" 
             class="form-input" 
@@ -294,7 +298,7 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Voltage</label>
+          <label class="form-label">Voltage If Applicable</label>
           <input 
             type="text" 
             class="form-input" 
@@ -306,7 +310,7 @@
       <!-- Row 3 -->
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Capacity</label>
+          <label class="form-label">Capacity If Applicable</label>
           <input 
             type="text" 
             class="form-input" 
@@ -372,13 +376,22 @@
           </select>
         </div>
 
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label class="form-label">Useful Life (years)</label>
           <input 
             type="number" 
             class="form-input" 
             placeholder="Enter Years"
             [(ngModel)]="financial.usefulLife">
+        </div> -->
+        
+        <div class="form-group">
+          <label class="form-label">Salvage Value</label>
+          <input 
+            type="number" 
+            class="form-input" 
+            placeholder="$"
+            [(ngModel)]="financial.salvageValue">
         </div>
       </div>
 
@@ -392,14 +405,7 @@
             [(ngModel)]="financial.depreciationStartDate">
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Salvage Value</label>
-          <input 
-            type="number" 
-            class="form-input" 
-            placeholder="$"
-            [(ngModel)]="financial.salvageValue">
-        </div>
+        
 
         <!-- <div class="form-group">
           <label class="form-label">Accumulated Depreciation</label>

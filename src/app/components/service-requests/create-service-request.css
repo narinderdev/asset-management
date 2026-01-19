@@ -143,6 +143,17 @@
   border-color: #2196F3;
 }
 
+.field input:disabled {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  cursor: not-allowed;
+  border-color: #e5e7eb;
+}
+
+.field input:disabled::placeholder {
+  color: #9ca3af;
+}
+
 .field input::placeholder,
 .field textarea::placeholder {
   color: #999999;

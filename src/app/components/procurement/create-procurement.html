@@ -11,11 +11,11 @@
       <div class="section-title">{{ isEditMode ? 'Update Material Requisition (MR)' : 'Create Material Requisition (MR)' }}</div>
       <div class="form-grid">
         <label class="field">
-          <span>Requested By (userId/name)</span>
+          <span>Requested By</span>
           <input type="text" name="requestedBy" [(ngModel)]="requisition.requestedBy" placeholder="e.g., TM-102 / Shubham" />
         </label>
         <label class="field">
-          <span>Needed By (optional)</span>
+          <span>Needed By </span>
           <input type="date" name="neededBy" [(ngModel)]="requisition.neededBy" />
         </label>
         <label class="field">
@@ -26,14 +26,14 @@
 
       <div class="line-items">
         <div class="line-items-toolbar">
-          <div class="section-title">Line Items</div>
+          <div class="section-title">Inventory Items</div>
           <button type="button" class="link-btn add-line-btn" (click)="addLineItem()">+ Add Line Item</button>
         </div>
         <div class="line-items-header">
           <div>Inventory name</div>
-          <div>Item / Asset ID</div>
+          <div>Item ID</div>
           <div>Qty</div>
-          <div>UOM</div>
+          <!-- <div>UOM</div> -->
           <div class="actions-column">Actions</div>
         </div>
 
@@ -51,15 +51,15 @@
               type="text"
               name="assetId-{{ i }}"
               [(ngModel)]="line.assetId"
-              placeholder="e.g., ITEM-001 / ASSET-12"
+              placeholder="e.g., ITEM-001"
             />
           </div>
           <div class="line-field">
             <input type="number" name="qty-{{ i }}" [(ngModel)]="line.qty" min="1" />
           </div>
-          <div class="line-field">
+          <!-- <div class="line-field">
             <input type="text" name="uom-{{ i }}" [(ngModel)]="line.uom" />
-          </div>
+          </div> -->
           <div class="line-field actions-field">
             <button type="button" class="icon-btn" aria-label="Remove line" (click)="removeLineItem(i)"></button>
           </div>

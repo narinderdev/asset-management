@@ -83,7 +83,7 @@
           </select>
         </label>
         <label class="field">
-          <span>Rating</span>
+          <span>Rating (optional) </span>
           <select name="rating" [(ngModel)]="vendor.rating">
             <option value="" disabled hidden>Select Rating</option>
             <option *ngFor="let rating of ratingOptions" [value]="rating">{{ rating }}</option>

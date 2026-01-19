@@ -93,6 +93,7 @@ export class ViewWorkOrderComponent implements OnInit {
   prefillMaterialUsed: CompleteMaterialUsed = { inventoryItemId: undefined, quantityUsed: undefined, notes: '' };
   showCloseModal = false;
   closeNotes = '';
+  showInProgressConfirm = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -123,6 +124,7 @@ export class ViewWorkOrderComponent implements OnInit {
       .pipe(
         finalize(() => {
           this.isLoading = false;
+          this.isMarkingInProgress = false;
           this.cdr.detectChanges();
         })
       )
@@ -197,6 +199,21 @@ export class ViewWorkOrderComponent implements OnInit {
     this.showScheduleModal = false;
     this.isScheduling = false;
     this.scheduleError = undefined;
+  }
+
+  openInProgressConfirm(): void {
+    this.showInProgressConfirm = true;
+    this.inProgressError = undefined;
+  }
+
+  cancelInProgressConfirm(): void {
+    this.showInProgressConfirm = false;
+    this.inProgressError = undefined;
+  }
+
+  confirmInProgress(): void {
+    this.showInProgressConfirm = false;
+    this.quickStartInProgress();
   }
 
   submitApproval(): void {
