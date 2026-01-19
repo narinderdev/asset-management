@@ -312,6 +312,15 @@ export class ViewWorkOrderComponent implements OnInit {
     return match?.code || '';
   }
 
+  getTechnicianName(id?: number): string {
+    if (!id) {
+      return 'N/A';
+    }
+    const match = this.technicianOptions.find((tech) => tech.id === id);
+    const fullName = match?.fullName || [match?.firstName, match?.lastName].filter(Boolean).join(' ').trim();
+    return fullName || `Technician #${id}`;
+  }
+
   private loadTechniciansAndTeams(): void {
     this.technicianService.fetchTechnicians(0, 50).subscribe({
       next: (res) => {
@@ -468,6 +477,14 @@ export class ViewWorkOrderComponent implements OnInit {
     this.completeError = undefined;
     this.loadTechniciansAndTeams();
     this.loadInventory();
+    const prefilledLabor: CompleteLaborEntry | undefined =
+      this.workOrder?.assignedTechnicianName || this.workOrder?.estimatedLaborHours
+        ? {
+            technicianId: this.workOrder.assignedTechnicianId,
+            laborHours: this.workOrder.estimatedLaborHours
+          }
+        : undefined;
+    this.completeForm.laborEntries = prefilledLabor ? [prefilledLabor] : [];
     const firstPlanned = this.workOrder?.plannedMaterials?.[0];
     if (firstPlanned?.inventoryItemId) {
       this.prefillMaterialUsed = {
