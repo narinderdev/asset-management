@@ -1,198 +1,254 @@
 <div class="view-asset-page">
-  <div class="view-asset-header">
-    <button class="back-btn" type="button" aria-label="Back to assets" (click)="goBack()">
-      <span aria-hidden="true">&larr;</span>
-      Back to assets
+  <!-- Header -->
+  <div class="header">
+    <button class="back-button" type="button" aria-label="Back to assets" (click)="goBack()">
+      ← Back to assets
     </button>
-    <h1>Asset Details</h1>
+    
+    <div class="header-content" *ngIf="asset">
+      <div class="title-section">
+        <h1>{{ formatField(asset.assetName) }}</h1>
+        <div class="asset-meta">
+          <span class="asset-id">{{ formatField(asset.assetId) }}</span>
+          <span *ngIf="asset.ownership">•</span>
+          <span *ngIf="asset.ownership">{{ formatField(asset.ownership) }}</span>
+        </div>
+      </div>
+
+      <div class="status-badges">
+        <span class="badge" [ngClass]="{
+          'badge-success': asset.status === 'IN_SERVICE',
+          'badge-warning': asset.status === 'MAINTENANCE',
+          'badge-info': asset.status !== 'IN_SERVICE' && asset.status !== 'MAINTENANCE'
+        }">{{ formatField(asset.status) }}</span>
+        <span class="badge" [ngClass]="{
+          'badge-warning': asset.criticality === 'MEDIUM' || asset.criticality === 'HIGH',
+          'badge-info': asset.criticality === 'LOW'
+        }" *ngIf="asset.criticality">{{ formatField(asset.criticality) }} Criticality</span>
+      </div>
+    </div>
   </div>
 
+  <!-- Status Messages -->
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
 
+  <!-- Loading State -->
   <div class="loading-overlay" *ngIf="isLoading && !assetLoaded">
     <div class="loader"></div>
     <span>Loading asset details...</span>
   </div>
 
-  <div *ngIf="asset" class="request-details">
-    <section class="detail-section">
-      <h2>Overview</h2>
-      <div class="detail-grid">
-        <div>
-          <span class="label">Asset ID</span>
-          <span class="value">{{ formatField(asset.assetId) }}</span>
+  <!-- Main Content -->
+  <div class="main-content" *ngIf="asset">
+    <div class="details-grid">
+      
+      <!-- Overview Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Overview</h2>
         </div>
-        <div>
-          <span class="label">Name</span>
-          <span class="value">{{ formatField(asset.assetName) }}</span>
-        </div>
-        <div>
-          <span class="label">Category</span>
-          <span class="value">{{ formatField(asset.assetCategory) }}</span>
-        </div>
-        <div>
-          <span class="label">Type</span>
-          <span class="value">{{ formatField(asset.assetType) }}</span>
-        </div>
-        <div>
-          <span class="label">Status</span>
-          <span class="value">{{ formatField(asset.status) }}</span>
-        </div>
-        <div>
-          <span class="label">Criticality</span>
-          <span class="value">{{ formatField(asset.criticality) }}</span>
-        </div>
-        <div>
-          <span class="label">Ownership</span>
-          <span class="value">{{ formatField(asset.ownership) }}</span>
-        </div>
-        <div>
-          <span class="label">Asset Tag</span>
-          <span class="value">{{ formatField(asset.assetTag) }}</span>
-        </div>
-        <div>
-          <span class="label">Description</span>
-          <span class="value">{{ formatField(asset.shortDescription) }}</span>
+        <div class="card-body">
+          <div class="field-grid">
+            <div class="field-group">
+              <div class="field-label">Asset ID</div>
+              <div class="field-value highlight">{{ formatField(asset.assetId) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Name</div>
+              <div class="field-value">{{ formatField(asset.assetName) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Category</div>
+              <div class="field-value">{{ formatField(asset.assetCategory) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Type</div>
+              <div class="field-value" [ngClass]="{'empty': !asset.assetType}">{{ formatField(asset.assetType) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Ownership</div>
+              <div class="field-value">{{ formatField(asset.ownership) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Asset Tag</div>
+              <div class="field-value" [ngClass]="{'empty': !asset.assetTag}">{{ formatField(asset.assetTag) }}</div>
+            </div>
+            <div class="field-group full-width">
+              <div class="field-label">Description</div>
+              <div class="field-value">{{ formatField(asset.shortDescription) }}</div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
 
-    <section class="detail-section" *ngIf="locationDetails">
-      <h2>Location</h2>
-      <div class="detail-grid">
-        <div>
-          <span class="label">Primary Location</span>
-          <span class="value">{{ formatField(locationDetails?.primaryLocation) }}</span>
+      <!-- Location Card -->
+      <div class="card" *ngIf="locationDetails">
+        <div class="card-header">
+          <h2 class="card-title">Location & Assignment</h2>
         </div>
-        <div>
-          <span class="label">Functional Location</span>
-          <span class="value">{{ formatField(locationDetails?.functionalLocation) }}</span>
-        </div>
-        <div>
-          <span class="label">Department</span>
-          <span class="value">{{ formatField(locationDetails?.department) }}</span>
-        </div>
-        <div>
-          <span class="label">Cost Center</span>
-          <span class="value">{{ formatField(locationDetails?.costCenter) }}</span>
-        </div>
-        <div>
-          <span class="label">Assigned Owner</span>
-          <span class="value">{{ formatField(locationDetails?.assignedOwner) }}</span>
-        </div>
-        <div>
-          <span class="label">Maintenance Team</span>
-          <span class="value">{{ formatField(locationDetails?.maintenanceTeam) }}</span>
+        <div class="card-body">
+          <div class="field-grid">
+            <div class="field-group">
+              <div class="field-label">Primary Location</div>
+              <div class="field-value" [ngClass]="{'empty': !locationDetails?.primaryLocation}">{{ formatField(locationDetails?.primaryLocation) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Functional Location</div>
+              <div class="field-value" [ngClass]="{'empty': !locationDetails?.functionalLocation}">{{ formatField(locationDetails?.functionalLocation) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Department</div>
+              <div class="field-value" [ngClass]="{'empty': !locationDetails?.department}">{{ formatField(locationDetails?.department) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Cost Center</div>
+              <div class="field-value" [ngClass]="{'empty': !locationDetails?.costCenter}">{{ formatField(locationDetails?.costCenter) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Assigned Owner</div>
+              <div class="field-value" [ngClass]="{'empty': !locationDetails?.assignedOwner}">{{ formatField(locationDetails?.assignedOwner) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Maintenance Team</div>
+              <div class="field-value" [ngClass]="{'empty': !locationDetails?.maintenanceTeam}">{{ formatField(locationDetails?.maintenanceTeam) }}</div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
 
-    <section class="detail-section" *ngIf="asset.technicalDetails">
-      <h2>Technical</h2>
-      <div class="detail-grid">
-        <div>
-          <span class="label">Manufacturer</span>
-          <span class="value">{{ formatField(asset.technicalDetails?.manufacturer) }}</span>
+      <!-- Technical Card -->
+      <div class="card" *ngIf="asset.technicalDetails">
+        <div class="card-header">
+          <h2 class="card-title">Technical Specifications</h2>
         </div>
-        <div>
-          <span class="label">Model</span>
-          <span class="value">{{ formatField(asset.technicalDetails?.model) }}</span>
-        </div>
-        <div>
-          <span class="label">Serial Number</span>
-          <span class="value">{{ formatField(asset.technicalDetails?.serialNumber) }}</span>
-        </div>
-        <div>
-          <span class="label">Year</span>
-          <span class="value">{{ formatField(asset.technicalDetails?.yearOfManufacture) }}</span>
-        </div>
-        <div>
-          <span class="label">Power Rating</span>
-          <span class="value">{{ formatField(asset.technicalDetails?.powerRating) }}</span>
-        </div>
-        <div>
-          <span class="label">Voltage</span>
-          <span class="value">{{ formatField(asset.technicalDetails?.voltage) }}</span>
-        </div>
-        <div>
-          <span class="label">Capacity</span>
-          <span class="value">{{ formatField(asset.technicalDetails?.capacity) }}</span>
+        <div class="card-body">
+          <table class="data-table">
+            <tr>
+              <td>Manufacturer</td>
+              <td>{{ formatField(asset.technicalDetails?.manufacturer) }}</td>
+            </tr>
+            <tr>
+              <td>Model</td>
+              <td>{{ formatField(asset.technicalDetails?.model) }}</td>
+            </tr>
+            <tr>
+              <td>Serial Number</td>
+              <td>{{ formatField(asset.technicalDetails?.serialNumber) }}</td>
+            </tr>
+            <tr>
+              <td>Year</td>
+              <td>{{ formatField(asset.technicalDetails?.yearOfManufacture) }}</td>
+            </tr>
+            <tr>
+              <td>Capacity</td>
+              <td><strong>{{ formatField(asset.technicalDetails?.capacity) }}</strong></td>
+            </tr>
+            <tr>
+              <td>Power Rating</td>
+              <td>{{ formatField(asset.technicalDetails?.powerRating) }}</td>
+            </tr>
+            <tr>
+              <td>Voltage</td>
+              <td>{{ formatField(asset.technicalDetails?.voltage) }}</td>
+            </tr>
+          </table>
         </div>
       </div>
-    </section>
 
-    <section class="detail-section" *ngIf="asset.financialDetails">
-      <h2>Financial</h2>
-      <div class="detail-grid">
-        <div>
-          <span class="label">Acquisition Date</span>
-          <span class="value">{{ formatDate(asset.financialDetails?.acquisitionDate) }}</span>
+      <!-- Financial Card -->
+      <div class="card" *ngIf="asset.financialDetails">
+        <div class="card-header">
+          <h2 class="card-title">Financial Information</h2>
         </div>
-        <div>
-          <span class="label">Acquisition Cost</span>
-          <span class="value">{{ formatField(asset.financialDetails?.acquisitionCost) }}</span>
-        </div>
-        <div>
-          <span class="label">Supplier</span>
-          <span class="value">{{ formatField(asset.financialDetails?.supplier) }}</span>
-        </div>
-        <div>
-          <span class="label">Invoice #</span>
-          <span class="value">{{ formatField(asset.financialDetails?.poInvoiceNumber) }}</span>
-        </div>
-        <div>
-          <span class="label">Book Value</span>
-          <span class="value">{{ formatField(asset.financialDetails?.currentBookValue) }}</span>
+        <div class="card-body">
+          <table class="data-table">
+            <tr>
+              <td>Acquisition Date</td>
+              <td>{{ formatDate(asset.financialDetails?.acquisitionDate) }}</td>
+            </tr>
+            <tr>
+              <td>Acquisition Cost</td>
+              <td><strong>{{ formatField(asset.financialDetails?.acquisitionCost) }}</strong></td>
+            </tr>
+            <tr>
+              <td>Supplier</td>
+              <td>{{ formatField(asset.financialDetails?.supplier) }}</td>
+            </tr>
+            <tr>
+              <td>Invoice #</td>
+              <td>{{ formatField(asset.financialDetails?.poInvoiceNumber) }}</td>
+            </tr>
+            <tr>
+              <td>Book Value</td>
+              <td [style.color]="!asset.financialDetails?.currentBookValue ? '#9ca3af' : 'inherit'">{{ formatField(asset.financialDetails?.currentBookValue) }}</td>
+            </tr>
+          </table>
         </div>
       </div>
-    </section>
 
-    <section class="detail-section" *ngIf="asset.warrantyLifecycle">
-      <h2>Warranty & Lifecycle</h2>
-      <div class="detail-grid">
-        <div>
-          <span class="label">Commissioning Date</span>
-          <span class="value">{{ formatDate(asset.warrantyLifecycle.commissioningDate) }}</span>
+      <!-- Warranty & Lifecycle Card -->
+      <div class="card full-width" *ngIf="asset.warrantyLifecycle">
+        <div class="card-header">
+          <h2 class="card-title">Warranty & Lifecycle</h2>
         </div>
-        <div>
-          <span class="label">Warranty Start</span>
-          <span class="value">{{ formatDate(asset.warrantyLifecycle.warrantyStart) }}</span>
-        </div>
-        <div>
-          <span class="label">Warranty End</span>
-          <span class="value">{{ formatDate(asset.warrantyLifecycle.warrantyEnd) }}</span>
-        </div>
-        <div>
-          <span class="label">Last Maintenance</span>
-          <span class="value">{{ formatDate(asset.warrantyLifecycle.lastMaintenanceDate) }}</span>
-        </div>
-        <div>
-          <span class="label">Next Maintenance</span>
-          <span class="value">{{ formatDate(asset.warrantyLifecycle.nextPlannedMaintenance) }}</span>
-        </div>
-        <div>
-          <span class="label">Planned Replacement</span>
-          <span class="value">{{ formatDate(asset.warrantyLifecycle.plannedReplacementDate) }}</span>
+        <div class="card-body">
+          <div class="field-grid field-grid-3">
+            <div class="field-group">
+              <div class="field-label">Commissioning Date</div>
+              <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.commissioningDate) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Warranty Start</div>
+              <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.warrantyStart) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Warranty End</div>
+              <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.warrantyEnd) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Last Maintenance</div>
+              <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.lastMaintenanceDate) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Next Maintenance</div>
+              <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.nextPlannedMaintenance) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Planned Replacement</div>
+              <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.plannedReplacementDate) }}</div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
 
-    <section class="detail-section" *ngIf="asset.safetyOperations">
-      <h2>Safety & Operations</h2>
-      <div class="detail-grid">
-        <div>
-          <span class="label">Safety Critical</span>
-          <span class="value">{{ formatBoolean(asset.safetyOperations?.safetyCritical) }}</span>
+      <!-- Safety & Operations Card -->
+      <div class="card full-width" *ngIf="asset.safetyOperations">
+        <div class="card-header">
+          <h2 class="card-title">Safety & Operations</h2>
         </div>
-        <div>
-          <span class="label">Safety Notes</span>
-          <span class="value">{{ formatField(asset.safetyOperations?.safetyNotes) }}</span>
+        <div class="card-body" *ngIf="asset.safetyOperations?.safetyCritical || asset.safetyOperations?.safetyNotes || asset.safetyOperations?.operatingInstructions; else noSafetyData">
+          <div class="field-grid">
+            <div class="field-group">
+              <div class="field-label">Safety Critical</div>
+              <div class="field-value">{{ formatBoolean(asset.safetyOperations?.safetyCritical) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Safety Notes</div>
+              <div class="field-value" [ngClass]="{'empty': !asset.safetyOperations?.safetyNotes}">{{ formatField(asset.safetyOperations?.safetyNotes) }}</div>
+            </div>
+            <div class="field-group full-width">
+              <div class="field-label">Operating Instructions</div>
+              <div class="field-value" [ngClass]="{'empty': !asset.safetyOperations?.operatingInstructions}">{{ formatField(asset.safetyOperations?.operatingInstructions) }}</div>
+            </div>
+          </div>
         </div>
-        <div>
-          <span class="label">Operating Instructions</span>
-          <span class="value">{{ formatField(asset.safetyOperations?.operatingInstructions) }}</span>
-        </div>
+        <ng-template #noSafetyData>
+          <div class="empty-state">
+            No safety and operations data available
+          </div>
+        </ng-template>
       </div>
-    </section>
+
+    </div>
   </div>
 </div>
