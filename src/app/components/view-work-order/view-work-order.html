@@ -293,6 +293,10 @@
             <div class="planned-materials-header">
               <span class="label">Labor Entries</span>
             </div>
+            <div class="planned-material-row header-row" *ngIf="completeForm.laborEntries?.length">
+              <span class="value heading">Technician Name</span>
+              <span class="value heading">Total Working Hours</span>
+            </div>
             <div *ngIf="completeForm.laborEntries?.length; else noLaborEntries" class="planned-materials-list">
               <div class="planned-material-row readonly" *ngFor="let lab of completeForm.laborEntries">
                 <span class="value">

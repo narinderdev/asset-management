@@ -307,6 +307,21 @@
   background: #f3f4f6;
 }
 
+.planned-material-row.header-row {
+  grid-template-columns: 1.5fr 1fr;
+  background: transparent;
+  border: none;
+  padding: 0 2px 4px;
+}
+
+.planned-material-row .heading {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #6b7280;
+  letter-spacing: 0.02em;
+}
+
 .remove-btn {
   background: transparent;
   border: none;
