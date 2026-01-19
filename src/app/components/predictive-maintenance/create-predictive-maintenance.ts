@@ -151,9 +151,12 @@ export class CreatePredictiveMaintenanceComponent implements OnInit {
             this.cdr.detectChanges();
           }
         },
-        error: () => {
-          this.errorMessage = this.isEditMode ? 'Unable to update predictive maintenance threshold. Please try again.' : 'Unable to save predictive maintenance threshold. Please try again.';
-          this.toastr.error(this.errorMessage);
+        error: err => {
+          const apiMessage = err?.error?.message || err?.message;
+          this.errorMessage = apiMessage || (this.isEditMode
+            ? 'Unable to update predictive maintenance threshold. Please try again.'
+            : 'Unable to save predictive maintenance threshold. Please try again.');
+          // Do not fire an extra toast here; API/global interceptor already surfaces the server error.
         }
       });
   }

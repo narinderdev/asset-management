@@ -1,68 +1,148 @@
-<div class="view-wrapper">
-  <div class="view-header">
-    <button class="back-btn" type="button" (click)="goBack()">&larr;</button>
-    <h2>Predictive Maintenance Details</h2>
-  </div>
-
-  <div class="status-message" *ngIf="errorMessage && !threshold">{{ errorMessage }}</div>
-  <div class="status-message info" *ngIf="isLoading">Loading predictive maintenance details...</div>
-
-  <div class="details-grid" *ngIf="threshold && !isLoading">
-    <div class="detail-item">
-      <span class="label">Asset</span>
-      <span class="value">{{ threshold.assetName || ('Asset ' + threshold.assetId) }}</span>
-    </div>
-    <div class="detail-item">
-      <span class="label">Meter Type</span>
-      <span class="value">{{ threshold.meterType }}</span>
-    </div>
-    <div class="detail-item">
-      <span class="label">Warning Threshold</span>
-      <span class="value">{{ threshold.warningThreshold }}</span>
-    </div>
-    <div class="detail-item">
-      <span class="label">Critical Threshold</span>
-      <span class="value">{{ threshold.criticalThreshold }}</span>
-    </div>
-    <div class="detail-item">
-      <span class="label">Auto Create WO</span>
-      <span class="value">{{ threshold.autoCreateWo ? 'Yes' : 'No' }}</span>
-    </div>
-    <div class="detail-item">
-      <span class="label">Default Priority</span>
-      <span class="value">{{ threshold.defaultPriority }}</span>
-    </div>
-    <div class="detail-item">
-      <span class="label">Cooldown Hours</span>
-      <span class="value">{{ threshold.cooldownHours }}</span>
-    </div>
-    <div class="detail-item">
-      <span class="label">Last Triggered Severity</span>
-      <span class="value">{{ threshold.lastTriggeredSeverity || 'N/A' }}</span>
+<div class="view-asset-page">
+  <div class="view-asset-header">
+    <button class="back-btn" type="button" (click)="goBack()">
+      <span aria-hidden="true">&larr;</span>
+      Back to predictive maintenance
+    </button>
+    <div class="header-actions">
+      <h1>Predictive Maintenance Details</h1>
+      <button class="btn primary" type="button" (click)="openMeterModal()" [disabled]="!threshold">
+        + Add Meter Reading
+      </button>
     </div>
   </div>
 
-  <div class="readings-section" *ngIf="threshold?.meterReadings?.length">
-    <h3>Meter Readings</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Reading</th>
-          <th>Type</th>
-          <th>Time</th>
-          <th>Severity</th>
-          <th>Notes</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let reading of threshold.meterReadings">
-          <td>{{ reading.readingValue }}</td>
-          <td>{{ reading.meterType }}</td>
-          <td>{{ reading.readingTime | date:'medium' }}</td>
-          <td>{{ reading.severity || 'N/A' }}</td>
-          <td>{{ reading.notes || 'N/A' }}</td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="status-message" *ngIf="errorMessage && !isLoading && !threshold">{{ errorMessage }}</div>
+
+  <div class="loading-overlay" *ngIf="isLoading && !threshold">
+    <div class="loader"></div>
+    <span>Loading predictive maintenance...</span>
+  </div>
+
+  <div *ngIf="threshold" class="request-details">
+    <section class="detail-section">
+      <h2>Overview</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Asset</span>
+          <span class="value">{{ threshold.assetName || ('Asset ' + threshold.assetId) }}</span>
+        </div>
+        <div>
+          <span class="label">Meter Type</span>
+          <span class="value">{{ threshold.meterType || 'N/A' }}</span>
+        </div>
+        <div>
+          <span class="label">Default Priority</span>
+          <span class="value">{{ threshold.defaultPriority || 'N/A' }}</span>
+        </div>
+        <div>
+          <span class="label">Auto Create WO</span>
+          <span class="value">{{ threshold.autoCreateWo ? 'Yes' : 'No' }}</span>
+        </div>
+        <div>
+          <span class="label">Cooldown Hours</span>
+          <span class="value">{{ threshold.cooldownHours ?? 'N/A' }}</span>
+        </div>
+        <div>
+          <span class="label">Last Triggered Severity</span>
+          <span class="value">{{ threshold.lastTriggeredSeverity || 'N/A' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h2>Thresholds</h2>
+      <div class="detail-grid">
+        <div>
+          <span class="label">Warning Threshold</span>
+          <span class="value">{{ threshold.warningThreshold ?? 'N/A' }}</span>
+        </div>
+        <div>
+          <span class="label">Critical Threshold</span>
+          <span class="value">{{ threshold.criticalThreshold ?? 'N/A' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="detail-section" *ngIf="threshold?.meterReadings?.length">
+      <h2>Meter Readings</h2>
+      <div class="table-wrapper compact">
+        <table>
+          <thead>
+            <tr>
+              <th>Reading</th>
+              <th>Type</th>
+              <th>Time</th>
+              <th>Severity</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let reading of threshold.meterReadings">
+              <td>{{ reading.readingValue }}</td>
+              <td>{{ reading.meterType }}</td>
+              <td>{{ reading.readingTime | date:'medium' }}</td>
+              <td>{{ reading.severity || 'N/A' }}</td>
+              <td>{{ reading.notes || 'N/A' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="meterModalOpen">
+    <div class="modal">
+      <header class="modal-header">
+        <h3>Enter Meter Reading</h3>
+      </header>
+
+      <div class="modal-grid">
+        <label class="field">
+          <span>Asset</span>
+          <input type="text" [value]="threshold?.assetName || ('Asset ' + threshold?.assetId)" disabled />
+        </label>
+
+        <label class="field">
+          <span>Meter Type</span>
+          <input type="text" [value]="threshold?.meterType" disabled />
+        </label>
+
+        <label class="field">
+          <span>Reading *</span>
+          <input
+            type="number"
+            name="meterReadingValue"
+            [(ngModel)]="meterReadingForm.readingValue"
+            placeholder="00"
+            required
+          />
+        </label>
+
+        <label class="field">
+          <span>Reading Time</span>
+          <input
+            type="datetime-local"
+            name="meterReadingTime"
+            [(ngModel)]="meterReadingForm.readingTime"
+          />
+        </label>
+
+        <label class="field modal-notes">
+          <span>Notes (optional)</span>
+          <textarea
+            name="meterNotes"
+            [(ngModel)]="meterReadingForm.notes"
+            placeholder="Optional note"
+            rows="3"
+          ></textarea>
+        </label>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" (click)="closeMeterModal()">Cancel</button>
+        <button type="button" class="btn primary" (click)="submitMeterReading()">Save &amp; Submit</button>
+      </div>
+    </div>
   </div>
 </div>

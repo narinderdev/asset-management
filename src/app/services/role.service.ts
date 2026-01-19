@@ -32,6 +32,7 @@ export interface CreateRolePayload {
   name: string;
   description: string;
   permissionCodes: string[];
+  technicianRole: boolean;
 }
 
 export interface PermissionResponseModule {

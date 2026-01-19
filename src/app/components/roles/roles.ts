@@ -41,7 +41,8 @@ export class RolesComponent implements OnInit {
     this.addRoleForm = this.fb.group({
       name: [''],
       description: [''],
-      permissions: [[]]
+      permissions: [[]],
+      technicianRole: [false]
     });
   }
 
@@ -158,7 +159,8 @@ export class RolesComponent implements OnInit {
     const payload: CreateRolePayload = {
       name: formValue.name || '',
       description: formValue.description || '',
-      permissionCodes: Array.isArray(formValue.permissions) ? formValue.permissions : []
+      permissionCodes: Array.isArray(formValue.permissions) ? formValue.permissions : [],
+      technicianRole: !!formValue.technicianRole
     };
     this.isSaving = true;
     this.roleService
