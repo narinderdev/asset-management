@@ -1,221 +1,260 @@
 <div class="view-request-page">
-  <div class="page-header">
-    <div class="title-row">
-      <button class="back-btn" type="button" aria-label="Back to service requests" (click)="goBack()">
-        <span aria-hidden="true">←</span>
-      </button>
-      <h1>Service Request Details</h1>
-    </div>
-    <div
-      class="action-buttons"
-      *ngIf="request && (isStatusNew(request.status) || isStatusApproved(request.status))"
-    >
-      <ng-container *ngIf="isStatusNew(request.status)">
-        <button class="btn-accept" type="button" (click)="onAccept()">
-          <span class="btn-icon">✓</span>
-          Accept
-        </button>
-        <button class="btn-reject" type="button" (click)="onReject()">
-          <span class="btn-icon">✕</span>
-          Reject
-        </button>
-      </ng-container>
+  <!-- Header -->
+  <div class="header">
+    <button class="back-button" type="button" aria-label="Back to service requests" (click)="goBack()">
+      ← Back to service requests
+    </button>
+    
+    <div class="header-content" *ngIf="request">
+      <div class="title-section">
+        <h1>{{ request.shortTitle || 'Service Request Details' }}</h1>
+        <div class="request-meta">
+          <span class="request-id">{{ request.requestId ?? request.id ?? '-' }}</span>
+          <span *ngIf="request.requestDate">•</span>
+          <span *ngIf="request.requestDate">{{ formatDate(request.requestDate) }}</span>
+        </div>
+      </div>
 
-      <button
-        class="btn-convert"
-        type="button"
-        *ngIf="isStatusApproved(request.status)"
-        (click)="showConvertModal = true"
-        [disabled]="isActionProcessing"
-      >
-        Convert to Work Order
-      </button>
+      <div class="header-actions">
+        <div class="status-badges">
+          <span class="badge" [ngClass]="{
+            'badge-warning': request.priority === 'HIGH' || request.priority === 'CRITICAL' || request.priority === 'MEDIUM',
+            'badge-info': request.priority === 'LOW'
+          }" *ngIf="request.priority">{{ request.priority }}</span>
+          
+          <span class="badge" [ngClass]="{
+            'badge-success': request.status?.toLowerCase() === 'approved' || request.status?.toLowerCase() === 'completed',
+            'badge-warning': request.status?.toLowerCase() === 'pending' || request.status?.toLowerCase() === 'in progress' || request.status?.toLowerCase() === 'in-progress',
+            'badge-info': request.status?.toLowerCase() === 'new' || request.status?.toLowerCase() === 'under review',
+            'badge-danger': request.status?.toLowerCase() === 'rejected'
+          }">{{ formatStatus(request.status) }}</span>
+        </div>
+
+        <div class="action-buttons" *ngIf="isStatusNew(request.status) || isStatusApproved(request.status)">
+          <ng-container *ngIf="isStatusNew(request.status)">
+            <button class="btn-accept" type="button" (click)="onAccept()">
+              ✓ Accept
+            </button>
+            <button class="btn-reject" type="button" (click)="onReject()">
+              ✕ Reject
+            </button>
+          </ng-container>
+
+          <button
+            class="btn-convert"
+            type="button"
+            *ngIf="isStatusApproved(request.status)"
+            (click)="showConvertModal = true"
+            [disabled]="isActionProcessing"
+          >
+            Convert to Work Order
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- Status Messages -->
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
 
+  <!-- Loading State -->
   <div class="loading-overlay" *ngIf="isLoading && !requestLoaded">
     <div class="loader"></div>
     <span>Loading details...</span>
   </div>
 
-  <div *ngIf="request" class="request-details">
-    <!-- Overview Section -->
-    <section class="card">
-      <h2>Overview</h2>
-      <div class="overview-grid">
-        <div class="grid-item">
-          <span class="label">Request ID</span>
-          <span class="value">{{ request.requestId ?? request.id ?? '-' }}</span>
+  <!-- Main Content -->
+  <div class="main-content" *ngIf="request">
+    <div class="details-grid">
+      
+      <!-- Overview Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Overview</h2>
         </div>
-        <div class="grid-item">
-          <span class="label">Title</span>
-          <span class="value">{{ request.shortTitle ?? '-' }}</span>
-        </div>
-        <div class="grid-item">
-          <span class="label">Requester</span>
-          <span class="value">{{ request.requesterName ?? '-' }}</span>
-        </div>
-        <div class="grid-item">
-          <span class="label">Requester Contact</span>
-          <span class="value">{{ request.requesterContact ?? '-' }}</span>
-        </div>
-        
-        <div class="grid-item">
-          <span class="label">Location</span>
-          <span class="value">{{ request.location ?? '-' }}</span>
-        </div>
-        <div class="grid-item">
-          <span class="label">Date</span>
-          <span class="value">{{ formatDate(request.requestDate) }}</span>
-        </div>
-        <div class="grid-item">
-          <span class="label">Maintenance Type</span>
-          <span class="value">{{ request.maintenanceType ?? '-' }}</span>
-        </div>
-        <div class="grid-item empty-cell"></div>
-        
-        <div class="grid-item">
-          <span class="label">Priority</span>
-          <span class="value">{{ request.priority ?? '-' }}</span>
-        </div>
-        <div class="grid-item">
-          <span class="label">Status</span>
-          <span class="value status-badge" 
-                [ngClass]="{
-                  'status-rejected': request.status?.toLowerCase() === 'rejected',
-                  'status-pending': request.status?.toLowerCase() === 'pending',
-                  'status-approved': request.status?.toLowerCase() === 'approved',
-                  'status-in-progress': request.status?.toLowerCase() === 'in progress' || request.status?.toLowerCase() === 'in-progress',
-                  'status-completed': request.status?.toLowerCase() === 'completed'
-                }">
-            {{ formatStatus(request.status) }}
-          </span>
+        <div class="card-body">
+          <div class="field-grid field-grid-4">
+            <div class="field-group">
+              <div class="field-label">Request ID</div>
+              <div class="field-value highlight">{{ request.requestId ?? request.id ?? '-' }}</div>
+            </div>
+            <div class="field-group span-2">
+              <div class="field-label">Title</div>
+              <div class="field-value">{{ request.shortTitle ?? '-' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Date</div>
+              <div class="field-value">{{ formatDate(request.requestDate) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Requester</div>
+              <div class="field-value">{{ request.requesterName ?? '-' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Requester Contact</div>
+              <div class="field-value">{{ request.requesterContact ?? '-' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Location</div>
+              <div class="field-value">{{ request.location ?? '-' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Maintenance Type</div>
+              <div class="field-value">{{ request.maintenanceType ?? '-' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Priority</div>
+              <div class="field-value">{{ request.priority ?? '-' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Status</div>
+              <div class="field-value">{{ formatStatus(request.status) }}</div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- Assignment Section -->
-    <section class="card">
-      <h2>Assignment</h2>
-      <div class="assignment-grid">
-        <div class="grid-item">
-          <span class="label">Asset</span>
-          <span class="value">{{ request.assetName ?? request.assetId ?? '-' }}</span>
+      <!-- Assignment Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Assignment</h2>
         </div>
-        <div class="grid-item">
-          <span class="label">Assigned Technician</span>
-          <span class="value">{{ request.assignedTechnician ?? '-' }}</span>
-        </div>
-        <div class="grid-item">
-          <span class="label">Work Order</span>
-          <span class="value">{{ request.workOrderId ?? '-' }}</span>
-        </div>
-        
-        <div class="grid-item">
-          <span class="label">Department</span>
-          <span class="value">{{ request.department ?? '-' }}</span>
-        </div>
-        <div class="grid-item">
-          <span class="label">Maintenance Team</span>
-          <span class="value">{{ request.maintenanceTeam ?? '-' }}</span>
+        <div class="card-body">
+          <div class="field-grid field-grid-3">
+            <div class="field-group">
+              <div class="field-label">Asset</div>
+              <div class="field-value" [ngClass]="{'empty': !request.assetName && !request.assetId}">{{ request.assetName ?? request.assetId ?? '-' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Assigned Technician</div>
+              <div class="field-value" [ngClass]="{'empty': !request.assignedTechnician}">{{ request.assignedTechnician ?? '-' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Work Order</div>
+              <div class="field-value" [ngClass]="{'empty': !request.workOrderId}">{{ request.workOrderId ?? '-' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Department</div>
+              <div class="field-value" [ngClass]="{'empty': !request.department}">{{ request.department ?? '-' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Maintenance Team</div>
+              <div class="field-value" [ngClass]="{'empty': !request.maintenanceTeam}">{{ request.maintenanceTeam ?? '-' }}</div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- Service Details Section -->
-    <section class="card">
-      <h2>Service Details</h2>
-      <div class="service-details-grid">
-        <div class="grid-item full-width">
-          <span class="label">Problem Description</span>
-          <span class="value">{{ request.problemDescription ?? '-' }}</span>
+      <!-- Service Details Card -->
+      <div class="card full-width">
+        <div class="card-header">
+          <h2 class="card-title">Service Details</h2>
         </div>
-        
-        <div class="grid-item">
-          <span class="label">Preferred Date</span>
-          <span class="value">{{ formatDate(request.preferredDate) }}</span>
-        </div>
-        <div class="grid-item">
-          <span class="label">Preferred Time</span>
-          <span class="value">{{ request.preferredTime ?? '-' }}</span>
-        </div>
-        <div class="grid-item">
-          <span class="label">Safety Risk</span>
-          <span class="value">
-            {{ request.safetyRisk === undefined ? '-' : (request.safetyRisk ? 'Yes' : 'No') }}
-          </span>
+        <div class="card-body">
+          <div class="field-grid field-grid-3">
+            <div class="field-group full-width">
+              <div class="field-label">Problem Description</div>
+              <div class="field-value" [ngClass]="{'empty': !request.problemDescription}">{{ request.problemDescription ?? '-' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Preferred Date</div>
+              <div class="field-value">{{ formatDate(request.preferredDate) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Preferred Time</div>
+              <div class="field-value" [ngClass]="{'empty': !request.preferredTime}">{{ request.preferredTime ?? '-' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Safety Risk</div>
+              <div class="field-value">
+                {{ request.safetyRisk === undefined ? '-' : (request.safetyRisk ? 'Yes' : 'No') }}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- Schedule Section -->
-    <section class="card">
-      <h2>Schedule</h2>
-      <div class="schedule-grid">
-        <div class="grid-item">
-          <span class="label">Scheduled Start</span>
-          <span class="value">{{ request.scheduledStart ? formatDate(request.scheduledStart) : '-' }}</span>
+      <!-- Schedule Card -->
+      <div class="card full-width">
+        <div class="card-header">
+          <h2 class="card-title">Schedule</h2>
         </div>
-        <div class="grid-item">
-          <span class="label">Target Completion</span>
-          <span class="value">{{ request.targetCompletionDate ? formatDate(request.targetCompletionDate) : '-' }}</span>
-        </div>
-        <div class="grid-item">
-          <span class="label">Due Date</span>
-          <span class="value">{{ request.dueDate ? formatDate(request.dueDate) : '-' }}</span>
+        <div class="card-body">
+          <div class="field-grid field-grid-3">
+            <div class="field-group">
+              <div class="field-label">Scheduled Start</div>
+              <div class="field-value" [ngClass]="{'empty': !request.scheduledStart}">{{ request.scheduledStart ? formatDate(request.scheduledStart) : '-' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Target Completion</div>
+              <div class="field-value" [ngClass]="{'empty': !request.targetCompletionDate}">{{ request.targetCompletionDate ? formatDate(request.targetCompletionDate) : '-' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Due Date</div>
+              <div class="field-value" [ngClass]="{'empty': !request.dueDate}">{{ request.dueDate ? formatDate(request.dueDate) : '-' }}</div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
+
+    </div>
   </div>
 
   <!-- Accept Modal -->
-  <div class="modal-backdrop" *ngIf="showAcceptModal">
-    <div class="confirm-modal">
-      <div class="modal-icon success">✓</div>
-      <h3>Accept Service Request?</h3>
-      <p>Are you sure you want to accept {{ request?.requestId || 'this service request' }}?</p>
+  <div class="modal-backdrop" *ngIf="showAcceptModal" (click)="closeModals()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-icon success">✓</div>
+        <h3>Accept Service Request</h3>
+        <p>Are you sure you want to accept {{ request?.requestId || 'this service request' }}?</p>
+      </div>
       <div class="modal-actions">
         <button class="btn-secondary" type="button" (click)="closeModals()" [disabled]="isActionProcessing">
           Cancel
         </button>
         <button class="btn-success" type="button" (click)="confirmAccept()" [disabled]="isActionProcessing">
-          Save Changes
+          <span *ngIf="!isActionProcessing">Accept Request</span>
+          <span *ngIf="isActionProcessing">Processing...</span>
         </button>
       </div>
     </div>
   </div>
 
   <!-- Reject Modal -->
-  <div class="modal-backdrop" *ngIf="showRejectModal">
-    <div class="confirm-modal">
-      <div class="modal-icon danger">✕</div>
-      <h3>Reject Service Request?</h3>
-      <p>Are you sure you want to reject {{ request?.requestId || 'this service request' }}?</p>
+  <div class="modal-backdrop" *ngIf="showRejectModal" (click)="closeModals()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-icon danger">✕</div>
+        <h3>Reject Service Request</h3>
+        <p>Are you sure you want to reject {{ request?.requestId || 'this service request' }}?</p>
+      </div>
       <div class="modal-actions">
         <button class="btn-secondary" type="button" (click)="closeModals()" [disabled]="isActionProcessing">
           Cancel
         </button>
         <button class="btn-danger" type="button" (click)="confirmReject()" [disabled]="isActionProcessing">
-          Save Changes
+          <span *ngIf="!isActionProcessing">Reject Request</span>
+          <span *ngIf="isActionProcessing">Processing...</span>
         </button>
       </div>
     </div>
   </div>
 
   <!-- Convert Modal -->
-  <div class="modal-backdrop" *ngIf="showConvertModal">
-    <div class="confirm-modal">
-      <div class="modal-icon info">↻</div>
-      <h3>Convert to Work Order?</h3>
-      <p>Do you want to convert {{ request?.requestId || 'this service request' }} to a work order?</p>
+  <div class="modal-backdrop" *ngIf="showConvertModal" (click)="closeModals()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-icon info">↻</div>
+        <h3>Convert to Work Order</h3>
+        <p>Do you want to convert {{ request?.requestId || 'this service request' }} to a work order?</p>
+      </div>
       <div class="modal-actions">
         <button class="btn-secondary" type="button" (click)="closeModals()" [disabled]="isActionProcessing">
-          No
+          Cancel
         </button>
         <button class="btn-primary" type="button" (click)="onConvert()" [disabled]="isActionProcessing">
-          Yes, Convert
+          <span *ngIf="!isActionProcessing">Convert to Work Order</span>
+          <span *ngIf="isActionProcessing">Converting...</span>
         </button>
       </div>
     </div>

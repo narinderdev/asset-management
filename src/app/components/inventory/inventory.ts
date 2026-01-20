@@ -122,7 +122,7 @@ export class InventoryComponent implements OnInit {
     return 'In Stock';
   }
 
-  addVendor(): void {
+  addInventoryItem(): void {
     if (!this.canCreateInventory) {
       return;
     }

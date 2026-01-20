@@ -49,9 +49,7 @@ export class AssetsComponent implements OnInit {
   assets: Asset[] = [];
   filteredAssets: Asset[] = [];
 
-  filterAssetId = '';
   filterAssetName = '';
-  filterCategory = '';
 
   totalAssets = 0;
   currentPage = 1;
@@ -168,16 +166,10 @@ export class AssetsComponent implements OnInit {
     const filterText = (value: string) => value.toLowerCase();
 
     this.filteredAssets = this.assets.filter(asset => {
-      const matchesAssetId = !this.filterAssetId ||
-        filterText(asset.assetId).includes(filterText(this.filterAssetId));
-
       const matchesAssetName = !this.filterAssetName ||
         filterText(asset.assetName).includes(filterText(this.filterAssetName));
 
-      const matchesCategory = !this.filterCategory ||
-        filterText(asset.category).includes(filterText(this.filterCategory));
-
-      return matchesAssetId && matchesAssetName && matchesCategory;
+      return matchesAssetName;
     });
   }
 
@@ -186,9 +178,7 @@ export class AssetsComponent implements OnInit {
   }
 
   refreshAssets(): void {
-    this.filterAssetId = '';
     this.filterAssetName = '';
-    this.filterCategory = '';
     this.currentPage = 1;
     this.loadAssets();
   }

@@ -5,7 +5,7 @@
   box-sizing: border-box;
 }
 
-.view-inventory-page {
+.view-team-page {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: #f8f9fa;
   color: #1a1a1a;
@@ -55,7 +55,7 @@
   letter-spacing: -0.02em;
 }
 
-.inventory-meta {
+.team-meta {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -63,8 +63,7 @@
   font-size: 14px;
 }
 
-.item-id {
-  font-family: 'Courier New', monospace;
+.member-count {
   font-weight: 500;
 }
 
@@ -186,25 +185,14 @@
 /* Field Grid */
 .field-grid {
   display: grid;
-  gap: 24px 32px;
-}
-
-.field-grid-2 {
   grid-template-columns: repeat(2, 1fr);
-}
-
-.field-grid-3 {
-  grid-template-columns: repeat(3, 1fr);
+  gap: 24px 32px;
 }
 
 .field-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-
-.field-group.span-2 {
-  grid-column: span 2;
 }
 
 .field-group.full-width {
@@ -235,77 +223,159 @@
   font-weight: 600;
 }
 
-.cost-value {
-  font-size: 18px;
-  font-weight: 600;
-  color: #059669;
+/* Description and Notes Content */
+.description-content,
+.notes-content {
+  line-height: 1.7;
+  white-space: pre-wrap;
+  padding: 12px 16px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
 }
 
-/* Stock Indicator */
-.stock-summary {
+.description-content.empty {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+/* Full Width Cards */
+.card.full-width {
+  grid-column: 1 / -1;
+}
+
+/* Members Grid */
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+/* Member Card */
+.member-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.2s ease;
+}
+
+.member-card:hover {
+  background: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+.member-header {
   display: flex;
-  justify-content: center;
-  margin-bottom: 24px;
-  padding-bottom: 24px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
   border-bottom: 1px solid #e5e7eb;
 }
 
-.stock-indicator {
+.member-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.member-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.member-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-role {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.member-details {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 24px 40px;
-  border-radius: 12px;
-  background: #f9fafb;
-  border: 2px solid #e5e7eb;
+  gap: 12px;
 }
 
-.stock-indicator.stock-low {
-  background: #fef3c7;
-  border-color: #fbbf24;
+.member-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.stock-indicator.stock-normal {
-  background: #ecfdf5;
-  border-color: #10b981;
-}
-
-.stock-indicator.stock-high {
-  background: #eff6ff;
-  border-color: #3b82f6;
-}
-
-.stock-value {
-  font-size: 48px;
-  font-weight: 700;
-  color: #111827;
-  line-height: 1;
-}
-
-.stock-indicator.stock-low .stock-value {
-  color: #d97706;
-}
-
-.stock-indicator.stock-normal .stock-value {
-  color: #059669;
-}
-
-.stock-indicator.stock-high .stock-value {
-  color: #2563eb;
-}
-
-.stock-label {
-  font-size: 13px;
+.detail-label {
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #6b7280;
 }
 
-/* Full Width Cards */
-.card.full-width {
-  grid-column: 1 / -1;
+.detail-badge {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  display: inline-block;
+  width: fit-content;
+}
+
+.detail-link {
+  font-size: 13px;
+  color: #2563eb;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.detail-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 20px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  opacity: 0.3;
+}
+
+.empty-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.empty-subtext {
+  font-size: 14px;
+  color: #9ca3af;
 }
 
 /* Responsive Design */
@@ -314,12 +384,8 @@
     grid-template-columns: 1fr;
   }
 
-  .field-grid-3 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .field-group.span-2 {
-    grid-column: span 2;
+  .members-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
 }
 
@@ -354,12 +420,10 @@
     font-size: 24px;
   }
 
-  .field-grid-2,
-  .field-grid-3 {
+  .field-grid {
     grid-template-columns: 1fr;
   }
 
-  .field-group.span-2,
   .field-group.full-width {
     grid-column: span 1;
   }
@@ -372,12 +436,8 @@
     padding: 20px;
   }
 
-  .stock-indicator {
-    padding: 20px 32px;
-  }
-
-  .stock-value {
-    font-size: 40px;
+  .members-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -398,22 +458,24 @@
     font-size: 20px;
   }
 
-  .inventory-meta {
+  .team-meta {
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
   }
 
-  .stock-indicator {
-    padding: 16px 24px;
+  .member-card {
+    padding: 16px;
   }
 
-  .stock-value {
-    font-size: 36px;
+  .member-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
   }
 
-  .cost-value {
-    font-size: 16px;
+  .member-name {
+    font-size: 15px;
   }
 }
 
@@ -428,6 +490,11 @@
   }
 
   .card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .member-card {
     break-inside: avoid;
     page-break-inside: avoid;
   }

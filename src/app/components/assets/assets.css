@@ -80,6 +80,7 @@
   display: flex;
   gap: 12px;
   align-items: center;
+  max-width: 420px;
 }
 
 .filter-input {

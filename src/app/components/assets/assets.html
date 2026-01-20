@@ -23,28 +23,13 @@
 
   <!-- Filter Section -->
   <div class="filter-section">
-    <div class="filter-inputs">
-      <input 
-        type="text" 
-        class="filter-input" 
-        placeholder="Asset ID"
-        [(ngModel)]="filterAssetId"
-        (input)="applyFilters()">
-      
+    <div class="filter-inputs single-filter">
       <input 
         type="text" 
         class="filter-input" 
         placeholder="Asset Name"
         [(ngModel)]="filterAssetName"
         (input)="applyFilters()">
-      
-      <input 
-        type="text" 
-        class="filter-input" 
-        placeholder="Category"
-        [(ngModel)]="filterCategory"
-        (input)="applyFilters()">
-      
       <button class="search-btn" (click)="searchAssets()">
         Search
       </button>

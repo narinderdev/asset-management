@@ -5,15 +5,36 @@ import { finalize } from 'rxjs/operators';
 import { PmTemplateService } from '../../services/pm-template.service';
 import { FormsModule } from '@angular/forms';
 
+type PredictiveThreshold = {
+  id?: number;
+  assetId?: number;
+  assetName?: string;
+  meterType?: string;
+  warningThreshold?: number;
+  criticalThreshold?: number;
+  autoCreateWo?: boolean;
+  defaultPriority?: string;
+  cooldownHours?: number;
+  lastTriggeredSeverity?: string;
+  meterReadings?: Array<{
+    id?: number;
+    meterType?: string;
+    readingValue?: number;
+    readingTime?: string;
+    severity?: string;
+    notes?: string;
+  }>;
+};
+
 @Component({
   selector: 'app-view-predictive-maintenance',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './view-predictive-maintenance.html',
-  styleUrls: ['../preventive-maintenance/view-preventive-maintenance.css']
+  styleUrls: ['./view-predictive-maintenance.css']
 })
 export class ViewPredictiveMaintenanceComponent implements OnInit {
-  threshold?: any;
+  threshold?: PredictiveThreshold;
   isLoading = false;
   errorMessage?: string;
   meterModalOpen = false;
@@ -124,5 +145,17 @@ export class ViewPredictiveMaintenanceComponent implements OnInit {
         // keep modal open; could add inline error display if desired
       }
     });
+  }
+
+  prettify(value?: string): string {
+    if (!value) {
+      return 'N/A';
+    }
+
+    return value
+      .toLowerCase()
+      .split('_')
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
   }
 }

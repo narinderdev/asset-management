@@ -1,96 +1,153 @@
-<div class="view-asset-page">
-  <div class="view-asset-header">
-    <button class="back-btn" (click)="goBack()" type="button">
-      <span aria-hidden="true">&larr;</span>
-      Back to inventory
+<div class="view-inventory-page">
+  <!-- Header -->
+  <div class="header">
+    <button class="back-button" type="button" aria-label="Back to inventory" (click)="goBack()">
+      ← Back to inventory
     </button>
-    <h1>Inventory Item Details</h1>
+    
+    <div class="header-content" *ngIf="inventoryItem">
+      <div class="title-section">
+        <h1>{{ inventoryItem.itemName || 'Inventory Item Details' }}</h1>
+        <div class="inventory-meta">
+          <span class="item-id">{{ inventoryItem.itemId ?? '—' }}</span>
+          <span *ngIf="inventoryItem.category">•</span>
+          <span *ngIf="inventoryItem.category">{{ inventoryItem.category }}</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="status-badges">
+          <span class="badge" [ngClass]="{
+            'badge-success': inventoryItem.active,
+            'badge-info': !inventoryItem.active
+          }">{{ inventoryItem.active ? 'Active' : 'Inactive' }}</span>
+          
+          <span class="badge" [ngClass]="{
+            'badge-warning': (inventoryItem.stockLevel ?? 0) <= (inventoryItem.reorderPoint ?? 0),
+            'badge-success': (inventoryItem.stockLevel ?? 0) > (inventoryItem.reorderPoint ?? 0)
+          }" *ngIf="inventoryItem.stockLevel !== null && inventoryItem.stockLevel !== undefined">
+            Stock: {{ inventoryItem.stockLevel }}
+          </span>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <!-- Status Messages -->
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
 
+  <!-- Loading State -->
   <div class="loading-overlay" *ngIf="isLoading && !inventoryItem">
     <div class="loader"></div>
     <span>Loading inventory item...</span>
   </div>
 
-  <div *ngIf="inventoryItem" class="request-details">
-    <section class="detail-section">
-      <h2>Overview</h2>
-      <div class="detail-grid">
-        <div>
-          <span class="label">Item ID</span>
-          <span class="value">{{ inventoryItem.itemId ?? '—' }}</span>
+  <!-- Main Content -->
+  <div class="main-content" *ngIf="inventoryItem">
+    <div class="details-grid">
+      
+      <!-- Overview Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Overview</h2>
         </div>
-        <div>
-          <span class="label">Name</span>
-          <span class="value">{{ inventoryItem.itemName ?? '—' }}</span>
-        </div>
-        <div>
-          <span class="label">Category</span>
-          <span class="value">{{ inventoryItem.category ?? '—' }}</span>
-        </div>
-        <div>
-          <span class="label">Manufacturer</span>
-          <span class="value">{{ inventoryItem.manufacturer ?? '—' }}</span>
-        </div>
-        <div>
-          <span class="label">Manufacturer Part#</span>
-          <span class="value">{{ inventoryItem.manufacturerPartNumber ?? '—' }}</span>
-        </div>
-        <div>
-          <span class="label">Primary Vendor</span>
-          <span class="value">{{ inventoryItem.primaryVendorName ?? '—' }}</span>
-        </div>
-        <div>
-          <span class="label">Active</span>
-          <span class="value">{{ inventoryItem.active ? 'Yes' : 'No' }}</span>
+        <div class="card-body">
+          <div class="field-grid field-grid-3">
+            <div class="field-group">
+              <div class="field-label">Item ID</div>
+              <div class="field-value highlight">{{ inventoryItem.itemId ?? '—' }}</div>
+            </div>
+            <div class="field-group span-2">
+              <div class="field-label">Name</div>
+              <div class="field-value">{{ inventoryItem.itemName ?? '—' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Category</div>
+              <div class="field-value" [ngClass]="{'empty': !inventoryItem.category}">{{ inventoryItem.category ?? '—' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Manufacturer</div>
+              <div class="field-value" [ngClass]="{'empty': !inventoryItem.manufacturer}">{{ inventoryItem.manufacturer ?? '—' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Manufacturer Part#</div>
+              <div class="field-value" [ngClass]="{'empty': !inventoryItem.manufacturerPartNumber}">{{ inventoryItem.manufacturerPartNumber ?? '—' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Primary Vendor</div>
+              <div class="field-value" [ngClass]="{'empty': !inventoryItem.primaryVendorName}">{{ inventoryItem.primaryVendorName ?? '—' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Active</div>
+              <div class="field-value">{{ inventoryItem.active ? 'Yes' : 'No' }}</div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
 
-    <section class="detail-section">
-      <h2>Stock</h2>
-      <div class="detail-grid">
-        <div>
-          <span class="label">Stock Level</span>
-          <span class="value">{{ inventoryItem.stockLevel ?? '—' }}</span>
+      <!-- Stock Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Stock Information</h2>
         </div>
-        <div>
-          <span class="label">Reorder Point</span>
-          <span class="value">{{ inventoryItem.reorderPoint ?? '—' }}</span>
-        </div>
-        <div>
-          <span class="label">Reorder Quantity</span>
-          <span class="value">{{ inventoryItem.reorderQuantity ?? '—' }}</span>
-        </div>
-        <div>
-          <span class="label">Min Stock Level</span>
-          <span class="value">{{ inventoryItem.minStockLevel ?? '—' }}</span>
-        </div>
-        <div>
-          <span class="label">Max Stock Level</span>
-          <span class="value">{{ inventoryItem.maxStockLevel ?? '—' }}</span>
+        <div class="card-body">
+          <div class="stock-summary">
+            <div class="stock-indicator" [ngClass]="{
+              'stock-low': (inventoryItem.stockLevel ?? 0) <= (inventoryItem.reorderPoint ?? 0),
+              'stock-normal': (inventoryItem.stockLevel ?? 0) > (inventoryItem.reorderPoint ?? 0) && (inventoryItem.maxStockLevel === undefined || (inventoryItem.stockLevel ?? 0) < inventoryItem.maxStockLevel),
+              'stock-high': inventoryItem.maxStockLevel !== undefined && (inventoryItem.stockLevel ?? 0) >= inventoryItem.maxStockLevel
+            }">
+              <div class="stock-value">{{ inventoryItem.stockLevel ?? 0 }}</div>
+              <div class="stock-label">Current Stock</div>
+            </div>
+          </div>
+          
+          <div class="field-grid field-grid-2">
+            <div class="field-group">
+              <div class="field-label">Reorder Point</div>
+              <div class="field-value" [ngClass]="{'empty': !inventoryItem.reorderPoint && inventoryItem.reorderPoint !== 0}">{{ inventoryItem.reorderPoint ?? '—' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Reorder Quantity</div>
+              <div class="field-value" [ngClass]="{'empty': !inventoryItem.reorderQuantity && inventoryItem.reorderQuantity !== 0}">{{ inventoryItem.reorderQuantity ?? '—' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Min Stock Level</div>
+              <div class="field-value" [ngClass]="{'empty': !inventoryItem.minStockLevel && inventoryItem.minStockLevel !== 0}">{{ inventoryItem.minStockLevel ?? '—' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Max Stock Level</div>
+              <div class="field-value" [ngClass]="{'empty': !inventoryItem.maxStockLevel && inventoryItem.maxStockLevel !== 0}">{{ inventoryItem.maxStockLevel ?? '—' }}</div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
 
-    <section class="detail-section">
-      <h2>Costs</h2>
-      <div class="detail-grid">
-        <div>
-          <span class="label">Cost per Unit</span>
-          <span class="value">{{ inventoryItem.costPerUnit ? '$' + inventoryItem.costPerUnit.toFixed(2) : '—' }}</span>
+      <!-- Costs Card -->
+      <div class="card full-width">
+        <div class="card-header">
+          <h2 class="card-title">Costs & Audit</h2>
         </div>
-        <div>
-          <span class="label">Created At</span>
-          <span class="value">{{ formatDate(inventoryItem.createdAt) }}</span>
-        </div>
-        <div>
-          <span class="label">Updated At</span>
-          <span class="value">{{ formatDate(inventoryItem.updatedAt) }}</span>
+        <div class="card-body">
+          <div class="field-grid field-grid-3">
+            <div class="field-group">
+              <div class="field-label">Cost per Unit</div>
+              <div class="field-value cost-value">
+                {{ inventoryItem.costPerUnit ? '$' + inventoryItem.costPerUnit.toFixed(2) : '—' }}
+              </div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Created At</div>
+              <div class="field-value">{{ formatDate(inventoryItem.createdAt) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Updated At</div>
+              <div class="field-value">{{ formatDate(inventoryItem.updatedAt) }}</div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
+
+    </div>
   </div>
 </div>

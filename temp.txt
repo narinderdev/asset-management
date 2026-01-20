@@ -34,10 +34,10 @@ export class ViewVendorComponent implements OnInit {
   errorMessage?: string;
 
   constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private vendorService: VendorService,
-    private cdr: ChangeDetectorRef
+  private router: Router,
+  private route: ActivatedRoute,
+  private vendorService: VendorService,
+  private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -83,23 +83,15 @@ export class ViewVendorComponent implements OnInit {
 
   formatDateString(value?: string): string {
     if (!value) {
-      return '—';
+      return 'â€”';
     }
     return formatDate(value, 'medium', 'en-US');
   }
 
   formatPaymentTermsLabel(value?: string): string {
     if (!value) {
-      return '—';
+      return 'â€”';
     }
     return value.replace(/_/g, ' ');
-  }
-
-  getStarRating(value?: number): string {
-    if (value === undefined || value === null || Number.isNaN(value)) {
-      return 'N/A';
-    }
-    const rating = Math.max(0, Math.min(5, Math.round(value)));
-    return '?'.repeat(rating) + '?'.repeat(5 - rating);
   }
 }

@@ -10,7 +10,7 @@ import { TechnicianService, TechnicianTeamDetailResponse, TechnicianTeamMember }
   standalone: true,
   imports: [CommonModule],
   templateUrl: './view-technician-team.html',
-  styleUrls: ['../inventory/view-inventory.css']
+  styleUrls: ['./view-technician-team.css']
 })
 export class ViewTechnicianTeamComponent implements OnInit {
   team?: TechnicianTeamDetailResponse['data'];
@@ -108,5 +108,14 @@ export class ViewTechnicianTeamComponent implements OnInit {
     }
     const names = [tech.firstName, tech.lastName].filter(Boolean);
     return names.join(' ') || '-';
+  }
+
+  getInitials(name: string): string {
+    if (!name) {
+      return '';
+    }
+    const parts = name.trim().split(/\s+/);
+    const initials = parts.slice(0, 2).map(part => part.charAt(0).toUpperCase()).join('');
+    return initials || '';
   }
 }

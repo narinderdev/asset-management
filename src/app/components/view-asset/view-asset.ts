@@ -97,6 +97,17 @@ export class ViewAssetComponent implements OnInit {
     return value ? 'Yes' : 'No';
   }
 
+  formatEnum(value?: string): string {
+    if (!value) {
+      return '-';
+    }
+    return value
+      .toString()
+      .split('_')
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join(' ');
+  }
+
   goBack(): void {
     this.router.navigate(['/assets']);
   }

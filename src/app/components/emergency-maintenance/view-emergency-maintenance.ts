@@ -14,7 +14,10 @@ import {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './view-emergency-maintenance.html',
-  styleUrls: ['../preventive-maintenance/view-preventive-maintenance.css']
+  styleUrls: [
+    '../preventive-maintenance/view-preventive-maintenance.css',
+    './view-emergency-maintenance.css'
+  ]
 })
 export class ViewEmergencyMaintenanceComponent implements OnInit {
   incident?: EmergencyIncidentDetail;

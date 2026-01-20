@@ -9,6 +9,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Asset } from '../../models/assets.models';
 import { AssetsService, AssetDetailResponse, AssetCreatePayload, AssetUpdatePayload, AssetLocationOrgPayload } from '../../services/assets.service';
 import { TechnicianTeam, TechnicianTeamResponse } from '../../services/technician.service';
+import { PmTemplateService, PredictiveThresholdPayload } from '../../services/pm-template.service';
 import { environment } from '../../../environments/environment';
 
 type AssetDetail = NonNullable<AssetDetailResponse['data']>;
@@ -31,6 +32,7 @@ export class AddAssetComponent implements OnInit {
   isSavingLocation = false;
   isSavingTechnical = false;
   isSavingFinancial = false;
+  isSavingThreshold = false;
   isSavingWarranty = false;
   isSavingSafety = false;
   private readonly maintenanceTeamsUrl = `${environment.apiUrl}/api/technician-teams`;
@@ -41,6 +43,7 @@ export class AddAssetComponent implements OnInit {
     { id: 'location-organization', label: 'Location & Organization' },
     { id: 'technical-manufacturer', label: 'Technical & Manufacturer' },
     { id: 'financial', label: 'Financial' },
+    { id: 'threshold', label: 'Threshold' },
     { id: 'warranty-lifecycle', label: 'Warranty & Lifecycle' },
     { id: 'safety-operations', label: 'Safety & Operations' }
   ];
@@ -94,6 +97,17 @@ export class AddAssetComponent implements OnInit {
     currentBookValue: ''
   };
 
+  // Threshold Data
+  threshold = {
+    assetId: null as number | null,
+    meterType: 'RUN_HOURS',
+    warningThreshold: '',
+    criticalThreshold: '',
+    autoCreateWo: true,
+    defaultPriority: 'LOW',
+    cooldownHours: ''
+  };
+
   // Warranty & Lifecycle Data
   warranty = {
     commissioningDate: '',
@@ -138,6 +152,18 @@ export class AddAssetComponent implements OnInit {
     { value: 'UNIT_OF_PRODUCTION', label: 'Unit of Production' },
     { value: 'NONE', label: 'None' }
   ];
+  meterTypeOptions = [
+    { label: 'Run Hours', value: 'RUN_HOURS' },
+    { label: 'Cycles', value: 'CYCLES' },
+    { label: 'Mileage', value: 'MILEAGE' },
+    { label: 'Temperature', value: 'TEMPERATURE' }
+  ];
+  priorityOptions = [
+    { label: 'Low', value: 'LOW' },
+    { label: 'Medium', value: 'MEDIUM' },
+    { label: 'High', value: 'HIGH' },
+    { label: 'Critical', value: 'CRITICAL' }
+  ];
   safetyCriticalOptions = ['Yes', 'No'];
 
   activeAsset?: Asset;
@@ -152,7 +178,8 @@ export class AddAssetComponent implements OnInit {
     private assetsService: AssetsService,
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private pmTemplateService: PmTemplateService
   ) {}
 
   ngOnInit(): void {
@@ -239,6 +266,7 @@ export class AddAssetComponent implements OnInit {
     this.locationOrg.costCenter = '';
     this.locationOrg.assignedOwner = '';
     this.locationOrg.maintenanceTeam = '';
+    this.setThresholdAssetFromCurrent(asset.id);
   }
 
   private loadAssetDetails(assetId: string): void {
@@ -380,6 +408,8 @@ export class AddAssetComponent implements OnInit {
     this.safety.safetyCritical = this.formatSafetyCritical(safety.safetyCritical);
     this.safety.safetyNotes = safety.safetyNotes ?? '';
     this.safety.operatingInstructions = safety.operatingInstructions ?? '';
+
+    this.setThresholdAssetFromCurrent(detail.id);
   }
 
   private getDetailLocation(detail: AssetDetail): string {
@@ -491,6 +521,17 @@ export class AddAssetComponent implements OnInit {
           console.error('Unable to load technician teams for dropdown');
         }
       });
+  }
+
+  private setThresholdAssetFromCurrent(assetId?: number | string): void {
+    if (assetId === null || assetId === undefined) {
+      return;
+    }
+    const numericId = Number(assetId);
+    if (Number.isNaN(numericId)) {
+      return;
+    }
+    this.threshold.assetId = numericId;
   }
 
   private normalizeLocationField(value?: string): string | undefined {
@@ -618,6 +659,24 @@ export class AddAssetComponent implements OnInit {
     return payload;
   }
 
+  private buildThresholdPayload(): PredictiveThresholdPayload | undefined {
+    const assetIdFromParams = this.getAssetIdFromParams();
+    const assetId = assetIdFromParams ? Number(assetIdFromParams) : this.threshold.assetId;
+    if (assetId === null || assetId === undefined || Number.isNaN(Number(assetId))) {
+      return undefined;
+    }
+
+    return {
+      assetId: Number(assetId),
+      meterType: this.threshold.meterType || 'RUN_HOURS',
+      warningThreshold: this.parseNumber(this.threshold.warningThreshold) ?? 0,
+      criticalThreshold: this.parseNumber(this.threshold.criticalThreshold) ?? 0,
+      autoCreateWo: Boolean(this.threshold.autoCreateWo),
+      defaultPriority: this.threshold.defaultPriority || 'LOW',
+      cooldownHours: this.parseNumber(this.threshold.cooldownHours) ?? 0
+    };
+  }
+
   private buildEditPayload(): AssetUpdatePayload {
     const payload: AssetUpdatePayload = {
       assetId: this.assetMaster.assetId,
@@ -714,6 +773,9 @@ export class AddAssetComponent implements OnInit {
       case 'financial':
         this.saveFinancial();
         break;
+      case 'threshold':
+        this.saveThreshold();
+        break;
       case 'warranty-lifecycle':
         this.saveWarrantyLifecycle();
         break;
@@ -747,6 +809,7 @@ export class AddAssetComponent implements OnInit {
           }
           this.currentAssetId = String(createdId);
           this.assetMaster.assetId = response.data?.assetId ?? this.assetMaster.assetId;
+          this.setThresholdAssetFromCurrent(createdId);
           console.log('Asset created with ID', createdId);
           this.navigateToTab(this.locationTabId, { id: createdId });
         },
@@ -781,6 +844,8 @@ export class AddAssetComponent implements OnInit {
         return this.isSavingTechnical;
       case 'financial':
         return this.isSavingFinancial;
+      case 'threshold':
+        return this.isSavingThreshold;
       case 'warranty-lifecycle':
         return this.isSavingWarranty;
       case 'safety-operations':
@@ -874,13 +939,38 @@ export class AddAssetComponent implements OnInit {
       }))
       .subscribe({
         next: () => {
-          this.navigateToTab('warranty-lifecycle', { id: assetId });
+          this.navigateToTab('threshold', { id: assetId });
           this.loadAssetDetails(assetId);
         },
         error: () => {
           console.error('Failed to save financial data');
         }
       });
+  }
+
+  private saveThreshold(): void {
+    const payload = this.buildThresholdPayload();
+    if (!payload) {
+      this.toastr.error('Asset information is missing. Please complete previous steps first.');
+      return;
+    }
+
+    this.isSavingThreshold = true;
+    this.pmTemplateService.createPredictiveThreshold(payload).pipe(
+      finalize(() => {
+        this.isSavingThreshold = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: () => {
+        const assetId = this.getAssetIdFromParams();
+        this.navigateToTab('warranty-lifecycle', assetId ? { id: assetId } : undefined);
+      },
+      error: () => {
+        console.error('Failed to save threshold data');
+        this.toastr.error('Failed to save threshold data');
+      }
+    });
   }
 
   private saveWarrantyLifecycle(): void {

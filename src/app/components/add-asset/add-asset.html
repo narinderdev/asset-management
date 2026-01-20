@@ -430,6 +430,68 @@
       </div>
     </div>
 
+    <!-- Threshold Tab -->
+    <div *ngIf="activeTab === 'threshold'" class="form-content">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Meter Type</label>
+          <select class="form-select" [(ngModel)]="threshold.meterType">
+            <option *ngFor="let option of meterTypeOptions" [ngValue]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Warning Threshold</label>
+          <input 
+            type="number" 
+            class="form-input" 
+            placeholder="Enter threshold"
+            [(ngModel)]="threshold.warningThreshold">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Cooldown Hours</label>
+          <input 
+            type="number" 
+            class="form-input" 
+            placeholder="Enter hours"
+            [(ngModel)]="threshold.cooldownHours">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Critical Threshold</label>
+          <input 
+            type="number" 
+            class="form-input" 
+            placeholder="Enter threshold"
+            [(ngModel)]="threshold.criticalThreshold">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Default Priority</label>
+          <select class="form-select" [(ngModel)]="threshold.defaultPriority">
+            <option *ngFor="let option of priorityOptions" [ngValue]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Auto Create WO</label>
+          <label class="checkbox-inline">
+            <input type="checkbox" [(ngModel)]="threshold.autoCreateWo">
+            <span>Enable automatic work order creation</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
     <!-- Warranty & Lifecycle Tab -->
     <div *ngIf="activeTab === 'warranty-lifecycle'" class="form-content">
       <!-- Row 1 -->

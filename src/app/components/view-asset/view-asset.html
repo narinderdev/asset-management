@@ -20,11 +20,11 @@
           'badge-success': asset.status === 'IN_SERVICE',
           'badge-warning': asset.status === 'MAINTENANCE',
           'badge-info': asset.status !== 'IN_SERVICE' && asset.status !== 'MAINTENANCE'
-        }">{{ formatField(asset.status) }}</span>
+        }">{{ formatEnum(asset.status) }}</span>
         <span class="badge" [ngClass]="{
           'badge-warning': asset.criticality === 'MEDIUM' || asset.criticality === 'HIGH',
           'badge-info': asset.criticality === 'LOW'
-        }" *ngIf="asset.criticality">{{ formatField(asset.criticality) }} Criticality</span>
+        }" *ngIf="asset.criticality">{{ formatEnum(asset.criticality) }} Criticality</span>
       </div>
     </div>
   </div>

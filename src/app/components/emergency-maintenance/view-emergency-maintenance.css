@@ -5,7 +5,7 @@
   box-sizing: border-box;
 }
 
-.view-inventory-page {
+.view-emergency-page {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: #f8f9fa;
   color: #1a1a1a;
@@ -55,7 +55,7 @@
   letter-spacing: -0.02em;
 }
 
-.inventory-meta {
+.emergency-meta {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -63,7 +63,7 @@
   font-size: 14px;
 }
 
-.item-id {
+.work-order-number {
   font-family: 'Courier New', monospace;
   font-weight: 500;
 }
@@ -189,10 +189,6 @@
   gap: 24px 32px;
 }
 
-.field-grid-2 {
-  grid-template-columns: repeat(2, 1fr);
-}
-
 .field-grid-3 {
   grid-template-columns: repeat(3, 1fr);
 }
@@ -235,74 +231,6 @@
   font-weight: 600;
 }
 
-.cost-value {
-  font-size: 18px;
-  font-weight: 600;
-  color: #059669;
-}
-
-/* Stock Indicator */
-.stock-summary {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 24px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.stock-indicator {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 24px 40px;
-  border-radius: 12px;
-  background: #f9fafb;
-  border: 2px solid #e5e7eb;
-}
-
-.stock-indicator.stock-low {
-  background: #fef3c7;
-  border-color: #fbbf24;
-}
-
-.stock-indicator.stock-normal {
-  background: #ecfdf5;
-  border-color: #10b981;
-}
-
-.stock-indicator.stock-high {
-  background: #eff6ff;
-  border-color: #3b82f6;
-}
-
-.stock-value {
-  font-size: 48px;
-  font-weight: 700;
-  color: #111827;
-  line-height: 1;
-}
-
-.stock-indicator.stock-low .stock-value {
-  color: #d97706;
-}
-
-.stock-indicator.stock-normal .stock-value {
-  color: #059669;
-}
-
-.stock-indicator.stock-high .stock-value {
-  color: #2563eb;
-}
-
-.stock-label {
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #6b7280;
-}
-
 /* Full Width Cards */
 .card.full-width {
   grid-column: 1 / -1;
@@ -319,7 +247,7 @@
   }
 
   .field-group.span-2 {
-    grid-column: span 2;
+    grid-column: span 1;
   }
 }
 
@@ -354,7 +282,6 @@
     font-size: 24px;
   }
 
-  .field-grid-2,
   .field-grid-3 {
     grid-template-columns: 1fr;
   }
@@ -370,14 +297,6 @@
 
   .card-body {
     padding: 20px;
-  }
-
-  .stock-indicator {
-    padding: 20px 32px;
-  }
-
-  .stock-value {
-    font-size: 40px;
   }
 }
 
@@ -398,22 +317,10 @@
     font-size: 20px;
   }
 
-  .inventory-meta {
+  .emergency-meta {
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
-  }
-
-  .stock-indicator {
-    padding: 16px 24px;
-  }
-
-  .stock-value {
-    font-size: 36px;
-  }
-
-  .cost-value {
-    font-size: 16px;
   }
 }
 
