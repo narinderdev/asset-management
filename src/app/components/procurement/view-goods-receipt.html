@@ -1,85 +1,140 @@
-<div class="mr-view" *ngIf="!isLoading && grn; else loadingState">
-  <header class="mr-view-header">
-    <div class="header-left">
-      <button class="back-btn" type="button" (click)="goBack()" aria-label="Back to list">&larr;</button>
-      <h2>GRN Details</h2>
-    </div>
-    <div class="mr-view-actions">
-      <button class="btn ghost" type="button" (click)="goBack()">Back To List</button>
-    </div>
-  </header>
+<div class="view-mr-page">
+  <!-- Header -->
+  <div class="header">
+    <button class="back-button" type="button" aria-label="Back to list" (click)="goBack()">
+      ← Back to list
+    </button>
+    
+    <div class="header-content" *ngIf="grn">
+      <div class="title-section">
+        <h1>GRN Details</h1>
+        <div class="mr-meta">
+          <span class="mr-id">{{ grn?.grnNumber || ('GRN-' + grnId) }}</span>
+        </div>
+      </div>
 
-  <div class="mr-meta">
-    <div class="mr-id">{{ grn?.grnNumber || ('GRN-' + grnId) }}</div>
-    <span class="status-chip status-neutral">{{ statusChip || 'Submitted' }}</span>
-  </div>
+      <div class="header-actions">
+        <div class="status-badges">
+          <span class="badge badge-info">{{ statusChip || 'Submitted' }}</span>
+        </div>
 
-  <div class="mr-cards">
-    <div class="card">
-      <div class="card-title">GRN Details</div>
-      <div class="details-grid">
-        <div>
-          <span class="label">PO ID</span>
-          <span class="value">{{ grn?.poId ?? '-' }}</span>
-        </div>
-        <div>
-          <span class="label">Vendor</span>
-          <span class="value">{{ grn?.vendorId ?? '-' }}</span>
-        </div>
-        <div>
-          <span class="label">Received By</span>
-          <span class="value">{{ grn?.receivedByUserId ?? '-' }}</span>
-        </div>
-        <div>
-          <span class="label">Received At</span>
-          <span class="value">{{ grn?.receivedAtUtc ?? '-' }}</span>
-        </div>
-        <div>
-          <span class="label">Notes</span>
-          <span class="value">{{ grn?.notes || '-' }}</span>
-        </div>
-        <div>
-          <span class="label">Created</span>
-          <span class="value">{{ grn?.createdAt ?? '-' }}</span>
-        </div>
-        <div>
-          <span class="label">Updated</span>
-          <span class="value">{{ grn?.updatedAt ?? '-' }}</span>
+        <div class="action-buttons">
+          <button class="btn-secondary" type="button" (click)="goBack()">
+            Back To List
+          </button>
         </div>
       </div>
     </div>
+  </div>
 
+  <!-- Loading State -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="loader"></div>
+    <span>Loading GRN...</span>
+  </div>
+
+  <!-- Error Message -->
+  <div class="main-content" *ngIf="errorMessage && !isLoading">
     <div class="card">
-      <div class="card-title">Line Items</div>
-      <table class="line-table">
-        <thead>
-          <tr>
-            <th>Item / Asset ID</th>
-            <th>Item Name</th>
-            <th>Qty</th>
-            <th>UOM</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let line of lines">
-            <td>{{ line.itemId || '-' }}</td>
-            <td>{{ line.itemName || '-' }}</td>
-            <td>{{ line.receivedQty }}</td>
-            <td>{{ line.uom || '-' }}</td>
-          </tr>
-          <tr *ngIf="!lines.length">
-            <td colspan="4" class="empty">No lines available</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="card-body">
+        <div class="empty-state">
+          <div class="empty-icon">⚠️</div>
+          <div class="empty-text">{{ errorMessage }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" *ngIf="!isLoading && grn">
+    <div class="details-grid">
+      
+      <!-- GRN Details Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">GRN Details</h2>
+        </div>
+        <div class="card-body">
+          <div class="field-grid field-grid-3">
+            <div class="field-group">
+              <div class="field-label">PO ID</div>
+              <div class="field-value" [ngClass]="{'empty': !grn?.poId}">
+                {{ grn?.poId || '-' }}
+              </div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Vendor</div>
+              <div class="field-value" [ngClass]="{'empty': !grn?.vendorId}">
+                {{ grn?.vendorId || '-' }}
+              </div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Received By</div>
+              <div class="field-value" [ngClass]="{'empty': !grn?.receivedByUserId}">
+                {{ grn?.receivedByUserId || '-' }}
+              </div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Received At</div>
+              <div class="field-value" [ngClass]="{'empty': !grn?.receivedAtUtc}">
+                {{ grn?.receivedAtUtc || '-' }}
+              </div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Created</div>
+              <div class="field-value">{{ grn?.createdAt || '-' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Updated</div>
+              <div class="field-value">{{ grn?.updatedAt || '-' }}</div>
+            </div>
+            <div class="field-group full-width">
+              <div class="field-label">Notes</div>
+              <div class="field-value notes-content" [ngClass]="{'empty': !grn?.notes}">
+                {{ grn?.notes || '-' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Line Items Card -->
+      <div class="card full-width">
+        <div class="card-header">
+          <h2 class="card-title">Line Items ({{ lines?.length || 0 }})</h2>
+        </div>
+        <div class="card-body">
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Item / Asset ID</th>
+                  <th>Item Name</th>
+                  <th>Qty</th>
+                  <th>UOM</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let line of lines">
+                  <td class="item-id">{{ line.itemId || '-' }}</td>
+                  <td>{{ line.itemName || '-' }}</td>
+                  <td><strong>{{ line.receivedQty }}</strong></td>
+                  <td>{{ line.uom || '-' }}</td>
+                </tr>
+                <tr *ngIf="!lines?.length">
+                  <td colspan="4" class="empty-cell">
+                    <div class="empty-state">
+                      <div class="empty-icon">📦</div>
+                      <div class="empty-text">No line items available</div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
-
-<ng-template #loadingState>
-  <div class="loading-overlay">
-    <div class="spinner"></div>
-    <span>Loading GRN...</span>
-  </div>
-  <div *ngIf="errorMessage" class="status-message">{{ errorMessage }}</div>
-</ng-template>

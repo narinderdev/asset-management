@@ -23,7 +23,7 @@ interface UiGrnLine {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './view-goods-receipt.html',
-  styleUrls: ['./view-procurement.css']
+  styleUrls: ['./goods-reciept-grn.css']
 })
 export class ViewGoodsReceiptComponent implements OnInit {
   grnId?: string;

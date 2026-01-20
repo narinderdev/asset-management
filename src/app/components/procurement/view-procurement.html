@@ -1,170 +1,234 @@
-<div class="mr-view">
-  <header class="mr-view-header">
-    <div class="header-left">
-      <button class="back-btn" type="button" (click)="goBack()" aria-label="Back to list">&larr;</button>
-      <h2>MR Details</h2>
-    </div>
-    <div class="mr-view-actions">
-      <ng-container *ngIf="!isApproved && !isConvertedToPo; else approvedActions">
-        <button
-          class="btn success"
-          type="button"
-          (click)="approveMr()"
-          [disabled]="isApproving || isRejected"
-        >
-          {{ isApproving ? 'Approving...' : 'Approve' }}
-        </button>
-        <button
-          class="btn danger"
-          type="button"
-          (click)="openReject()"
-          *ngIf="!isRejected && !isConvertedToPo"
-        >
-          Reject
-        </button>
-      </ng-container>
-      <ng-template #approvedActions>
-        <button
-          class="btn primary"
-          type="button"
-          (click)="convertToPo()"
-          *ngIf="!isConvertedToPo"
-        >
-          Convert to PO
-        </button>
-        <button class="btn ghost" type="button" (click)="goBack()">Back To List</button>
-      </ng-template>
-    </div>
-  </header>
+<div class="view-mr-page">
+  <!-- Header -->
+  <div class="header">
+    <button class="back-button" type="button" aria-label="Back to list" (click)="goBack()">
+      ← Back to list
+    </button>
+    
+    <div class="header-content" *ngIf="mrDetail || mrState">
+      <div class="title-section">
+        <h1>Material Request Details</h1>
+        <div class="mr-meta">
+          <span class="mr-id">{{ (mrDetail?.mrNumber) || mrState?.prId || ('MR-' + mrId) }}</span>
+          <span *ngIf="mrDetail?.requestedByUserId || mrState?.requester">•</span>
+          <span *ngIf="mrDetail?.requestedByUserId || mrState?.requester">{{ mrDetail?.requestedByUserId || mrState?.requester }}</span>
+        </div>
+      </div>
 
+      <div class="header-actions">
+        <div class="status-badges">
+          <span class="badge" [ngClass]="{
+            'badge-success': isApproved,
+            'badge-warning': !isApproved && !isRejected,
+            'badge-danger': isRejected
+          }">{{ formatStatus(mrDetail?.status || mrState?.status) }}</span>
+          
+          <span class="badge badge-info" *ngIf="isConvertedToPo">
+            Converted to PO
+          </span>
+        </div>
+
+        <div class="action-buttons">
+          <ng-container *ngIf="!isApproved && !isConvertedToPo; else approvedActions">
+            <button
+              class="btn-approve"
+              type="button"
+              (click)="approveMr()"
+              [disabled]="isApproving || isRejected"
+            >
+              {{ isApproving ? 'Approving...' : 'Approve' }}
+            </button>
+            <button
+              class="btn-reject"
+              type="button"
+              (click)="openReject()"
+              *ngIf="!isRejected && !isConvertedToPo"
+            >
+              Reject
+            </button>
+          </ng-container>
+          <ng-template #approvedActions>
+            <button
+              class="btn-primary"
+              type="button"
+              (click)="convertToPo()"
+              *ngIf="!isConvertedToPo"
+            >
+              Convert to PO
+            </button>
+            <button class="btn-secondary" type="button" (click)="goBack()">
+              Back To List
+            </button>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
   <div class="loading-overlay" *ngIf="isLoading">
-    <div class="spinner"></div>
+    <div class="loader"></div>
     <span>Loading MR...</span>
   </div>
 
-  <div class="mr-meta">
-    <div class="mr-id">{{ (mrDetail?.mrNumber) || mrState?.prId || ('MR-' + mrId) }}</div>
-    <span class="status-chip status-neutral">
-      {{ formatStatus(mrDetail?.status || mrState?.status) }}
-    </span>
-  </div>
-
-  <div class="mr-cards">
-    <div class="card">
-      <div class="card-title">MR Details</div>
-      <div class="details-grid">
-        <div>
-          <span class="label">Requested By</span>
-          <span class="value">{{ mrDetail?.requestedByUserId || mrState?.requester || '-' }}</span>
+  <!-- Main Content -->
+  <div class="main-content" *ngIf="mrDetail || mrState">
+    <div class="details-grid">
+      
+      <!-- MR Details Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">MR Details</h2>
         </div>
-        <div>
-          <span class="label">Needed By</span>
-          <span class="value">{{ mrDetail?.neededByDate || mrState?.requiredBy || '-' }}</span>
-        </div>
-        <div>
-          <span class="label">Notes</span>
-          <span class="value">{{ mrDetail?.notes || mrState?.notes || '-' }}</span>
-        </div>
-        <div>
-          <span class="label">Created</span>
-          <span class="value">{{ mrDetail?.createdAt || mrState?.date || '-' }}</span>
-        </div>
-        <div>
-          <span class="label">Updated</span>
-          <span class="value">{{ mrDetail?.updatedAt || mrState?.date || '-' }}</span>
-        </div>
-        <div>
-          <span class="label">Approved By</span>
-          <span class="value">-</span>
+        <div class="card-body">
+          <div class="field-grid field-grid-3">
+            <div class="field-group">
+              <div class="field-label">Requested By</div>
+              <div class="field-value" [ngClass]="{'empty': !mrDetail?.requestedByUserId && !mrState?.requester}">
+                {{ mrDetail?.requestedByUserId || mrState?.requester || '-' }}
+              </div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Needed By</div>
+              <div class="field-value" [ngClass]="{'empty': !mrDetail?.neededByDate && !mrState?.requiredBy}">
+                {{ mrDetail?.neededByDate || mrState?.requiredBy || '-' }}
+              </div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Approved By</div>
+              <div class="field-value empty">-</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Created</div>
+              <div class="field-value">{{ mrDetail?.createdAt || mrState?.date || '-' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Updated</div>
+              <div class="field-value">{{ mrDetail?.updatedAt || mrState?.date || '-' }}</div>
+            </div>
+            <div class="field-group full-width">
+              <div class="field-label">Notes</div>
+              <div class="field-value notes-content" [ngClass]="{'empty': !mrDetail?.notes && !mrState?.notes}">
+                {{ mrDetail?.notes || mrState?.notes || '-' }}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="card">
-      <div class="card-title">Line Items</div>
-      <table class="line-table">
-        <thead>
-          <tr>
-            <th>Item / Asset ID</th>
-            <th>Item Name</th>
-            <th>Qty</th>
-            <th>UOM</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let line of (mrDetail?.lines || mrState?.lines || [])">
-            <td>{{ line.itemId }}</td>
-            <td>{{ line.remarks || line.itemName }}</td>
-            <td>{{ line.requestedQty }}</td>
-            <td>{{ line.uom }}</td>
-          </tr>
-          <tr *ngIf="!(mrDetail?.lines?.length) && !(mrState?.lines?.length)">
-            <td colspan="4" class="empty">No line items</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<div class="modal-backdrop" *ngIf="isRejectModalOpen">
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3>Reject MR</h3>
-      <button class="close-btn" type="button" (click)="closeReject()" aria-label="Close">×</button>
-    </div>
-    <div class="modal-body">
-      <label class="field">
-        <span>Rejection reason</span>
-        <textarea [(ngModel)]="rejectionReason" placeholder="Enter reason..."></textarea>
-      </label>
-    </div>
-    <div class="modal-actions">
-      <button class="btn ghost" type="button" (click)="closeReject()">Cancel</button>
-      <button class="btn primary" type="button" (click)="submitReject()" [disabled]="isRejecting">Reject</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-backdrop" *ngIf="isPoModalOpen">
-  <div class="modal-card po-modal">
-    <div class="modal-header">
-      <h3>Convert MR &rarr; PO</h3>
-      <button class="close-btn" type="button" (click)="closePoModal()" aria-label="Close">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="po-form-grid">
-        <label class="field">
-          <span>Vendor</span>
-          <select [(ngModel)]="poForm.vendorId">
-            <option [ngValue]="null" disabled>Select vendor</option>
-            <option *ngFor="let vendor of vendorOptions" [ngValue]="vendor.id">{{ vendor.name }}</option>
-          </select>
-          <span class="helper" *ngIf="isLoadingVendors">Loading vendors...</span>
-          <span class="helper error" *ngIf="!isLoadingVendors && hasLoadedVendors && !vendorOptions.length">
-            No vendors found
-          </span>
-        </label>
-        <label class="field">
-          <span>Expected Delivery</span>
-          <input type="date" [(ngModel)]="poForm.expectedDelivery" />
-        </label>
+      <!-- Line Items Card -->
+      <div class="card full-width">
+        <div class="card-header">
+          <h2 class="card-title">Line Items ({{ (mrDetail?.lines || mrState?.lines || []).length }})</h2>
+        </div>
+        <div class="card-body">
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Item / Asset ID</th>
+                  <th>Item Name</th>
+                  <th>Qty</th>
+                  <th>UOM</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let line of (mrDetail?.lines || mrState?.lines || [])">
+                  <td class="item-id">{{ line.itemId }}</td>
+                  <td>{{ line.remarks || line.itemName }}</td>
+                  <td><strong>{{ line.requestedQty }}</strong></td>
+                  <td>{{ line.uom }}</td>
+                </tr>
+                <tr *ngIf="!(mrDetail?.lines?.length) && !(mrState?.lines?.length)">
+                  <td colspan="4" class="empty-cell">
+                    <div class="empty-state">
+                      <div class="empty-icon">📦</div>
+                      <div class="empty-text">No line items</div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <label class="field">
-        <span>Remarks</span>
-        <textarea [(ngModel)]="poForm.remarks" placeholder="Delivery instructions..."></textarea>
-      </label>
+
     </div>
-    <div class="modal-actions">
-      <button class="btn ghost" type="button" (click)="closePoModal()">Cancel</button>
-      <button
-        class="btn primary"
-        type="button"
-        (click)="createPo()"
-        [disabled]="isCreatingPo || !poForm.vendorId || !poForm.expectedDelivery"
-      >
-        {{ isCreatingPo ? 'Creating...' : 'Create PO' }}
-      </button>
+  </div>
+
+  <!-- Reject Modal -->
+  <div class="modal-backdrop" *ngIf="isRejectModalOpen" (click)="closeReject()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Reject Material Request</h3>
+        <p>Please provide a reason for rejecting this MR</p>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Rejection Reason *</label>
+          <textarea 
+            [(ngModel)]="rejectionReason" 
+            placeholder="Enter reason for rejection..."
+            rows="4"
+            class="form-input"
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" type="button" (click)="closeReject()">Cancel</button>
+        <button class="btn-danger" type="button" (click)="submitReject()" [disabled]="isRejecting || !rejectionReason">
+          {{ isRejecting ? 'Rejecting...' : 'Reject MR' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Convert to PO Modal -->
+  <div class="modal-backdrop" *ngIf="isPoModalOpen" (click)="closePoModal()">
+    <div class="modal-dialog large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Convert to Purchase Order</h3>
+        <p>Create a PO from this material request</p>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Vendor *</label>
+            <select [(ngModel)]="poForm.vendorId" class="form-input">
+              <option [ngValue]="null" disabled>Select vendor</option>
+              <option *ngFor="let vendor of vendorOptions" [ngValue]="vendor.id">{{ vendor.name }}</option>
+            </select>
+            <span class="helper-text" *ngIf="isLoadingVendors">Loading vendors...</span>
+            <span class="helper-text error" *ngIf="!isLoadingVendors && hasLoadedVendors && !vendorOptions.length">
+              No vendors found
+            </span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Expected Delivery *</label>
+            <input type="date" [(ngModel)]="poForm.expectedDelivery" class="form-input" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Remarks</label>
+          <textarea 
+            [(ngModel)]="poForm.remarks" 
+            placeholder="Delivery instructions, special requirements, etc..."
+            rows="3"
+            class="form-input"
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" type="button" (click)="closePoModal()">Cancel</button>
+        <button
+          class="btn-primary"
+          type="button"
+          (click)="createPo()"
+          [disabled]="isCreatingPo || !poForm.vendorId || !poForm.expectedDelivery"
+        >
+          {{ isCreatingPo ? 'Creating...' : 'Create PO' }}
+        </button>
+      </div>
     </div>
   </div>
 </div>

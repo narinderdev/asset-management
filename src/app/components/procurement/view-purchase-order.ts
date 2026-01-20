@@ -28,7 +28,7 @@ interface UiPoLine {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './view-purchase-order.html',
-  styleUrls: ['./view-procurement.css']
+  styleUrls: ['./view-purchase-order.css']
 })
 export class ViewPurchaseOrderComponent implements OnInit {
   poId?: string;

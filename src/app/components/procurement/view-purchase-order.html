@@ -1,188 +1,289 @@
-<div class="mr-view" *ngIf="!isLoading && po; else loadingState">
-  <header class="mr-view-header">
-    <div class="header-left">
-      <button class="back-btn" type="button" (click)="goBack()" aria-label="Back to list">&larr;</button>
-      <h2>PO Details</h2>
-    </div>
-    <div class="mr-view-actions">
-      <button
-        class="btn success"
-        type="button"
-        *ngIf="canMarkDelivered"
-        (click)="openMarkDelivered()">Mark Delivered</button>
-      <button
-        class="btn primary"
-        type="button"
-        *ngIf="isDelivered"
-        (click)="createGrn()">Create GRN</button>
-      <button class="btn ghost" type="button" (click)="goBack()">Back To List</button>
-    </div>
-  </header>
+<div class="view-mr-page">
+  <!-- Header -->
+  <div class="header">
+    <button class="back-button" type="button" aria-label="Back to list" (click)="goBack()">
+      ← Back to list
+    </button>
+    
+    <div class="header-content" *ngIf="po">
+      <div class="title-section">
+        <h1>Purchase Order Details</h1>
+        <div class="mr-meta">
+          <span class="mr-id">{{ po?.poNumber || ('PO-' + poId) }}</span>
+        </div>
+      </div>
 
-  <div class="mr-meta">
-    <div class="mr-id">{{ po?.poNumber || ('PO-' + poId) }}</div>
-    <span class="status-chip status-neutral">{{ statusChip || 'Submitted' }}</span>
-  </div>
+      <div class="header-actions">
+        <div class="status-badges">
+          <span class="badge" [ngClass]="{
+            'badge-success': isDelivered,
+            'badge-warning': !isDelivered,
+            'badge-info': statusChip
+          }">{{ statusChip || 'Submitted' }}</span>
+        </div>
 
-  <div class="mr-cards">
-    <div class="card">
-      <div class="card-title">PO Details</div>
-      <div class="details-grid">
-        <div>
-          <span class="label">Vendor</span>
-          <span class="value">{{ po?.vendorName || '—' }}</span>
-        </div>
-        <div>
-          <span class="label">Expected Delivery</span>
-          <span class="value">{{ po?.expectedDeliveryDate || '—' }}</span>
-        </div>
-        <div>
-          <span class="label">Remarks</span>
-          <span class="value">{{ po?.remarks || '-' }}</span>
-        </div>
-        <div>
-          <span class="label">Created</span>
-          <span class="value">{{ po?.createdAt || '—' }}</span>
-        </div>
-        <div>
-          <span class="label">Updated</span>
-          <span class="value">{{ po?.updatedAt || '—' }}</span>
-        </div>
-        <div>
-          <span class="label">Created By</span>
-          <span class="value">{{ po?.createdBy || po?.createdByUserId || '—' }}</span>
+        <div class="action-buttons">
+          <button
+            class="btn-approve"
+            type="button"
+            *ngIf="canMarkDelivered"
+            (click)="openMarkDelivered()"
+          >
+            Mark Delivered
+          </button>
+          <button
+            class="btn-primary"
+            type="button"
+            *ngIf="isDelivered"
+            (click)="createGrn()"
+          >
+            Create GRN
+          </button>
+          <button class="btn-secondary" type="button" (click)="goBack()">
+            Back To List
+          </button>
         </div>
       </div>
     </div>
-
-    <div class="card">
-      <div class="card-title">Line Items</div>
-      <table class="line-table">
-        <thead>
-          <tr>
-            <th>Item ID</th>
-            <th>Ordered Qty</th>
-            <th>Received Qty</th>
-            <th>Unit Price</th>
-            <th>UOM</th>
-            <th>Remarks</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let line of lines">
-            <td>{{ line.itemId || '—' }}</td>
-            <td>{{ line.orderedQty }}</td>
-            <td>{{ line.receivedQty }}</td>
-            <td>{{ line.unitPrice }}</td>
-            <td>{{ line.uom || '—' }}</td>
-            <td>{{ line.remarks || '—' }}</td>
-          </tr>
-          <tr *ngIf="!lines.length">
-            <td colspan="6" class="empty">No line items</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
   </div>
-</div>
 
-<ng-template #loadingState>
-  <div class="loading-overlay">
-    <div class="spinner"></div>
+  <!-- Loading State -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="loader"></div>
     <span>Loading PO...</span>
   </div>
-  <div *ngIf="errorMessage" class="status-message">{{ errorMessage }}</div>
-</ng-template>
 
-<div class="modal-backdrop" *ngIf="isMarkDeliveredOpen">
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3>Mark Delivered</h3>
-      <button class="close-btn" type="button" (click)="closeMarkDelivered()" aria-label="Close">&times;</button>
-    </div>
-    <div class="modal-body">
-      <p>Are you sure you want to mark this PO as delivered?</p>
-    </div>
-    <div class="modal-actions">
-      <button class="btn ghost" type="button" (click)="closeMarkDelivered()">No</button>
-      <button class="btn primary" type="button" (click)="confirmMarkDelivered()" [disabled]="isMarking">
-        {{ isMarking ? 'Updating...' : 'Yes' }}
-      </button>
+  <!-- Error Message -->
+  <div class="main-content" *ngIf="errorMessage && !isLoading">
+    <div class="card">
+      <div class="card-body">
+        <div class="empty-state">
+          <div class="empty-icon">⚠️</div>
+          <div class="empty-text">{{ errorMessage }}</div>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="modal-backdrop" *ngIf="isCreateGrnOpen">
-  <div class="modal-card po-modal wide">
-    <div class="modal-header">
-      <div>
-        <h3>Create GRN</h3>
-        <div class="subtext">For {{ po?.poNumber || ('PO-' + poId) }}</div>
-      </div>
-      <div class="status-chip status-approved">PO: {{ statusChip || 'Delivered' }}</div>
-      <button class="close-btn" type="button" (click)="closeCreateGrn()" aria-label="Close">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="po-form-grid">
-        <label class="field">
-          <span>PO Number</span>
-          <input type="text" [value]="po?.poNumber || ''" readonly />
-        </label>
-        <label class="field">
-          <span>Vendor</span>
-          <input type="text" [value]="po?.vendorName || ''" readonly />
-        </label>
-        <label class="field">
-          <span>Received by</span>
-          <input type="text" [(ngModel)]="grnForm.receivedBy" placeholder="e.g., store-01 / ajay" />
-        </label>
-        <label class="field">
-          <span>Received at</span>
-          <input type="datetime-local" [(ngModel)]="grnForm.receivedAt" />
-        </label>
-        <label class="field full-width">
-          <span>Notes (Optional)</span>
-          <input [(ngModel)]="grnForm.notes" placeholder="Delivery condition, invoice note, etc"/>
-        </label>
+  <!-- Main Content -->
+  <div class="main-content" *ngIf="!isLoading && po">
+    <div class="details-grid">
+      
+      <!-- PO Details Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">PO Details</h2>
+        </div>
+        <div class="card-body">
+          <div class="field-grid field-grid-3">
+            <div class="field-group">
+              <div class="field-label">Vendor</div>
+              <div class="field-value" [ngClass]="{'empty': !po?.vendorName}">
+                {{ po?.vendorName || '—' }}
+              </div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Expected Delivery</div>
+              <div class="field-value" [ngClass]="{'empty': !po?.expectedDeliveryDate}">
+                {{ po?.expectedDeliveryDate || '—' }}
+              </div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Created By</div>
+              <div class="field-value" [ngClass]="{'empty': !po?.createdBy && !po?.createdByUserId}">
+                {{ po?.createdBy || po?.createdByUserId || '—' }}
+              </div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Created</div>
+              <div class="field-value">{{ po?.createdAt || '—' }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Updated</div>
+              <div class="field-value">{{ po?.updatedAt || '—' }}</div>
+            </div>
+            <div class="field-group full-width">
+              <div class="field-label">Remarks</div>
+              <div class="field-value notes-content" [ngClass]="{'empty': !po?.remarks}">
+                {{ po?.remarks || '-' }}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="card mt-16">
-        <div class="card-title">Receive Lines (from PO lines)</div>
-        <table class="line-table">
-          <thead>
-            <tr>
-              <th>Item ID</th>
-              <th>Ordered</th>
-              <th>Receive Now</th>
-              <th>UOM</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let line of grnForm.lines">
-              <td>{{ line.itemId || '—' }}</td>
-              <td>{{ line.orderedQty }}</td>
-              <td>
-                <input
-                  type="number"
-                  min="0"
-                  [(ngModel)]="line.receiveNow"
-                class="inline-input"
-              />
-            </td>
-              <td>{{ line.uom || '—' }}</td>
-            </tr>
-            <tr *ngIf="!grnForm.lines.length">
-              <td colspan="4" class="empty">No lines available</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Line Items Card -->
+      <div class="card full-width">
+        <div class="card-header">
+          <h2 class="card-title">Line Items ({{ lines?.length || 0 }})</h2>
+        </div>
+        <div class="card-body">
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Item ID</th>
+                  <th>Ordered Qty</th>
+                  <th>Received Qty</th>
+                  <th>Unit Price</th>
+                  <th>UOM</th>
+                  <th>Remarks</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let line of lines">
+                  <td class="item-id">{{ line.itemId || '—' }}</td>
+                  <td><strong>{{ line.orderedQty }}</strong></td>
+                  <td><strong>{{ line.receivedQty }}</strong></td>
+                  <td>{{ line.unitPrice }}</td>
+                  <td>{{ line.uom || '—' }}</td>
+                  <td>{{ line.remarks || '—' }}</td>
+                </tr>
+                <tr *ngIf="!lines?.length">
+                  <td colspan="6" class="empty-cell">
+                    <div class="empty-state">
+                      <div class="empty-icon">📦</div>
+                      <div class="empty-text">No line items</div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Mark Delivered Modal -->
+  <div class="modal-backdrop" *ngIf="isMarkDeliveredOpen" (click)="closeMarkDelivered()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Mark Delivered</h3>
+        <p>Are you sure you want to mark this PO as delivered?</p>
+      </div>
+      <div class="modal-body">
+        <div class="confirmation-message">
+          <div class="confirmation-icon">✓</div>
+          <p>This action will update the status of PO <strong>{{ po?.poNumber || ('PO-' + poId) }}</strong> to delivered.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" type="button" (click)="closeMarkDelivered()">No</button>
+        <button class="btn-primary" type="button" (click)="confirmMarkDelivered()" [disabled]="isMarking">
+          {{ isMarking ? 'Updating...' : 'Yes' }}
+        </button>
       </div>
     </div>
-    <div class="modal-actions">
-      <button class="btn ghost" type="button" (click)="closeCreateGrn()">Cancel</button>
-      <button class="btn primary" type="button" (click)="submitGrn()" [disabled]="isSubmittingGrn">
-        {{ isSubmittingGrn ? 'Creating...' : 'Create GRN' }}
-      </button>
+  </div>
+
+  <!-- Create GRN Modal -->
+  <div class="modal-backdrop" *ngIf="isCreateGrnOpen" (click)="closeCreateGrn()">
+    <div class="modal-dialog large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-header-content">
+          <div>
+            <h3>Create GRN</h3>
+            <p>For {{ po?.poNumber || ('PO-' + poId) }}</p>
+          </div>
+          <span class="badge badge-success">PO: {{ statusChip || 'Delivered' }}</span>
+        </div>
+      </div>
+      <div class="modal-body">
+        <!-- GRN Form -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">PO Number</label>
+            <input type="text" class="form-input" [value]="po?.poNumber || ''" readonly />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Vendor</label>
+            <input type="text" class="form-input" [value]="po?.vendorName || ''" readonly />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Received By *</label>
+            <input 
+              type="text" 
+              class="form-input" 
+              [(ngModel)]="grnForm.receivedBy" 
+              placeholder="e.g., store-01 / ajay" 
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Received At *</label>
+            <input 
+              type="datetime-local" 
+              class="form-input" 
+              [(ngModel)]="grnForm.receivedAt" 
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notes (Optional)</label>
+          <textarea 
+            class="form-input" 
+            [(ngModel)]="grnForm.notes" 
+            placeholder="Delivery condition, invoice note, etc..."
+            rows="3"
+          ></textarea>
+        </div>
+
+        <!-- Receive Lines Table -->
+        <div class="grn-lines-section">
+          <h4 class="section-title">Receive Lines (from PO lines)</h4>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Item ID</th>
+                  <th>Ordered</th>
+                  <th>Receive Now</th>
+                  <th>UOM</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let line of grnForm.lines">
+                  <td class="item-id">{{ line.itemId || '—' }}</td>
+                  <td><strong>{{ line.orderedQty }}</strong></td>
+                  <td>
+                    <input
+                      type="number"
+                      min="0"
+                      class="inline-input"
+                      [(ngModel)]="line.receiveNow"
+                    />
+                  </td>
+                  <td>{{ line.uom || '—' }}</td>
+                </tr>
+                <tr *ngIf="!grnForm.lines?.length">
+                  <td colspan="4" class="empty-cell">
+                    <div class="empty-state">
+                      <div class="empty-icon">📦</div>
+                      <div class="empty-text">No lines available</div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" type="button" (click)="closeCreateGrn()">Cancel</button>
+        <button 
+          class="btn-primary" 
+          type="button" 
+          (click)="submitGrn()" 
+          [disabled]="isSubmittingGrn"
+        >
+          {{ isSubmittingGrn ? 'Creating...' : 'Create GRN' }}
+        </button>
+      </div>
     </div>
   </div>
 </div>
