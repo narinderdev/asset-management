@@ -1,9 +1,12 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 
 import { AssetsService, AssetDetailResponse } from '../../services/assets.service';
+import { PmTemplateService } from '../../services/pm-template.service';
+import { ToastrService } from 'ngx-toastr';
 
 type AssetDetail = NonNullable<AssetDetailResponse['data']>;
 type AssetLocationDetails = Exclude<AssetDetail['location'], string>;
@@ -11,7 +14,7 @@ type AssetLocationDetails = Exclude<AssetDetail['location'], string>;
 @Component({
   standalone: true,
   selector: 'app-view-asset',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './view-asset.html',
   styleUrls: ['./view-asset.css']
 })
@@ -20,12 +23,22 @@ export class ViewAssetComponent implements OnInit {
   isLoading = false;
   errorMessage?: string;
   assetLoaded = false;
+  meterModalOpen = false;
+  meterReadingForm = {
+    assetId: null as number | null,
+    meterType: '',
+    readingValue: '',
+    readingTime: '',
+    notes: ''
+  };
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private assetsService: AssetsService,
-    private cdr: ChangeDetectorRef
+    private pmTemplateService: PmTemplateService,
+    private cdr: ChangeDetectorRef,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -118,5 +131,51 @@ export class ViewAssetComponent implements OnInit {
       return undefined;
     }
     return location;
+  }
+
+  openMeterModal(): void {
+    const threshold = this.asset?.predictiveThresholds?.[0];
+    const now = new Date().toISOString().slice(0, 16);
+    this.meterReadingForm = {
+      assetId: threshold?.assetId ?? (this.asset?.id ? Number(this.asset.id) : null),
+      meterType: threshold?.meterType ?? '',
+      readingValue: '',
+      readingTime: now,
+      notes: ''
+    };
+    setTimeout(() => {
+      this.meterModalOpen = true;
+      this.cdr.detectChanges();
+    });
+  }
+
+  closeMeterModal(): void {
+    this.meterModalOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  submitMeterReading(): void {
+    if (!this.meterReadingForm.assetId || !this.meterReadingForm.meterType || !this.meterReadingForm.readingValue) {
+      return;
+    }
+    const payload = {
+      assetId: this.meterReadingForm.assetId,
+      meterType: this.meterReadingForm.meterType,
+      readingValue: Number(this.meterReadingForm.readingValue),
+      readingTime: this.meterReadingForm.readingTime,
+      notes: this.meterReadingForm.notes || undefined
+    };
+
+    this.pmTemplateService.createPredictiveMeterReading(payload).pipe(
+      finalize(() => this.cdr.detectChanges())
+    ).subscribe({
+      next: () => {
+        this.toastr.success('Meter reading captured.');
+        this.closeMeterModal();
+      },
+      error: () => {
+        this.toastr.error('Unable to save meter reading. Please try again.');
+      }
+    });
   }
 }

@@ -229,9 +229,9 @@ export class ViewPurchaseOrderComponent implements OnInit {
 
   private buildGrnPayload() {
     const lines = this.grnForm.lines
-      .filter(l => Number(l.receiveNow) > 0 && l.id !== undefined)
+      .filter(l => Number(l.receiveNow) > 0 && (l.itemId !== undefined || l.id !== undefined))
       .map(l => ({
-        poLineId: Number(l.id),
+        itemId: Number(l.itemId || l.id),
         receivedQty: Number(l.receiveNow)
       }));
 

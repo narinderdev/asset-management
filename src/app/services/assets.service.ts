@@ -104,6 +104,27 @@ export interface AssetDetailResponse {
       safetyNotes?: string;
       operatingInstructions?: string;
     };
+    predictiveThresholds?: Array<{
+      id?: number;
+      assetId?: number;
+      assetName?: string;
+      meterType?: string;
+      warningThreshold?: number;
+      criticalThreshold?: number;
+      autoCreateWo?: boolean;
+      defaultPriority?: string;
+      cooldownHours?: number;
+      lastTriggeredSeverity?: string | null;
+      meterReadings?: Array<{
+        id?: number;
+        meterType?: string;
+        readingValue?: number;
+        readingTime?: string;
+        severity?: string;
+        notes?: string;
+        createdAt?: string;
+      }>;
+    }>;
   };
 }
 

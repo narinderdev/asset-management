@@ -81,6 +81,7 @@
   gap: 12px;
   align-items: center;
   max-width: 420px;
+  margin-left: auto;
 }
 
 .filter-input {

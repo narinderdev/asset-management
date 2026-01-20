@@ -245,6 +245,14 @@ export class WorkOrderService {
     return this.http.post(this.apiUrl, payload, { headers });
   }
 
+  updateWorkOrder(id: number | string, payload: CreateWorkOrderRequest): Observable<unknown> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.patch(`${this.apiUrl}/${id}`, payload, { headers });
+  }
+
   approveWorkOrder(id: number | string, payload: ApproveWorkOrderRequest): Observable<WorkOrderDetailResponse> {
     const headers = new HttpHeaders({
       'ngrok-skip-browser-warning': 'true'

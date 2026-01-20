@@ -59,7 +59,7 @@
                 class="action-button icon-btn edit-btn"
                 type="button"
                 aria-label="Edit work order"
-                *ngIf="canEditWorkOrders"
+                *ngIf="canEditWorkOrders && order.status === 'New'"
                 (click)="editWorkOrder(order)"
               >
                 <img src="assets/icons/edit.svg" alt="Edit work order" class="view-icon" />
@@ -68,7 +68,7 @@
                 class="action-button icon-btn delete-btn danger"
                 type="button"
                 aria-label="Delete work order"
-                *ngIf="canDeleteWorkOrders"
+                *ngIf="canDeleteWorkOrders && order.status === 'New'"
                 (click)="promptDeleteWorkOrder(order)"
               >
                 <img src="assets/icons/delete.svg" alt="Delete work order" class="view-icon" />

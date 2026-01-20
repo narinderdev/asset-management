@@ -9,7 +9,7 @@
       >
         ←
       </button>
-      <h2>Create Work Order</h2>
+      <h2>{{ isEditMode ? 'Edit Work Order' : 'Create Work Order' }}</h2>
     </header>
 
     <form class="request-form" (ngSubmit)="onCreate()">
@@ -77,7 +77,7 @@
 
       <div class="form-actions">
         <button type="button" class="btn ghost" (click)="onCancel()">Cancel</button>
-        <button type="submit" class="btn primary">Create Work Order</button>
+        <button type="submit" class="btn primary">{{ isEditMode ? 'Update Work Order' : 'Create Work Order' }}</button>
       </div>
     </form>
   </section>

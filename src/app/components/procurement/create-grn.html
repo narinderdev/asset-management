@@ -11,11 +11,7 @@
       <div class="section-title">Goods Receipt Details</div>
       <div class="form-grid">
         <label class="field">
-          <span>PO Id</span>
-          <input type="number" name="poId" [(ngModel)]="form.poId" required />
-        </label>
-        <label class="field">
-          <span>Received By User Id</span>
+          <span>Received By</span>
           <input type="text" name="receivedBy" [(ngModel)]="form.receivedByUserId" required />
         </label>
         <label class="field">
@@ -26,18 +22,23 @@
 
       <div class="line-items">
         <div class="line-items-toolbar">
-          <div class="section-title">Lines</div>
+          <div class="section-title">Items</div>
           <button type="button" class="link-btn add-line-btn" (click)="addLine()">+ Add Line</button>
         </div>
         <div class="line-items-header">
-          <div>PO Line Id</div>
+          <div>Inventory name</div>
           <div>Received Qty</div>
           <div class="actions-column">Actions</div>
         </div>
 
         <div class="line-item-row" *ngFor="let line of lines; let i = index">
           <div class="line-field">
-            <input type="number" name="poLineId-{{ i }}" [(ngModel)]="line.poLineId" placeholder="e.g., 12" />
+            <select name="itemId-{{ i }}" [(ngModel)]="line.itemId" (change)="onItemSelected(i)">
+              <option value="" disabled hidden>Select item</option>
+              <option *ngFor="let option of itemOptions" [value]="option.id">
+                {{ option.name }}
+              </option>
+            </select>
           </div>
           <div class="line-field">
             <input type="number" name="receivedQty-{{ i }}" [(ngModel)]="line.receivedQty" min="0" />
@@ -50,7 +51,7 @@
 
       <div class="form-actions">
         <button type="button" class="btn ghost" (click)="cancel()">Cancel</button>
-        <button type="submit" class="btn primary" [disabled]="isSubmitting || !form.poId || !form.receivedByUserId">
+        <button type="submit" class="btn primary" [disabled]="isSubmitting || !form.receivedByUserId || !hasValidLine()">
           {{ isSubmitting ? 'Creating...' : 'Create GRN' }}
         </button>
       </div>

@@ -164,12 +164,13 @@ export interface GoodsReceiptDetailResponse {
 }
 
 export interface CreateGrnLinePayload {
-  poLineId: number;
+  itemId?: number;
+  poLineId?: number;
   receivedQty: number;
 }
 
 export interface CreateGrnPayload {
-  poId: number;
+  poId?: number;
   receivedByUserId: string;
   notes?: string;
   lines: CreateGrnLinePayload[];
