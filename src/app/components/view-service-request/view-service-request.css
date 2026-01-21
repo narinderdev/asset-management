@@ -73,12 +73,14 @@
   align-items: center;
   gap: 16px;
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 .status-badges {
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .badge {
@@ -155,7 +157,11 @@
 
 .btn-convert {
   background-color: #2563eb;
+  display: flex;
+  align-items: center;
   color: #ffffff;
+  /* white-space: nowrap; */
+  justify-content: center;
 }
 
 .btn-convert:hover {
@@ -313,11 +319,13 @@
 
 .modal-dialog {
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 16px;
   width: 100%;
-  max-width: 440px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  max-width: 520px;
+  box-shadow: 0 20px 60px rgba(17, 24, 39, 0.14);
+  border: 1px solid #eef2f7;
   animation: modalSlideIn 0.2s ease-out;
+  overflow: hidden;
 }
 
 @keyframes modalSlideIn {
@@ -332,20 +340,24 @@
 }
 
 .modal-header {
-  padding: 32px 32px 24px;
+  padding: 28px 32px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
 }
 
 .modal-icon {
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
-  margin-bottom: 16px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+  margin-bottom: 14px;
 }
 
 .modal-icon.success {
@@ -364,10 +376,10 @@
 }
 
 .modal-header h3 {
-  margin: 0 0 8px;
-  font-size: 20px;
-  font-weight: 600;
-  color: #111827;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .modal-header p {
@@ -380,15 +392,19 @@
 .modal-actions {
   display: flex;
   gap: 12px;
-  padding: 24px 32px;
-  border-top: 1px solid #f3f4f6;
-  justify-content: flex-end;
+  padding: 18px 24px;
+  border-top: 1px solid #f1f5f9;
+  justify-content: center;
+  background: #f9fafb;
 }
 
 .btn-primary,
 .btn-secondary,
 .btn-success,
 .btn-danger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   padding: 10px 20px;
   border-radius: 6px;
@@ -482,13 +498,30 @@
 
   .header-actions {
     width: 100%;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 8px;
     align-items: stretch;
   }
 
   .status-badges,
   .action-buttons {
+    display: contents;
+  }
+
+  .status-badges .badge {
     width: 100%;
+    min-width: 0;
+    text-align: center;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+
+  .action-buttons button {
+    width: 100%;
+    min-width: 0;
+    justify-content: center;
   }
 
   .title-section h1 {
@@ -517,10 +550,14 @@
     padding: 24px 24px 20px;
   }
 
-  .modal-actions {
-    padding: 20px 24px;
-    flex-direction: column;
-  }
+.modal-actions {
+  padding: 20px 24px;
+  flex-direction: column;
+}
+
+.modal-dialog {
+  max-width: 480px;
+}
 
   .btn-primary,
   .btn-secondary,

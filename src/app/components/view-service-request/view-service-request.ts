@@ -187,11 +187,16 @@ export class ViewServiceRequestComponent implements OnInit {
       )
       .subscribe({
         next: () => {
+          this.isActionProcessing = false;
+          this.toastr.success('Service request approved.');
+          if (this.request) {
+            this.request = { ...this.request, status: 'APPROVED' };
+          }
           this.closeModals();
-          this.loadRequest(id);
+          this.cdr.detectChanges();
         },
         error: () => {
-          this.errorMessage = 'Failed to approve request. Please try again.';
+          this.toastr.error('Failed to approve request. Please try again.');
         }
       });
   }
@@ -211,11 +216,16 @@ export class ViewServiceRequestComponent implements OnInit {
       )
       .subscribe({
         next: () => {
+          this.isActionProcessing = false;
+          this.toastr.success('Service request rejected.');
+          if (this.request) {
+            this.request = { ...this.request, status: 'REJECTED' };
+          }
           this.closeModals();
-          this.loadRequest(id);
+          this.cdr.detectChanges();
         },
         error: () => {
-          this.errorMessage = 'Failed to reject request. Please try again.';
+          this.toastr.error('Failed to reject request. Please try again.');
         }
       });
   }
