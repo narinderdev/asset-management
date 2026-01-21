@@ -73,6 +73,13 @@
   color: #333;
 }
 
+.add-asset-container select,
+.form-field select,
+.mobile-tab-select {
+  width: 100%;
+  max-width: 100%;
+}
+
 .mobile-tab-wrapper {
   display: none;
   width: 100%;

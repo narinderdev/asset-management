@@ -176,6 +176,29 @@
   color: #4b5563;
 }
 
+@media (max-width: 768px) {
+  .pagination {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .pager-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .pager-info {
+    text-align: center;
+    width: 100%;
+  }
+
+  .pager-btn {
+    flex: 1;
+    text-align: center;
+  }
+}
+
 .loading-overlay {
   position: absolute;
   inset: 0;

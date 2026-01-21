@@ -86,7 +86,8 @@ export class InventoryComponent implements OnInit {
           }
         },
         error: () => {
-          this.errorMessage = 'Unable to load inventory. Please try again later.';
+          this.errorMessage = undefined;
+          this.toastr.error('Unable to load inventory. Please try again later.');
           this.inventory = [];
           this.totalInventory = 0;
         }

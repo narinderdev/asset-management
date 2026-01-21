@@ -138,7 +138,8 @@ export class TechnicianTeamsComponent implements OnInit {
           this.cdr.detectChanges();
         },
         error: () => {
-          this.errorMessage = 'Unable to load technician teams.';
+          this.errorMessage = undefined;
+          this.toastr.error('Unable to load technician teams.');
           this.cdr.detectChanges();
         }
       });

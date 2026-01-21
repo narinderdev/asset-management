@@ -156,6 +156,12 @@
   color: #b91c1c;
 }
 
+.empty-row {
+  text-align: start;
+  padding: 16px;
+  color: #6b7280;
+}
+
 .actions-cell {
   display: flex;
   gap: 8px;
@@ -293,6 +299,27 @@
   color: #4b5563;
 }
 
+@media (max-width: 768px) {
+  .pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pager-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .pager-btn {
+    flex: 1;
+    text-align: center;
+  }
+
+  .pager-info {
+    text-align: center;
+    width: 100%;
+  }
+}
 @media (max-width: 768px) {
   .service-requests-header {
     flex-direction: column;

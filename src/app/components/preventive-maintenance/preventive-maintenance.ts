@@ -117,7 +117,8 @@ export class PreventiveMaintenanceComponent implements OnInit {
             this.cdr.detectChanges();
           },
           error: () => {
-            this.errorMessage = 'Unable to load predictive maintenance items. Please try again later.';
+            this.errorMessage = undefined;
+            this.toastr.error('Unable to load predictive maintenance items. Please try again later.');
             this.templates = [];
             this.totalTemplates = 0;
             this.cdr.detectChanges();
@@ -146,7 +147,8 @@ export class PreventiveMaintenanceComponent implements OnInit {
             this.cdr.detectChanges();
           },
           error: () => {
-            this.errorMessage = 'Unable to load emergency maintenance items. Please try again later.';
+            this.errorMessage = undefined;
+            this.toastr.error('Unable to load emergency maintenance items. Please try again later.');
             this.templates = [];
             this.totalTemplates = 0;
             this.cdr.detectChanges();
@@ -175,7 +177,8 @@ export class PreventiveMaintenanceComponent implements OnInit {
             this.cdr.detectChanges();
           },
           error: () => {
-            this.errorMessage = 'Unable to load preventive maintenance templates. Please try again later.';
+            this.errorMessage = undefined;
+            this.toastr.error('Unable to load preventive maintenance templates. Please try again later.');
             this.templates = [];
             this.totalTemplates = 0;
             this.cdr.detectChanges();

@@ -99,7 +99,8 @@ export class VendorManagementComponent implements OnInit {
           }
         },
         error: () => {
-          this.errorMessage = 'Unable to load vendors right now. Please try again later.';
+          this.errorMessage = undefined;
+          this.toastr.error('Unable to load vendors right now. Please try again later.');
           this.vendors = [];
           this.totalVendors = 0;
         }

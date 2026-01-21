@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
 
 import { ServiceContractService } from '../../services/service-contract.service';
 
@@ -49,7 +50,8 @@ export class ServiceContractComponent implements OnInit {
   constructor(
     private router: Router,
     private serviceContractService: ServiceContractService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -81,7 +83,8 @@ export class ServiceContractComponent implements OnInit {
           }
         },
         error: () => {
-          this.errorMessage = 'Unable to load service contracts. Please try again later.';
+          this.errorMessage = undefined;
+          this.toastr.error('Unable to load service contracts. Please try again later.');
           this.contracts = [];
           this.totalContracts = 0;
         }

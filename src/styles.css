@@ -138,7 +138,7 @@ body {
 }
 
 .empty-row {
-  text-align: center;
+  text-align: start;
   padding: 24px;
   color: #777;
   font-size: 14px;

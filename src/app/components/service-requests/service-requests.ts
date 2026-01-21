@@ -114,9 +114,10 @@ export class ServiceRequestsComponent implements OnInit {
           }
         },
         error: () => {
-          this.errorMessage = 'Unable to load service requests. Please try again later.';
+          this.errorMessage = undefined;
           this.serviceRequests = [];
           this.totalRequests = 0;
+          this.toastr.error('Unable to load service requests. Please try again later.');
         }
       });
   }

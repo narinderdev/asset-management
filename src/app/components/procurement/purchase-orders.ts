@@ -9,6 +9,7 @@ import {
   PurchaseOrderItem,
   PurchaseOrderListResponse
 } from '../../services/procurement.service';
+import { ToastrService } from 'ngx-toastr';
 
 interface PurchaseOrderRow {
   id: number;
@@ -40,7 +41,8 @@ export class PurchaseOrdersComponent implements OnInit {
   constructor(
     private procurementService: ProcurementService,
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -75,9 +77,10 @@ export class PurchaseOrdersComponent implements OnInit {
           this.filterOrders();
         },
         error: () => {
-          this.errorMessage = 'Unable to load purchase orders. Please try again.';
+          this.errorMessage = undefined;
           this.orders = [];
           this.filteredOrders = [];
+          this.toastr.error('Unable to load purchase orders. Please try again.');
           this.cdr.detectChanges();
         }
       });

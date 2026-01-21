@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
 
 import { FailureCodeService } from '../../services/failure-code.service';
 
@@ -42,7 +43,8 @@ export class FailureCodeComponent implements OnInit {
   constructor(
     private router: Router,
     private failureCodeService: FailureCodeService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -66,7 +68,8 @@ export class FailureCodeComponent implements OnInit {
           this.totalEntries = this.entries.length;
         },
         error: () => {
-          this.errorMessage = 'Unable to load failure codes. Try again later.';
+          this.errorMessage = undefined;
+          this.toastr.error('Unable to load failure codes. Try again later.');
           this.entries = [];
           this.totalEntries = 0;
         }

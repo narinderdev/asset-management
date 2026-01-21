@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
 
 import {
   ProcurementService,
@@ -40,7 +41,8 @@ export class ProcurementComponent implements OnInit {
   constructor(
     private router: Router,
     private procurementService: ProcurementService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -89,10 +91,11 @@ export class ProcurementComponent implements OnInit {
           this.filterRequests();
         },
         error: () => {
-          this.errorMessage = 'Unable to load purchase requisitions. Please try again.';
+          this.errorMessage = undefined;
           this.requests = [];
           this.filteredRequests = [];
           this.totalRequests = 0;
+          this.toastr.error('Unable to load purchase requisitions. Please try again.');
           this.cdr.detectChanges();
         }
       });

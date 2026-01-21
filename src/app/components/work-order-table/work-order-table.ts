@@ -105,7 +105,8 @@ export class WorkOrderTable implements OnInit {
           this.cdr.detectChanges();
         },
         error: () => {
-          this.errorMessage = 'Unable to load work orders. Please try again later.';
+          this.errorMessage = undefined;
+          this.toastr.error('Unable to load work orders. Please try again later.');
           this.isLoading = false;
           this.cdr.detectChanges();
         }

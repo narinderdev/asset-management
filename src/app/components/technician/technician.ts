@@ -116,7 +116,8 @@ export class TechnicianComponent implements OnInit {
           this.errorMessage = null;
         },
         error: () => {
-          this.errorMessage = 'Unable to load technicians right now.';
+          this.errorMessage = null;
+          this.toastr.error('Unable to load technicians right now.');
           this.technicians = [];
           this.totalTechnicians = 0;
         }
