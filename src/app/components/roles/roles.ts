@@ -87,12 +87,14 @@ export class RolesComponent implements OnInit {
           this.pagination.totalPages = this.roles.length
             ? Math.ceil(this.roles.length / this.pagination.pageSize)
             : 0;
+          this.pagination.currentPage = this.pagination.totalItems ? Math.min(this.pagination.currentPage || 0, this.pagination.totalPages ? this.pagination.totalPages - 1 : 0) : 0;
           this.cdr.detectChanges();
         },
         error: () => {
           this.roles = [];
           this.pagination.totalItems = 0;
           this.pagination.totalPages = 0;
+          this.pagination.currentPage = 0;
           this.cdr.detectChanges();
         }
       });
@@ -233,4 +235,42 @@ export class RolesComponent implements OnInit {
   }
 
   viewRole(_: any) {}
+
+  get pagedRoles(): any[] {
+    const start = this.pagination.currentPage * this.pagination.pageSize;
+    return this.roles.slice(start, start + this.pagination.pageSize);
+  }
+
+  get displayStart(): number {
+    if (!this.pagination.totalItems) {
+      return 0;
+    }
+    return this.pagination.currentPage * this.pagination.pageSize + 1;
+  }
+
+  get displayEnd(): number {
+    if (!this.pagination.totalItems) {
+      return 0;
+    }
+    const end = (this.pagination.currentPage + 1) * this.pagination.pageSize;
+    return Math.min(end, this.pagination.totalItems);
+  }
+
+  previousPage(): void {
+    if (this.pagination.currentPage > 0 && !this.isLoading) {
+      this.pagination.currentPage -= 1;
+      this.cdr.detectChanges();
+    }
+  }
+
+  nextPage(): void {
+    if (this.pagination.currentPage < this.totalPages - 1 && !this.isLoading) {
+      this.pagination.currentPage += 1;
+      this.cdr.detectChanges();
+    }
+  }
+
+  get totalPages(): number {
+    return Math.max(1, this.pagination.totalPages || 0);
+  }
 }

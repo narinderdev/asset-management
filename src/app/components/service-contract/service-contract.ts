@@ -40,6 +40,9 @@ interface ApiServiceContract {
 })
 export class ServiceContractComponent implements OnInit {
   contracts: ServiceContract[] = [];
+  totalContracts = 0;
+  currentPage = 0;
+  itemsPerPage = 10;
   isLoading = false;
   errorMessage?: string;
 
@@ -54,11 +57,12 @@ export class ServiceContractComponent implements OnInit {
   }
 
   private loadContracts(): void {
+    const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
     this.errorMessage = undefined;
 
     this.serviceContractService
-      .fetchContracts(0, 20)
+      .fetchContracts(pageIndex, this.itemsPerPage)
       .pipe(finalize(() => {
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -67,9 +71,19 @@ export class ServiceContractComponent implements OnInit {
         next: response => {
           const content = response.data?.content ?? [];
           this.contracts = content.map(contract => this.mapContract(contract));
+          this.totalContracts = response.data?.totalElements ?? this.contracts.length;
+          if (typeof response.data?.size === 'number' && response.data.size > 0) {
+            this.itemsPerPage = response.data.size;
+          }
+          const apiPage = (response.data as any)?.page ?? (response.data as any)?.number;
+          if (typeof apiPage === 'number') {
+            this.currentPage = apiPage;
+          }
         },
         error: () => {
           this.errorMessage = 'Unable to load service contracts. Please try again later.';
+          this.contracts = [];
+          this.totalContracts = 0;
         }
       });
   }
@@ -111,5 +125,37 @@ export class ServiceContractComponent implements OnInit {
 
   createContract(): void {
     this.router.navigate(['/service-contracts/create']);
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0 && !this.isLoading) {
+      this.currentPage -= 1;
+      this.loadContracts();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1 && !this.isLoading) {
+      this.currentPage += 1;
+      this.loadContracts();
+    }
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalContracts / this.itemsPerPage));
+  }
+
+  get displayStart(): number {
+    if (!this.totalContracts) {
+      return 0;
+    }
+    return this.currentPage * this.itemsPerPage + 1;
+  }
+
+  get displayEnd(): number {
+    if (!this.totalContracts) {
+      return 0;
+    }
+    return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalContracts);
   }
 }

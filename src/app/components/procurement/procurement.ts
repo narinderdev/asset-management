@@ -29,6 +29,9 @@ interface ProcurementRequest {
 export class ProcurementComponent implements OnInit {
   requests: ProcurementRequest[] = [];
   filteredRequests: ProcurementRequest[] = [];
+  totalRequests = 0;
+  currentPage = 0;
+  itemsPerPage = 10;
   selectedStatus = 'ALL';
   statusOptions = ['ALL', 'Approved', 'Submitted', 'Pending Approval', 'Rejected', 'Draft'];
   isLoading = false;
@@ -59,11 +62,12 @@ export class ProcurementComponent implements OnInit {
   }
 
   private loadRequisitions(): void {
+    const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
     this.errorMessage = undefined;
 
     this.procurementService
-      .fetchRequisitions(0, 20)
+      .fetchRequisitions(pageIndex, this.itemsPerPage)
       .pipe(
         finalize(() => {
           this.isLoading = false;
@@ -74,12 +78,21 @@ export class ProcurementComponent implements OnInit {
         next: response => {
           const content = response.data?.content ?? [];
           this.requests = content.map(item => this.mapRequest(item));
+          this.totalRequests = response.data?.totalElements ?? this.requests.length;
+          if (typeof response.data?.size === 'number' && response.data.size > 0) {
+            this.itemsPerPage = response.data.size;
+          }
+          const apiPage = response.data?.number;
+          if (typeof apiPage === 'number') {
+            this.currentPage = apiPage;
+          }
           this.filterRequests();
         },
         error: () => {
           this.errorMessage = 'Unable to load purchase requisitions. Please try again.';
           this.requests = [];
           this.filteredRequests = [];
+          this.totalRequests = 0;
           this.cdr.detectChanges();
         }
       });
@@ -147,5 +160,38 @@ export class ProcurementComponent implements OnInit {
     }
     const normalized = status.toLowerCase();
     return normalized.includes('approved') || normalized.includes('converted');
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0 && !this.isLoading) {
+      this.currentPage -= 1;
+      this.loadRequisitions();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1 && !this.isLoading) {
+      this.currentPage += 1;
+      this.loadRequisitions();
+    }
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalRequests / this.itemsPerPage));
+  }
+
+  get displayStart(): number {
+    if (!this.totalRequests) {
+      return 0;
+    }
+    return this.currentPage * this.itemsPerPage + 1;
+  }
+
+  get displayEnd(): number {
+    if (!this.totalRequests) {
+      return 0;
+    }
+    const visibleCount = this.filteredRequests.length;
+    return Math.min(this.currentPage * this.itemsPerPage + visibleCount, this.totalRequests);
   }
 }

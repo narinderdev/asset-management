@@ -1,9 +1,9 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+﻿import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { RoleService } from '../../services/role.service';
-import { UserService } from '../../services/user.service';
+import { UserService, UserListItem } from '../../services/user.service';
 import { ToastrService } from 'ngx-toastr';
 import { PermissionService } from '../../services/permission.service';
 
@@ -26,6 +26,9 @@ export class UsersComponent {
   loadingUsers = false;
   sendingInvite = false;
   users: UserRow[] = [];
+  totalUsers = 0;
+  currentPage = 0;
+  itemsPerPage = 10;
 
   showInviteModal = false;
   inviteForm = {
@@ -147,19 +150,79 @@ export class UsersComponent {
       )
       .subscribe({
         next: res => {
-          const list = Array.isArray(res?.data) ? res.data : [];
-          this.users = list.map(u => ({
-            name: u.name || '—',
-            email: u.email || '—',
-            role: Array.isArray(u.roles) && u.roles.length ? u.roles.join(', ') : '—',
-            status: u.status || 'Active'
+          const rawData: any = res?.data;
+          const list: UserListItem[] | any[] = Array.isArray(rawData)
+            ? rawData
+            : Array.isArray(rawData?.users)
+              ? rawData.users
+              : Array.isArray(rawData?.content)
+                ? rawData.content
+                : [];
+          this.users = list.map((u: UserListItem | any) => ({
+            name: u?.name || 'N/A',
+            email: u?.email || 'N/A',
+            role: Array.isArray(u?.roles) && u.roles.length ? u.roles.join(', ') : 'N/A',
+            status: this.formatStatus(u?.status)
           }));
+          this.totalUsers = this.users.length;
           this.cdr.detectChanges();
         },
         error: () => {
           this.users = [];
+          this.totalUsers = 0;
           this.cdr.detectChanges();
         }
       });
+  }
+
+  get pagedUsers(): UserRow[] {
+    const start = this.currentPage * this.itemsPerPage;
+    return this.users.slice(start, start + this.itemsPerPage);
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0 && !this.loadingUsers) {
+      this.currentPage -= 1;
+      this.cdr.detectChanges();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1 && !this.loadingUsers) {
+      this.currentPage += 1;
+      this.cdr.detectChanges();
+    }
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalUsers / this.itemsPerPage));
+  }
+
+  get displayStart(): number {
+    if (!this.totalUsers) {
+      return 0;
+    }
+    return this.currentPage * this.itemsPerPage + 1;
+  }
+
+  get displayEnd(): number {
+    if (!this.totalUsers) {
+      return 0;
+    }
+    return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalUsers);
+  }
+
+  private formatStatus(status?: string): string {
+    const normalized = (status || '').toUpperCase();
+    if (normalized === 'ACTIVE') {
+      return 'Active';
+    }
+    if (normalized === 'INACTIVE') {
+      return 'Inactive';
+    }
+    if (normalized === 'INVITED') {
+      return 'Invited';
+    }
+    return status || 'Active';
   }
 }

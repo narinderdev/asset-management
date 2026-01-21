@@ -64,6 +64,19 @@
       <span>Loading technician teams...</span>
     </div>
   </div>
+
+  <div class="pagination" *ngIf="totalTeams > 0">
+    <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ totalTeams }}</span>
+    <div class="pager-actions">
+      <button class="pager-btn" (click)="previousPage()" [disabled]="currentPage === 0 || loading">
+        Previous
+      </button>
+      <span class="pager-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button class="pager-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1 || loading">
+        Next
+      </button>
+    </div>
+  </div>
   <app-delete-modal
     [isOpen]="isDeleteModalOpen"
     [deleting]="isDeleting"

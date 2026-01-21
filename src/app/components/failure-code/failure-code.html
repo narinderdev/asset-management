@@ -26,7 +26,7 @@
         <tr *ngIf="!entries.length && !isLoading">
           <td colspan="7" class="empty-row">No failure codes to display.</td>
         </tr>
-        <tr *ngFor="let entry of entries">
+        <tr *ngFor="let entry of pagedEntries">
           <td>{{ entry.symptomCode }}</td>
           <td>{{ entry.symptomDescription }}</td>
           <td>{{ entry.causeCode }}</td>
@@ -52,5 +52,18 @@
   <div class="loading-overlay" *ngIf="isLoading">
     <div class="loader"></div>
     <span>Loading failure codes...</span>
+  </div>
+
+  <div class="pagination" *ngIf="totalEntries > 0">
+    <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ totalEntries }}</span>
+    <div class="pager-actions">
+      <button class="pager-btn" (click)="previousPage()" [disabled]="currentPage === 0 || isLoading">
+        Previous
+      </button>
+      <span class="pager-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button class="pager-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1 || isLoading">
+        Next
+      </button>
+    </div>
   </div>
 </div>

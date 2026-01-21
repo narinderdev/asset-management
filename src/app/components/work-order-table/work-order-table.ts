@@ -48,6 +48,9 @@ export class WorkOrderTable implements OnInit {
   isDeleteModalOpen = false;
   orderToDelete?: WorkOrder;
   isDeleting = false;
+  currentPage = 0;
+  itemsPerPage = 10;
+  totalOrders = 0;
    canViewWorkOrders = false;
    canEditWorkOrders = false;
    canDeleteWorkOrders = false;
@@ -78,21 +81,33 @@ export class WorkOrderTable implements OnInit {
   private loadWorkOrders(): void {
     this.isLoading = true;
     this.errorMessage = undefined;
+    const pageIndex = Math.max(0, this.currentPage);
 
     this.workOrderService
-      .fetchWorkOrders(0, 20)
-      .pipe(finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }))
+      .fetchWorkOrders(pageIndex, this.itemsPerPage)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        })
+      )
       .subscribe({
         next: (response) => {
           const orders = response.data?.workOrders ?? [];
           this.workOrders = orders.map(order => this.toWorkOrder(order));
+          this.totalOrders = response.data?.totalElements ?? this.workOrders.length;
+          const apiPage = response.data?.page;
+          if (typeof apiPage === 'number') {
+            this.currentPage = apiPage;
+          }
           this.errorMessage = undefined;
+          this.isLoading = false;
+          this.cdr.detectChanges();
         },
         error: () => {
           this.errorMessage = 'Unable to load work orders. Please try again later.';
+          this.isLoading = false;
+          this.cdr.detectChanges();
         }
       });
   }
@@ -253,6 +268,38 @@ export class WorkOrderTable implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0 && !this.isLoading) {
+      this.currentPage -= 1;
+      this.loadWorkOrders();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1 && !this.isLoading) {
+      this.currentPage += 1;
+      this.loadWorkOrders();
+    }
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalOrders / this.itemsPerPage));
+  }
+
+  get displayStart(): number {
+    if (!this.totalOrders) {
+      return 0;
+    }
+    return this.currentPage * this.itemsPerPage + 1;
+  }
+
+  get displayEnd(): number {
+    if (!this.totalOrders) {
+      return 0;
+    }
+    return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalOrders);
   }
 
   private getStaticWorkOrders(): WorkOrder[] {

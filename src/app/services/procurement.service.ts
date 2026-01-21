@@ -153,7 +153,13 @@ export interface GoodsReceiptListResponse {
   statusCode?: number;
   status?: string;
   message?: string;
-  data?: GoodsReceiptItem[];
+  data?: {
+    totalElements?: number;
+    totalPages?: number;
+    size?: number;
+    number?: number;
+    content?: GoodsReceiptItem[];
+  };
 }
 
 export interface GoodsReceiptDetailResponse {
@@ -230,13 +236,9 @@ export class ProcurementService {
   constructor(private http: HttpClient) {}
 
   fetchRequisitions(page: number, size: number, sort: string[] = []): Observable<PurchaseRequisitionListResponse> {
-    let params = new HttpParams()
+    const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
-
-    sort.forEach(value => {
-      params = params.append('sort', value);
-    });
 
     const headers = new HttpHeaders({
       'ngrok-skip-browser-warning': 'true'
@@ -294,13 +296,9 @@ export class ProcurementService {
   }
 
   fetchPurchaseOrders(page: number, size: number, sort: string[] = []): Observable<PurchaseOrderListResponse> {
-    let params = new HttpParams()
+    const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
-
-    sort.forEach(value => {
-      params = params.append('sort', value);
-    });
 
     const headers = new HttpHeaders({
       'ngrok-skip-browser-warning': 'true'
@@ -317,7 +315,7 @@ export class ProcurementService {
     return this.http.get<PurchaseOrderDetailResponse>(`${this.poApiUrl}/${id}`, { headers });
   }
 
-  fetchGoodsReceipts(poId?: number | string, from?: string, to?: string): Observable<GoodsReceiptListResponse> {
+  fetchGoodsReceipts(poId?: number | string, from?: string, to?: string, page?: number, size?: number): Observable<GoodsReceiptListResponse> {
     let params = new HttpParams();
     if (poId !== undefined && poId !== null && poId !== '') {
       params = params.set('poId', String(poId));
@@ -327,6 +325,12 @@ export class ProcurementService {
     }
     if (to) {
       params = params.set('to', to);
+    }
+    if (page !== undefined) {
+      params = params.set('page', String(page));
+    }
+    if (size !== undefined) {
+      params = params.set('size', String(size));
     }
 
     const headers = new HttpHeaders({

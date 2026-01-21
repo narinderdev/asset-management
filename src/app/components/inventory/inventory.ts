@@ -29,6 +29,9 @@ interface InventoryItem {
 })
 export class InventoryComponent implements OnInit {
   inventory: InventoryItem[] = [];
+  totalInventory = 0;
+  currentPage = 0;
+  itemsPerPage = 10;
   isLoading = false;
   errorMessage?: string;
 
@@ -59,11 +62,12 @@ export class InventoryComponent implements OnInit {
   }
 
   private loadInventory(): void {
+    const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
     this.errorMessage = undefined;
 
     this.inventoryService
-      .fetchInventory(0, 20)
+      .fetchInventory(pageIndex, this.itemsPerPage)
       .pipe(finalize(() => {
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -72,11 +76,53 @@ export class InventoryComponent implements OnInit {
         next: response => {
           const content = response.data?.content ?? [];
           this.inventory = content.map(item => this.mapItem(item));
+          this.totalInventory = response.data?.totalElements ?? this.inventory.length;
+          if (typeof response.data?.size === 'number' && response.data.size > 0) {
+            this.itemsPerPage = response.data.size;
+          }
+          const apiPage = response.data?.number;
+          if (typeof apiPage === 'number') {
+            this.currentPage = apiPage;
+          }
         },
         error: () => {
           this.errorMessage = 'Unable to load inventory. Please try again later.';
+          this.inventory = [];
+          this.totalInventory = 0;
         }
       });
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0 && !this.isLoading) {
+      this.currentPage -= 1;
+      this.loadInventory();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1 && !this.isLoading) {
+      this.currentPage += 1;
+      this.loadInventory();
+    }
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalInventory / this.itemsPerPage));
+  }
+
+  get displayStart(): number {
+    if (!this.totalInventory) {
+      return 0;
+    }
+    return this.currentPage * this.itemsPerPage + 1;
+  }
+
+  get displayEnd(): number {
+    if (!this.totalInventory) {
+      return 0;
+    }
+    return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalInventory);
   }
 
   private mapItem(item: {

@@ -33,6 +33,9 @@ interface FailureCodeDto {
 })
 export class FailureCodeComponent implements OnInit {
   entries: FailureCodeEntry[] = [];
+  totalEntries = 0;
+  currentPage = 0;
+  itemsPerPage = 10;
   isLoading = false;
   errorMessage?: string;
 
@@ -60,9 +63,12 @@ export class FailureCodeComponent implements OnInit {
         next: response => {
           const data = response.data ?? [];
           this.entries = data.map(item => this.mapEntry(item));
+          this.totalEntries = this.entries.length;
         },
         error: () => {
           this.errorMessage = 'Unable to load failure codes. Try again later.';
+          this.entries = [];
+          this.totalEntries = 0;
         }
       });
   }
@@ -80,5 +86,40 @@ export class FailureCodeComponent implements OnInit {
 
   addFailureCode(): void {
     this.router.navigate(['/failure-codes/create']);
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0 && !this.isLoading) {
+      this.currentPage -= 1;
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1 && !this.isLoading) {
+      this.currentPage += 1;
+    }
+  }
+
+  get pagedEntries(): FailureCodeEntry[] {
+    const start = this.currentPage * this.itemsPerPage;
+    return this.entries.slice(start, start + this.itemsPerPage);
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalEntries / this.itemsPerPage));
+  }
+
+  get displayStart(): number {
+    if (!this.totalEntries) {
+      return 0;
+    }
+    return this.currentPage * this.itemsPerPage + 1;
+  }
+
+  get displayEnd(): number {
+    if (!this.totalEntries) {
+      return 0;
+    }
+    return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalEntries);
   }
 }

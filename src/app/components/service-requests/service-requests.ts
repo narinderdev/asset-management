@@ -53,6 +53,9 @@ const STATUS_LABELS: Record<string, string> = {
 })
 export class ServiceRequestsComponent implements OnInit {
   serviceRequests: ServiceRequest[] = [];
+  totalRequests = 0;
+  currentPage = 0;
+  itemsPerPage = 10;
   isLoading = false;
   errorMessage?: string;
   isDeleteModalOpen = false;
@@ -85,11 +88,12 @@ export class ServiceRequestsComponent implements OnInit {
   }
 
   private loadRequests(): void {
+    const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
     this.errorMessage = undefined;
 
     this.serviceRequestService
-      .fetchRequests(0, 20)
+      .fetchRequests(pageIndex, this.itemsPerPage)
       .pipe(finalize(() => {
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -100,9 +104,19 @@ export class ServiceRequestsComponent implements OnInit {
           this.serviceRequests = content.map((request: ApiServiceRequest) =>
             this.mapRequest(request)
           );
+          this.totalRequests = response.data?.totalElements ?? this.serviceRequests.length;
+          if (typeof response.data?.size === 'number' && response.data.size > 0) {
+            this.itemsPerPage = response.data.size;
+          }
+          const apiPage = response.data?.number;
+          if (typeof apiPage === 'number') {
+            this.currentPage = apiPage;
+          }
         },
         error: () => {
           this.errorMessage = 'Unable to load service requests. Please try again later.';
+          this.serviceRequests = [];
+          this.totalRequests = 0;
         }
       });
   }
@@ -160,6 +174,38 @@ export class ServiceRequestsComponent implements OnInit {
       return 'Medium';
     }
     return 'Low';
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0 && !this.isLoading) {
+      this.currentPage -= 1;
+      this.loadRequests();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1 && !this.isLoading) {
+      this.currentPage += 1;
+      this.loadRequests();
+    }
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalRequests / this.itemsPerPage));
+  }
+
+  get displayStart(): number {
+    if (!this.totalRequests) {
+      return 0;
+    }
+    return this.currentPage * this.itemsPerPage + 1;
+  }
+
+  get displayEnd(): number {
+    if (!this.totalRequests) {
+      return 0;
+    }
+    return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalRequests);
   }
 
   createServiceRequest(): void {

@@ -4,7 +4,7 @@
  <div class="assets-header">
     <div class="header-left">
       <h1 class="assets-title">Assets</h1>
-      <span class="assets-count">({{ currentPage }} - {{ itemsPerPage }} of {{ totalAssets }})</span>
+      <span class="assets-count">(Showing {{ displayStart }} - {{ displayEnd }} of {{ totalAssets }})</span>
     </div>
     <div class="header-right">
       <button class="refresh-btn" (click)="refreshAssets()" title="Refresh">
@@ -37,10 +37,6 @@
   </div>
 
   <!-- Table Section -->
-  <div class="table-status" *ngIf="errorMessage">
-    {{ errorMessage }}
-  </div>
-
   <div class="table-wrapper">
     <div class="table-container">
       <table class="assets-table">
@@ -99,6 +95,19 @@
     <div class="loading-overlay" *ngIf="isLoading">
       <div class="loader"></div>
       <span>Loading assets...</span>
+    </div>
+  </div>
+
+  <div class="pagination" *ngIf="totalAssets > 0">
+    <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ totalAssets }}</span>
+    <div class="pager-actions">
+      <button class="pager-btn" (click)="previousPage()" [disabled]="currentPage === 0 || isLoading">
+        Previous
+      </button>
+      <span class="pager-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button class="pager-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1 || isLoading">
+        Next
+      </button>
     </div>
   </div>
   <app-delete-modal

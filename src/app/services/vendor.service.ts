@@ -66,8 +66,9 @@ export class VendorService {
   constructor(private http: HttpClient) {}
 
   fetchVendors(page: number, size: number, includeInactive = false): Observable<VendorsApiResponse> {
-    const pageable = JSON.stringify({ page, size, sort: [] });
-    let params = new HttpParams().set('pageable', pageable);
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
     if (includeInactive) {
       params = params.set('includeInactive', 'true');
     }

@@ -28,7 +28,7 @@
             <tr *ngIf="!receipts.length && !isLoading">
               <td colspan="8" class="empty-row">No goods receipts to display.</td>
             </tr>
-            <tr *ngFor="let receipt of receipts">
+            <tr *ngFor="let receipt of pagedReceipts">
               <td>{{ receipt.grnNumber }}</td>
               <td>{{ receipt.poId }}</td>
               <td>{{ receipt.vendorId }}</td>
@@ -49,6 +49,19 @@
       <div class="loading-overlay" *ngIf="isLoading">
         <div class="loader"></div>
         <span>Loading goods receipts...</span>
+      </div>
+    </div>
+
+    <div class="pagination" *ngIf="totalReceipts > 0">
+      <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ totalReceipts }}</span>
+      <div class="pager-actions">
+        <button class="pager-btn" (click)="previousPage()" [disabled]="currentPage === 0 || isLoading">
+          Previous
+        </button>
+        <span class="pager-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+        <button class="pager-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1 || isLoading">
+          Next
+        </button>
       </div>
     </div>
   </div>

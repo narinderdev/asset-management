@@ -219,8 +219,9 @@ export class AssetsService {
   constructor(private http: HttpClient) {}
 
   fetchAssets(page: number, size: number): Observable<AssetsApiResponse> {
-    const pageable = JSON.stringify({ page, size, sort: [] });
-    const params = new HttpParams().set('pageable', pageable);
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
     const headers = new HttpHeaders({
       'ngrok-skip-browser-warning': 'true'
     });

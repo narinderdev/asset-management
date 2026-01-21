@@ -25,6 +25,9 @@ export class TechnicianTeamsComponent implements OnInit {
   canCreateTeams = false;
   canEditTeams = false;
   canDeleteTeams = false;
+  currentPage = 0;
+  itemsPerPage = 10;
+  totalTeams = 0;
 
   constructor(
     private readonly technicianService: TechnicianService,
@@ -112,9 +115,10 @@ export class TechnicianTeamsComponent implements OnInit {
   private loadTeams(): void {
     this.loading = true;
     this.errorMessage = undefined;
+    const pageIndex = Math.max(0, this.currentPage);
 
     this.technicianService
-      .fetchTechnicianTeams()
+      .fetchTechnicianTeams(pageIndex, this.itemsPerPage)
       .pipe(finalize(() => {
         this.loading = false;
         this.cdr.detectChanges();
@@ -122,6 +126,14 @@ export class TechnicianTeamsComponent implements OnInit {
       .subscribe({
         next: response => {
           this.teams = response.data?.teams ?? [];
+          this.totalTeams = response.data?.totalElements ?? this.teams.length;
+          if (typeof response.data?.size === 'number' && response.data.size > 0) {
+            this.itemsPerPage = response.data.size;
+          }
+          const apiPage = response.data?.page;
+          if (typeof apiPage === 'number') {
+            this.currentPage = apiPage;
+          }
           this.errorMessage = undefined;
           this.cdr.detectChanges();
         },
@@ -130,5 +142,37 @@ export class TechnicianTeamsComponent implements OnInit {
           this.cdr.detectChanges();
         }
       });
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0 && !this.loading) {
+      this.currentPage -= 1;
+      this.loadTeams();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1 && !this.loading) {
+      this.currentPage += 1;
+      this.loadTeams();
+    }
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalTeams / this.itemsPerPage));
+  }
+
+  get displayStart(): number {
+    if (!this.totalTeams) {
+      return 0;
+    }
+    return this.currentPage * this.itemsPerPage + 1;
+  }
+
+  get displayEnd(): number {
+    if (!this.totalTeams) {
+      return 0;
+    }
+    return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalTeams);
   }
 }

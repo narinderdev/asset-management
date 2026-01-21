@@ -28,6 +28,9 @@ interface Technician {
 })
 export class TechnicianComponent implements OnInit {
   technicians: Technician[] = [];
+  totalTechnicians = 0;
+  currentPage = 0;
+  itemsPerPage = 10;
   loading = false;
   errorMessage: string | null = null;
   isDeleteModalOpen = false;
@@ -85,11 +88,12 @@ export class TechnicianComponent implements OnInit {
   }
 
   private loadTechnicians(): void {
+    const pageIndex = Math.max(0, this.currentPage);
     this.loading = true;
     this.errorMessage = null;
 
     this.technicianService
-      .fetchTechnicians(0, 10)
+      .fetchTechnicians(pageIndex, this.itemsPerPage)
       .pipe(
         finalize(() => {
           this.loading = false;
@@ -100,10 +104,21 @@ export class TechnicianComponent implements OnInit {
         next: (response) => {
           const apiTechnicians = response.data?.technicians ?? [];
           this.technicians = apiTechnicians.map((tech) => this.mapTechnician(tech));
+          this.totalTechnicians = response.data?.totalElements ?? this.technicians.length;
+          const apiSize = response.data?.size;
+          if (typeof apiSize === 'number' && apiSize > 0) {
+            this.itemsPerPage = apiSize;
+          }
+          const apiPage = response.data?.page;
+          if (typeof apiPage === 'number') {
+            this.currentPage = apiPage;
+          }
           this.errorMessage = null;
         },
         error: () => {
           this.errorMessage = 'Unable to load technicians right now.';
+          this.technicians = [];
+          this.totalTechnicians = 0;
         }
       });
   }
@@ -196,5 +211,37 @@ export class TechnicianComponent implements OnInit {
       default:
         return 'Unavailable';
     }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0 && !this.loading) {
+      this.currentPage -= 1;
+      this.loadTechnicians();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1 && !this.loading) {
+      this.currentPage += 1;
+      this.loadTechnicians();
+    }
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalTechnicians / this.itemsPerPage));
+  }
+
+  get displayStart(): number {
+    if (!this.totalTechnicians) {
+      return 0;
+    }
+    return this.currentPage * this.itemsPerPage + 1;
+  }
+
+  get displayEnd(): number {
+    if (!this.totalTechnicians) {
+      return 0;
+    }
+    return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalTechnicians);
   }
 }

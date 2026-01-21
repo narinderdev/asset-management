@@ -294,8 +294,9 @@ export class PmTemplateService {
   constructor(private http: HttpClient) {}
 
   fetchPreventiveMaintenance(page: number, size: number): Observable<PreventiveMaintenanceListResponse> {
-    const pageable = JSON.stringify({ page, size, sort: [] });
-    const params = new HttpParams().set('pageable', pageable);
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
     const headers = new HttpHeaders({
       'ngrok-skip-browser-warning': 'true'
     });
@@ -304,8 +305,9 @@ export class PmTemplateService {
   }
 
   fetchPredictiveThresholds(page: number, size: number): Observable<PredictiveThresholdListResponse> {
-    const pageable = JSON.stringify({ page, size, sort: [] });
-    const params = new HttpParams().set('pageable', pageable);
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
     const headers = new HttpHeaders({
       'ngrok-skip-browser-warning': 'true'
     });
@@ -351,8 +353,9 @@ export class PmTemplateService {
   }
 
   fetchEmergencyMaintenance(page: number, size: number): Observable<EmergencyMaintenanceResponse> {
-    const pageable = JSON.stringify({ page, size, sort: [] });
-    const params = new HttpParams().set('pageable', pageable);
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
     const headers = new HttpHeaders({
       'ngrok-skip-browser-warning': 'true'
     });
@@ -393,8 +396,9 @@ export class PmTemplateService {
   }
 
   fetchTemplates(page: number, size: number): Observable<PmTemplatesApiResponse> {
-    const pageable = JSON.stringify({ page, size, sort: [] });
-    const params = new HttpParams().set('pageable', pageable);
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
     const headers = new HttpHeaders({
       'ngrok-skip-browser-warning': 'true'
     });

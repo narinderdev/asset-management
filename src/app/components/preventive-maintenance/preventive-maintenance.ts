@@ -28,6 +28,9 @@ interface PreventiveMaintenanceTemplate {
 })
 export class PreventiveMaintenanceComponent implements OnInit {
   templates: PreventiveMaintenanceTemplate[] = [];
+  totalTemplates = 0;
+  currentPage = 0;
+  itemsPerPage = 10;
   isLoading = false;
   errorMessage?: string;
   isDeleteModalOpen = false;
@@ -79,12 +82,13 @@ export class PreventiveMaintenanceComponent implements OnInit {
   }
 
   private loadTemplates(): void {
+    const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
     this.errorMessage = undefined;
 
     if (this.isPredictiveMode) {
       this.pmTemplateService
-        .fetchPredictiveThresholds(0, 20)
+        .fetchPredictiveThresholds(pageIndex, this.itemsPerPage)
         .pipe(finalize(() => {
           this.isLoading = false;
           this.cdr.detectChanges();
@@ -101,16 +105,27 @@ export class PreventiveMaintenanceComponent implements OnInit {
               meterReadings?: Array<{ readingTime?: string }>;
             }> = (response.data as any)?.thresholds ?? response.data?.content ?? [];
             this.templates = content.map(template => this.mapPredictive(template));
+            this.totalTemplates = response.data?.totalElements ?? this.templates.length;
+            const apiSize = (response.data as any)?.size;
+            if (typeof apiSize === 'number' && apiSize > 0) {
+              this.itemsPerPage = apiSize;
+            }
+            const apiPage = (response.data as any)?.page ?? (response.data as any)?.number;
+            if (typeof apiPage === 'number') {
+              this.currentPage = apiPage;
+            }
             this.cdr.detectChanges();
           },
           error: () => {
             this.errorMessage = 'Unable to load predictive maintenance items. Please try again later.';
+            this.templates = [];
+            this.totalTemplates = 0;
             this.cdr.detectChanges();
           }
         });
     } else if (this.isEmergencyMode) {
       this.pmTemplateService
-        .fetchEmergencyMaintenance(0, 20)
+        .fetchEmergencyMaintenance(pageIndex, this.itemsPerPage)
         .pipe(finalize(() => {
           this.isLoading = false;
           this.cdr.detectChanges();
@@ -119,16 +134,27 @@ export class PreventiveMaintenanceComponent implements OnInit {
           next: response => {
             const incidents = response.data?.incidents ?? [];
             this.templates = incidents.map(incident => this.mapEmergency(incident));
+            this.totalTemplates = response.data?.totalElements ?? this.templates.length;
+            const apiSize = (response.data as any)?.size;
+            if (typeof apiSize === 'number' && apiSize > 0) {
+              this.itemsPerPage = apiSize;
+            }
+            const apiPage = (response.data as any)?.page ?? (response.data as any)?.number;
+            if (typeof apiPage === 'number') {
+              this.currentPage = apiPage;
+            }
             this.cdr.detectChanges();
           },
           error: () => {
             this.errorMessage = 'Unable to load emergency maintenance items. Please try again later.';
+            this.templates = [];
+            this.totalTemplates = 0;
             this.cdr.detectChanges();
           }
         });
     } else {
       this.pmTemplateService
-        .fetchPreventiveMaintenance(0, 20)
+        .fetchPreventiveMaintenance(pageIndex, this.itemsPerPage)
         .pipe(finalize(() => {
           this.isLoading = false;
           this.cdr.detectChanges();
@@ -137,10 +163,21 @@ export class PreventiveMaintenanceComponent implements OnInit {
           next: response => {
             const content = response.data?.content ?? [];
             this.templates = content.map(template => this.mapTemplate(template));
+            this.totalTemplates = response.data?.totalElements ?? this.templates.length;
+            const apiSize = (response.data as any)?.size;
+            if (typeof apiSize === 'number' && apiSize > 0) {
+              this.itemsPerPage = apiSize;
+            }
+            const apiPage = (response.data as any)?.page ?? (response.data as any)?.number;
+            if (typeof apiPage === 'number') {
+              this.currentPage = apiPage;
+            }
             this.cdr.detectChanges();
           },
           error: () => {
             this.errorMessage = 'Unable to load preventive maintenance templates. Please try again later.';
+            this.templates = [];
+            this.totalTemplates = 0;
             this.cdr.detectChanges();
           }
         });
@@ -344,5 +381,37 @@ export class PreventiveMaintenanceComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0 && !this.isLoading) {
+      this.currentPage -= 1;
+      this.loadTemplates();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1 && !this.isLoading) {
+      this.currentPage += 1;
+      this.loadTemplates();
+    }
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalTemplates / this.itemsPerPage));
+  }
+
+  get displayStart(): number {
+    if (!this.totalTemplates) {
+      return 0;
+    }
+    return this.currentPage * this.itemsPerPage + 1;
+  }
+
+  get displayEnd(): number {
+    if (!this.totalTemplates) {
+      return 0;
+    }
+    return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalTemplates);
   }
 }

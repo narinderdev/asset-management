@@ -43,6 +43,9 @@ interface ApiVendor {
 })
 export class VendorManagementComponent implements OnInit {
   vendors: Vendor[] = [];
+  totalVendors = 0;
+  currentPage = 0;
+  itemsPerPage = 10;
   isLoading = false;
   errorMessage?: string;
   isDeleteModalOpen = false;
@@ -72,11 +75,12 @@ export class VendorManagementComponent implements OnInit {
   }
 
   private loadVendors(): void {
+    const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
     this.errorMessage = undefined;
 
     this.vendorService
-      .fetchVendors(0, 20)
+      .fetchVendors(pageIndex, this.itemsPerPage)
       .pipe(finalize(() => {
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -85,9 +89,19 @@ export class VendorManagementComponent implements OnInit {
         next: response => {
           const content = response.data?.content ?? [];
           this.vendors = content.map(vendor => this.mapVendor(vendor));
+          this.totalVendors = response.data?.totalElements ?? this.vendors.length;
+          if (typeof response.data?.size === 'number' && response.data.size > 0) {
+            this.itemsPerPage = response.data.size;
+          }
+          const apiPage = (response.data as any)?.number;
+          if (typeof apiPage === 'number') {
+            this.currentPage = apiPage;
+          }
         },
         error: () => {
           this.errorMessage = 'Unable to load vendors right now. Please try again later.';
+          this.vendors = [];
+          this.totalVendors = 0;
         }
       });
   }
@@ -119,6 +133,38 @@ export class VendorManagementComponent implements OnInit {
       return;
     }
     this.router.navigate(['/vendor-management/view', vendor.id]);
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0 && !this.isLoading) {
+      this.currentPage -= 1;
+      this.loadVendors();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1 && !this.isLoading) {
+      this.currentPage += 1;
+      this.loadVendors();
+    }
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalVendors / this.itemsPerPage));
+  }
+
+  get displayStart(): number {
+    if (!this.totalVendors) {
+      return 0;
+    }
+    return this.currentPage * this.itemsPerPage + 1;
+  }
+
+  get displayEnd(): number {
+    if (!this.totalVendors) {
+      return 0;
+    }
+    return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalVendors);
   }
 
   editVendor(vendor: Vendor): void {

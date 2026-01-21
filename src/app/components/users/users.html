@@ -20,7 +20,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let user of users">
+          <tr *ngFor="let user of pagedUsers">
             <td>{{ user.name }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.role }}</td>
@@ -32,6 +32,19 @@
           </tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <div class="pagination" *ngIf="totalUsers > 0">
+    <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ totalUsers }}</span>
+    <div class="pager-actions">
+      <button class="pager-btn" (click)="previousPage()" [disabled]="currentPage === 0 || loadingUsers">
+        Previous
+      </button>
+      <span class="pager-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button class="pager-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1 || loadingUsers">
+        Next
+      </button>
     </div>
   </div>
 

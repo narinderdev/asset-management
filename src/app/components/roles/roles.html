@@ -18,7 +18,7 @@
           <tr *ngIf="!roles.length">
             <td colspan="3" class="empty-row">No roles to display.</td>
           </tr>
-          <tr *ngFor="let r of roles">
+          <tr *ngFor="let r of pagedRoles">
             <td>{{ r.name || 'ƒ?"' }}</td>
             <td>{{ r.description || 'ƒ?"' }}</td>
             <td>
@@ -34,6 +34,19 @@
     <div class="loading-overlay" *ngIf="isLoading">
       <div class="loader"></div>
       <span>Loading roles...</span>
+    </div>
+  </div>
+
+  <div class="pagination" *ngIf="pagination.totalItems > 0">
+    <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ pagination.totalItems }}</span>
+    <div class="pager-actions">
+      <button class="pager-btn" (click)="previousPage()" [disabled]="pagination.currentPage === 0 || isLoading">
+        Previous
+      </button>
+      <span class="pager-info">Page {{ pagination.currentPage + 1 }} of {{ totalPages }}</span>
+      <button class="pager-btn" (click)="nextPage()" [disabled]="pagination.currentPage >= totalPages - 1 || isLoading">
+        Next
+      </button>
     </div>
   </div>
 </div>

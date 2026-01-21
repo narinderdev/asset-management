@@ -137,6 +137,45 @@
   min-height: 220px;
 }
 
+.pagination {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.pager-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pager-btn {
+  padding: 8px 14px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.pager-btn:hover:not(:disabled) {
+  border-color: #2196F3;
+  color: #2196F3;
+}
+
+.pager-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pager-info {
+  font-size: 14px;
+  color: #4b5563;
+}
+
 .loading-overlay {
   position: absolute;
   inset: 0;

@@ -31,7 +31,7 @@
             <tr *ngIf="!filteredOrders.length && !isLoading">
               <td colspan="6" class="empty-row">No purchase orders to display.</td>
             </tr>
-            <tr *ngFor="let order of filteredOrders">
+            <tr *ngFor="let order of pagedOrders">
               <td>{{ order.poNumber }}</td>
               <td>{{ order.vendor }}</td>
               <td>{{ order.expectedDelivery }}</td>
@@ -58,6 +58,19 @@
       <div class="loading-overlay" *ngIf="isLoading">
         <div class="loader"></div>
         <span>Loading purchase orders...</span>
+      </div>
+    </div>
+
+    <div class="pagination" *ngIf="totalOrders > 0">
+      <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ totalOrders }}</span>
+      <div class="pager-actions">
+        <button class="pager-btn" (click)="previousPage()" [disabled]="currentPage === 0 || isLoading">
+          Previous
+        </button>
+        <span class="pager-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+        <button class="pager-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1 || isLoading">
+          Next
+        </button>
       </div>
     </div>
   </div>

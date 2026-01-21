@@ -83,7 +83,9 @@ export class ServiceRequestService {
   constructor(private http: HttpClient) {}
 
   fetchRequests(page: number, size: number): Observable<ServiceRequestsApiResponse> {
-    const params = new HttpParams().set('pageable', JSON.stringify({ page, size, sort: [] }));
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
     const headers = new HttpHeaders({
       'ngrok-skip-browser-warning': 'true'
     });

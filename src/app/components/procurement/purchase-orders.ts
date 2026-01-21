@@ -29,6 +29,9 @@ interface PurchaseOrderRow {
 export class PurchaseOrdersComponent implements OnInit {
   orders: PurchaseOrderRow[] = [];
   filteredOrders: PurchaseOrderRow[] = [];
+  totalOrders = 0;
+  currentPage = 0;
+  itemsPerPage = 10;
   selectedStatus = 'ALL';
   statusOptions = ['ALL', 'Approved', 'Submitted', 'Pending Approval', 'Rejected', 'Draft', 'Completed'];
   isLoading = false;
@@ -45,11 +48,12 @@ export class PurchaseOrdersComponent implements OnInit {
   }
 
   private loadPurchaseOrders(): void {
+    const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
     this.errorMessage = undefined;
 
     this.procurementService
-      .fetchPurchaseOrders(0, 20)
+      .fetchPurchaseOrders(pageIndex, this.itemsPerPage)
       .pipe(
         finalize(() => {
           this.isLoading = false;
@@ -60,6 +64,14 @@ export class PurchaseOrdersComponent implements OnInit {
         next: (response: PurchaseOrderListResponse) => {
           const content = response.data?.content ?? [];
           this.orders = content.map(item => this.mapOrder(item));
+          this.totalOrders = response.data?.totalElements ?? this.orders.length;
+          if (typeof response.data?.size === 'number' && response.data.size > 0) {
+            this.itemsPerPage = response.data.size;
+          }
+          const apiPage = response.data?.number;
+          if (typeof apiPage === 'number') {
+            this.currentPage = apiPage;
+          }
           this.filterOrders();
         },
         error: () => {
@@ -85,10 +97,11 @@ export class PurchaseOrdersComponent implements OnInit {
   filterOrders(): void {
     if (this.selectedStatus === 'ALL') {
       this.filteredOrders = [...this.orders];
-      return;
+    } else {
+      const target = this.selectedStatus.toLowerCase();
+      this.filteredOrders = this.orders.filter(order => order.status.toLowerCase() === target);
     }
-    const target = this.selectedStatus.toLowerCase();
-    this.filteredOrders = this.orders.filter(order => order.status.toLowerCase() === target);
+    this.currentPage = 0;
   }
 
   statusClass(status: string): string {
@@ -129,5 +142,42 @@ export class PurchaseOrdersComponent implements OnInit {
       return;
     }
     this.router.navigate(['/procurement/purchase-orders/view', order.id]);
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0 && !this.isLoading) {
+      this.currentPage -= 1;
+      this.loadPurchaseOrders();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1 && !this.isLoading) {
+      this.currentPage += 1;
+      this.loadPurchaseOrders();
+    }
+  }
+
+  get pagedOrders(): PurchaseOrderRow[] {
+    const start = this.currentPage * this.itemsPerPage;
+    return this.filteredOrders.slice(start, start + this.itemsPerPage);
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalOrders / this.itemsPerPage));
+  }
+
+  get displayStart(): number {
+    if (!this.totalOrders) {
+      return 0;
+    }
+    return this.currentPage * this.itemsPerPage + 1;
+  }
+
+  get displayEnd(): number {
+    if (!this.totalOrders) {
+      return 0;
+    }
+    return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalOrders);
   }
 }

@@ -52,8 +52,8 @@ export class AssetsComponent implements OnInit {
   filterAssetName = '';
 
   totalAssets = 0;
-  currentPage = 1;
-  itemsPerPage = 20;
+  currentPage = 0;
+  itemsPerPage = 10;
 
   isLoading = false;
   errorMessage?: string;
@@ -84,7 +84,7 @@ export class AssetsComponent implements OnInit {
   }
 
   private loadAssets(): void {
-    const pageIndex = Math.max(0, this.currentPage - 1);
+    const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
     this.errorMessage = undefined;
 
@@ -101,17 +101,14 @@ export class AssetsComponent implements OnInit {
           this.totalAssets = response.data?.totalElements ?? this.assets.length;
           const apiPage = response.data?.number;
           if (typeof apiPage === 'number') {
-            this.currentPage = apiPage + 1;
-          }
-          const apiSize = response.data?.size;
-          if (apiSize && apiSize > 0) {
-            this.itemsPerPage = apiSize;
+            this.currentPage = apiPage;
           }
 
           this.applyFilters();
         },
         error: () => {
-          this.errorMessage = 'Unable to load assets. Please refresh or try again later.';
+          this.errorMessage = undefined;
+          this.toastr.error('Unable to load assets. Please refresh or try again later.');
         }
       });
   }
@@ -177,9 +174,41 @@ export class AssetsComponent implements OnInit {
     this.applyFilters();
   }
 
+  previousPage(): void {
+    if (this.currentPage > 0 && !this.isLoading) {
+      this.currentPage -= 1;
+      this.loadAssets();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1 && !this.isLoading) {
+      this.currentPage += 1;
+      this.loadAssets();
+    }
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalAssets / this.itemsPerPage));
+  }
+
+  get displayStart(): number {
+    if (!this.totalAssets) {
+      return 0;
+    }
+    return this.currentPage * this.itemsPerPage + 1;
+  }
+
+  get displayEnd(): number {
+    if (!this.totalAssets) {
+      return 0;
+    }
+    return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalAssets);
+  }
+
   refreshAssets(): void {
     this.filterAssetName = '';
-    this.currentPage = 1;
+    this.currentPage = 0;
     this.loadAssets();
   }
 

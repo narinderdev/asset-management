@@ -30,6 +30,10 @@ interface GoodsReceiptRow {
 })
 export class GoodsReceiptsComponent implements OnInit {
   receipts: GoodsReceiptRow[] = [];
+  filteredReceipts: GoodsReceiptRow[] = [];
+  totalReceipts = 0;
+  currentPage = 0;
+  itemsPerPage = 10;
   isLoading = false;
   errorMessage?: string;
 
@@ -50,9 +54,10 @@ export class GoodsReceiptsComponent implements OnInit {
   private loadReceipts(): void {
     this.isLoading = true;
     this.errorMessage = undefined;
+    const pageIndex = Math.max(0, this.currentPage);
 
     this.procurementService
-      .fetchGoodsReceipts()
+      .fetchGoodsReceipts(undefined, undefined, undefined, pageIndex, this.itemsPerPage)
       .pipe(
         finalize(() => {
           this.isLoading = false;
@@ -61,12 +66,26 @@ export class GoodsReceiptsComponent implements OnInit {
       )
       .subscribe({
         next: (response: GoodsReceiptListResponse) => {
-          const list = response.data ?? [];
-          this.receipts = list.map(item => this.mapReceipt(item));
+          const raw = response.data?.content ?? response.data ?? [];
+          const content: GoodsReceiptItem[] = Array.isArray(raw) ? raw : [];
+          this.receipts = content.map((item: GoodsReceiptItem) => this.mapReceipt(item));
+          this.filteredReceipts = [...this.receipts];
+          this.totalReceipts = response.data && 'totalElements' in response.data
+            ? (response.data.totalElements ?? this.filteredReceipts.length)
+            : this.filteredReceipts.length;
+          if (typeof (response.data as any)?.size === 'number' && (response.data as any).size > 0) {
+            this.itemsPerPage = (response.data as any).size;
+          }
+          const apiPage = (response.data as any)?.number;
+          if (typeof apiPage === 'number') {
+            this.currentPage = apiPage;
+          }
         },
         error: () => {
           this.errorMessage = 'Unable to load goods receipts. Please try again.';
           this.receipts = [];
+          this.filteredReceipts = [];
+          this.totalReceipts = 0;
         }
       });
   }
@@ -86,5 +105,42 @@ export class GoodsReceiptsComponent implements OnInit {
 
   viewReceipt(row: GoodsReceiptRow): void {
     this.router.navigate(['/procurement/goods-receipts/view', row.id]);
+  }
+
+  get pagedReceipts(): GoodsReceiptRow[] {
+    const start = this.currentPage * this.itemsPerPage;
+    return this.filteredReceipts.slice(start, start + this.itemsPerPage);
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0 && !this.isLoading) {
+      this.currentPage -= 1;
+      this.loadReceipts();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1 && !this.isLoading) {
+      this.currentPage += 1;
+      this.loadReceipts();
+    }
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalReceipts / this.itemsPerPage));
+  }
+
+  get displayStart(): number {
+    if (!this.totalReceipts) {
+      return 0;
+    }
+    return this.currentPage * this.itemsPerPage + 1;
+  }
+
+  get displayEnd(): number {
+    if (!this.totalReceipts) {
+      return 0;
+    }
+    return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalReceipts);
   }
 }
