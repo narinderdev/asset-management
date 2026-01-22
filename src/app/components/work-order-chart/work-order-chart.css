@@ -36,18 +36,7 @@
   transform-origin: 100px 100px;
   transform: rotate(-90deg);
   animation: reveal 1.2s ease-out forwards;
-}
-
-.donut-segment.pending {
-  animation-delay: 0s;
-}
-
-.donut-segment.in-progress {
-  animation-delay: 0.2s;
-}
-
-.donut-segment.complete {
-  animation-delay: 0.35s;
+  transition: stroke-dasharray 0.3s ease, stroke-dashoffset 0.3s ease;
 }
 
 @keyframes reveal {
@@ -118,6 +107,71 @@
 .legend-label {
   font-size: 14px;
   color: #666;
+}
+
+.empty-legend .legend-label {
+  color: #9ca3af;
+}
+
+.donut-placeholder {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-chart {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #e5e7eb;
+  border-radius: 12px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.skeleton {
+  display: inline-block;
+  background: linear-gradient(90deg, #f4f4f5 25%, #e5e7eb 50%, #f4f4f5 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+.donut-skeleton {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+}
+
+.skeleton-bar {
+  width: 40px;
+  height: 6px;
+  border-radius: 4px;
+}
+
+.skeleton-text {
+  height: 14px;
+  border-radius: 6px;
+}
+
+.skeleton-text.short {
+  width: 48px;
+}
+
+.skeleton-text.shorter {
+  width: 64px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 @media (max-width: 768px) {

@@ -31,3 +31,54 @@
 .trend-down {
   color: #ef4444;
 }
+
+.trend-arrow {
+  margin-right: 6px;
+  font-size: 14px;
+  display: inline-block;
+}
+
+.trend-context {
+  margin-left: 6px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.stat-card.loading .stat-header,
+.stat-card.loading .stat-value,
+.stat-card.loading .stat-trend {
+  color: transparent;
+}
+
+.skeleton {
+  display: inline-block;
+  width: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f4f4f5 25%, #e5e7eb 50%, #f4f4f5 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+.skeleton-text.short {
+  height: 14px;
+  width: 60%;
+}
+
+.skeleton-text.large {
+  height: 32px;
+  width: 80%;
+}
+
+.skeleton-text.tiny {
+  height: 12px;
+  width: 50%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

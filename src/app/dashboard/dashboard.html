@@ -1,31 +1,48 @@
 <div class="dashboard">
-   <div class="dashboard-sub">
-  <div class="dashboard-header">
-    <h1>Maintenance Dashboard</h1>
-  </div>
-
-  <!-- Stats Grid -->
-  <div class="stats-grid">
-    <app-stat-card 
-      *ngFor="let stat of stats"
-      [title]="stat.title"
-      [value]="stat.value"
-      [trend]="stat.trend"
-      [trendDirection]="stat.trendDirection">
-    </app-stat-card>
-  </div>
-
-  <!-- Charts Row -->
-  <div class="charts-row">
-    <div class="chart-column">
-      <app-work-order-chart></app-work-order-chart>
+  <div class="dashboard-sub">
+    <div class="dashboard-header">
+      <div>
+        <h1>Maintenance Dashboard</h1>
+        <div class="dashboard-meta" *ngIf="lastUpdated() || isRealTime()">
+          <span class="meta-chip" *ngIf="lastUpdated()">Updated {{ lastUpdated() }}</span>
+          <span class="meta-chip live" *ngIf="isRealTime()">Auto-refreshing (30s)</span>
+        </div>
+      </div>
+      <button class="refresh-btn" type="button" (click)="refetch()">Refresh</button>
     </div>
-    <div class="chart-column">
-      <app-cost-chart></app-cost-chart>
-    </div>
-  </div>
 
-  <!-- Table -->
-  <app-work-order-table></app-work-order-table>
+    <div class="stats-grid">
+      <app-stat-card 
+        *ngFor="let stat of statCards()"
+        [title]="stat.title"
+        [value]="stat.value"
+        [trend]="stat.trend"
+        [changePercentage]="stat.changePercentage"
+        [changeDirection]="stat.changeDirection"
+        [loading]="stat.loading">
+      </app-stat-card>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-column">
+        <app-work-order-chart
+          [statuses]="statusChartData()"
+          [loading]="isLoading()">
+        </app-work-order-chart>
+      </div>
+      <div class="chart-column">
+        <app-cost-chart
+          [data]="costChartItems()"
+          [axisLabel]="costAxisLabel()"
+          [loading]="isLoading()">
+        </app-cost-chart>
+      </div>
+    </div>
+
+    <app-work-order-table
+      [externalWorkOrders]="recentWorkOrders()"
+      [loading]="isLoading()"
+      [emptyMessage]="'No recent work orders.'">
+    </app-work-order-table>
   </div>
 </div>

@@ -12,5 +12,11 @@ export class StatCard {
   @Input() title = '';
   @Input() value: number | string = '';
   @Input() trend = '';
-  @Input() trendDirection: 'up' | 'down' = 'up';
+  @Input() changePercentage: number | null = null;
+  @Input() changeDirection: 'up' | 'down' | null = null;
+  @Input() loading = false;
+
+  get hasChange(): boolean {
+    return this.changePercentage !== null && this.changeDirection !== null;
+  }
 }

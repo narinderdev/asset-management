@@ -4,53 +4,60 @@
   
   <div class="chart-container">
     <div class="donut-chart">
-      <svg viewBox="0 0 200 200" class="donut">
-        <!-- Pending (Red) -->
-        <circle
-          cx="100"
-          cy="100"
-          r="70"
-          fill="none"
-          stroke="#ef4444"
-          stroke-width="25"
-          class="donut-segment pending"
-          style="--dasharray: 44 396; --dashoffset-final: 0;"
-        ></circle>
-
-        <!-- In Progress (Orange) -->
-        <circle
-          cx="100"
-          cy="100"
-          r="70"
-          fill="none"
-          stroke="#f59e0b"
-          stroke-width="25"
-          class="donut-segment in-progress"
-          style="--dasharray: 132 308; --dashoffset-final: -44;"
-        ></circle>
-
-        <!-- Complete (Green) -->
-        <circle
-          cx="100"
-          cy="100"
-          r="70"
-          fill="none"
-          stroke="#10b981"
-          stroke-width="25"
-          class="donut-segment complete"
-          style="--dasharray: 220 220; --dashoffset-final: -176;"
-        ></circle>
-      </svg>
+      <ng-container *ngIf="!loading && statuses.length; else donutFallback">
+        <svg viewBox="0 0 200 200" class="donut">
+          <ng-container *ngFor="let status of statuses; let i = index; trackBy: trackByStatus">
+            <circle
+              cx="100"
+              cy="100"
+              r="70"
+              fill="none"
+              [attr.stroke]="status.color"
+              stroke-width="25"
+              class="donut-segment"
+              [style.--dasharray]="dashArray(status.value)"
+              [style.--dashoffset-final]="dashOffset(i)"
+            ></circle>
+          </ng-container>
+        </svg>
+      </ng-container>
     </div>
     
     <div class="chart-legend">
-      <div class="legend-item" *ngFor="let status of statuses">
-        <div class="legend-color" [style.background-color]="status.color"></div>
-        <div class="legend-details">
-          <div class="legend-value">{{ status.value }}</div>
-          <div class="legend-label">{{ status.label }}</div>
+      <ng-container *ngIf="!loading; else legendSkeleton">
+        <div class="legend-item" *ngFor="let status of statuses; trackBy: trackByStatus">
+          <div class="legend-color" [style.background-color]="status.color"></div>
+          <div class="legend-details">
+            <div class="legend-value">{{ status.value }}</div>
+            <div class="legend-label">{{ status.label }}</div>
+          </div>
         </div>
-      </div>
+        <div class="legend-item empty-legend" *ngIf="!statuses.length">
+          <div class="legend-details">
+            <div class="legend-label">No status data</div>
+          </div>
+        </div>
+      </ng-container>
     </div>
   </div>
 </div>
+
+<ng-template #donutFallback>
+  <div class="donut-placeholder" *ngIf="loading; else emptyState">
+    <div class="skeleton donut-skeleton"></div>
+  </div>
+</ng-template>
+
+<ng-template #legendSkeleton>
+  <div class="legend-item" *ngFor="let _ of [0, 1, 2]">
+    <div class="legend-color skeleton skeleton-bar"></div>
+    <div class="legend-details">
+      <div class="legend-value skeleton skeleton-text short"></div>
+      <div class="legend-label skeleton skeleton-text shorter"></div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #emptyState>
+  <div class="empty-chart">No work order status data</div>
+</ng-template>

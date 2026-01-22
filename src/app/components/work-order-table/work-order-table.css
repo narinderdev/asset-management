@@ -160,6 +160,11 @@
   color: #4b5563;
 }
 
+.status-closed {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
 .status-neutral {
   background: #f5f5f5;
   color: #374151;
@@ -289,6 +294,53 @@
   text-align: start;
   padding: 16px;
   color: #6b7280;
+}
+
+.skeleton {
+  display: inline-block;
+  background: linear-gradient(90deg, #f4f4f5 25%, #e5e7eb 50%, #f4f4f5 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 6px;
+}
+
+.skeleton-text {
+  display: block;
+}
+
+.skeleton-row td {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.skeleton-text.tiny {
+  height: 10px;
+  width: 50px;
+}
+
+.skeleton-text.short {
+  height: 12px;
+  width: 70px;
+}
+
+.skeleton-text.medium {
+  height: 12px;
+  width: 120px;
+}
+
+.skeleton-pill {
+  height: 22px;
+  width: 70px;
+  border-radius: 999px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 @keyframes spin {

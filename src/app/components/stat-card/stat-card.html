@@ -1,9 +1,38 @@
-<div class="stat-card">
-  <div class="stat-header">{{ title }}</div>
-  <div class="stat-value">{{ value }}</div>
-  <div class="stat-trend" [class.trend-up]="trendDirection === 'up'" [class.trend-down]="trendDirection === 'down'">
-    <span *ngIf="trendDirection === 'up'">↑</span>
-    <span *ngIf="trendDirection === 'down'">↓</span>
-    {{ trend }}
+<div class="stat-card" [class.loading]="loading">
+  <div class="stat-header">
+    <ng-container *ngIf="!loading; else titleSkeleton">{{ title }}</ng-container>
   </div>
+
+  <div class="stat-value">
+    <ng-container *ngIf="!loading; else valueSkeleton">{{ value }}</ng-container>
+  </div>
+
+  <ng-container *ngIf="!loading; else trendSkeleton">
+    <div
+      class="stat-trend"
+      [class.trend-up]="hasChange && changeDirection === 'up'"
+      [class.trend-down]="hasChange && changeDirection === 'down'"
+    >
+      <ng-container *ngIf="hasChange; else noChange">
+        <span class="trend-arrow" aria-hidden="true">
+          {{ changeDirection === 'up' ? '↑' : '↓' }}
+        </span>
+        {{ changePercentage | number:'1.0-1' }}%
+        <span class="trend-context" *ngIf="trend">{{ trend }}</span>
+      </ng-container>
+      <ng-template #noChange>—</ng-template>
+    </div>
+  </ng-container>
 </div>
+
+<ng-template #titleSkeleton>
+  <div class="skeleton skeleton-text short"></div>
+</ng-template>
+
+<ng-template #valueSkeleton>
+  <div class="skeleton skeleton-text large"></div>
+</ng-template>
+
+<ng-template #trendSkeleton>
+  <div class="stat-trend skeleton skeleton-text tiny"></div>
+</ng-template>

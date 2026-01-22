@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -15,7 +15,8 @@ interface WorkOrder {
   title: string;
   asset: string;
   technician: string;
-  dueDate: string;
+  dueDate?: string | null;
+  formattedDueDate: string;
   priority: 'High' | 'Medium' | 'Low';
   status: string;
 }
@@ -40,8 +41,12 @@ interface ApiWorkOrder {
   templateUrl: './work-order-table.html',
   styleUrls: ['./work-order-table.css'],
 })
-export class WorkOrderTable implements OnInit {
+export class WorkOrderTable implements OnInit, OnChanges {
   @Input() loadLive = false;
+  @Input() externalWorkOrders: WorkOrder[] | null = null;
+  @Input() loading = false;
+  @Input() emptyMessage = 'No work orders to display.';
+
   workOrders: WorkOrder[] = [];
   isLoading = false;
   errorMessage?: string;
@@ -51,9 +56,10 @@ export class WorkOrderTable implements OnInit {
   currentPage = 0;
   itemsPerPage = 10;
   totalOrders = 0;
-   canViewWorkOrders = false;
-   canEditWorkOrders = false;
-   canDeleteWorkOrders = false;
+  canViewWorkOrders = false;
+  canEditWorkOrders = false;
+  canDeleteWorkOrders = false;
+  loadingRows = Array.from({ length: 3 });
 
   constructor(
     private workOrderService: WorkOrderService,
@@ -65,10 +71,29 @@ export class WorkOrderTable implements OnInit {
 
   ngOnInit(): void {
     this.setPermissions();
+    this.isLoading = this.loading;
+
     if (this.loadLive) {
       this.loadWorkOrders();
+    } else if (this.externalWorkOrders && this.externalWorkOrders.length) {
+      this.setWorkOrders(this.externalWorkOrders);
     } else {
       this.workOrders = this.getStaticWorkOrders();
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('loading' in changes && !this.loadLive) {
+      this.isLoading = this.loading;
+    }
+
+    if ('externalWorkOrders' in changes && !this.loadLive) {
+      const incoming = this.externalWorkOrders ?? [];
+      if (incoming.length) {
+        this.setWorkOrders(incoming);
+      } else {
+        this.workOrders = [];
+      }
     }
   }
 
@@ -94,7 +119,7 @@ export class WorkOrderTable implements OnInit {
       .subscribe({
         next: (response) => {
           const orders = response.data?.workOrders ?? [];
-          this.workOrders = orders.map(order => this.toWorkOrder(order));
+          this.workOrders = orders.map((order) => this.toWorkOrder(order));
           this.totalOrders = response.data?.totalElements ?? this.workOrders.length;
           const apiPage = response.data?.page;
           if (typeof apiPage === 'number') {
@@ -109,20 +134,22 @@ export class WorkOrderTable implements OnInit {
           this.toastr.error('Unable to load work orders. Please try again later.');
           this.isLoading = false;
           this.cdr.detectChanges();
-        }
+        },
       });
   }
 
   private toWorkOrder(order: ApiWorkOrder): WorkOrder {
+    const dueDate = order.plannedEndDateTime ?? order.targetCompletionDate ?? null;
     return {
       id: order.workOrderId ?? `WO-${order.id ?? '0000'}`,
       apiId: order.id,
       title: order.woTitle ?? 'Work Order',
       asset: order.assetName ?? 'Unassigned Asset',
       technician: order.assignedTechnicianName ?? order.assignedTechnician ?? 'Unassigned',
-      dueDate: this.formatDate(order.plannedEndDateTime ?? order.targetCompletionDate),
+      dueDate,
+      formattedDueDate: this.formatDate(dueDate ?? undefined),
       priority: this.normalizePriority(order.priority),
-      status: this.normalizeStatus(order.status)
+      status: this.normalizeStatus(order.status),
     };
   }
 
@@ -170,6 +197,8 @@ export class WorkOrderTable implements OnInit {
         return 'New';
       case 'PENDING':
         return 'Pending';
+      case 'CLOSED':
+        return 'Closed';
       default:
         return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
     }
@@ -181,6 +210,7 @@ export class WorkOrderTable implements OnInit {
       case 'completed':
         return 'status-completed';
       case 'in progress':
+      case 'in_progress':
         return 'status-progress';
       case 'pending':
         return 'status-pending';
@@ -192,6 +222,8 @@ export class WorkOrderTable implements OnInit {
         return 'status-new';
       case 'draft':
         return 'status-draft';
+      case 'closed':
+        return 'status-closed';
       default:
         return 'status-neutral';
     }
@@ -259,7 +291,7 @@ export class WorkOrderTable implements OnInit {
         if (this.loadLive) {
           this.loadWorkOrders();
         } else if (deletedId) {
-          this.workOrders = this.workOrders.filter(order => order.id !== deletedId);
+          this.workOrders = this.workOrders.filter((order) => order.id !== deletedId);
         }
         this.cdr.detectChanges();
       },
@@ -267,7 +299,7 @@ export class WorkOrderTable implements OnInit {
         this.isDeleting = false;
         this.toastr.error('Unable to delete work order. Please try again.');
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
@@ -310,29 +342,42 @@ export class WorkOrderTable implements OnInit {
         title: 'Replace HVAC filters',
         asset: 'Building A - Furnace',
         technician: 'Maya Patel',
-        dueDate: 'Dec 18, 2025',
+        dueDate: '2025-12-18',
+        formattedDueDate: this.formatDate('2025-12-18'),
         priority: 'High',
-        status: 'In Progress'
+        status: 'In Progress',
       },
       {
         id: 'WO-1033',
         title: 'Inspect conveyor belts',
         asset: 'Manufacturing Line 2',
         technician: 'Leo Martin',
-        dueDate: 'Dec 20, 2025',
+        dueDate: '2025-12-20',
+        formattedDueDate: this.formatDate('2025-12-20'),
         priority: 'Medium',
-        status: 'Pending'
+        status: 'Pending',
       },
       {
         id: 'WO-1032',
         title: 'Calibrate pressure sensors',
         asset: 'Tank Farm Monitoring',
         technician: 'Rina Gomez',
-        dueDate: 'Dec 22, 2025',
+        dueDate: '2025-12-22',
+        formattedDueDate: this.formatDate('2025-12-22'),
         priority: 'Low',
-        status: 'Completed'
-      }
+        status: 'Completed',
+      },
     ];
+  }
+
+  private setWorkOrders(orders: WorkOrder[]): void {
+    this.workOrders = orders.map((order) => ({
+      ...order,
+      technician: order.technician || 'Unassigned',
+      formattedDueDate: order.formattedDueDate ?? this.formatDate(order.dueDate ?? undefined),
+      priority: this.normalizePriority(order.priority),
+      status: this.normalizeStatus(order.status),
+    }));
   }
 
   private getWorkOrderIdentifier(order: WorkOrder): number | string | undefined {

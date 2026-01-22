@@ -11,73 +11,85 @@
         <thead>
           <tr>
             <th>WO ID</th>
-          <th>Title</th>
-          <th>Asset</th>
-          <th>Technician</th>
-          <th>Due Date</th>
-          <th>Priority</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngIf="!workOrders.length && !isLoading">
-          <td colspan="8" class="empty-row">No work orders to display.</td>
-        </tr>
-        <tr *ngFor="let order of workOrders">
-          <td class="id-cell">{{ order.id }}</td>
-          <td>{{ order.title }}</td>
-          <td>{{ order.asset }}</td>
-          <td>{{ order.technician }}</td>
-          <td>{{ order.dueDate }}</td>
-          <td>
-            <span class="priority-badge" 
-                  [class.priority-high]="order.priority === 'High'"
-                  [class.priority-medium]="order.priority === 'Medium'"
-                  [class.priority-low]="order.priority === 'Low'">
-              {{ order.priority }}
-            </span>
-          </td>
-          <td>
-            <span class="status-badge"
-                  [ngClass]="statusClass(order.status)">
-              {{ order.status }}
-            </span>
-          </td>
-          <td class="actions-cell">
-            <div class="icon-group">
-              <button
-                class="action-button icon-btn view-btn"
-                type="button"
-                aria-label="View work order"
-                *ngIf="canViewWorkOrders"
-                (click)="viewWorkOrder(order)"
-              >
-                <img src="assets/icons/Vector.svg" alt="View work order" class="view-icon" />
-              </button>
-              <button
-                class="action-button icon-btn edit-btn"
-                type="button"
-                aria-label="Edit work order"
-                *ngIf="canEditWorkOrders && order.status === 'New'"
-                (click)="editWorkOrder(order)"
-              >
-                <img src="assets/icons/edit.svg" alt="Edit work order" class="view-icon" />
-              </button>
-              <button
-                class="action-button icon-btn delete-btn danger"
-                type="button"
-                aria-label="Delete work order"
-                *ngIf="canDeleteWorkOrders && order.status === 'New'"
-                (click)="promptDeleteWorkOrder(order)"
-              >
-                <img src="assets/icons/delete.svg" alt="Delete work order" class="view-icon" />
-              </button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            <th>Title</th>
+            <th>Asset</th>
+            <th>Technician</th>
+            <th>Due Date</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="isLoading && !workOrders.length">
+            <tr *ngFor="let _ of loadingRows" class="skeleton-row">
+              <td><span class="skeleton skeleton-text short"></span></td>
+              <td><span class="skeleton skeleton-text medium"></span></td>
+              <td><span class="skeleton skeleton-text medium"></span></td>
+              <td><span class="skeleton skeleton-text short"></span></td>
+              <td><span class="skeleton skeleton-text tiny"></span></td>
+              <td><span class="skeleton skeleton-text tiny"></span></td>
+              <td><span class="skeleton skeleton-text tiny"></span></td>
+              <td><span class="skeleton skeleton-pill"></span></td>
+            </tr>
+          </ng-container>
+          <tr *ngIf="!workOrders.length && !isLoading">
+            <td colspan="8" class="empty-row">{{ emptyMessage }}</td>
+          </tr>
+          <tr *ngFor="let order of workOrders">
+            <td class="id-cell">{{ order.id }}</td>
+            <td>{{ order.title }}</td>
+            <td>{{ order.asset }}</td>
+            <td>{{ order.technician }}</td>
+            <td>{{ order.formattedDueDate }}</td>
+            <td>
+              <span class="priority-badge" 
+                    [class.priority-high]="order.priority === 'High'"
+                    [class.priority-medium]="order.priority === 'Medium'"
+                    [class.priority-low]="order.priority === 'Low'">
+                {{ order.priority }}
+              </span>
+            </td>
+            <td>
+              <span class="status-badge"
+                    [ngClass]="statusClass(order.status)">
+                {{ order.status }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <div class="icon-group">
+                <button
+                  class="action-button icon-btn view-btn"
+                  type="button"
+                  aria-label="View work order"
+                  *ngIf="canViewWorkOrders"
+                  (click)="viewWorkOrder(order)"
+                >
+                  <img src="assets/icons/Vector.svg" alt="View work order" class="view-icon" />
+                </button>
+                <button
+                  class="action-button icon-btn edit-btn"
+                  type="button"
+                  aria-label="Edit work order"
+                  *ngIf="canEditWorkOrders && order.status === 'New'"
+                  (click)="editWorkOrder(order)"
+                >
+                  <img src="assets/icons/edit.svg" alt="Edit work order" class="view-icon" />
+                </button>
+                <button
+                  class="action-button icon-btn delete-btn danger"
+                  type="button"
+                  aria-label="Delete work order"
+                  *ngIf="canDeleteWorkOrders && order.status === 'New'"
+                  (click)="promptDeleteWorkOrder(order)"
+                >
+                  <img src="assets/icons/delete.svg" alt="Delete work order" class="view-icon" />
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <div class="loading-overlay" *ngIf="loadLive && isLoading">

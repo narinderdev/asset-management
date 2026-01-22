@@ -1,34 +1,48 @@
 <div class="chart-card">
-  <h3 class="chart-title">Maintenance Cost Summary (Last 6 Months)</h3>
+  <div class="chart-header">
+    <h3 class="chart-title">Maintenance Cost Summary (Last 6 Months)</h3>
+    <div class="chart-subtitle" *ngIf="axisLabel">{{ axisLabel }}</div>
+  </div>
   
   <div class="bar-chart">
     <div class="y-axis">
-      <div class="y-label">$60</div>
-      <div class="y-label">$40</div>
-      <div class="y-label">$20</div>
-      <div class="y-label">0</div>
+      <div class="y-label" *ngFor="let tick of yTicks">
+        {{ formatTick(tick) }}
+      </div>
     </div>
     
     <div class="chart-area">
       <div class="grid-lines">
-        <div class="grid-line"></div>
-        <div class="grid-line"></div>
-        <div class="grid-line"></div>
-        <div class="grid-line"></div>
+        <div class="grid-line" *ngFor="let _ of yTicks"></div>
       </div>
       
-      <div class="bars-container">
-        <div class="bar-wrapper" *ngFor="let item of data; let i = index">
-          <div
-            class="bar"
-            [style.height.%]="barHeight(item.value)"
-            [style.--grow-delay]="(i * 0.1) + 's'"
-          ></div>
-          <div class="bar-label" [style.--label-delay]="(i * 0.1 + 0.35) + 's'">
-            {{ item.month }}
+      <ng-container *ngIf="!loading && data.length; else chartFallback">
+        <div class="bars-container">
+          <div class="bar-wrapper" *ngFor="let item of data; let i = index">
+            <div
+              class="bar"
+              [style.height.%]="barHeight(item.cost)"
+              [style.--grow-delay]="(i * 0.1) + 's'"
+            ></div>
+            <div class="bar-label" [style.--label-delay]="(i * 0.1 + 0.35) + 's'">
+              {{ item.month || '—' }}
+            </div>
           </div>
         </div>
-      </div>
+      </ng-container>
     </div>
   </div>
 </div>
+
+<ng-template #chartFallback>
+  <div class="bars-container" *ngIf="loading; else emptyState">
+    <div class="bar-wrapper" *ngFor="let i of [0,1,2,3,4,5]">
+      <div class="bar skeleton" [style.animation-delay]="(i * 0.1) + 's'"></div>
+      <div class="bar-label skeleton skeleton-text"></div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #emptyState>
+  <div class="empty-chart">No cost data available</div>
+</ng-template>
