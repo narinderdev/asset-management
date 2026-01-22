@@ -198,6 +198,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
   min-width: 0;
 }
 
@@ -280,6 +281,36 @@
 
 .form-input:disabled::placeholder {
   color: #9ca3af;
+}
+
+.combo-dropdown {
+  position: absolute;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  margin-top: 62px;
+  z-index: 6;
+}
+
+.combo-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: #111827;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.combo-option:hover {
+  background: #f3f4f6;
 }
 
 .form-select {

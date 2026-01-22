@@ -7,7 +7,14 @@ import { filter, finalize } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
 import { Asset } from '../../models/assets.models';
-import { AssetsService, AssetDetailResponse, AssetCreatePayload, AssetUpdatePayload, AssetLocationOrgPayload } from '../../services/assets.service';
+import {
+  AssetsService,
+  AssetDetailResponse,
+  AssetCreatePayload,
+  AssetUpdatePayload,
+  AssetLocationOrgPayload,
+  AssetCategory
+} from '../../services/assets.service';
 import { TechnicianTeam, TechnicianTeamResponse } from '../../services/technician.service';
 import { PmTemplateService, PredictiveThresholdPayload } from '../../services/pm-template.service';
 import { environment } from '../../../environments/environment';
@@ -60,6 +67,11 @@ export class AddAssetComponent implements OnInit {
     ownership: '',
     assetTag: ''
   };
+  categoryOptions: AssetCategory[] = [];
+  categoryLoading = false;
+  readonly categoryDataListId = 'asset-category-options';
+  filteredCategories: AssetCategory[] = [];
+  showCategoryDropdown = false;
   autoGenerateAssetId = false;
 
   // Location & Organization Data
@@ -135,7 +147,6 @@ export class AddAssetComponent implements OnInit {
   };
 
   // Dropdown options
-  categoryOptions = ['HVAC', 'Power', 'Lifts', 'Fire Protector'];
   typeOptions = ['Air Condition', 'Generator', 'Passenger Lift', 'Pump'];
   statusOptions = [
     { value: 'IN_SERVICE', label: 'In Service' },
@@ -200,6 +211,7 @@ export class AddAssetComponent implements OnInit {
     });
 
     this.loadTechnicianTeams();
+    this.loadCategories();
 
     const navigation = this.router.getCurrentNavigation();
     const asset = (navigation?.extras.state as { asset?: Asset })?.asset;
@@ -971,6 +983,54 @@ export class AddAssetComponent implements OnInit {
         this.toastr.error('Failed to save threshold data');
       }
     });
+  }
+
+  private loadCategories(): void {
+    this.categoryLoading = true;
+    this.assetsService
+      .fetchAssetCategories()
+      .pipe(
+        finalize(() => {
+          this.categoryLoading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.categoryOptions = (response.data ?? []).filter((cat): cat is AssetCategory => Boolean(cat?.name));
+          this.filteredCategories = [...this.categoryOptions];
+        },
+        error: () => {
+          this.categoryOptions = [];
+          this.toastr.error('Unable to load asset categories. You can still type a category.');
+        }
+      });
+  }
+
+  onCategoryInput(value: string): void {
+    this.assetMaster.assetCategory = value;
+    const term = value.toLowerCase();
+    this.filteredCategories = this.categoryOptions.filter(cat =>
+      (cat.name ?? '').toLowerCase().includes(term)
+    );
+    this.showCategoryDropdown = this.filteredCategories.length > 0;
+  }
+
+  selectCategory(name: string): void {
+    this.assetMaster.assetCategory = name;
+    this.showCategoryDropdown = false;
+  }
+
+  handleCategoryFocus(): void {
+    this.filteredCategories = [...this.categoryOptions];
+    this.showCategoryDropdown = this.filteredCategories.length > 0;
+  }
+
+  handleCategoryBlur(): void {
+    setTimeout(() => {
+      this.showCategoryDropdown = false;
+      this.cdr.detectChanges();
+    }, 150);
   }
 
   private saveWarrantyLifecycle(): void {

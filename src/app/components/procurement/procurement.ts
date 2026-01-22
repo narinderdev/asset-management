@@ -36,6 +36,8 @@ export class ProcurementComponent implements OnInit {
   selectedStatus = 'ALL';
   statusOptions = ['ALL', 'Approved', 'Submitted', 'Pending Approval', 'Rejected', 'Draft'];
   isLoading = false;
+  hasLoaded = false;
+  loadingRows = Array.from({ length: 5 });
   errorMessage?: string;
 
   constructor(
@@ -66,6 +68,7 @@ export class ProcurementComponent implements OnInit {
   private loadRequisitions(): void {
     const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
+    this.hasLoaded = false;
     this.errorMessage = undefined;
 
     this.procurementService
@@ -88,7 +91,9 @@ export class ProcurementComponent implements OnInit {
           if (typeof apiPage === 'number') {
             this.currentPage = apiPage;
           }
+          this.hasLoaded = true;
           this.filterRequests();
+          this.cdr.detectChanges();
         },
         error: () => {
           this.errorMessage = undefined;
@@ -96,6 +101,7 @@ export class ProcurementComponent implements OnInit {
           this.filteredRequests = [];
           this.totalRequests = 0;
           this.toastr.error('Unable to load purchase requisitions. Please try again.');
+          this.hasLoaded = true;
           this.cdr.detectChanges();
         }
       });

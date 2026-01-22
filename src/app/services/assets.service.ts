@@ -3,6 +3,11 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+export interface AssetCategory {
+  id?: number;
+  name?: string;
+}
+
 interface AssetsApiResponse {
   statusCode?: number;
   status?: string;
@@ -210,6 +215,11 @@ export interface AssetCreateResponse {
   };
 }
 
+export interface AssetCategory {
+  id?: number;
+  name?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -226,6 +236,15 @@ export class AssetsService {
       'ngrok-skip-browser-warning': 'true'
     });
     return this.http.get<AssetsApiResponse>(this.apiUrl, { params, headers });
+  }
+
+  fetchAssetCategories(): Observable<{ data?: AssetCategory[] }> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.get<{ data?: AssetCategory[] }>(`${environment.apiUrl}/api/asset-categories`, {
+      headers
+    });
   }
 
   fetchAssetById(id: string): Observable<AssetDetailResponse> {

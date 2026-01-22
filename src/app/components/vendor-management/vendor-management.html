@@ -28,7 +28,20 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngIf="!vendors.length && !isLoading">
+          <ng-container *ngIf="isLoading">
+            <tr *ngFor="let _ of loadingRows" class="skeleton-row">
+              <td><span class="skeleton skeleton-text short"></span></td>
+              <td><span class="skeleton skeleton-text medium"></span></td>
+              <td><span class="skeleton skeleton-text medium"></span></td>
+              <td><span class="skeleton skeleton-text short"></span></td>
+              <td><span class="skeleton skeleton-text short"></span></td>
+              <td><span class="skeleton skeleton-text short"></span></td>
+              <td><span class="skeleton skeleton-text tiny"></span></td>
+              <td><span class="skeleton skeleton-pill"></span></td>
+              <td><span class="skeleton skeleton-text tiny"></span></td>
+            </tr>
+          </ng-container>
+          <tr *ngIf="!vendors.length && !isLoading && hasLoaded">
             <td colspan="9" class="empty-row">No vendors to display.</td>
           </tr>
           <tr *ngFor="let vendor of vendors">

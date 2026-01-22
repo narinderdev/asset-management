@@ -32,6 +32,8 @@ export class TechnicianComponent implements OnInit {
   currentPage = 0;
   itemsPerPage = 10;
   loading = false;
+  hasLoaded = false;
+  loadingRows = Array.from({ length: 5 });
   errorMessage: string | null = null;
   isDeleteModalOpen = false;
   technicianToDelete?: Technician;
@@ -90,6 +92,7 @@ export class TechnicianComponent implements OnInit {
   private loadTechnicians(): void {
     const pageIndex = Math.max(0, this.currentPage);
     this.loading = true;
+    this.hasLoaded = false;
     this.errorMessage = null;
 
     this.technicianService
@@ -113,13 +116,17 @@ export class TechnicianComponent implements OnInit {
           if (typeof apiPage === 'number') {
             this.currentPage = apiPage;
           }
+          this.hasLoaded = true;
           this.errorMessage = null;
+          this.cdr.detectChanges();
         },
         error: () => {
           this.errorMessage = null;
           this.toastr.error('Unable to load technicians right now.');
           this.technicians = [];
           this.totalTechnicians = 0;
+          this.hasLoaded = true;
+          this.cdr.detectChanges();
         }
       });
   }

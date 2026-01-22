@@ -33,6 +33,8 @@ export class InventoryComponent implements OnInit {
   currentPage = 0;
   itemsPerPage = 10;
   isLoading = false;
+  hasLoaded = false;
+  loadingRows = Array.from({ length: 5 });
   errorMessage?: string;
 
   isDeleteModalOpen = false;
@@ -64,6 +66,7 @@ export class InventoryComponent implements OnInit {
   private loadInventory(): void {
     const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
+    this.hasLoaded = false;
     this.errorMessage = undefined;
 
     this.inventoryService
@@ -84,12 +87,14 @@ export class InventoryComponent implements OnInit {
           if (typeof apiPage === 'number') {
             this.currentPage = apiPage;
           }
+          this.hasLoaded = true;
         },
         error: () => {
           this.errorMessage = undefined;
           this.toastr.error('Unable to load inventory. Please try again later.');
           this.inventory = [];
           this.totalInventory = 0;
+          this.hasLoaded = true;
         }
       });
   }

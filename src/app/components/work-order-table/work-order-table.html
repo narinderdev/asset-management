@@ -33,7 +33,7 @@
               <td><span class="skeleton skeleton-pill"></span></td>
             </tr>
           </ng-container>
-          <tr *ngIf="!workOrders.length && !isLoading">
+          <tr *ngIf="!workOrders.length && !isLoading && hasLoaded">
             <td colspan="8" class="empty-row">{{ emptyMessage }}</td>
           </tr>
           <tr *ngFor="let order of workOrders">

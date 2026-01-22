@@ -23,7 +23,17 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngIf="!technicians.length && !loading">
+          <ng-container *ngIf="loading">
+            <tr *ngFor="let _ of loadingRows" class="skeleton-row">
+              <td><span class="skeleton skeleton-text medium"></span></td>
+              <td><span class="skeleton skeleton-text short"></span></td>
+              <td><span class="skeleton skeleton-text medium"></span></td>
+              <td><span class="skeleton skeleton-text medium"></span></td>
+              <td><span class="skeleton skeleton-pill"></span></td>
+              <td><span class="skeleton skeleton-text tiny"></span></td>
+            </tr>
+          </ng-container>
+          <tr *ngIf="!technicians.length && !loading && hasLoaded">
             <td colspan="6" class="empty-row">No technicians to display.</td>
           </tr>
           <tr *ngFor="let tech of technicians">

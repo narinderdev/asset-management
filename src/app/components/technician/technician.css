@@ -269,6 +269,49 @@
   animation: spin 0.8s linear infinite;
 }
 
+.skeleton-row td {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.skeleton {
+  display: inline-block;
+  background: linear-gradient(90deg, #f4f4f5 25%, #e5e7eb 50%, #f4f4f5 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 6px;
+}
+
+.skeleton-text.short {
+  height: 12px;
+  width: 80px;
+}
+
+.skeleton-text.medium {
+  height: 12px;
+  width: 140px;
+}
+
+.skeleton-text.tiny {
+  height: 10px;
+  width: 60px;
+}
+
+.skeleton-pill {
+  height: 22px;
+  width: 90px;
+  border-radius: 999px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 @keyframes spin {
   from {
     transform: rotate(0deg);

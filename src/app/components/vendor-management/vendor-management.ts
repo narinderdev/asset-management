@@ -47,6 +47,8 @@ export class VendorManagementComponent implements OnInit {
   currentPage = 0;
   itemsPerPage = 10;
   isLoading = false;
+  hasLoaded = false;
+  loadingRows = Array.from({ length: 5 });
   errorMessage?: string;
   isDeleteModalOpen = false;
   vendorToDelete?: Vendor;
@@ -77,6 +79,7 @@ export class VendorManagementComponent implements OnInit {
   private loadVendors(): void {
     const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
+    this.hasLoaded = false;
     this.errorMessage = undefined;
 
     this.vendorService
@@ -97,12 +100,16 @@ export class VendorManagementComponent implements OnInit {
           if (typeof apiPage === 'number') {
             this.currentPage = apiPage;
           }
+          this.hasLoaded = true;
+          this.cdr.detectChanges();
         },
         error: () => {
           this.errorMessage = undefined;
           this.toastr.error('Unable to load vendors right now. Please try again later.');
           this.vendors = [];
           this.totalVendors = 0;
+          this.hasLoaded = true;
+          this.cdr.detectChanges();
         }
       });
   }

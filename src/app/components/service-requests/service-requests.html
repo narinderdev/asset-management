@@ -27,7 +27,19 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngIf="!serviceRequests.length && !isLoading">
+        <ng-container *ngIf="isLoading">
+          <tr *ngFor="let _ of loadingRows" class="skeleton-row">
+            <td><span class="skeleton skeleton-text short"></span></td>
+            <td><span class="skeleton skeleton-text short"></span></td>
+            <td><span class="skeleton skeleton-text medium"></span></td>
+            <td><span class="skeleton skeleton-text medium"></span></td>
+            <td><span class="skeleton skeleton-text short"></span></td>
+            <td><span class="skeleton skeleton-pill"></span></td>
+            <td><span class="skeleton skeleton-pill"></span></td>
+            <td><span class="skeleton skeleton-text tiny"></span></td>
+          </tr>
+        </ng-container>
+        <tr *ngIf="!serviceRequests.length && !isLoading && hasLoaded">
           <td colspan="8" class="empty-row">No service requests to display.</td>
         </tr>
         <tr *ngFor="let request of serviceRequests">

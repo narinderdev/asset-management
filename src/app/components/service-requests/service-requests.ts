@@ -57,6 +57,8 @@ export class ServiceRequestsComponent implements OnInit {
   currentPage = 0;
   itemsPerPage = 10;
   isLoading = false;
+  hasLoaded = false;
+  loadingRows = Array.from({ length: 5 });
   errorMessage?: string;
   isDeleteModalOpen = false;
   requestToDelete?: ServiceRequest;
@@ -90,6 +92,7 @@ export class ServiceRequestsComponent implements OnInit {
   private loadRequests(): void {
     const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
+    this.hasLoaded = false;
     this.errorMessage = undefined;
 
     this.serviceRequestService
@@ -112,12 +115,16 @@ export class ServiceRequestsComponent implements OnInit {
           if (typeof apiPage === 'number') {
             this.currentPage = apiPage;
           }
+          this.hasLoaded = true;
+          this.cdr.detectChanges();
         },
         error: () => {
           this.errorMessage = undefined;
           this.serviceRequests = [];
           this.totalRequests = 0;
           this.toastr.error('Unable to load service requests. Please try again later.');
+          this.hasLoaded = true;
+          this.cdr.detectChanges();
         }
       });
   }

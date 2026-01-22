@@ -53,7 +53,14 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngIf="!filteredAssets.length && !isLoading">
+        <tr *ngIf="isLoading">
+          <td colspan="8">
+            <div class="skeleton-row" *ngFor="let _ of loadingRows">
+              <span class="skeleton skeleton-text long"></span>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="!filteredAssets.length && !isLoading && hasLoaded">
           <td colspan="8" class="empty-row">No assets to display.</td>
         </tr>
         <tr *ngFor="let asset of filteredAssets">

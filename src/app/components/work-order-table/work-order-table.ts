@@ -51,6 +51,7 @@ export class WorkOrderTable implements OnInit, OnChanges {
   workOrders: WorkOrder[] = [];
   isLoading = false;
   private hasReceivedExternal = false;
+  hasLoaded = false;
   errorMessage?: string;
   isDeleteModalOpen = false;
   orderToDelete?: WorkOrder;
@@ -74,12 +75,14 @@ export class WorkOrderTable implements OnInit, OnChanges {
   ngOnInit(): void {
     this.setPermissions();
     this.isLoading = this.loading || (!this.loadLive && this.externalWorkOrders === null);
+    this.hasLoaded = false;
 
     if (this.loadLive) {
       this.loadWorkOrders();
     } else if (this.externalWorkOrders !== null) {
       this.hasReceivedExternal = true;
       this.setWorkOrders(this.externalWorkOrders ?? []);
+      this.hasLoaded = true;
     } else {
       this.workOrders = [];
     }
@@ -92,8 +95,10 @@ export class WorkOrderTable implements OnInit, OnChanges {
         const incoming = this.externalWorkOrders ?? [];
         if (incoming.length) {
           this.setWorkOrders(incoming);
+          this.hasLoaded = true;
         } else {
           this.workOrders = [];
+          this.hasLoaded = true;
         }
       }
 
@@ -113,6 +118,7 @@ export class WorkOrderTable implements OnInit, OnChanges {
 
   private loadWorkOrders(): void {
     this.isLoading = true;
+    this.hasLoaded = false;
     this.errorMessage = undefined;
     const pageIndex = Math.max(0, this.currentPage);
 

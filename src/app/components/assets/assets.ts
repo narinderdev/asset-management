@@ -48,6 +48,8 @@ interface ApiAssetDto {
 export class AssetsComponent implements OnInit {
   assets: Asset[] = [];
   filteredAssets: Asset[] = [];
+  hasLoaded = false;
+  loadingRows = Array.from({ length: 5 });
 
   filterAssetName = '';
 
@@ -85,6 +87,7 @@ export class AssetsComponent implements OnInit {
 
   private loadAssets(): void {
     const pageIndex = Math.max(0, this.currentPage);
+    this.hasLoaded = false;
     this.isLoading = true;
     this.errorMessage = undefined;
 
@@ -104,11 +107,15 @@ export class AssetsComponent implements OnInit {
             this.currentPage = apiPage;
           }
 
+          this.hasLoaded = true;
           this.applyFilters();
+          this.cdr.detectChanges();
         },
         error: () => {
           this.errorMessage = undefined;
           this.toastr.error('Unable to load assets. Please refresh or try again later.');
+          this.hasLoaded = true;
+          this.cdr.detectChanges();
         }
       });
   }
