@@ -46,9 +46,11 @@ export class WorkOrderTable implements OnInit, OnChanges {
   @Input() externalWorkOrders: WorkOrder[] | null = null;
   @Input() loading = false;
   @Input() emptyMessage = 'No work orders to display.';
+  @Input() showEditDelete = true;
 
   workOrders: WorkOrder[] = [];
   isLoading = false;
+  private hasReceivedExternal = false;
   errorMessage?: string;
   isDeleteModalOpen = false;
   orderToDelete?: WorkOrder;
@@ -71,28 +73,34 @@ export class WorkOrderTable implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.setPermissions();
-    this.isLoading = this.loading;
+    this.isLoading = this.loading || (!this.loadLive && this.externalWorkOrders === null);
 
     if (this.loadLive) {
       this.loadWorkOrders();
-    } else if (this.externalWorkOrders && this.externalWorkOrders.length) {
-      this.setWorkOrders(this.externalWorkOrders);
+    } else if (this.externalWorkOrders !== null) {
+      this.hasReceivedExternal = true;
+      this.setWorkOrders(this.externalWorkOrders ?? []);
     } else {
-      this.workOrders = this.getStaticWorkOrders();
+      this.workOrders = [];
     }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if ('loading' in changes && !this.loadLive) {
-      this.isLoading = this.loading;
-    }
+    if (!this.loadLive) {
+      if ('externalWorkOrders' in changes) {
+        this.hasReceivedExternal = this.externalWorkOrders !== null;
+        const incoming = this.externalWorkOrders ?? [];
+        if (incoming.length) {
+          this.setWorkOrders(incoming);
+        } else {
+          this.workOrders = [];
+        }
+      }
 
-    if ('externalWorkOrders' in changes && !this.loadLive) {
-      const incoming = this.externalWorkOrders ?? [];
-      if (incoming.length) {
-        this.setWorkOrders(incoming);
-      } else {
-        this.workOrders = [];
+      if ('loading' in changes) {
+        this.isLoading = this.loading || !this.hasReceivedExternal;
+      } else if ('externalWorkOrders' in changes) {
+        this.isLoading = this.loading || !this.hasReceivedExternal;
       }
     }
   }
@@ -333,41 +341,6 @@ export class WorkOrderTable implements OnInit, OnChanges {
       return 0;
     }
     return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalOrders);
-  }
-
-  private getStaticWorkOrders(): WorkOrder[] {
-    return [
-      {
-        id: 'WO-1034',
-        title: 'Replace HVAC filters',
-        asset: 'Building A - Furnace',
-        technician: 'Maya Patel',
-        dueDate: '2025-12-18',
-        formattedDueDate: this.formatDate('2025-12-18'),
-        priority: 'High',
-        status: 'In Progress',
-      },
-      {
-        id: 'WO-1033',
-        title: 'Inspect conveyor belts',
-        asset: 'Manufacturing Line 2',
-        technician: 'Leo Martin',
-        dueDate: '2025-12-20',
-        formattedDueDate: this.formatDate('2025-12-20'),
-        priority: 'Medium',
-        status: 'Pending',
-      },
-      {
-        id: 'WO-1032',
-        title: 'Calibrate pressure sensors',
-        asset: 'Tank Farm Monitoring',
-        technician: 'Rina Gomez',
-        dueDate: '2025-12-22',
-        formattedDueDate: this.formatDate('2025-12-22'),
-        priority: 'Low',
-        status: 'Completed',
-      },
-    ];
   }
 
   private setWorkOrders(orders: WorkOrder[]): void {

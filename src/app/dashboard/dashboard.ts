@@ -73,15 +73,6 @@ export class DashboardComponent {
     })),
   );
 
-  readonly lastUpdated = computed<string | null>(() => {
-    const generatedAt = this.state.data()?.metadata.generatedAt;
-    return generatedAt ? this.formatTimestamp(generatedAt) : null;
-  });
-
-  readonly isRealTime = computed<boolean>(
-    () => (this.state.data()?.metadata.dataFreshness || '').toLowerCase() === 'real_time',
-  );
-
   readonly isLoading = computed<boolean>(() => this.state.loading() && !this.state.data());
   readonly error = computed<string | null>(() => this.state.error());
 
@@ -114,20 +105,5 @@ export class DashboardComponent {
       changePercentage: metric?.changePercentage ?? null,
       loading,
     };
-  }
-
-  private formatTimestamp(value: string): string {
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-      return '';
-    }
-
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: '2-digit',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-    });
   }
 }

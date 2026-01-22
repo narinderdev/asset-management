@@ -3,10 +3,6 @@
     <div class="dashboard-header">
       <div>
         <h1>Maintenance Dashboard</h1>
-        <div class="dashboard-meta" *ngIf="lastUpdated() || isRealTime()">
-          <span class="meta-chip" *ngIf="lastUpdated()">Updated {{ lastUpdated() }}</span>
-          <span class="meta-chip live" *ngIf="isRealTime()">Auto-refreshing (30s)</span>
-        </div>
       </div>
       <button class="refresh-btn" type="button" (click)="refetch()">Refresh</button>
     </div>
@@ -42,6 +38,7 @@
     <app-work-order-table
       [externalWorkOrders]="recentWorkOrders()"
       [loading]="isLoading()"
+      [showEditDelete]="false"
       [emptyMessage]="'No recent work orders.'">
     </app-work-order-table>
   </div>

@@ -82,27 +82,10 @@ export function useDashboardData(): UseDashboardDataResult {
   const loading = signal<boolean>(false);
   const error = signal<string | null>(null);
 
-  let refreshTimer: ReturnType<typeof setInterval> | null = null;
   const subscriptions = new Subscription();
 
-  const stopAutoRefresh = (): void => {
-    if (refreshTimer) {
-      clearInterval(refreshTimer);
-      refreshTimer = null;
-    }
-  };
-
-  const startAutoRefresh = (freshness?: string | null): void => {
-    stopAutoRefresh();
-    if ((freshness || '').toLowerCase() === 'real_time') {
-      refreshTimer = setInterval(() => fetchDashboard(true), 30_000);
-    }
-  };
-
-  const fetchDashboard = (isAutoRefresh = false): void => {
-    if (!isAutoRefresh) {
-      loading.set(true);
-    }
+  const fetchDashboard = (): void => {
+    loading.set(true);
     error.set(null);
 
     const sub = dashboardService.fetchDashboard().subscribe({
@@ -113,15 +96,12 @@ export function useDashboardData(): UseDashboardDataResult {
           return;
         }
 
-        const normalized = normalizeDashboardResponse(response);
-        data.set(normalized);
-        startAutoRefresh(normalized.metadata.dataFreshness);
+        data.set(normalizeDashboardResponse(response));
         loading.set(false);
       },
       error: () => {
         error.set('Unable to load dashboard data. Please try again.');
         loading.set(false);
-        stopAutoRefresh();
       },
     });
 
@@ -129,7 +109,6 @@ export function useDashboardData(): UseDashboardDataResult {
   };
 
   destroyRef.onDestroy(() => {
-    stopAutoRefresh();
     subscriptions.unsubscribe();
   });
 
@@ -139,7 +118,7 @@ export function useDashboardData(): UseDashboardDataResult {
     data,
     loading,
     error,
-    refetch: () => fetchDashboard(false),
+    refetch: () => fetchDashboard(),
   };
 }
 

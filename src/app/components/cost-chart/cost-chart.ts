@@ -30,7 +30,8 @@ export class CostChart {
     if (!max) {
       return [0];
     }
-    const step = Math.max(Math.ceil(max / 3), 1);
+    const rawStep = max / 3;
+    const step = this.niceStep(rawStep);
     return [step * 3, step * 2, step, 0];
   }
 
@@ -41,7 +42,26 @@ export class CostChart {
 
   formatTick(value: number): string {
     return new Intl.NumberFormat('en-US', {
-      maximumFractionDigits: 0
+      maximumFractionDigits: 2
     }).format(value);
+  }
+
+  private niceStep(value: number): number {
+    if (value <= 0) {
+      return 1;
+    }
+    const magnitude = Math.pow(10, Math.floor(Math.log10(value)));
+    const residual = value / magnitude;
+    let nice = 1;
+    if (residual >= 5) {
+      nice = 5;
+    } else if (residual >= 2) {
+      nice = 2;
+    } else if (residual >= 1) {
+      nice = 1;
+    } else {
+      nice = 0.5;
+    }
+    return nice * magnitude;
   }
 }

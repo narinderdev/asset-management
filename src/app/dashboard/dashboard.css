@@ -29,30 +29,6 @@
   margin: 0;
 }
 
-.dashboard-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.meta-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: #f3f4f6;
-  color: #4b5563;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.meta-chip.live {
-  background: #ecfdf3;
-  color: #166534;
-}
-
 .refresh-btn {
   border: 1px solid #e5e7eb;
   background: #ffffff;
