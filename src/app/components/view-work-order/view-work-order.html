@@ -26,7 +26,7 @@
             'badge-info': workOrder.status?.toUpperCase() === 'NEW',
             'badge-success': workOrder.status?.toUpperCase() === 'APPROVED' || workOrder.status?.toUpperCase() === 'COMPLETED' || workOrder.status?.toUpperCase() === 'CLOSED',
             'badge-warning': workOrder.status?.toUpperCase() === 'SCHEDULED' || workOrder.status?.toUpperCase() === 'IN_PROGRESS'
-          }">{{ workOrder.status ?? 'N/A' }}</span>
+          }">{{ formatEnum(workOrder.status) }}</span>
         </div>
 
         <div class="action-buttons">
@@ -142,7 +142,7 @@
             </div>
             <div class="field-group">
               <div class="field-label">Status</div>
-              <div class="field-value">{{ workOrder.status ?? 'N/A' }}</div>
+              <div class="field-value">{{ formatEnum(workOrder.status) }}</div>
             </div>
             <div class="field-group">
               <div class="field-label">Priority</div>
@@ -456,11 +456,8 @@
             <span class="section-title">Materials Used</span>
           </div>
           <div class="material-add-form triple">
-            <select name="inventoryItemUsedPrefill" [(ngModel)]="prefillMaterialUsed.inventoryItemId" class="form-input">
-              <option [ngValue]="undefined" disabled hidden>Select inventory</option>
-              <option *ngFor="let item of inventoryOptions" [ngValue]="item.id">{{ item.name }}</option>
-            </select>
-            <input type="number" placeholder="Qty Used" min="0" step="0.01" [(ngModel)]="prefillMaterialUsed.quantityUsed" name="quantityUsedPrefill" class="form-input" />
+            <input type="text" class="form-input" [value]="getInventoryName(prefillMaterialUsed.inventoryItemId)" disabled />
+            <input type="number" class="form-input" [value]="prefillMaterialUsed.quantityUsed || 0" disabled />
             <span></span>
           </div>
           <div class="material-add-form triple">
@@ -517,7 +514,7 @@
 
   <!-- In Progress Confirm Modal -->
   <div class="modal-backdrop" *ngIf="showInProgressConfirm" (click)="cancelInProgressConfirm()">
-    <div class="modal-dialog small" (click)="$event.stopPropagation()">
+    <div class="modal-dialog small confirm-modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>Start In Progress</h3>
         <p>Do you want to mark this work order as In Progress?</p>

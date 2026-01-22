@@ -173,6 +173,17 @@ export class ViewWorkOrderComponent implements OnInit {
     return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
+  formatEnum(value?: string): string {
+    if (!value) {
+      return 'N/A';
+    }
+    return value
+      .toString()
+      .split('_')
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join(' ');
+  }
+
   goBack(): void {
     this.router.navigate(['/work-orders']);
   }
@@ -225,21 +236,27 @@ export class ViewWorkOrderComponent implements OnInit {
     this.isApproving = true;
     this.approveError = undefined;
 
-    this.workOrderService.approveWorkOrder(this.workOrder.id, this.approveForm).subscribe({
-      next: (response) => {
-        this.closeApproveModal();
-        this.loadWorkOrder(this.workOrderId!);
-      },
-      error: () => {
-        this.approveError = 'Failed to approve work order. Please try again.';
-        this.isApproving = false;
-        this.cdr.detectChanges();
-      },
-      complete: () => {
-        this.isApproving = false;
-        this.cdr.detectChanges();
-      }
-    });
+    this.workOrderService
+      .approveWorkOrder(this.workOrder.id, this.approveForm)
+      .pipe(
+        finalize(() => {
+          this.isApproving = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          if (this.workOrder) {
+            this.workOrder = { ...this.workOrder, status: 'APPROVED' };
+          }
+          this.closeApproveModal();
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.approveError = 'Failed to approve work order. Please try again.';
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   submitSchedule(): void {
@@ -392,6 +409,10 @@ export class ViewWorkOrderComponent implements OnInit {
 
     this.workOrderService.startInProgress(this.workOrder.id, payload).subscribe({
       next: () => {
+        if (this.workOrder) {
+          this.workOrder = { ...this.workOrder, status: 'IN_PROGRESS' };
+        }
+        this.cdr.detectChanges();
         this.loadWorkOrder(this.workOrderId!);
       },
       error: () => {

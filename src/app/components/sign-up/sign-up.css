@@ -181,3 +181,13 @@
 .input-wrapper input.email-input-lowercase {
   text-transform: lowercase;
 }
+
+@media (max-width: 480px) {
+  .signup-card {
+    width: 277px;
+  }
+
+  .input-wrapper input {
+    width: 68%;
+  }
+}

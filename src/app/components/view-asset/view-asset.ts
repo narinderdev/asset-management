@@ -24,6 +24,7 @@ export class ViewAssetComponent implements OnInit {
   errorMessage?: string;
   assetLoaded = false;
   meterModalOpen = false;
+  isSavingMeter = false;
   meterReadingForm = {
     assetId: null as number | null,
     meterType: '',
@@ -158,6 +159,8 @@ export class ViewAssetComponent implements OnInit {
     if (!this.meterReadingForm.assetId || !this.meterReadingForm.meterType || !this.meterReadingForm.readingValue) {
       return;
     }
+    let saved = false;
+    this.isSavingMeter = true;
     const payload = {
       assetId: this.meterReadingForm.assetId,
       meterType: this.meterReadingForm.meterType,
@@ -167,11 +170,21 @@ export class ViewAssetComponent implements OnInit {
     };
 
     this.pmTemplateService.createPredictiveMeterReading(payload).pipe(
-      finalize(() => this.cdr.detectChanges())
+      finalize(() => {
+        this.isSavingMeter = false;
+        if (saved) {
+          this.closeMeterModal();
+          const refreshId = this.asset?.id ?? this.meterReadingForm.assetId;
+          if (refreshId !== null && refreshId !== undefined) {
+            this.fetchAsset(String(refreshId));
+          }
+        }
+        this.cdr.detectChanges();
+      })
     ).subscribe({
       next: () => {
+        saved = true;
         this.toastr.success('Meter reading captured.');
-        this.closeMeterModal();
       },
       error: () => {
         this.toastr.error('Unable to save meter reading. Please try again.');

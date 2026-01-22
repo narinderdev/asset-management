@@ -356,7 +356,12 @@
           </div>
           <div class="form-group">
             <label class="form-label">Meter Type</label>
-            <input type="text" class="form-input" [(ngModel)]="meterReadingForm.meterType" />
+            <input
+              type="text"
+              class="form-input"
+              [value]="formatEnum(meterReadingForm.meterType)"
+              disabled
+            />
           </div>
         </div>
 
@@ -383,7 +388,10 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn-secondary" (click)="closeMeterModal()">Cancel</button>
-        <button type="button" class="btn-primary" (click)="submitMeterReading()">Save</button>
+        <button type="button" class="btn-primary" [disabled]="isSavingMeter" (click)="submitMeterReading()">
+          <ng-container *ngIf="!isSavingMeter; else savingTpl">Save</ng-container>
+          <ng-template #savingTpl>Saving...</ng-template>
+        </button>
       </div>
     </div>
   </div>

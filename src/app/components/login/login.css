@@ -170,3 +170,9 @@
   cursor: pointer;
   opacity: 1;
 }
+
+@media (max-width: 480px) {
+  .login-card {
+    width: 270px;
+  }
+}
