@@ -39,6 +39,7 @@ export interface CostSummaryDisplay {
 
 export interface DashboardRecentWorkOrder {
   woId: string;
+  woDbId: number | null;
   title: string;
   asset: string;
   technician: string;
@@ -225,6 +226,7 @@ function normalizeRecentWorkOrder(order: RecentWorkOrder): DashboardRecentWorkOr
   const dueDate = order.due_date ?? null;
   return {
     woId: order.wo_id ?? '—',
+    woDbId: order.wo_db_id ?? null,
     title: order.title ?? 'Untitled Work Order',
     asset: order.asset ?? 'Unassigned Asset',
     technician: order.technician ?? 'Unassigned',

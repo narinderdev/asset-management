@@ -64,6 +64,7 @@ export interface RecentWorkOrder {
   technician?: string | null;
   title?: string | null;
   wo_id?: string | null;
+  wo_db_id?: number | null;
 }
 
 @Injectable({

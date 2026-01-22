@@ -18,6 +18,7 @@ interface DashboardStatCard {
 
 interface DashboardTableWorkOrder {
   id: string;
+  apiId?: number;
   title: string;
   asset: string;
   technician: string;
@@ -63,6 +64,7 @@ export class DashboardComponent {
   readonly recentWorkOrders = computed<DashboardTableWorkOrder[]>(() =>
     (this.state.data()?.recentWorkOrders ?? []).map((order: DashboardRecentWorkOrder) => ({
       id: order.woId,
+      apiId: order.woDbId ?? undefined,
       title: order.title,
       asset: order.asset,
       technician: order.technician,
@@ -73,7 +75,7 @@ export class DashboardComponent {
     })),
   );
 
-  readonly isLoading = computed<boolean>(() => this.state.loading() && !this.state.data());
+  readonly isLoading = computed<boolean>(() => this.state.loading());
   readonly error = computed<string | null>(() => this.state.error());
 
   constructor(private toastr: ToastrService) {

@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 
 import { WorkOrderService } from '../../services/work-order.service';
@@ -37,7 +37,7 @@ interface ApiWorkOrder {
 @Component({
   selector: 'app-work-order-table',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, DeleteModalComponent],
+  imports: [CommonModule, HttpClientModule, RouterModule, DeleteModalComponent],
   templateUrl: './work-order-table.html',
   styleUrls: ['./work-order-table.css'],
 })
