@@ -21,6 +21,8 @@ interface SelectOption {
 }
 
 interface PreventiveMaintenanceForm {
+  pmId?: string;
+  pmName?: string;
   assetId: number | null;
   location: string;
   title: string;
@@ -272,6 +274,8 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
 
   private createTemplateDefaults(): PreventiveMaintenanceForm {
     return {
+      pmId: '',
+      pmName: '',
       assetId: null,
       location: '',
       title: '',

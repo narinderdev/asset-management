@@ -41,5 +41,11 @@
       [showEditDelete]="false"
       [emptyMessage]="'No recent work orders.'">
     </app-work-order-table>
+
+    <app-service-request-table
+      [requests]="recentServiceRequests()"
+      [loading]="isLoading()"
+      [emptyMessage]="'No recent service requests.'">
+    </app-service-request-table>
   </div>
 </div>

@@ -13,6 +13,7 @@ import {
   StartInProgressRequest,
   CheckInRequest,
   CheckOutRequest,
+  TeamCheckRequest,
   CompleteWorkOrderRequest,
   CompleteLaborEntry,
   CompleteMaterialUsed
@@ -80,6 +81,13 @@ export class ViewWorkOrderComponent implements OnInit {
   isCheckedIn = false;
   checkInDisabledUntilTomorrow = false;
   hasClockedIn = false;
+  // Team check modal state
+  showTeamCheckModal = false;
+  teamCheckMode: 'IN' | 'OUT' | null = null;
+  teamCheckApplyAll = true;
+  teamCheckEntries: Array<{ technicianId: number; technicianName: string; isLeader?: boolean; time: string; notes?: string }> = [];
+  teamCheckError?: string;
+  isSubmittingTeamCheck = false;
   showCompleteModal = false;
   isCompleting = false;
   isClosing = false;
@@ -136,6 +144,7 @@ export class ViewWorkOrderComponent implements OnInit {
       )
       .subscribe({
         next: response => {
+          this.isLoading = false;
           if (response.data) {
             this.workOrder = response.data;
             const logs = response.data.checkLogs ?? [];
@@ -154,12 +163,28 @@ export class ViewWorkOrderComponent implements OnInit {
             this.hasClockedIn = hasOpenLog;
             this.isPaused = hasUnresolvedPause || (response.data.status ?? '').toUpperCase() === 'PAUSED';
             this.isCheckedIn = hasOpenLog;
+            const members = response.data.teamMembers ?? [];
+            if (members.length) {
+              const defaultTime = this.getNowInputValue();
+              this.teamCheckEntries = members
+                .filter((m): m is { technicianId: number; technicianName?: string; teamLeader?: boolean } => !!m.technicianId)
+                .map((m) => ({
+                  technicianId: m.technicianId,
+                  technicianName: m.technicianName ?? `Technician #${m.technicianId}`,
+                  isLeader: m.teamLeader ?? false,
+                  time: defaultTime,
+                  notes: m.teamLeader ? 'Team leader' : ''
+                }));
+            }
           } else {
             this.errorMessage = response.message ?? 'Work order not found.';
           }
+          this.cdr.detectChanges();
         },
         error: () => {
           this.errorMessage = 'Unable to load work order details.';
+          this.isLoading = false;
+          this.cdr.detectChanges();
         }
       });
   }
@@ -209,6 +234,20 @@ export class ViewWorkOrderComponent implements OnInit {
       .split('_')
       .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
       .join(' ');
+  }
+
+  private getNowInputValue(): string {
+    const now = new Date();
+    const pad = (num: number) => num.toString().padStart(2, '0');
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  }
+
+  private toIsoFromInput(value?: string): string {
+    if (!value) {
+      return new Date().toISOString();
+    }
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
   }
 
   goBack(): void {
@@ -469,6 +508,12 @@ export class ViewWorkOrderComponent implements OnInit {
       return;
     }
 
+    // For team-assigned orders, open modal to collect technician times.
+    if (this.shouldUseTeamEndpoint() && !this.showTeamCheckModal) {
+      this.openTeamCheckModal('IN');
+      return;
+    }
+
     this.clockingError = undefined;
     const assignee = this.buildAssignmentPayload();
     if (!assignee.teamId && !assignee.technicianId) {
@@ -507,6 +552,12 @@ export class ViewWorkOrderComponent implements OnInit {
       return;
     }
 
+    // For team-assigned orders, open modal to collect technician times.
+    if (this.shouldUseTeamEndpoint() && !this.showTeamCheckModal) {
+      this.openTeamCheckModal('OUT');
+      return;
+    }
+
     this.clockingError = undefined;
     const assignee = this.buildAssignmentPayload();
     if (!assignee.teamId && !assignee.technicianId) {
@@ -542,11 +593,120 @@ export class ViewWorkOrderComponent implements OnInit {
 
   handleCheckToggle(): void {
     // Toggle between check-in and check-out based on the latest open log.
+    if (this.shouldUseTeamEndpoint()) {
+      this.openTeamCheckModal(this.isCheckedIn ? 'OUT' : 'IN');
+      return;
+    }
+
     if (this.isCheckedIn) {
       this.clockOut();
     } else {
       this.clockIn();
     }
+  }
+
+  openTeamCheckModal(mode: 'IN' | 'OUT'): void {
+    if (!this.workOrder?.assignedTeamId) {
+      return;
+    }
+    this.teamCheckMode = mode;
+    this.teamCheckError = undefined;
+    const defaultTime = this.getNowInputValue();
+    if (!this.teamCheckEntries.length && this.workOrder.teamMembers?.length) {
+      this.teamCheckEntries = (this.workOrder.teamMembers ?? [])
+        .filter((m): m is { technicianId: number; technicianName?: string; teamLeader?: boolean } => !!m.technicianId)
+        .map((m) => ({
+          technicianId: m.technicianId,
+          technicianName: m.technicianName ?? `Technician #${m.technicianId}`,
+          isLeader: m.teamLeader ?? false,
+          time: defaultTime,
+          notes: m.teamLeader ? 'Team leader' : ''
+        }));
+    }
+    // Reset times to now when opening and apply to all by default
+    this.teamCheckApplyAll = true;
+    this.teamCheckEntries = this.teamCheckEntries.map((entry) => ({ ...entry, time: defaultTime }));
+    this.showTeamCheckModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeTeamCheckModal(): void {
+    this.showTeamCheckModal = false;
+    this.teamCheckMode = null;
+    this.teamCheckError = undefined;
+    this.isSubmittingTeamCheck = false;
+    this.cdr.detectChanges();
+  }
+
+  applyAllTimes(): void {
+    if (!this.teamCheckApplyAll || !this.teamCheckEntries.length) {
+      return;
+    }
+    const shared = this.teamCheckEntries[0].time;
+    this.teamCheckEntries = this.teamCheckEntries.map((entry, idx) =>
+      idx === 0 ? entry : { ...entry, time: shared }
+    );
+  }
+
+  submitTeamCheck(): void {
+    if (!this.workOrder?.assignedTeamId || !this.teamCheckMode) {
+      this.teamCheckError = 'Missing team assignment.';
+      return;
+    }
+    if (!this.teamCheckEntries.length) {
+      this.teamCheckError = 'No technicians available for this team.';
+      return;
+    }
+    const sharedTime = this.teamCheckApplyAll && this.teamCheckEntries[0]?.time ? this.teamCheckEntries[0].time : undefined;
+    const technicians = this.teamCheckEntries.map((entry) => {
+      const timeValue = sharedTime ?? entry.time ?? this.getNowInputValue();
+      const base = { technicianId: entry.technicianId, notes: entry.notes };
+      if (this.teamCheckMode === 'IN') {
+        return { ...base, checkInAt: this.toIsoFromInput(timeValue) };
+      }
+      return { ...base, checkOutAt: this.toIsoFromInput(timeValue) };
+    });
+
+    const payload: TeamCheckRequest = {
+      teamId: this.workOrder.assignedTeamId,
+      technicians
+    };
+
+    this.isSubmittingTeamCheck = true;
+    this.teamCheckError = undefined;
+
+    const workOrderIdentifier = this.workOrderId ?? this.workOrder?.id;
+    if (!workOrderIdentifier) {
+      this.teamCheckError = 'Missing work order identifier.';
+      return;
+    }
+
+    const request$ =
+      this.teamCheckMode === 'IN'
+        ? this.workOrderService.checkInTeam(workOrderIdentifier, payload)
+        : this.workOrderService.checkOutTeam(workOrderIdentifier, payload);
+
+    request$
+      .pipe(
+        finalize(() => {
+          this.isSubmittingTeamCheck = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.isCheckedIn = this.teamCheckMode === 'IN';
+          this.closeTeamCheckModal();
+          // Ensure modal closes immediately, then refresh details.
+          this.cdr.detectChanges();
+          this.loadWorkOrder(this.workOrderId!);
+        },
+        error: () => {
+          this.teamCheckError = 'Unable to submit team check.';
+          this.isSubmittingTeamCheck = false;
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   markComplete(): void {
@@ -702,9 +862,10 @@ export class ViewWorkOrderComponent implements OnInit {
     }
     this.isPausing = true;
     const id = this.workOrder.id;
+    const useTeam = this.shouldUseTeamEndpoint();
     const action$ = this.isPaused
-      ? this.workOrderService.resumeWorkOrder(id)
-      : this.workOrderService.pauseWorkOrder(id);
+      ? (useTeam ? this.workOrderService.resumeWorkOrderTeam(id) : this.workOrderService.resumeWorkOrder(id))
+      : (useTeam ? this.workOrderService.pauseWorkOrderTeam(id) : this.workOrderService.pauseWorkOrder(id));
 
     action$.pipe(
       finalize(() => {
@@ -730,5 +891,9 @@ export class ViewWorkOrderComponent implements OnInit {
     this.errorMessage = message;
     console.error(message);
   }
-}
 
+  private shouldUseTeamEndpoint(): boolean {
+    // When a team is assigned, prefer the team endpoints. Otherwise fall back to technician endpoints.
+    return !!this.workOrder?.assignedTeamId;
+  }
+}

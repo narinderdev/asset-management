@@ -49,6 +49,18 @@ export interface CheckOutRequest {
   notes?: string;
 }
 
+export interface TeamCheckTechnicianEntry {
+  technicianId: number;
+  checkInAt?: string;
+  checkOutAt?: string;
+  notes?: string;
+}
+
+export interface TeamCheckRequest {
+  teamId: number;
+  technicians: TeamCheckTechnicianEntry[];
+}
+
 export interface CompleteLaborEntry {
   technicianId?: number;
   laborHours?: number;
@@ -194,6 +206,12 @@ interface ApiWorkOrderDetail extends ApiWorkOrder {
   updatedAt?: string;
   checklistItems?: Array<Record<string, unknown>>;
   checkLogs?: Array<Record<string, unknown>>;
+  teamMembers?: Array<{
+    email?: string;
+    teamLeader?: boolean;
+    technicianId?: number;
+    technicianName?: string;
+  }>;
 }
 
 export interface WorkOrderDetailResponse {
@@ -308,6 +326,20 @@ export class WorkOrderService {
     return this.http.post<WorkOrderDetailResponse>(`${this.apiUrl}/${id}/check-out`, payload, { headers });
   }
 
+  checkInTeam(id: number | string, payload: TeamCheckRequest): Observable<WorkOrderDetailResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.post<WorkOrderDetailResponse>(`${this.apiUrl}/${id}/team/check-in`, payload, { headers });
+  }
+
+  checkOutTeam(id: number | string, payload: TeamCheckRequest): Observable<WorkOrderDetailResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.post<WorkOrderDetailResponse>(`${this.apiUrl}/${id}/team/check-out`, payload, { headers });
+  }
+
   completeWorkOrder(id: number | string, payload: CompleteWorkOrderRequest): Observable<WorkOrderDetailResponse> {
     const headers = new HttpHeaders({
       'ngrok-skip-browser-warning': 'true'
@@ -334,5 +366,19 @@ export class WorkOrderService {
       'ngrok-skip-browser-warning': 'true'
     });
     return this.http.post<WorkOrderDetailResponse>(`${this.apiUrl}/${id}/resume`, {}, { headers });
+  }
+
+  pauseWorkOrderTeam(id: number | string): Observable<WorkOrderDetailResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.post<WorkOrderDetailResponse>(`${this.apiUrl}/${id}/team/pause`, {}, { headers });
+  }
+
+  resumeWorkOrderTeam(id: number | string): Observable<WorkOrderDetailResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.post<WorkOrderDetailResponse>(`${this.apiUrl}/${id}/team/resume`, {}, { headers });
   }
 }

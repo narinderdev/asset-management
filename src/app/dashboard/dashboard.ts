@@ -4,7 +4,8 @@ import { StatCard } from '../components/stat-card/stat-card';
 import { WorkOrderChart, WorkOrderStatus } from '../components/work-order-chart/work-order-chart';
 import { CostChart, CostChartPoint } from '../components/cost-chart/cost-chart';
 import { WorkOrderTable } from '../components/work-order-table/work-order-table';
-import { MetricDisplay, DashboardRecentWorkOrder, useDashboardData } from './use-dashboard-data';
+import { ServiceRequestTable } from '../components/service-request-table/service-request-table';
+import { MetricDisplay, DashboardRecentWorkOrder, DashboardRecentServiceRequest, useDashboardData } from './use-dashboard-data';
 import { ToastrService } from 'ngx-toastr';
 
 interface DashboardStatCard {
@@ -28,10 +29,22 @@ interface DashboardTableWorkOrder {
   status: string;
 }
 
+interface DashboardTableServiceRequest {
+  id: string;
+  apiId?: number;
+  title: string;
+  asset: string;
+  requester: string;
+  requestDate?: string | null;
+  formattedRequestDate: string;
+  priority: 'High' | 'Medium' | 'Low';
+  status: string;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, StatCard, WorkOrderChart, CostChart, WorkOrderTable],
+  imports: [CommonModule, StatCard, WorkOrderChart, CostChart, WorkOrderTable, ServiceRequestTable],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css'],
 })
@@ -72,6 +85,20 @@ export class DashboardComponent {
       formattedDueDate: order.formattedDueDate,
       priority: order.priority,
       status: order.status,
+    })),
+  );
+
+  readonly recentServiceRequests = computed<DashboardTableServiceRequest[]>(() =>
+    (this.state.data()?.recentServiceRequests ?? []).map((req: DashboardRecentServiceRequest) => ({
+      id: req.srId,
+      apiId: req.srDbId ?? undefined,
+      title: req.title,
+      asset: req.asset,
+      requester: req.requester,
+      requestDate: req.requestDate,
+      formattedRequestDate: req.formattedRequestDate,
+      priority: req.priority,
+      status: req.status,
     })),
   );
 

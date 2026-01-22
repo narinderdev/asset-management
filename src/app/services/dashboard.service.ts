@@ -14,6 +14,7 @@ export interface DashboardData {
   maintenance_cost_summary?: MaintenanceCostSummary;
   metadata?: DashboardMetadata;
   recent_work_orders?: RecentWorkOrder[];
+  new_service_requests?: RecentServiceRequest[];
   summary_metrics?: SummaryMetrics;
   work_orders_by_status?: WorkOrdersByStatus;
 }
@@ -65,6 +66,17 @@ export interface RecentWorkOrder {
   title?: string | null;
   wo_id?: string | null;
   wo_db_id?: number | null;
+}
+
+export interface RecentServiceRequest {
+  asset?: string | null;
+  priority?: string | null;
+  status?: string | null;
+  title?: string | null;
+  requester?: string | null;
+  request_date?: string | null;
+  sr_id?: string | null;
+  sr_db_id?: number | null;
 }
 
 @Injectable({

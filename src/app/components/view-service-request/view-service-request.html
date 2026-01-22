@@ -1,35 +1,21 @@
-<div class="view-request-page">
+﻿<div class="view-request-page">
   <!-- Header -->
   <div class="header">
     <button class="back-button" type="button" aria-label="Back to service requests" (click)="goBack()">
-      ← Back to service requests
+      <- Back to service requests
     </button>
-    
+
     <div class="header-content" *ngIf="request">
       <div class="title-section">
         <h1>{{ request.shortTitle || 'Service Request Details' }}</h1>
         <div class="request-meta">
-          <span class="request-id">{{ request.requestId ?? request.id ?? '-' }}</span>
-          <span *ngIf="request.requestDate">•</span>
+          <span class="request-id">{{ request.requestId ?? request.id ?? "-" }}</span>
+          <span *ngIf="request.requestDate">·</span>
           <span *ngIf="request.requestDate">{{ formatDate(request.requestDate) }}</span>
         </div>
       </div>
 
       <div class="header-actions">
-        <div class="status-badges">
-          <span class="badge" [ngClass]="{
-            'badge-warning': request.priority === 'HIGH' || request.priority === 'CRITICAL' || request.priority === 'MEDIUM',
-            'badge-info': request.priority === 'LOW'
-          }" *ngIf="request.priority">{{ request.priority }}</span>
-          
-          <span class="badge" [ngClass]="{
-            'badge-success': request.status?.toLowerCase() === 'approved' || request.status?.toLowerCase() === 'completed',
-            'badge-warning': request.status?.toLowerCase() === 'pending' || request.status?.toLowerCase() === 'in progress' || request.status?.toLowerCase() === 'in-progress',
-            'badge-info': request.status?.toLowerCase() === 'new' || request.status?.toLowerCase() === 'under review',
-            'badge-danger': request.status?.toLowerCase() === 'rejected'
-          }">{{ formatStatus(request.status) }}</span>
-        </div>
-
         <div class="action-buttons" *ngIf="isStatusNew(request.status) || isStatusApproved(request.status)">
           <ng-container *ngIf="isStatusNew(request.status)">
             <button class="btn-accept" type="button" (click)="onAccept()">
@@ -66,7 +52,6 @@
   <!-- Main Content -->
   <div class="main-content" *ngIf="request">
     <div class="details-grid">
-      
       <!-- Overview Card -->
       <div class="card">
         <div class="card-header">
@@ -123,23 +108,33 @@
           <div class="field-grid field-grid-3">
             <div class="field-group">
               <div class="field-label">Asset</div>
-              <div class="field-value" [ngClass]="{'empty': !request.assetName && !request.assetId}">{{ request.assetName ?? request.assetId ?? '-' }}</div>
+              <div class="field-value" [ngClass]="{'empty': !request.assetName && !request.assetId}">
+                {{ request.assetName ?? request.assetId ?? '-' }}
+              </div>
             </div>
             <div class="field-group">
               <div class="field-label">Assigned Technician</div>
-              <div class="field-value" [ngClass]="{'empty': !request.assignedTechnician}">{{ request.assignedTechnician ?? '-' }}</div>
+              <div class="field-value" [ngClass]="{'empty': !request.assignedTechnician}">
+                {{ request.assignedTechnician ?? '-' }}
+              </div>
             </div>
             <div class="field-group">
               <div class="field-label">Work Order</div>
-              <div class="field-value" [ngClass]="{'empty': !request.workOrderId}">{{ request.workOrderId ?? '-' }}</div>
+              <div class="field-value" [ngClass]="{'empty': !request.workOrderId}">
+                {{ request.workOrderId ?? '-' }}
+              </div>
             </div>
             <div class="field-group">
               <div class="field-label">Department</div>
-              <div class="field-value" [ngClass]="{'empty': !request.department}">{{ request.department ?? '-' }}</div>
+              <div class="field-value" [ngClass]="{'empty': !request.department}">
+                {{ request.department ?? '-' }}
+              </div>
             </div>
             <div class="field-group">
               <div class="field-label">Maintenance Team</div>
-              <div class="field-value" [ngClass]="{'empty': !request.maintenanceTeam}">{{ request.maintenanceTeam ?? '-' }}</div>
+              <div class="field-value" [ngClass]="{'empty': !request.maintenanceTeam}">
+                {{ request.maintenanceTeam ?? '-' }}
+              </div>
             </div>
           </div>
         </div>
@@ -154,7 +149,9 @@
           <div class="field-grid field-grid-3">
             <div class="field-group full-width">
               <div class="field-label">Problem Description</div>
-              <div class="field-value" [ngClass]="{'empty': !request.problemDescription}">{{ request.problemDescription ?? '-' }}</div>
+              <div class="field-value" [ngClass]="{'empty': !request.problemDescription}">
+                {{ request.problemDescription ?? '-' }}
+              </div>
             </div>
             <div class="field-group">
               <div class="field-label">Preferred Date</div>
@@ -162,7 +159,9 @@
             </div>
             <div class="field-group">
               <div class="field-label">Preferred Time</div>
-              <div class="field-value" [ngClass]="{'empty': !request.preferredTime}">{{ request.preferredTime ?? '-' }}</div>
+              <div class="field-value" [ngClass]="{'empty': !request.preferredTime}">
+                {{ request.preferredTime ?? '-' }}
+              </div>
             </div>
             <div class="field-group">
               <div class="field-label">Safety Risk</div>
@@ -183,20 +182,25 @@
           <div class="field-grid field-grid-3">
             <div class="field-group">
               <div class="field-label">Scheduled Start</div>
-              <div class="field-value" [ngClass]="{'empty': !request.scheduledStart}">{{ request.scheduledStart ? formatDate(request.scheduledStart) : '-' }}</div>
+              <div class="field-value" [ngClass]="{'empty': !request.scheduledStart}">
+                {{ request.scheduledStart ? formatDate(request.scheduledStart) : '-' }}
+              </div>
             </div>
             <div class="field-group">
               <div class="field-label">Target Completion</div>
-              <div class="field-value" [ngClass]="{'empty': !request.targetCompletionDate}">{{ request.targetCompletionDate ? formatDate(request.targetCompletionDate) : '-' }}</div>
+              <div class="field-value" [ngClass]="{'empty': !request.targetCompletionDate}">
+                {{ request.targetCompletionDate ? formatDate(request.targetCompletionDate) : '-' }}
+              </div>
             </div>
             <div class="field-group">
               <div class="field-label">Due Date</div>
-              <div class="field-value" [ngClass]="{'empty': !request.dueDate}">{{ request.dueDate ? formatDate(request.dueDate) : '-' }}</div>
+              <div class="field-value" [ngClass]="{'empty': !request.dueDate}">
+                {{ request.dueDate ? formatDate(request.dueDate) : '-' }}
+              </div>
             </div>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -244,7 +248,7 @@
   <div class="modal-backdrop" *ngIf="showConvertModal" (click)="closeModals()">
     <div class="modal-dialog" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <div class="modal-icon info">↻</div>
+        <div class="modal-icon info">ℹ</div>
         <h3>Convert to Work Order</h3>
         <p>Do you want to convert {{ request?.requestId || 'this service request' }} to a work order?</p>
       </div>
@@ -260,3 +264,6 @@
     </div>
   </div>
 </div>
+
+
+

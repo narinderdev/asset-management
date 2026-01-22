@@ -1,4 +1,4 @@
-ï»¿<div class="view-workorder-page">
+<div class="view-workorder-page">
   <!-- Header -->
   <div class="header">
     <button class="back-button" type="button" aria-label="Back to work orders" (click)="goBack()">
@@ -10,8 +10,8 @@
         <h1>{{ workOrder.woTitle || 'Work Order Details' }}</h1>
         <div class="workorder-meta">
           <span class="workorder-id">{{ workOrder.workOrderId ?? 'N/A' }}</span>
-          <span *ngIf="workOrder.workType">.</span>
-          <span *ngIf="workOrder.workType">{{ workOrder.workType }}</span>
+          <span *ngIf="workOrder.workType">·</span>
+          <span *ngIf="workOrder.workType">·</span>
         </div>
       </div>
 
@@ -610,6 +610,7 @@
   </div>
 
 </div>
+
 
 
 

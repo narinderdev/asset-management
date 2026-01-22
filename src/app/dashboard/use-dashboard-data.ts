@@ -6,6 +6,7 @@ import {
   DashboardService,
   MaintenanceCostDataPoint,
   RecentWorkOrder,
+  RecentServiceRequest,
   SummaryMetric,
   WorkOrdersByStatus,
 } from '../services/dashboard.service';
@@ -62,6 +63,7 @@ export interface DashboardViewData {
   };
   costSummary: CostSummaryDisplay;
   recentWorkOrders: DashboardRecentWorkOrder[];
+  recentServiceRequests: DashboardRecentServiceRequest[];
   metadata: {
     generatedAt?: string | null;
     dataFreshness?: string | null;
@@ -73,6 +75,18 @@ export interface UseDashboardDataResult {
   loading: Signal<boolean>;
   error: Signal<string | null>;
   refetch: () => void;
+}
+
+export interface DashboardRecentServiceRequest {
+  srId: string;
+  srDbId: number | null;
+  title: string;
+  asset: string;
+  requester: string;
+  requestDate: string | null;
+  formattedRequestDate: string;
+  priority: 'High' | 'Medium' | 'Low';
+  status: string;
 }
 
 export function useDashboardData(): UseDashboardDataResult {
@@ -129,6 +143,9 @@ function normalizeDashboardResponse(response: DashboardApiResponse): DashboardVi
   const recentWorkOrders = (dashboard.recent_work_orders ?? []).map((order) =>
     normalizeRecentWorkOrder(order),
   );
+  const recentServiceRequests = (dashboard.new_service_requests ?? []).map((request) =>
+    normalizeRecentServiceRequest(request),
+  );
   const overdueCount = calculateOverdueCount(recentWorkOrders);
 
   const metrics = {
@@ -160,6 +177,7 @@ function normalizeDashboardResponse(response: DashboardApiResponse): DashboardVi
     workOrdersByStatus: statusData,
     costSummary,
     recentWorkOrders,
+    recentServiceRequests,
     metadata: {
       generatedAt: dashboard.metadata?.generated_at ?? null,
       dataFreshness: dashboard.metadata?.data_freshness ?? null,
@@ -234,6 +252,21 @@ function normalizeRecentWorkOrder(order: RecentWorkOrder): DashboardRecentWorkOr
     formattedDueDate: formatDate(dueDate),
     priority: normalizePriority(order.priority),
     status: normalizeStatus(order.status),
+  };
+}
+
+function normalizeRecentServiceRequest(request: RecentServiceRequest): DashboardRecentServiceRequest {
+  const requestDate = request.request_date ?? null;
+  return {
+    srId: request.sr_id ?? 'N/A',
+    srDbId: request.sr_db_id ?? null,
+    title: request.title ?? 'Untitled request',
+    asset: request.asset ?? 'Unassigned Asset',
+    requester: request.requester ?? 'Unknown',
+    requestDate,
+    formattedRequestDate: formatDate(requestDate),
+    priority: normalizePriority(request.priority),
+    status: normalizeStatus(request.status),
   };
 }
 
