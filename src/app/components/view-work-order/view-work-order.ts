@@ -32,6 +32,7 @@ type WorkOrderDetail = NonNullable<WorkOrderDetailResponse['data']>;
 export class ViewWorkOrderComponent implements OnInit {
   private workOrderId: string | null = null;
   workOrder?: WorkOrderDetail;
+  technicianContext = false;
   isLoading = false;
   errorMessage?: string;
   isApproving = false;
@@ -74,6 +75,10 @@ export class ViewWorkOrderComponent implements OnInit {
   isClockingIn = false;
   isClockingOut = false;
   clockingError?: string;
+  isPausing = false;
+  isPaused = false;
+  isCheckedIn = false;
+  checkInDisabledUntilTomorrow = false;
   hasClockedIn = false;
   showCompleteModal = false;
   isCompleting = false;
@@ -105,6 +110,7 @@ export class ViewWorkOrderComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.technicianContext = this.getTechnicianIdFromStorage() !== null;
     this.workOrderId = this.route.snapshot.paramMap.get('id');
     if (!this.workOrderId) {
       this.errorMessage = 'Missing work order identifier.';
@@ -134,11 +140,20 @@ export class ViewWorkOrderComponent implements OnInit {
             this.workOrder = response.data;
             const logs = response.data.checkLogs ?? [];
             const lastLog = logs.length
-              ? (logs[logs.length - 1] as { checkInAt?: string; checkOutAt?: string } | undefined)
+              ? (logs[logs.length - 1] as { checkInAt?: string; checkOutAt?: string; pauses?: Array<{ pauseAt?: string; resumeAt?: string | null }> } | undefined)
               : undefined;
             const hasOpenLog = !!lastLog && !lastLog?.['checkOutAt'];
+            const lastPause = lastLog?.pauses?.length ? lastLog.pauses[lastLog.pauses.length - 1] : undefined;
+            const hasUnresolvedPause = !!lastPause && !lastPause.resumeAt;
+            // If there is a checkout today, disallow check-in again until after midnight.
+            const lastCheckout = lastLog?.['checkOutAt'] ? new Date(lastLog['checkOutAt']) : undefined;
+            const now = new Date();
+            this.checkInDisabledUntilTomorrow =
+              !!lastCheckout && !Number.isNaN(lastCheckout.getTime()) && lastCheckout.toDateString() === now.toDateString();
             // When no check logs, default to not clocked-in to match API semantics.
             this.hasClockedIn = hasOpenLog;
+            this.isPaused = hasUnresolvedPause || (response.data.status ?? '').toUpperCase() === 'PAUSED';
+            this.isCheckedIn = hasOpenLog;
           } else {
             this.errorMessage = response.message ?? 'Work order not found.';
           }
@@ -149,8 +164,20 @@ export class ViewWorkOrderComponent implements OnInit {
       });
   }
 
+  private getTechnicianIdFromStorage(): number | null {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+    const raw = localStorage.getItem('technicianId');
+    if (!raw) {
+      return null;
+    }
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
   hasCheckedIn(): boolean {
-    return this.hasClockedIn;
+    return this.isCheckedIn;
   }
 
   formatDate(value?: string): string {
@@ -460,6 +487,7 @@ export class ViewWorkOrderComponent implements OnInit {
     this.workOrderService.checkIn(this.workOrder.id, payload).subscribe({
       next: () => {
         this.hasClockedIn = true;
+        this.isCheckedIn = true;
         this.loadWorkOrder(this.workOrderId!);
       },
       error: () => {
@@ -497,6 +525,7 @@ export class ViewWorkOrderComponent implements OnInit {
     this.workOrderService.checkOut(this.workOrder.id, payload).subscribe({
       next: () => {
         this.hasClockedIn = false;
+        this.isCheckedIn = false;
         this.loadWorkOrder(this.workOrderId!);
       },
       error: () => {
@@ -509,6 +538,15 @@ export class ViewWorkOrderComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  handleCheckToggle(): void {
+    // Toggle between check-in and check-out based on the latest open log.
+    if (this.isCheckedIn) {
+      this.clockOut();
+    } else {
+      this.clockIn();
+    }
   }
 
   markComplete(): void {
@@ -656,6 +694,41 @@ export class ViewWorkOrderComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  pauseWorkOrder(): void {
+    if (!this.workOrder?.id) {
+      return;
+    }
+    this.isPausing = true;
+    const id = this.workOrder.id;
+    const action$ = this.isPaused
+      ? this.workOrderService.resumeWorkOrder(id)
+      : this.workOrderService.pauseWorkOrder(id);
+
+    action$.pipe(
+      finalize(() => {
+        this.isPausing = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: () => {
+        // Flip local state immediately so the button text updates, then refresh from API.
+        this.isPaused = !this.isPaused;
+        this.isPausing = false;
+        this.cdr.detectChanges();
+        this.loadWorkOrder(this.workOrderId!);
+      },
+      error: () => {
+        this.toastrError('Unable to update work order status. Please try again.');
+      }
+    });
+  }
+
+  private toastrError(message: string): void {
+    // Toast service not injected here; fallback to errorMessage and console
+    this.errorMessage = message;
+    console.error(message);
   }
 }
 

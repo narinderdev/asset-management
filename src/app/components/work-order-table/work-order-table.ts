@@ -122,8 +122,12 @@ export class WorkOrderTable implements OnInit, OnChanges {
     this.errorMessage = undefined;
     const pageIndex = Math.max(0, this.currentPage);
 
-    this.workOrderService
-      .fetchWorkOrders(pageIndex, this.itemsPerPage)
+    const technicianId = this.getTechnicianIdFromStorage();
+    const source$ = typeof technicianId === 'number'
+      ? this.workOrderService.fetchWorkOrdersForTechnician(technicianId, pageIndex, this.itemsPerPage)
+      : this.workOrderService.fetchWorkOrders(pageIndex, this.itemsPerPage);
+
+    source$
       .pipe(
         finalize(() => {
           this.isLoading = false;
@@ -150,6 +154,18 @@ export class WorkOrderTable implements OnInit, OnChanges {
           this.cdr.detectChanges();
         },
       });
+  }
+
+  private getTechnicianIdFromStorage(): number | null {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+    const raw = localStorage.getItem('technicianId');
+    if (!raw) {
+      return null;
+    }
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? parsed : null;
   }
 
   private toWorkOrder(order: ApiWorkOrder): WorkOrder {

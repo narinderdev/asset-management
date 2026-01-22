@@ -72,11 +72,20 @@ export class LoginComponent {
           const isSuccess = statusCode === 200 || statusCode === 201;
           const token = (response as any)?.data?.token || (response as any)?.token;
           const user = (response as any)?.data?.user;
+          const technicianId = (response as any)?.data?.technician?.id
+            ?? (response as any)?.data?.user?.technician?.id
+            ?? (response as any)?.data?.technicianId
+            ?? (response as any)?.data?.user?.technicianId;
           const message = response?.message || (isSuccess ? 'Login successful' : 'Invalid credentials');
 
           if (isSuccess) {
             if (this.isBrowser && token) {
               localStorage.setItem('authToken', token);
+              if (technicianId !== undefined && technicianId !== null) {
+                localStorage.setItem('technicianId', String(technicianId));
+              } else {
+                localStorage.removeItem('technicianId');
+              }
               if (user) {
                 this.permissionService.setFromUser(user);
               }

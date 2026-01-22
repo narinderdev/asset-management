@@ -16,97 +16,119 @@
       </div>
 
       <div class="header-actions">
-        <div class="status-badges">
-          <span class="badge" [ngClass]="{
-            'badge-warning': workOrder.priority === 'HIGH' || workOrder.priority === 'CRITICAL',
-            'badge-info': workOrder.priority === 'LOW' || workOrder.priority === 'MEDIUM'
-          }" *ngIf="workOrder.priority">{{ workOrder.priority }}</span>
-          
-          <span class="badge" [ngClass]="{
-            'badge-info': workOrder.status?.toUpperCase() === 'NEW',
-            'badge-success': workOrder.status?.toUpperCase() === 'APPROVED' || workOrder.status?.toUpperCase() === 'COMPLETED' || workOrder.status?.toUpperCase() === 'CLOSED',
-            'badge-warning': workOrder.status?.toUpperCase() === 'SCHEDULED' || workOrder.status?.toUpperCase() === 'IN_PROGRESS'
-          }">{{ formatEnum(workOrder.status) }}</span>
-        </div>
+        <ng-container *ngIf="!technicianContext; else technicianActions">
+          <div class="action-buttons">
+            <button
+              class="btn-approve"
+              type="button"
+              *ngIf="workOrder?.status?.toUpperCase() === 'NEW'"
+              (click)="openApproveModal()"
+            >
+              Approve
+            </button>
+            
+            <button
+              class="btn-schedule"
+              type="button"
+              *ngIf="workOrder?.status?.toUpperCase() === 'APPROVED'"
+              (click)="openScheduleModal()"
+            >
+              Schedule
+            </button>
+            
+            <button
+              class="btn-inprogress"
+              type="button"
+              *ngIf="workOrder?.status?.toUpperCase() === 'SCHEDULED'"
+              [disabled]="isMarkingInProgress"
+              (click)="openInProgressConfirm()"
+            >
+              {{ isMarkingInProgress ? 'Updating...' : 'In Progress' }}
+            </button>
+            
+            <ng-container *ngIf="workOrder?.status?.toUpperCase() === 'IN_PROGRESS' && !hasCheckedIn()">
+              <button class="btn-secondary" type="button" (click)="markComplete()">
+                Complete
+              </button>
+              <button
+                class="btn-primary"
+                type="button"
+                [disabled]="isClockingIn"
+                (click)="clockIn()"
+              >
+                {{ isClockingIn ? 'Clocking in...' : 'Clock In' }}
+              </button>
+            </ng-container>
+            
+            <ng-container *ngIf="workOrder?.status?.toUpperCase() === 'IN_PROGRESS' && hasCheckedIn()">
+              <button class="btn-secondary" type="button" (click)="markComplete()">
+                Complete
+              </button>
+              <button
+                class="btn-primary"
+                type="button"
+                [disabled]="isClockingOut"
+                (click)="clockOut()"
+              >
+                {{ isClockingOut ? 'Clocking out...' : 'Clock Out' }}
+              </button>
+            </ng-container>
+            
+            <ng-container *ngIf="workOrder?.status?.toUpperCase() === 'COMPLETED'">
+              <button
+                class="btn-close"
+                type="button"
+                [disabled]="isClosing"
+                (click)="openCloseModal()"
+              >
+                Close
+              </button>
+            </ng-container>
+            
+            <button
+              class="btn-secondary"
+              type="button"
+              *ngIf="workOrder?.status?.toUpperCase() === 'CLOSED'"
+              (click)="goBack()"
+            >
+              Back to list
+            </button>
+          </div>
+        </ng-container>
+        <ng-template #technicianActions>
+          <ng-container *ngIf="workOrder?.status?.toUpperCase() !== 'COMPLETED' && workOrder?.status?.toUpperCase() !== 'CLOSED'">
+          <div class="action-buttons technician-actions">
+            <button
+              class="btn-inprogress"
+              type="button"
+              *ngIf="workOrder?.status?.toUpperCase() === 'SCHEDULED'"
+              [disabled]="isMarkingInProgress"
+              (click)="openInProgressConfirm()"
+            >
+              {{ isMarkingInProgress ? 'Updating...' : 'In Progress' }}
+            </button>
 
-        <div class="action-buttons">
-          <button
-            class="btn-approve"
-            type="button"
-            *ngIf="workOrder?.status?.toUpperCase() === 'NEW'"
-            (click)="openApproveModal()"
-          >
-            Approve
-          </button>
-          
-          <button
-            class="btn-schedule"
-            type="button"
-            *ngIf="workOrder?.status?.toUpperCase() === 'APPROVED'"
-            (click)="openScheduleModal()"
-          >
-            Schedule
-          </button>
-          
-          <button
-            class="btn-inprogress"
-            type="button"
-            *ngIf="workOrder?.status?.toUpperCase() === 'SCHEDULED'"
-            [disabled]="isMarkingInProgress"
-            (click)="openInProgressConfirm()"
-          >
-            {{ isMarkingInProgress ? 'Updating...' : 'In Progress' }}
-          </button>
-          
-          <ng-container *ngIf="workOrder?.status?.toUpperCase() === 'IN_PROGRESS' && !hasCheckedIn()">
-            <button class="btn-secondary" type="button" (click)="markComplete()">
-              Complete
-            </button>
             <button
               class="btn-primary"
               type="button"
-              [disabled]="isClockingIn"
-              (click)="clockIn()"
+              (click)="handleCheckToggle()"
+              [disabled]="isClockingIn || isClockingOut || (!isCheckedIn && checkInDisabledUntilTomorrow)"
             >
-              {{ isClockingIn ? 'Clocking in...' : 'Clock In' }}
+              {{
+                isCheckedIn
+                  ? (isClockingOut ? 'Clocking out...' : 'Check Out')
+                  : (isClockingIn ? 'Clocking in...' : 'Check In')
+              }}
             </button>
+
+            <button class="btn-secondary" type="button" (click)="pauseWorkOrder()">
+              {{ isPausing ? (isPaused ? 'Resuming...' : 'Pausing...') : (isPaused ? 'Resume' : 'Pause') }}
+            </button>
+
+          </div>
           </ng-container>
-          
-          <ng-container *ngIf="workOrder?.status?.toUpperCase() === 'IN_PROGRESS' && hasCheckedIn()">
-            <button class="btn-secondary" type="button" (click)="markComplete()">
-              Complete
-            </button>
-            <button
-              class="btn-primary"
-              type="button"
-              [disabled]="isClockingOut"
-              (click)="clockOut()"
-            >
-              {{ isClockingOut ? 'Clocking out...' : 'Clock Out' }}
-            </button>
-          </ng-container>
-          
-          <ng-container *ngIf="workOrder?.status?.toUpperCase() === 'COMPLETED'">
-            <button
-              class="btn-close"
-              type="button"
-              [disabled]="isClosing"
-              (click)="openCloseModal()"
-            >
-              Close
-            </button>
-          </ng-container>
-          
-          <button
-            class="btn-secondary"
-            type="button"
-            *ngIf="workOrder?.status?.toUpperCase() === 'CLOSED'"
-            (click)="goBack()"
-          >
-            Back to list
-          </button>
-        </div>
-      </div>
+       </ng-template>
+     </div>
     </div>
   </div>
 

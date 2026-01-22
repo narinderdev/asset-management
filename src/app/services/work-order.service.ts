@@ -222,6 +222,25 @@ export class WorkOrderService {
     return this.http.get<WorkOrdersApiResponse>(this.apiUrl, { params, headers });
   }
 
+  fetchWorkOrdersForTechnician(
+    technicianId: number,
+    page: number,
+    size: number
+  ): Observable<WorkOrdersApiResponse> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('technicianId', technicianId.toString());
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.get<WorkOrdersApiResponse>(`${this.apiUrl}/assigned-to-technician`, {
+      params,
+      headers
+    });
+  }
+
   fetchWorkOrderById(id: string): Observable<WorkOrderDetailResponse> {
     const headers = new HttpHeaders({
       'ngrok-skip-browser-warning': 'true'
@@ -301,5 +320,19 @@ export class WorkOrderService {
       'ngrok-skip-browser-warning': 'true'
     });
     return this.http.post<WorkOrderDetailResponse>(`${this.apiUrl}/${id}/close`, payload, { headers });
+  }
+
+  pauseWorkOrder(id: number | string): Observable<WorkOrderDetailResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.post<WorkOrderDetailResponse>(`${this.apiUrl}/${id}/pause`, {}, { headers });
+  }
+
+  resumeWorkOrder(id: number | string): Observable<WorkOrderDetailResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.post<WorkOrderDetailResponse>(`${this.apiUrl}/${id}/resume`, {}, { headers });
   }
 }

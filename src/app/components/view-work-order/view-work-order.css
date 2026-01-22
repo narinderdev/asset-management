@@ -119,6 +119,16 @@
   flex-wrap: wrap;
 }
 
+.technician-actions .btn-primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.technician-actions .btn-secondary {
+  background: #f3f4f6;
+  color: #111827;
+}
+
 .btn-approve,
 .btn-schedule,
 .btn-inprogress,
