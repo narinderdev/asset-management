@@ -12,6 +12,7 @@
           <tr>
             <th>WO ID</th>
             <th>Title</th>
+            <th>WO Number</th>
             <th>Asset</th>
             <th>Technician</th>
             <th>Due Date</th>
@@ -25,6 +26,7 @@
             <tr *ngFor="let _ of loadingRows" class="skeleton-row">
               <td><span class="skeleton skeleton-text short"></span></td>
               <td><span class="skeleton skeleton-text medium"></span></td>
+              <td><span class="skeleton skeleton-text short"></span></td>
               <td><span class="skeleton skeleton-text medium"></span></td>
               <td><span class="skeleton skeleton-text short"></span></td>
               <td><span class="skeleton skeleton-text tiny"></span></td>
@@ -34,11 +36,12 @@
             </tr>
           </ng-container>
           <tr *ngIf="!workOrders.length && !isLoading && hasLoaded">
-            <td colspan="8" class="empty-row">{{ emptyMessage }}</td>
+            <td colspan="9" class="empty-row">{{ emptyMessage }}</td>
           </tr>
           <tr *ngFor="let order of workOrders">
             <td class="id-cell">{{ order.id }}</td>
             <td>{{ order.title }}</td>
+            <td>{{ order.workOrderNumber || '--' }}</td>
             <td>{{ order.asset }}</td>
             <td>{{ order.technician }}</td>
             <td>{{ order.formattedDueDate }}</td>

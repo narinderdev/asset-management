@@ -12,6 +12,7 @@ import { PermissionService } from '../../services/permission.service';
 interface WorkOrder {
   id: string;
   apiId?: number;
+  workOrderNumber?: string;
   title: string;
   asset: string;
   technician: string;
@@ -24,6 +25,8 @@ interface WorkOrder {
 interface ApiWorkOrder {
   workOrderId?: string;
   id?: number;
+  workOrderNumber?: string;
+  workorderNumber?: string;
   assetName?: string;
   assignedTechnician?: string;
   assignedTechnicianName?: string;
@@ -173,6 +176,7 @@ export class WorkOrderTable implements OnInit, OnChanges {
     return {
       id: order.workOrderId ?? `WO-${order.id ?? '0000'}`,
       apiId: order.id,
+      workOrderNumber: order.workOrderNumber ?? order.workorderNumber ?? '',
       title: order.woTitle ?? 'Work Order',
       asset: order.assetName ?? 'Unassigned Asset',
       technician: order.assignedTechnicianName ?? order.assignedTechnician ?? 'Unassigned',
@@ -368,6 +372,7 @@ export class WorkOrderTable implements OnInit, OnChanges {
   private setWorkOrders(orders: WorkOrder[]): void {
     this.workOrders = orders.map((order) => ({
       ...order,
+      workOrderNumber: (order as any).workOrderNumber ?? (order as any).workorderNumber ?? order.workOrderNumber ?? '',
       technician: order.technician || 'Unassigned',
       formattedDueDate: order.formattedDueDate ?? this.formatDate(order.dueDate ?? undefined),
       priority: this.normalizePriority(order.priority),
