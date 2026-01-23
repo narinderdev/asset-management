@@ -4,12 +4,12 @@
       <button
         type="button"
         class="back-btn"
-        aria-label="Back to preventive maintenance"
+        aria-label="Back to Preventative maintenance"
         (click)="onCancel()"
       >
         &larr;
       </button>
-      <h2>{{ isEditMode ? 'Edit Preventive Maintenance Template' : 'Create Preventive Maintenance Template' }}</h2>
+      <h2>{{ isEditMode ? 'Edit Preventative Maintenance Template' : 'Create Preventative Maintenance Template' }}</h2>
     </header>
 
     <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>

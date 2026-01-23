@@ -115,6 +115,17 @@
   border: 1px solid #fee2e2;
 }
 
+/* ✅ Link style (NEW) */
+.link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
 /* Action Buttons */
 .action-buttons {
   display: flex;
@@ -345,7 +356,7 @@
   grid-column: 1 / -1;
 }
 
-/* Specs Table (for Technical & Financial) */
+/* Specs Table (for Technical & Financial & Insurance) */
 .specs-table {
   display: flex;
   flex-direction: column;

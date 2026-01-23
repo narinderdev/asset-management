@@ -23,8 +23,10 @@ export class ViewAssetComponent implements OnInit {
   isLoading = false;
   errorMessage?: string;
   assetLoaded = false;
+
   meterModalOpen = false;
   isSavingMeter = false;
+
   meterReadingForm = {
     assetId: null as number | null,
     meterType: '',
@@ -59,13 +61,15 @@ export class ViewAssetComponent implements OnInit {
 
     this.assetsService
       .fetchAssetById(id)
-      .pipe(finalize(() => {
-        this.isLoading = false;
-        if (!this.assetLoaded) {
-          this.assetLoaded = true;
-          this.cdr.detectChanges();
-        }
-      }))
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          if (!this.assetLoaded) {
+            this.assetLoaded = true;
+            this.cdr.detectChanges();
+          }
+        })
+      )
       .subscribe({
         next: response => {
           if (response.data) {
@@ -122,6 +126,25 @@ export class ViewAssetComponent implements OnInit {
       .join(' ');
   }
 
+  /** NEW: currency formatting for insurance amounts, acquisition costs etc. */
+  formatCurrency(value?: number | string | null): string {
+    if (value === undefined || value === null || value === '') {
+      return '-';
+    }
+
+    const num = typeof value === 'string' ? Number(value) : value;
+    if (Number.isNaN(num)) {
+      return String(value);
+    }
+
+    // Change currency if your system uses INR, AED, etc.
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 2
+    }).format(num);
+  }
+
   goBack(): void {
     this.router.navigate(['/assets']);
   }
@@ -137,6 +160,7 @@ export class ViewAssetComponent implements OnInit {
   openMeterModal(): void {
     const threshold = this.asset?.predictiveThresholds?.[0];
     const now = new Date().toISOString().slice(0, 16);
+
     this.meterReadingForm = {
       assetId: threshold?.assetId ?? (this.asset?.id ? Number(this.asset.id) : null),
       meterType: threshold?.meterType ?? '',
@@ -144,6 +168,7 @@ export class ViewAssetComponent implements OnInit {
       readingTime: now,
       notes: ''
     };
+
     setTimeout(() => {
       this.meterModalOpen = true;
       this.cdr.detectChanges();
@@ -156,11 +181,17 @@ export class ViewAssetComponent implements OnInit {
   }
 
   submitMeterReading(): void {
-    if (!this.meterReadingForm.assetId || !this.meterReadingForm.meterType || !this.meterReadingForm.readingValue) {
+    if (
+      !this.meterReadingForm.assetId ||
+      !this.meterReadingForm.meterType ||
+      !this.meterReadingForm.readingValue
+    ) {
       return;
     }
+
     let saved = false;
     this.isSavingMeter = true;
+
     const payload = {
       assetId: this.meterReadingForm.assetId,
       meterType: this.meterReadingForm.meterType,
@@ -169,26 +200,29 @@ export class ViewAssetComponent implements OnInit {
       notes: this.meterReadingForm.notes || undefined
     };
 
-    this.pmTemplateService.createPredictiveMeterReading(payload).pipe(
-      finalize(() => {
-        this.isSavingMeter = false;
-        if (saved) {
-          this.closeMeterModal();
-          const refreshId = this.asset?.id ?? this.meterReadingForm.assetId;
-          if (refreshId !== null && refreshId !== undefined) {
-            this.fetchAsset(String(refreshId));
+    this.pmTemplateService
+      .createPredictiveMeterReading(payload)
+      .pipe(
+        finalize(() => {
+          this.isSavingMeter = false;
+          if (saved) {
+            this.closeMeterModal();
+            const refreshId = this.asset?.id ?? this.meterReadingForm.assetId;
+            if (refreshId !== null && refreshId !== undefined) {
+              this.fetchAsset(String(refreshId));
+            }
           }
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          saved = true;
+          this.toastr.success('Meter reading captured.');
+        },
+        error: () => {
+          this.toastr.error('Unable to save meter reading. Please try again.');
         }
-        this.cdr.detectChanges();
-      })
-    ).subscribe({
-      next: () => {
-        saved = true;
-        this.toastr.success('Meter reading captured.');
-      },
-      error: () => {
-        this.toastr.error('Unable to save meter reading. Please try again.');
-      }
-    });
+      });
   }
 }

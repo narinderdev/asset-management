@@ -130,15 +130,6 @@
             <div class="helper-text" *ngIf="categoryLoading">Loading categories...</div>
           </div>
 
-        <!-- <div class="form-group">
-          <label class="form-label">Asset Type</label>
-          <input 
-            type="text" 
-            class="form-input" 
-            placeholder="Enter Asset Type"
-            [(ngModel)]="assetMaster.assetType">
-        </div> -->
-        
         <div class="form-group">
           <label class="form-label">
             Status<span class="required">*</span>
@@ -150,8 +141,6 @@
             </option>
           </select>
         </div>
-        
-        
         
         <div class="form-group">
           <label class="form-label">Criticality</label>
@@ -167,10 +156,6 @@
 
       <!-- Row 3 -->
       <div class="form-row">
-        
-
-        
-
         <div class="form-group">
           <label class="form-label">Ownership</label>
           <select class="form-select" [(ngModel)]="assetMaster.ownership">
@@ -180,20 +165,6 @@
             </option>
           </select>
         </div>
-        
-         <!-- <div class="form-group">
-          <label class="form-label">Asset Tag / Barcode / RFID</label>
-          <input 
-            type="text" 
-            class="form-input" 
-            placeholder="Enter Asset Tag / Barcode / RFID"
-            [(ngModel)]="assetMaster.assetTag">
-        </div> -->
-      </div>
-
-      <!-- Row 4 -->
-      <div class="form-row">
-       
       </div>
     </div>
 
@@ -251,8 +222,98 @@
         </div>
        
       </div>
-    
-       
+    </div>
+
+    <!-- Insurance Tab -->
+    <div *ngIf="activeTab === 'insurance'" class="form-content">
+      <!-- Row 1 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Insurance Provider</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Insurance Provider"
+            [(ngModel)]="insurance.insuranceProvider">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Policy Number</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Policy Number"
+            [(ngModel)]="insurance.policyNumber">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Policy Type</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Policy Type"
+            [(ngModel)]="insurance.policyType">
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Policy Start Date</label>
+          <input 
+            type="date" 
+            class="form-input" 
+            [(ngModel)]="insurance.policyStartDate">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Policy Expiry Date</label>
+          <input 
+            type="date" 
+            class="form-input" 
+            [(ngModel)]="insurance.policyExpiryDate">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Insurance Status</label>
+          <select class="form-select" [(ngModel)]="insurance.insuranceStatus">
+            <option value="" disabled selected>Select</option>
+            <option *ngFor="let option of insuranceStatusOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Coverage Amount</label>
+          <input 
+            type="number" 
+            class="form-input" 
+            placeholder="$"
+            [(ngModel)]="insurance.coverageAmount">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Premium Amount</label>
+          <input 
+            type="number" 
+            class="form-input" 
+            placeholder="$"
+            [(ngModel)]="insurance.premiumAmount">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Certificate URL</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Certificate URL"
+            [(ngModel)]="insurance.certificateUrl">
+        </div>
+      </div>
     </div>
 
     <!-- Technical & Manufacturer Tab -->
@@ -388,15 +449,6 @@
             </option>
           </select>
         </div>
-
-        <!-- <div class="form-group">
-          <label class="form-label">Useful Life (years)</label>
-          <input 
-            type="number" 
-            class="form-input" 
-            placeholder="Enter Years"
-            [(ngModel)]="financial.usefulLife">
-        </div> -->
         
         <div class="form-group">
           <label class="form-label">Salvage Value</label>
@@ -417,29 +469,6 @@
             class="form-input" 
             [(ngModel)]="financial.depreciationStartDate">
         </div>
-
-        
-
-        <!-- <div class="form-group">
-          <label class="form-label">Accumulated Depreciation</label>
-          <input 
-            type="number" 
-            class="form-input" 
-            placeholder="$"
-            [(ngModel)]="financial.accumulatedDepreciation">
-        </div> -->
-      </div>
-
-      <!-- Row 4 -->
-      <div class="form-row">
-        <!-- <div class="form-group">
-          <label class="form-label">Current Book Value</label>
-          <input 
-            type="number" 
-            class="form-input" 
-            placeholder="$"
-            [(ngModel)]="financial.currentBookValue">
-        </div> -->
       </div>
     </div>
 
@@ -548,15 +577,6 @@
             [(ngModel)]="warranty.warrantyProvider">
         </div>
 
-        <!-- <div class="form-group">
-          <label class="form-label">Service Contract</label>
-          <input 
-            type="text" 
-            class="form-input" 
-            placeholder="Service Contract"
-            [(ngModel)]="warranty.serviceContract">
-        </div> -->
-
         <div class="form-group">
           <label class="form-label">Expected Useful Life</label>
           <input 
@@ -577,8 +597,6 @@
 
       <!-- Row 3 -->
       <div class="form-row">
-        
-
         <div class="form-group">
           <label class="form-label">Last Maintenance Date</label>
           <input 

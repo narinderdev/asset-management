@@ -4,7 +4,7 @@
     <button class="back-button" type="button" aria-label="Back to assets" (click)="goBack()">
       ← Back to assets
     </button>
-    
+
     <div class="header-content" *ngIf="asset">
       <div class="title-section">
         <h1>{{ formatField(asset.assetName) }}</h1>
@@ -17,15 +17,27 @@
 
       <div class="header-actions">
         <div class="status-badges">
-          <span class="badge" [ngClass]="{
-            'badge-success': asset.status === 'IN_SERVICE',
-            'badge-warning': asset.status === 'MAINTENANCE',
-            'badge-info': asset.status !== 'IN_SERVICE' && asset.status !== 'MAINTENANCE'
-          }">{{ formatEnum(asset.status) }}</span>
-          <span class="badge" [ngClass]="{
-            'badge-warning': asset.criticality === 'MEDIUM' || asset.criticality === 'HIGH',
-            'badge-info': asset.criticality === 'LOW'
-          }" *ngIf="asset.criticality">{{ formatEnum(asset.criticality) }} Criticality</span>
+          <span
+            class="badge"
+            [ngClass]="{
+              'badge-success': asset.status === 'IN_SERVICE',
+              'badge-warning': asset.status === 'MAINTENANCE',
+              'badge-info': asset.status !== 'IN_SERVICE' && asset.status !== 'MAINTENANCE'
+            }"
+          >
+            {{ formatEnum(asset.status) }}
+          </span>
+
+          <span
+            class="badge"
+            [ngClass]="{
+              'badge-warning': asset.criticality === 'MEDIUM' || asset.criticality === 'HIGH',
+              'badge-info': asset.criticality === 'LOW'
+            }"
+            *ngIf="asset.criticality"
+          >
+            {{ formatEnum(asset.criticality) }} Criticality
+          </span>
         </div>
 
         <div class="action-buttons">
@@ -33,7 +45,8 @@
             class="btn-primary"
             type="button"
             *ngIf="asset.predictiveThresholds?.length"
-            (click)="openMeterModal()">
+            (click)="openMeterModal()"
+          >
             + Add Meter Reading
           </button>
         </div>
@@ -58,286 +71,394 @@
 
     <ng-container *ngIf="asset">
       <div class="details-grid">
-      
-      <!-- Overview Card -->
+        <!-- Overview Card -->
         <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Overview</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-grid field-grid-2">
-            <div class="field-group">
-              <div class="field-label">Asset ID</div>
-              <div class="field-value highlight">{{ formatField(asset.assetId) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Name</div>
-              <div class="field-value">{{ formatField(asset.assetName) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Category</div>
-              <div class="field-value">{{ formatField(asset.assetCategory) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Type</div>
-              <div class="field-value" [ngClass]="{'empty': !asset.assetType}">{{ formatField(asset.assetType) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Ownership</div>
-              <div class="field-value">{{ formatField(asset.ownership) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Asset Tag</div>
-              <div class="field-value" [ngClass]="{'empty': !asset.assetTag}">{{ formatField(asset.assetTag) }}</div>
-            </div>
-            <div class="field-group full-width">
-              <div class="field-label">Description</div>
-              <div class="field-value notes-content" [ngClass]="{'empty': !asset.shortDescription}">{{ formatField(asset.shortDescription) }}</div>
-            </div>
+          <div class="card-header">
+            <h2 class="card-title">Overview</h2>
           </div>
-        </div>
-      </div>
-
-      <!-- Location Card -->
-      <div class="card" *ngIf="locationDetails">
-        <div class="card-header">
-          <h2 class="card-title">Location & Assignment</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-grid field-grid-2">
-            <div class="field-group">
-              <div class="field-label">Primary Location</div>
-              <div class="field-value" [ngClass]="{'empty': !locationDetails?.primaryLocation}">{{ formatField(locationDetails?.primaryLocation) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Functional Location</div>
-              <div class="field-value" [ngClass]="{'empty': !locationDetails?.functionalLocation}">{{ formatField(locationDetails?.functionalLocation) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Department</div>
-              <div class="field-value" [ngClass]="{'empty': !locationDetails?.department}">{{ formatField(locationDetails?.department) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Cost Center</div>
-              <div class="field-value" [ngClass]="{'empty': !locationDetails?.costCenter}">{{ formatField(locationDetails?.costCenter) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Assigned Owner</div>
-              <div class="field-value" [ngClass]="{'empty': !locationDetails?.assignedOwner}">{{ formatField(locationDetails?.assignedOwner) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Maintenance Team</div>
-              <div class="field-value" [ngClass]="{'empty': !locationDetails?.maintenanceTeam}">{{ formatField(locationDetails?.maintenanceTeam) }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Technical Card -->
-      <div class="card" *ngIf="asset.technicalDetails">
-        <div class="card-header">
-          <h2 class="card-title">Technical Specifications</h2>
-        </div>
-        <div class="card-body">
-          <div class="specs-table">
-            <div class="spec-row">
-              <div class="spec-label">Manufacturer</div>
-              <div class="spec-value">{{ formatField(asset.technicalDetails?.manufacturer) }}</div>
-            </div>
-            <div class="spec-row">
-              <div class="spec-label">Model</div>
-              <div class="spec-value">{{ formatField(asset.technicalDetails?.model) }}</div>
-            </div>
-            <div class="spec-row">
-              <div class="spec-label">Serial Number</div>
-              <div class="spec-value">{{ formatField(asset.technicalDetails?.serialNumber) }}</div>
-            </div>
-            <div class="spec-row">
-              <div class="spec-label">Year</div>
-              <div class="spec-value">{{ formatField(asset.technicalDetails?.yearOfManufacture) }}</div>
-            </div>
-            <div class="spec-row">
-              <div class="spec-label">Capacity</div>
-              <div class="spec-value spec-highlight">{{ formatField(asset.technicalDetails?.capacity) }}</div>
-            </div>
-            <div class="spec-row">
-              <div class="spec-label">Power Rating</div>
-              <div class="spec-value">{{ formatField(asset.technicalDetails?.powerRating) }}</div>
-            </div>
-            <div class="spec-row">
-              <div class="spec-label">Voltage</div>
-              <div class="spec-value">{{ formatField(asset.technicalDetails?.voltage) }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Financial Card -->
-      <div class="card" *ngIf="asset.financialDetails">
-        <div class="card-header">
-          <h2 class="card-title">Financial Information</h2>
-        </div>
-        <div class="card-body">
-          <div class="specs-table">
-            <div class="spec-row">
-              <div class="spec-label">Acquisition Date</div>
-              <div class="spec-value">{{ formatDate(asset.financialDetails?.acquisitionDate) }}</div>
-            </div>
-            <div class="spec-row">
-              <div class="spec-label">Acquisition Cost</div>
-              <div class="spec-value spec-highlight">{{ formatField(asset.financialDetails?.acquisitionCost) }}</div>
-            </div>
-            <div class="spec-row">
-              <div class="spec-label">Supplier</div>
-              <div class="spec-value">{{ formatField(asset.financialDetails?.supplier) }}</div>
-            </div>
-            <div class="spec-row">
-              <div class="spec-label">Invoice #</div>
-              <div class="spec-value">{{ formatField(asset.financialDetails?.poInvoiceNumber) }}</div>
-            </div>
-            <div class="spec-row">
-              <div class="spec-label">Book Value</div>
-              <div class="spec-value" [ngClass]="{'empty': !asset.financialDetails?.currentBookValue}">{{ formatField(asset.financialDetails?.currentBookValue) }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Warranty & Lifecycle Card -->
-      <div class="card full-width" *ngIf="asset.warrantyLifecycle">
-        <div class="card-header">
-          <h2 class="card-title">Warranty & Lifecycle</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-grid field-grid-3">
-            <div class="field-group">
-              <div class="field-label">Commissioning Date</div>
-              <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.commissioningDate) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Warranty Start</div>
-              <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.warrantyStart) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Warranty End</div>
-              <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.warrantyEnd) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Last Maintenance</div>
-              <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.lastMaintenanceDate) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Next Maintenance</div>
-              <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.nextPlannedMaintenance) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Planned Replacement</div>
-              <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.plannedReplacementDate) }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Safety & Operations Card -->
-      <div class="card full-width" *ngIf="asset.safetyOperations">
-        <div class="card-header">
-          <h2 class="card-title">Safety & Operations</h2>
-        </div>
-        <div class="card-body" *ngIf="asset.safetyOperations?.safetyCritical || asset.safetyOperations?.safetyNotes || asset.safetyOperations?.operatingInstructions; else noSafetyData">
-          <div class="field-grid field-grid-2">
-            <div class="field-group">
-              <div class="field-label">Safety Critical</div>
-              <div class="field-value">{{ formatBoolean(asset.safetyOperations?.safetyCritical) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Safety Notes</div>
-              <div class="field-value" [ngClass]="{'empty': !asset.safetyOperations?.safetyNotes}">{{ formatField(asset.safetyOperations?.safetyNotes) }}</div>
-            </div>
-            <div class="field-group full-width">
-              <div class="field-label">Operating Instructions</div>
-              <div class="field-value notes-content" [ngClass]="{'empty': !asset.safetyOperations?.operatingInstructions}">{{ formatField(asset.safetyOperations?.operatingInstructions) }}</div>
-            </div>
-          </div>
-        </div>
-        <ng-template #noSafetyData>
-          <div class="empty-state">
-            <div class="empty-icon">📋</div>
-            <div class="empty-text">No safety and operations data available</div>
-          </div>
-        </ng-template>
-      </div>
-
-      <!-- Predictive Thresholds Card -->
-      <div class="card full-width" *ngIf="asset.predictiveThresholds?.length">
-        <div class="card-header">
-          <h2 class="card-title">Predictive Thresholds ({{ asset.predictiveThresholds?.length || 0 }})</h2>
-        </div>
-        <div class="card-body">
-          <div class="thresholds-grid">
-            <div class="threshold-card" *ngFor="let threshold of asset.predictiveThresholds">
-              <div class="threshold-fields field-grid field-grid-2">
-                <div class="field-group">
-                  <div class="field-label">Meter Type</div>
-                  <div class="field-value">{{ formatEnum(threshold.meterType) }}</div>
-                </div>
-                <div class="field-group">
-                  <div class="field-label">Warning Threshold</div>
-                  <div class="field-value">{{ threshold.warningThreshold ?? '-' }}</div>
-                </div>
-                <div class="field-group">
-                  <div class="field-label">Critical Threshold</div>
-                  <div class="field-value">{{ threshold.criticalThreshold ?? '-' }}</div>
-                </div>
-                <div class="field-group">
-                  <div class="field-label">Default Priority</div>
-                  <div class="field-value">{{ formatEnum(threshold.defaultPriority) }}</div>
-                </div>
-                <div class="field-group">
-                  <div class="field-label">Cooldown Hours</div>
-                  <div class="field-value">{{ threshold.cooldownHours ?? '-' }}</div>
-                </div>
-                <div class="field-group">
-                  <div class="field-label">Auto Create WO</div>
-                  <div class="field-value">{{ formatBoolean(threshold.autoCreateWo) }}</div>
-                </div>
-                <div class="field-group">
-                  <div class="field-label">Last Triggered Severity</div>
-                  <div class="field-value">{{ formatEnum(threshold.lastTriggeredSeverity || undefined) }}</div>
+          <div class="card-body">
+            <div class="field-grid field-grid-2">
+              <div class="field-group">
+                <div class="field-label">Asset ID</div>
+                <div class="field-value highlight">{{ formatField(asset.assetId) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Name</div>
+                <div class="field-value">{{ formatField(asset.assetName) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Category</div>
+                <div class="field-value">{{ formatField(asset.assetCategory) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Type</div>
+                <div class="field-value" [ngClass]="{ empty: !asset.assetType }">
+                  {{ formatField(asset.assetType) }}
                 </div>
               </div>
-
-              <div class="threshold-readings" *ngIf="threshold.meterReadings?.length">
-                <div class="table-header">
-                  <div class="card-title small">Meter Readings ({{ threshold.meterReadings?.length || 0 }})</div>
+              <div class="field-group">
+                <div class="field-label">Ownership</div>
+                <div class="field-value">{{ formatField(asset.ownership) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Asset Tag</div>
+                <div class="field-value" [ngClass]="{ empty: !asset.assetTag }">
+                  {{ formatField(asset.assetTag) }}
                 </div>
-                <div class="table-container">
-                  <table class="data-table">
-                    <thead>
-                      <tr>
-                        <th>Reading</th>
-                        <th>Severity</th>
-                        <th>Type</th>
-                        <th>Time</th>
-                        <th>Notes</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let reading of threshold.meterReadings || []">
-                        <td>{{ reading.readingValue }}</td>
-                        <td>{{ formatEnum(reading.severity || undefined) }}</td>
-                        <td>{{ formatEnum(reading.meterType) }}</td>
-                        <td>{{ formatDate(reading.readingTime) }}</td>
-                        <td class="notes-cell">{{ formatField(reading.notes) }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
+              </div>
+              <div class="field-group full-width">
+                <div class="field-label">Description</div>
+                <div class="field-value notes-content" [ngClass]="{ empty: !asset.shortDescription }">
+                  {{ formatField(asset.shortDescription) }}
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- Location Card -->
+        <div class="card" *ngIf="locationDetails">
+          <div class="card-header">
+            <h2 class="card-title">Location & Assignment</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-2">
+              <div class="field-group">
+                <div class="field-label">Primary Location</div>
+                <div class="field-value" [ngClass]="{ empty: !locationDetails?.primaryLocation }">
+                  {{ formatField(locationDetails?.primaryLocation) }}
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Functional Location</div>
+                <div class="field-value" [ngClass]="{ empty: !locationDetails?.functionalLocation }">
+                  {{ formatField(locationDetails?.functionalLocation) }}
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Department</div>
+                <div class="field-value" [ngClass]="{ empty: !locationDetails?.department }">
+                  {{ formatField(locationDetails?.department) }}
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Cost Center</div>
+                <div class="field-value" [ngClass]="{ empty: !locationDetails?.costCenter }">
+                  {{ formatField(locationDetails?.costCenter) }}
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Assigned Owner</div>
+                <div class="field-value" [ngClass]="{ empty: !locationDetails?.assignedOwner }">
+                  {{ formatField(locationDetails?.assignedOwner) }}
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Maintenance Team</div>
+                <div class="field-value" [ngClass]="{ empty: !locationDetails?.maintenanceTeam }">
+                  {{ formatField(locationDetails?.maintenanceTeam) }}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
+        <!-- Technical Card -->
+        <div class="card" *ngIf="asset.technicalDetails">
+          <div class="card-header">
+            <h2 class="card-title">Technical Specifications</h2>
+          </div>
+          <div class="card-body">
+            <div class="specs-table">
+              <div class="spec-row">
+                <div class="spec-label">Manufacturer</div>
+                <div class="spec-value">{{ formatField(asset.technicalDetails?.manufacturer) }}</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Model</div>
+                <div class="spec-value">{{ formatField(asset.technicalDetails?.model) }}</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Serial Number</div>
+                <div class="spec-value">{{ formatField(asset.technicalDetails?.serialNumber) }}</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Year</div>
+                <div class="spec-value">{{ formatField(asset.technicalDetails?.yearOfManufacture) }}</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Capacity</div>
+                <div class="spec-value spec-highlight">{{ formatField(asset.technicalDetails?.capacity) }}</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Power Rating</div>
+                <div class="spec-value">{{ formatField(asset.technicalDetails?.powerRating) }}</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Voltage</div>
+                <div class="spec-value">{{ formatField(asset.technicalDetails?.voltage) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Financial Card -->
+        <div class="card" *ngIf="asset.financialDetails">
+          <div class="card-header">
+            <h2 class="card-title">Financial Information</h2>
+          </div>
+          <div class="card-body">
+            <div class="specs-table">
+              <div class="spec-row">
+                <div class="spec-label">Acquisition Date</div>
+                <div class="spec-value">{{ formatDate(asset.financialDetails?.acquisitionDate) }}</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Acquisition Cost</div>
+                <div class="spec-value spec-highlight">{{ formatField(asset.financialDetails?.acquisitionCost) }}</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Supplier</div>
+                <div class="spec-value">{{ formatField(asset.financialDetails?.supplier) }}</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Invoice #</div>
+                <div class="spec-value">{{ formatField(asset.financialDetails?.poInvoiceNumber) }}</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Book Value</div>
+                <div class="spec-value" [ngClass]="{ empty: !asset.financialDetails?.currentBookValue }">
+                  {{ formatField(asset.financialDetails?.currentBookValue) }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ Insurance Card (NEW) -->
+        <div class="card" *ngIf="asset.insurance">
+          <div class="card-header">
+            <h2 class="card-title">Insurance</h2>
+          </div>
+          <div class="card-body">
+            <div class="specs-table">
+              <div class="spec-row">
+                <div class="spec-label">Provider</div>
+                <div class="spec-value">{{ formatField(asset.insurance?.insuranceProvider) }}</div>
+              </div>
+
+              <div class="spec-row">
+                <div class="spec-label">Policy Number</div>
+                <div class="spec-value">{{ formatField(asset.insurance?.policyNumber) }}</div>
+              </div>
+
+              <div class="spec-row">
+                <div class="spec-label">Policy Type</div>
+                <div class="spec-value">{{ formatField(asset.insurance?.policyType) }}</div>
+              </div>
+
+              <div class="spec-row">
+                <div class="spec-label">Status</div>
+                <div class="spec-value">
+                  <span
+                    class="badge"
+                    [ngClass]="{
+                      'badge-success': asset.insurance?.insuranceStatus === 'ACTIVE',
+                      'badge-warning': asset.insurance?.insuranceStatus === 'EXPIRING_SOON',
+                      'badge-danger': asset.insurance?.insuranceStatus === 'EXPIRED',
+                      'badge-info':
+                        asset.insurance?.insuranceStatus !== 'ACTIVE' &&
+                        asset.insurance?.insuranceStatus !== 'EXPIRING_SOON' &&
+                        asset.insurance?.insuranceStatus !== 'EXPIRED'
+                    }"
+                  >
+                    {{ formatEnum(asset.insurance?.insuranceStatus) }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="spec-row">
+                <div class="spec-label">Policy Start</div>
+                <div class="spec-value">{{ formatDate(asset.insurance?.policyStartDate) }}</div>
+              </div>
+
+              <div class="spec-row">
+                <div class="spec-label">Policy Expiry</div>
+                <div class="spec-value">{{ formatDate(asset.insurance?.policyExpiryDate) }}</div>
+              </div>
+
+              <div class="spec-row">
+                <div class="spec-label">Coverage Amount</div>
+                <div class="spec-value spec-highlight">{{ formatCurrency(asset.insurance?.coverageAmount) }}</div>
+              </div>
+
+              <div class="spec-row">
+                <div class="spec-label">Premium Amount</div>
+                <div class="spec-value">{{ formatCurrency(asset.insurance?.premiumAmount) }}</div>
+              </div>
+
+              <div class="spec-row">
+                <div class="spec-label">Certificate</div>
+                <div class="spec-value">
+                  <ng-container *ngIf="asset.insurance?.certificateUrl; else noCert">
+                    <a class="link" [href]="asset.insurance?.certificateUrl" target="_blank" rel="noopener">
+                      View / Download
+                    </a>
+                  </ng-container>
+                  <ng-template #noCert>-</ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Warranty & Lifecycle Card -->
+        <div class="card full-width" *ngIf="asset.warrantyLifecycle">
+          <div class="card-header">
+            <h2 class="card-title">Warranty & Lifecycle</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group">
+                <div class="field-label">Commissioning Date</div>
+                <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.commissioningDate) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Warranty Start</div>
+                <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.warrantyStart) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Warranty End</div>
+                <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.warrantyEnd) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Last Maintenance</div>
+                <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.lastMaintenanceDate) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Next Maintenance</div>
+                <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.nextPlannedMaintenance) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Planned Replacement</div>
+                <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.plannedReplacementDate) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Safety & Operations Card -->
+        <div class="card full-width" *ngIf="asset.safetyOperations">
+          <div class="card-header">
+            <h2 class="card-title">Safety & Operations</h2>
+          </div>
+          <div
+            class="card-body"
+            *ngIf="
+              asset.safetyOperations?.safetyCritical ||
+              asset.safetyOperations?.safetyNotes ||
+              asset.safetyOperations?.operatingInstructions;
+              else noSafetyData
+            "
+          >
+            <div class="field-grid field-grid-2">
+              <div class="field-group">
+                <div class="field-label">Safety Critical</div>
+                <div class="field-value">{{ formatBoolean(asset.safetyOperations?.safetyCritical) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Safety Notes</div>
+                <div class="field-value" [ngClass]="{ empty: !asset.safetyOperations?.safetyNotes }">
+                  {{ formatField(asset.safetyOperations?.safetyNotes) }}
+                </div>
+              </div>
+              <div class="field-group full-width">
+                <div class="field-label">Operating Instructions</div>
+                <div class="field-value notes-content" [ngClass]="{ empty: !asset.safetyOperations?.operatingInstructions }">
+                  {{ formatField(asset.safetyOperations?.operatingInstructions) }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #noSafetyData>
+            <div class="empty-state">
+              <div class="empty-icon">📋</div>
+              <div class="empty-text">No safety and operations data available</div>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Predictive Thresholds Card -->
+        <div class="card full-width" *ngIf="asset.predictiveThresholds?.length">
+          <div class="card-header">
+            <h2 class="card-title">Predictive Thresholds ({{ asset.predictiveThresholds?.length || 0 }})</h2>
+          </div>
+          <div class="card-body">
+            <div class="thresholds-grid">
+              <div class="threshold-card" *ngFor="let threshold of asset.predictiveThresholds">
+                <div class="threshold-fields field-grid field-grid-2">
+                  <div class="field-group">
+                    <div class="field-label">Meter Type</div>
+                    <div class="field-value">{{ formatEnum(threshold.meterType) }}</div>
+                  </div>
+                  <div class="field-group">
+                    <div class="field-label">Warning Threshold</div>
+                    <div class="field-value">{{ threshold.warningThreshold ?? '-' }}</div>
+                  </div>
+                  <div class="field-group">
+                    <div class="field-label">Critical Threshold</div>
+                    <div class="field-value">{{ threshold.criticalThreshold ?? '-' }}</div>
+                  </div>
+                  <div class="field-group">
+                    <div class="field-label">Default Priority</div>
+                    <div class="field-value">{{ formatEnum(threshold.defaultPriority) }}</div>
+                  </div>
+                  <div class="field-group">
+                    <div class="field-label">Cooldown Hours</div>
+                    <div class="field-value">{{ threshold.cooldownHours ?? '-' }}</div>
+                  </div>
+                  <div class="field-group">
+                    <div class="field-label">Auto Create WO</div>
+                    <div class="field-value">{{ formatBoolean(threshold.autoCreateWo) }}</div>
+                  </div>
+                  <div class="field-group">
+                    <div class="field-label">Last Triggered Severity</div>
+                    <div class="field-value">{{ formatEnum(threshold.lastTriggeredSeverity || undefined) }}</div>
+                  </div>
+                </div>
+
+                <div class="threshold-readings" *ngIf="threshold.meterReadings?.length">
+                  <div class="table-header">
+                    <div class="card-title small">Meter Readings ({{ threshold.meterReadings?.length || 0 }})</div>
+                  </div>
+                  <div class="table-container">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Reading</th>
+                          <th>Severity</th>
+                          <th>Type</th>
+                          <th>Time</th>
+                          <th>Notes</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let reading of threshold.meterReadings || []">
+                          <td>{{ reading.readingValue }}</td>
+                          <td>{{ formatEnum(reading.severity || undefined) }}</td>
+                          <td>{{ formatEnum(reading.meterType) }}</td>
+                          <td>{{ formatDate(reading.readingTime) }}</td>
+                          <td class="notes-cell">{{ formatField(reading.notes) }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </ng-container>
   </div>
@@ -357,12 +478,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">Meter Type</label>
-            <input
-              type="text"
-              class="form-input"
-              [value]="formatEnum(meterReadingForm.meterType)"
-              disabled
-            />
+            <input type="text" class="form-input" [value]="formatEnum(meterReadingForm.meterType)" disabled />
           </div>
         </div>
 
@@ -379,12 +495,7 @@
 
         <div class="form-group">
           <label class="form-label">Notes (Optional)</label>
-          <textarea 
-            class="form-input" 
-            [(ngModel)]="meterReadingForm.notes" 
-            rows="3" 
-            placeholder="Optional note"
-          ></textarea>
+          <textarea class="form-input" [(ngModel)]="meterReadingForm.notes" rows="3" placeholder="Optional note"></textarea>
         </div>
       </div>
       <div class="modal-footer">

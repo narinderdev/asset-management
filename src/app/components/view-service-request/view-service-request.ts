@@ -24,15 +24,19 @@ const VIEW_STATUS_LABELS: Record<string, string> = {
 })
 export class ViewServiceRequestComponent implements OnInit {
   request?: ServiceRequestDetail;
+
   isLoading = false;
   errorMessage?: string;
   requestLoaded = false;
+
   showAcceptModal = false;
   showRejectModal = false;
   isActionProcessing = false;
+
   approvedBy = 'System';
   rejectReason = 'Rejected via app';
   showConvertModal = false;
+
   private currentRequestId?: string;
 
   constructor(
@@ -46,7 +50,11 @@ export class ViewServiceRequestComponent implements OnInit {
   ngOnInit(): void {
     const requestId = this.route.snapshot.paramMap.get('id');
     if (!requestId) {
+      this.request = undefined;
+      this.isLoading = false;
+      this.requestLoaded = true;
       this.errorMessage = 'Missing service request identifier.';
+      this.cdr.detectChanges();
       return;
     }
 
@@ -55,68 +63,84 @@ export class ViewServiceRequestComponent implements OnInit {
 
   private loadRequest(id: string): void {
     this.currentRequestId = id;
+
+    // ✅ Reset loading flags for THIS fetch
     this.isLoading = true;
     this.requestLoaded = false;
+
+    // ✅ Clear old error whenever we start loading
     this.errorMessage = undefined;
+
+    // NOTE:
+    // If you DON'T want old data to stay during refresh, uncomment next line:
+    // this.request = undefined;
 
     this.serviceRequestService
       .fetchRequestById(id)
       .pipe(
         finalize(() => {
           this.isLoading = false;
-          if (!this.requestLoaded) {
-            this.requestLoaded = true;
-            this.cdr.detectChanges();
-          }
+          this.requestLoaded = true;
+          this.cdr.detectChanges();
         })
       )
       .subscribe({
-        next: response => {
-          if (response.data) {
+        next: (response) => {
+          // ✅ Always clear error on success callback
+          this.errorMessage = undefined;
+
+          if (response?.data) {
             this.request = response.data;
           } else {
-            this.errorMessage = response.message ?? 'Service request not found.';
+            // No data case: show error only if nothing to display
+            this.request = undefined;
+            this.errorMessage = response?.message ?? 'Service request not found.';
           }
-          this.requestLoaded = true;
+
           this.cdr.detectChanges();
         },
+
         error: () => {
-          this.errorMessage = 'Unable to load service request details. Please try again.';
-          this.requestLoaded = true;
+          /**
+           * ✅ IMPORTANT FIX:
+           * If request is already showing (data exists), DO NOT set errorMessage,
+           * otherwise banner appears with data (your screenshot).
+           * Just show a toast.
+           */
+          if (this.request) {
+            this.toastr.error('Unable to refresh service request details.');
+            this.errorMessage = undefined; // make 100% sure banner doesn't appear
+          } else {
+            this.request = undefined;
+            this.errorMessage = 'Unable to load service request details. Please try again.';
+          }
+
           this.cdr.detectChanges();
         }
       });
   }
 
   formatDate(value?: string): string {
-    if (!value) {
-      return '-';
-    }
+    if (!value) return '-';
 
     const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-      return '-';
-    }
+    if (Number.isNaN(date.getTime())) return '-';
 
     return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
   }
 
   formatStatus(value?: string): string {
-    if (!value) {
-      return '-';
-    }
+    if (!value) return '-';
     const normalized = value.toUpperCase();
     return VIEW_STATUS_LABELS[normalized] ?? this.prettify(value);
   }
 
   private prettify(text?: string): string {
-    if (!text) {
-      return '-';
-    }
+    if (!text) return '-';
     return text
       .toLowerCase()
       .replace(/_/g, ' ')
-      .replace(/\b\w/g, char => char.toUpperCase());
+      .replace(/\b\w/g, (char) => char.toUpperCase());
   }
 
   isStatusNew(status?: string): boolean {
@@ -127,7 +151,6 @@ export class ViewServiceRequestComponent implements OnInit {
     return (status || '').toLowerCase() === 'approved';
   }
 
-  // Action handlers (currently placeholders).
   onAccept(): void {
     this.showAcceptModal = true;
   }
@@ -187,7 +210,6 @@ export class ViewServiceRequestComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.isActionProcessing = false;
           this.toastr.success('Service request approved.');
           if (this.request) {
             this.request = { ...this.request, status: 'APPROVED' };
@@ -216,7 +238,6 @@ export class ViewServiceRequestComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.isActionProcessing = false;
           this.toastr.success('Service request rejected.');
           if (this.request) {
             this.request = { ...this.request, status: 'REJECTED' };

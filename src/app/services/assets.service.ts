@@ -55,6 +55,18 @@ export interface AssetLocationOrgPayload {
   maintenanceTeam?: string;
 }
 
+export interface AssetInsurancePayload {
+  insuranceProvider?: string;
+  policyNumber?: string;
+  policyStartDate?: string;
+  policyExpiryDate?: string;
+  insuranceStatus?: string;
+  policyType?: string;
+  certificateUrl?: string;
+  coverageAmount?: number;
+  premiumAmount?: number;
+}
+
 export interface AssetDetailResponse {
   statusCode?: number;
   status?: string;
@@ -72,6 +84,17 @@ export interface AssetDetailResponse {
     shortDescription?: string;
     location?: string | AssetLocationDetails;
     parentAssetId?: number | null;
+    insurance?: {
+      insuranceProvider?: string;
+      policyNumber?: string;
+      policyStartDate?: string;
+      policyExpiryDate?: string;
+      insuranceStatus?: string;
+      policyType?: string;
+      certificateUrl?: string;
+      coverageAmount?: number;
+      premiumAmount?: number;
+    };
     technicalDetails?: {
       manufacturer?: string;
       model?: string;
@@ -145,6 +168,17 @@ export interface AssetCreatePayload {
   ownership?: string;
   assetTag?: string;
   location?: string | AssetLocationDetails;
+  insurance?: {
+    insuranceProvider?: string;
+    policyNumber?: string;
+    policyStartDate?: string;
+    policyExpiryDate?: string;
+    insuranceStatus?: string;
+    policyType?: string;
+    certificateUrl?: string;
+    coverageAmount?: number;
+    premiumAmount?: number;
+  };
   technicalDetails?: {
     manufacturer?: string;
     model?: string;
@@ -198,6 +232,17 @@ export interface AssetUpdatePayload {
     assetTag?: string;
   };
   locationOrg?: AssetLocationOrgPayload;
+  insurance?: {
+    insuranceProvider?: string;
+    policyNumber?: string;
+    policyStartDate?: string;
+    policyExpiryDate?: string;
+    insuranceStatus?: string;
+    policyType?: string;
+    certificateUrl?: string;
+    coverageAmount?: number;
+    premiumAmount?: number;
+  };
   technicalDetails?: AssetCreatePayload['technicalDetails'];
   financialDetails?: AssetCreatePayload['financialDetails'];
   warrantyLifecycle?: AssetCreatePayload['warrantyLifecycle'];
@@ -213,11 +258,6 @@ export interface AssetCreateResponse {
     assetId?: string;
     assetName?: string;
   };
-}
-
-export interface AssetCategory {
-  id?: number;
-  name?: string;
 }
 
 @Injectable({
@@ -270,6 +310,17 @@ export class AssetsService {
     });
 
     return this.http.post<AssetDetailResponse>(`${this.apiUrl}/${id}/location`, payload, { headers });
+  }
+
+  updateInsurance(
+    id: string,
+    payload: AssetInsurancePayload
+  ): Observable<AssetDetailResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.post<AssetDetailResponse>(`${this.apiUrl}/${id}/insurance`, payload, { headers });
   }
 
   updateTechnical(

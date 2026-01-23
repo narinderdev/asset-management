@@ -72,7 +72,7 @@ export class SidebarComponent implements OnInit {
       module: 'PREVENTIVE_MAINTENANCE',
       hasSubmenu: true,
       submenu: [
-        { label: 'Preventive Maintenance', route: '/maintenance/preventive' },
+        { label: 'Preventative', route: '/maintenance/preventive' },
         // { label: 'Predictive Maintenance', route: '/maintenance/predictive' },
         { label: 'Emergency Maintenance', route: '/maintenance/emergency' }
       ]

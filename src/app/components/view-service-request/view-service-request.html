@@ -1,22 +1,35 @@
 ﻿<div class="view-request-page">
   <!-- Header -->
   <div class="header">
-    <button class="back-button" type="button" aria-label="Back to service requests" (click)="goBack()">
-      <- Back to service requests
+    <button
+      class="back-button"
+      type="button"
+      aria-label="Back to service requests"
+      (click)="goBack()"
+    >
+      ← Back to service requests
     </button>
 
+    <!-- Header content only when request exists -->
     <div class="header-content" *ngIf="request">
       <div class="title-section">
         <h1>{{ request.shortTitle || 'Service Request Details' }}</h1>
         <div class="request-meta">
-          <span class="request-id">{{ request.requestId ?? request.id ?? "-" }}</span>
+          <span class="request-id">
+            {{ request.requestId ?? request.id ?? '-' }}
+          </span>
           <span *ngIf="request.requestDate">·</span>
-          <span *ngIf="request.requestDate">{{ formatDate(request.requestDate) }}</span>
+          <span *ngIf="request.requestDate">
+            {{ formatDate(request.requestDate) }}
+          </span>
         </div>
       </div>
 
       <div class="header-actions">
-        <div class="action-buttons" *ngIf="isStatusNew(request.status) || isStatusApproved(request.status)">
+        <div
+          class="action-buttons"
+          *ngIf="isStatusNew(request.status) || isStatusApproved(request.status)"
+        >
           <ng-container *ngIf="isStatusNew(request.status)">
             <button class="btn-accept" type="button" (click)="onAccept()">
               ✓ Accept
@@ -40,185 +53,276 @@
     </div>
   </div>
 
-  <!-- Status Messages -->
-  <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <!-- ERROR STATE (only after loading, only if no data) -->
+  <!-- <div
+    class="status-message"
+    *ngIf="errorMessage && !isLoading && !request"
+  >
+    {{ errorMessage }}
+  </div> -->
 
-  <!-- Main Content -->
+  <!-- MAIN CONTENT -->
   <div class="main-content">
-    <!-- Localized loading -->
-    <div class="loading-overlay" *ngIf="isLoading && !requestLoaded">
+    <!-- LOADING STATE -->
+    <div class="loading-overlay" *ngIf="isLoading">
       <div class="loader"></div>
       <span>Loading details...</span>
     </div>
 
+    <!-- DATA STATE -->
     <ng-container *ngIf="request">
-    <div class="details-grid">
-      <!-- Overview Card -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Overview</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-grid field-grid-4">
-            <div class="field-group">
-              <div class="field-label">Request ID</div>
-              <div class="field-value highlight">{{ request.requestId ?? request.id ?? '-' }}</div>
-            </div>
-            <div class="field-group span-2">
-              <div class="field-label">Title</div>
-              <div class="field-value">{{ request.shortTitle ?? '-' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Date</div>
-              <div class="field-value">{{ formatDate(request.requestDate) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Requester</div>
-              <div class="field-value">{{ request.requesterName ?? '-' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Requester Contact</div>
-              <div class="field-value">{{ request.requesterContact ?? '-' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Location</div>
-              <div class="field-value">{{ request.location ?? '-' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Maintenance Type</div>
-              <div class="field-value">{{ request.maintenanceType ?? '-' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Priority</div>
-              <div class="field-value">{{ request.priority ?? '-' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Status</div>
-              <div class="field-value">{{ formatStatus(request.status) }}</div>
-            </div>
+      <div class="details-grid">
+        <!-- Overview -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Overview</h2>
           </div>
-        </div>
-      </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-4">
+              <div class="field-group">
+                <div class="field-label">Request ID</div>
+                <div class="field-value highlight">
+                  {{ request.requestId ?? request.id ?? '-' }}
+                </div>
+              </div>
 
-      <!-- Assignment Card -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Assignment</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-grid field-grid-3">
-            <div class="field-group">
-              <div class="field-label">Asset</div>
-              <div class="field-value" [ngClass]="{'empty': !request.assetName && !request.assetId}">
-                {{ request.assetName ?? request.assetId ?? '-' }}
+              <div class="field-group span-2">
+                <div class="field-label">Title</div>
+                <div class="field-value">
+                  {{ request.shortTitle ?? '-' }}
+                </div>
               </div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Assigned Technician</div>
-              <div class="field-value" [ngClass]="{'empty': !request.assignedTechnician}">
-                {{ request.assignedTechnician ?? '-' }}
-              </div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Work Order</div>
-              <div class="field-value" [ngClass]="{'empty': !request.workOrderId}">
-                {{ request.workOrderId ?? '-' }}
-              </div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Department</div>
-              <div class="field-value" [ngClass]="{'empty': !request.department}">
-                {{ request.department ?? '-' }}
-              </div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Maintenance Team</div>
-              <div class="field-value" [ngClass]="{'empty': !request.maintenanceTeam}">
-                {{ request.maintenanceTeam ?? '-' }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Service Details Card -->
-      <div class="card full-width">
-        <div class="card-header">
-          <h2 class="card-title">Service Details</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-grid field-grid-3">
-            <div class="field-group full-width">
-              <div class="field-label">Problem Description</div>
-              <div class="field-value" [ngClass]="{'empty': !request.problemDescription}">
-                {{ request.problemDescription ?? '-' }}
+              <div class="field-group">
+                <div class="field-label">Date</div>
+                <div class="field-value">
+                  {{ formatDate(request.requestDate) }}
+                </div>
               </div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Preferred Date</div>
-              <div class="field-value">{{ formatDate(request.preferredDate) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Preferred Time</div>
-              <div class="field-value" [ngClass]="{'empty': !request.preferredTime}">
-                {{ request.preferredTime ?? '-' }}
-              </div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Safety Risk</div>
-              <div class="field-value">
-                {{ request.safetyRisk === undefined ? '-' : (request.safetyRisk ? 'Yes' : 'No') }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Schedule Card -->
-      <div class="card full-width">
-        <div class="card-header">
-          <h2 class="card-title">Schedule</h2>
+              <div class="field-group">
+                <div class="field-label">Requester</div>
+                <div class="field-value">
+                  {{ request.requesterName ?? '-' }}
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Requester Contact</div>
+                <div class="field-value">
+                  {{ request.requesterContact ?? '-' }}
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Location</div>
+                <div class="field-value">
+                  {{ request.location ?? '-' }}
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Maintenance Type</div>
+                <div class="field-value">
+                  {{ request.maintenanceType ?? '-' }}
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Priority</div>
+                <div class="field-value">
+                  {{ request.priority ?? '-' }}
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Status</div>
+                <div class="field-value">
+                  {{ formatStatus(request.status) }}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="card-body">
-          <div class="field-grid field-grid-3">
-            <div class="field-group">
-              <div class="field-label">Scheduled Start</div>
-              <div class="field-value" [ngClass]="{'empty': !request.scheduledStart}">
-                {{ request.scheduledStart ? formatDate(request.scheduledStart) : '-' }}
+
+        <!-- Assignment -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Assignment</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group">
+                <div class="field-label">Asset</div>
+                <div
+                  class="field-value"
+                  [ngClass]="{ empty: !request.assetName && !request.assetId }"
+                >
+                  {{ request.assetName ?? request.assetId ?? '-' }}
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Assigned Technician</div>
+                <div
+                  class="field-value"
+                  [ngClass]="{ empty: !request.assignedTechnician }"
+                >
+                  {{ request.assignedTechnician ?? '-' }}
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Work Order</div>
+                <div
+                  class="field-value"
+                  [ngClass]="{ empty: !request.workOrderId }"
+                >
+                  {{ request.workOrderId ?? '-' }}
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Department</div>
+                <div
+                  class="field-value"
+                  [ngClass]="{ empty: !request.department }"
+                >
+                  {{ request.department ?? '-' }}
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Maintenance Team</div>
+                <div
+                  class="field-value"
+                  [ngClass]="{ empty: !request.maintenanceTeam }"
+                >
+                  {{ request.maintenanceTeam ?? '-' }}
+                </div>
               </div>
             </div>
-            <div class="field-group">
-              <div class="field-label">Target Completion</div>
-              <div class="field-value" [ngClass]="{'empty': !request.targetCompletionDate}">
-                {{ request.targetCompletionDate ? formatDate(request.targetCompletionDate) : '-' }}
+          </div>
+        </div>
+
+        <!-- Service Details -->
+        <div class="card full-width">
+          <div class="card-header">
+            <h2 class="card-title">Service Details</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group full-width">
+                <div class="field-label">Problem Description</div>
+                <div
+                  class="field-value"
+                  [ngClass]="{ empty: !request.problemDescription }"
+                >
+                  {{ request.problemDescription ?? '-' }}
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Preferred Date</div>
+                <div class="field-value">
+                  {{ formatDate(request.preferredDate) }}
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Preferred Time</div>
+                <div
+                  class="field-value"
+                  [ngClass]="{ empty: !request.preferredTime }"
+                >
+                  {{ request.preferredTime ?? '-' }}
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Safety Risk</div>
+                <div class="field-value">
+                  {{
+                    request.safetyRisk === undefined
+                      ? '-'
+                      : request.safetyRisk
+                      ? 'Yes'
+                      : 'No'
+                  }}
+                </div>
               </div>
             </div>
-            <div class="field-group">
-              <div class="field-label">Due Date</div>
-              <div class="field-value" [ngClass]="{'empty': !request.dueDate}">
-                {{ request.dueDate ? formatDate(request.dueDate) : '-' }}
+          </div>
+        </div>
+
+        <!-- Schedule -->
+        <div class="card full-width">
+          <div class="card-header">
+            <h2 class="card-title">Schedule</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group">
+                <div class="field-label">Scheduled Start</div>
+                <div
+                  class="field-value"
+                  [ngClass]="{ empty: !request.scheduledStart }"
+                >
+                  {{ request.scheduledStart ? formatDate(request.scheduledStart) : '-' }}
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Target Completion</div>
+                <div
+                  class="field-value"
+                  [ngClass]="{ empty: !request.targetCompletionDate }"
+                >
+                  {{
+                    request.targetCompletionDate
+                      ? formatDate(request.targetCompletionDate)
+                      : '-'
+                  }}
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Due Date</div>
+                <div
+                  class="field-value"
+                  [ngClass]="{ empty: !request.dueDate }"
+                >
+                  {{ request.dueDate ? formatDate(request.dueDate) : '-' }}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
     </ng-container>
   </div>
 
-  <!-- Accept Modal -->
+  <!-- ACCEPT MODAL -->
   <div class="modal-backdrop" *ngIf="showAcceptModal" (click)="closeModals()">
     <div class="modal-dialog" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-icon success">✓</div>
         <h3>Accept Service Request</h3>
-        <p>Are you sure you want to accept {{ request?.requestId || 'this service request' }}?</p>
+        <p>
+          Are you sure you want to accept
+          {{ request?.requestId || 'this service request' }}?
+        </p>
       </div>
       <div class="modal-actions">
-        <button class="btn-secondary" type="button" (click)="closeModals()" [disabled]="isActionProcessing">
+        <button class="btn-secondary" type="button" (click)="closeModals()">
           Cancel
         </button>
-        <button class="btn-success" type="button" (click)="confirmAccept()" [disabled]="isActionProcessing">
+        <button
+          class="btn-success"
+          type="button"
+          (click)="confirmAccept()"
+          [disabled]="isActionProcessing"
+        >
           <span *ngIf="!isActionProcessing">Accept Request</span>
           <span *ngIf="isActionProcessing">Processing...</span>
         </button>
@@ -226,19 +330,27 @@
     </div>
   </div>
 
-  <!-- Reject Modal -->
+  <!-- REJECT MODAL -->
   <div class="modal-backdrop" *ngIf="showRejectModal" (click)="closeModals()">
     <div class="modal-dialog" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-icon danger">✕</div>
         <h3>Reject Service Request</h3>
-        <p>Are you sure you want to reject {{ request?.requestId || 'this service request' }}?</p>
+        <p>
+          Are you sure you want to reject
+          {{ request?.requestId || 'this service request' }}?
+        </p>
       </div>
       <div class="modal-actions">
-        <button class="btn-secondary" type="button" (click)="closeModals()" [disabled]="isActionProcessing">
+        <button class="btn-secondary" type="button" (click)="closeModals()">
           Cancel
         </button>
-        <button class="btn-danger" type="button" (click)="confirmReject()" [disabled]="isActionProcessing">
+        <button
+          class="btn-danger"
+          type="button"
+          (click)="confirmReject()"
+          [disabled]="isActionProcessing"
+        >
           <span *ngIf="!isActionProcessing">Reject Request</span>
           <span *ngIf="isActionProcessing">Processing...</span>
         </button>
@@ -246,19 +358,28 @@
     </div>
   </div>
 
-  <!-- Convert Modal -->
+  <!-- CONVERT MODAL -->
   <div class="modal-backdrop" *ngIf="showConvertModal" (click)="closeModals()">
     <div class="modal-dialog" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-icon info">ℹ</div>
         <h3>Convert to Work Order</h3>
-        <p>Do you want to convert {{ request?.requestId || 'this service request' }} to a work order?</p>
+        <p>
+          Do you want to convert
+          {{ request?.requestId || 'this service request' }}
+          to a work order?
+        </p>
       </div>
       <div class="modal-actions">
-        <button class="btn-secondary" type="button" (click)="closeModals()" [disabled]="isActionProcessing">
+        <button class="btn-secondary" type="button" (click)="closeModals()">
           Cancel
         </button>
-        <button class="btn-primary" type="button" (click)="onConvert()" [disabled]="isActionProcessing">
+        <button
+          class="btn-primary"
+          type="button"
+          (click)="onConvert()"
+          [disabled]="isActionProcessing"
+        >
           <span *ngIf="!isActionProcessing">Convert to Work Order</span>
           <span *ngIf="isActionProcessing">Converting...</span>
         </button>
@@ -266,6 +387,3 @@
     </div>
   </div>
 </div>
-
-
-

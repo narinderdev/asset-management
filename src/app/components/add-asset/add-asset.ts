@@ -37,6 +37,7 @@ export class AddAssetComponent implements OnInit {
   isEditMode = false;
 
   isSavingLocation = false;
+  isSavingInsurance = false;
   isSavingTechnical = false;
   isSavingFinancial = false;
   isSavingThreshold = false;
@@ -48,6 +49,7 @@ export class AddAssetComponent implements OnInit {
   tabs = [
     { id: 'asset-master', label: 'Asset Master' },
     { id: 'location-organization', label: 'Location & Organization' },
+    { id: 'insurance', label: 'Insurance' },
     { id: 'technical-manufacturer', label: 'Technical & Manufacturer' },
     { id: 'financial', label: 'Financial' },
     { id: 'threshold', label: 'Threshold' },
@@ -83,6 +85,19 @@ export class AddAssetComponent implements OnInit {
     maintenanceTeam: ''
   };
   maintenanceTeams: TechnicianTeam[] = [];
+
+  // Insurance Data
+  insurance = {
+    insuranceProvider: '',
+    policyNumber: '',
+    policyStartDate: '',
+    policyExpiryDate: '',
+    insuranceStatus: 'ACTIVE',
+    policyType: '',
+    certificateUrl: '',
+    coverageAmount: '',
+    premiumAmount: ''
+  };
 
   // Technical & Manufacturer Data
   technical = {
@@ -156,6 +171,12 @@ export class AddAssetComponent implements OnInit {
   ];
   criticalityOptions = ['High', 'Medium', 'Low', 'Critical'];
   ownershipOptions = ['Owned', 'Leased', 'Rented'];
+  insuranceStatusOptions = [
+    { value: 'ACTIVE', label: 'Active' },
+    { value: 'EXPIRED', label: 'Expired' },
+    { value: 'PENDING_RENEWAL', label: 'Pending Renewal' },
+    { value: 'CANCELLED', label: 'Cancelled' }
+  ];
   depreciationMethodOptions = [
     { value: 'STRAIGHT_LINE', label: 'Straight Line' },
     { value: 'DECLINING_BALANCE', label: 'Declining Balance' },
@@ -384,6 +405,17 @@ export class AddAssetComponent implements OnInit {
       this.locationOrg.maintenanceTeam = detailLocation.maintenanceTeam ?? '';
     }
 
+    const insuranceData = (detail as any).insurance ?? {};
+    this.insurance.insuranceProvider = insuranceData.insuranceProvider ?? '';
+    this.insurance.policyNumber = insuranceData.policyNumber ?? '';
+    this.insurance.policyStartDate = insuranceData.policyStartDate ?? '';
+    this.insurance.policyExpiryDate = insuranceData.policyExpiryDate ?? '';
+    this.insurance.insuranceStatus = insuranceData.insuranceStatus ?? 'ACTIVE';
+    this.insurance.policyType = insuranceData.policyType ?? '';
+    this.insurance.certificateUrl = insuranceData.certificateUrl ?? '';
+    this.insurance.coverageAmount = this.toString(insuranceData.coverageAmount);
+    this.insurance.premiumAmount = this.toString(insuranceData.premiumAmount);
+
     const technical = detail.technicalDetails ?? {};
     this.technical.manufacturer = technical.manufacturer ?? '';
     this.technical.model = technical.model ?? '';
@@ -514,6 +546,24 @@ export class AddAssetComponent implements OnInit {
     };
 
     const hasValue = Object.values(payload).some(value => value !== undefined);
+    return hasValue ? payload : undefined;
+  }
+
+  private buildInsurancePayload():
+    AssetCreatePayload['insurance'] | undefined {
+    const payload = {
+      insuranceProvider: this.insurance.insuranceProvider || undefined,
+      policyNumber: this.insurance.policyNumber || undefined,
+      policyStartDate: this.insurance.policyStartDate || undefined,
+      policyExpiryDate: this.insurance.policyExpiryDate || undefined,
+      insuranceStatus: this.insurance.insuranceStatus || 'ACTIVE',
+      policyType: this.insurance.policyType || undefined,
+      certificateUrl: this.insurance.certificateUrl || undefined,
+      coverageAmount: this.parseNumber(this.insurance.coverageAmount),
+      premiumAmount: this.parseNumber(this.insurance.premiumAmount)
+    };
+
+    const hasValue = Object.values(payload).some(value => value !== undefined && value !== 'ACTIVE');
     return hasValue ? payload : undefined;
   }
 
@@ -658,6 +708,11 @@ export class AddAssetComponent implements OnInit {
       payload.financialDetails = financial;
     }
 
+    const insuranceData = this.buildInsurancePayload();
+    if (insuranceData) {
+      payload.insurance = insuranceData;
+    }
+
     const warranty = this.buildWarrantyPayload();
     if (warranty) {
       payload.warrantyLifecycle = warranty;
@@ -707,6 +762,11 @@ export class AddAssetComponent implements OnInit {
     const location = this.buildLocationPayload();
     if (location) {
       payload.locationOrg = location;
+    }
+
+    const insuranceData = this.buildInsurancePayload();
+    if (insuranceData) {
+      payload.insurance = insuranceData;
     }
 
     const technical = this.buildTechnicalPayload();
@@ -778,6 +838,9 @@ export class AddAssetComponent implements OnInit {
         break;
       case 'location-organization':
         this.saveLocationOrganization();
+        break;
+      case 'insurance':
+        this.saveInsurance();
         break;
       case 'technical-manufacturer':
         this.saveTechnicalManufacturer();
@@ -852,6 +915,8 @@ export class AddAssetComponent implements OnInit {
         return this.isSavingAssetMaster;
       case 'location-organization':
         return this.isSavingLocation;
+      case 'insurance':
+        return this.isSavingInsurance;
       case 'technical-manufacturer':
         return this.isSavingTechnical;
       case 'financial':
@@ -889,11 +954,47 @@ export class AddAssetComponent implements OnInit {
       }))
       .subscribe({
         next: () => {
-          this.navigateToTab('technical-manufacturer', { id: assetId });
+          this.navigateToTab('insurance', { id: assetId });
           this.loadAssetDetails(assetId);
         },
         error: () => {
           console.error('Failed to save location data');
+        }
+      });
+  }
+
+  private saveInsurance(): void {
+    const payload = this.buildInsurancePayload();
+    if (!payload) {
+      console.warn('No insurance data to save');
+      const assetId = this.getAssetIdFromParams();
+      if (assetId) {
+        this.navigateToTab('technical-manufacturer', { id: assetId });
+      }
+      return;
+    }
+
+    const assetId = this.getAssetIdFromParams();
+    if (!assetId) {
+      console.warn('Cannot save insurance data without asset ID');
+      return;
+    }
+
+    this.isSavingInsurance = true;
+    this.assetsService
+      .updateInsurance(assetId, payload)
+      .pipe(finalize(() => {
+        this.isSavingInsurance = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: () => {
+          this.navigateToTab('technical-manufacturer', { id: assetId });
+          this.loadAssetDetails(assetId);
+        },
+        error: () => {
+          console.error('Failed to save insurance data');
+          this.toastr.error('Failed to save insurance data');
         }
       });
   }
