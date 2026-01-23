@@ -75,6 +75,8 @@ export interface CreatePmTemplatePayload {
 
 export interface CreatePreventiveMaintenancePayload {
   assetId?: number;
+  assetTypeId?: number;
+  applyTo?: 'ASSET' | 'ASSET_TYPE';
   location?: string;
   title: string;
   workType: string;
@@ -103,6 +105,8 @@ export interface CreatePmTemplateResponse {
 interface PreventiveMaintenanceItem {
   id?: number;
   assetId?: number;
+  assetTypeId?: number;
+  applyTo?: 'ASSET' | 'ASSET_TYPE';
   assetName?: string;
   location?: string;
   title?: string;

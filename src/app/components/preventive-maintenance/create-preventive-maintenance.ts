@@ -23,7 +23,9 @@ interface SelectOption {
 interface PreventiveMaintenanceForm {
   pmId?: string;
   pmName?: string;
+  applyTo?: 'ASSET' | 'ASSET_TYPE';
   assetId: number | null;
+  assetTypeId: number | null;
   location: string;
   title: string;
   priority: string;
@@ -35,6 +37,7 @@ interface PreventiveMaintenanceForm {
   meterType: string;
   meterIntervalValue: string;
   currentMeterReading: string;
+  workType: string;
 }
 
 @Component({
@@ -57,6 +60,7 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
   editTemplateId?: number;
 
   assetOptions: Array<{ id: number; label: string }> = [];
+  assetTypeOptions: Array<{ id: number; label: string }> = [];
 
   scheduleTypeOptions: SelectOption[] = [
     { label: 'Time Based', value: 'TIME_BASED' },
@@ -94,6 +98,7 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAssetOptions();
+    this.loadAssetTypeOptions();
     this.routeSub = this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
@@ -149,23 +154,34 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
   }
 
   private buildMaintenancePayload() {
-    const intervalValue = this.toNumberOrUndefined(this.template.intervalValue);
-    const meterIntervalValue = this.toNumberOrUndefined(this.template.meterIntervalValue) ?? intervalValue;
+    const isTimeBased = this.isTimeBased();
+    const isUsageBased = this.isUsageBased();
+    const applyToAssetType = this.isApplyToAssetType();
+
+    const intervalValue = isTimeBased
+      ? this.toNumberOrUndefined(this.template.intervalValue)
+      : undefined;
+
+    const meterIntervalValue = isUsageBased
+      ? this.toNumberOrUndefined(this.template.meterIntervalValue)
+      : undefined;
 
     const payload: CreatePreventiveMaintenancePayload = {
-      assetId: this.template.assetId ?? undefined,
+      assetId: applyToAssetType ? undefined : this.template.assetId ?? undefined,
+      assetTypeId: applyToAssetType ? this.template.assetTypeId ?? undefined : undefined,
+      applyTo: this.template.applyTo ?? undefined,
       location: this.template.location || undefined,
       title: this.template.title,
-      workType: 'PREVENTIVE',
+      workType: this.template.workType || 'PREVENTIVE',
       priority: this.template.priority || 'LOW',
       scheduleType: this.template.scheduleType || 'TIME_BASED',
       leadTimeDays: this.toNumberOrUndefined(this.template.leadTimeDays),
       startDate: this.template.startDate || undefined,
-      intervalUnit: this.template.intervalUnit || undefined,
+      intervalUnit: isTimeBased ? this.template.intervalUnit || undefined : undefined,
       intervalValue,
-      meterType: this.template.meterType || undefined,
+      meterType: isUsageBased ? this.template.meterType || undefined : undefined,
       meterIntervalValue,
-      currentMeterReading: this.toNumberOrUndefined(this.template.currentMeterReading)
+      currentMeterReading: isUsageBased ? this.toNumberOrUndefined(this.template.currentMeterReading) : undefined
     };
 
     return payload;
@@ -201,6 +217,25 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
       },
       error: () => {
         this.assetOptions = [];
+      }
+    });
+  }
+
+  private loadAssetTypeOptions(): void {
+    this.assetsService.fetchAssetTypes().pipe(
+      finalize(() => this.cdr.detectChanges())
+    ).subscribe({
+      next: response => {
+        const types = response.data ?? [];
+        this.assetTypeOptions = types
+          .filter(type => type.id !== undefined)
+          .map(type => ({
+            id: type.id as number,
+            label: type.name ?? type.code ?? `Asset Type ${type.id}`
+          }));
+      },
+      error: () => {
+        this.assetTypeOptions = [];
       }
     });
   }
@@ -276,7 +311,9 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
     return {
       pmId: '',
       pmName: '',
+      applyTo: 'ASSET',
       assetId: null,
+      assetTypeId: null,
       location: '',
       title: '',
       priority: 'LOW',
@@ -287,7 +324,33 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
       intervalValue: '',
       meterType: 'RUN_HOURS',
       meterIntervalValue: '',
-      currentMeterReading: ''
+      currentMeterReading: '',
+      workType: 'PREVENTIVE'
     };
+  }
+
+  isTimeBased(): boolean {
+    return (this.template.scheduleType || '').toUpperCase() === 'TIME_BASED';
+  }
+
+  isUsageBased(): boolean {
+    return (this.template.scheduleType || '').toUpperCase() === 'USAGE_BASED';
+  }
+
+  isApplyToAsset(): boolean {
+    return (this.template.applyTo || 'ASSET').toUpperCase() === 'ASSET';
+  }
+
+  isApplyToAssetType(): boolean {
+    return (this.template.applyTo || '').toUpperCase() === 'ASSET_TYPE';
+  }
+
+  onApplyTargetChange(): void {
+    if (this.isApplyToAssetType()) {
+      this.template.assetId = null;
+    } else {
+      this.template.assetTypeId = null;
+    }
+    this.cdr.detectChanges();
   }
 }

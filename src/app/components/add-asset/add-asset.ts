@@ -13,7 +13,8 @@ import {
   AssetCreatePayload,
   AssetUpdatePayload,
   AssetLocationOrgPayload,
-  AssetCategory
+  AssetCategory,
+  AssetType
 } from '../../services/assets.service';
 import { TechnicianTeam, TechnicianTeamResponse } from '../../services/technician.service';
 import { PmTemplateService, PredictiveThresholdPayload } from '../../services/pm-template.service';
@@ -75,6 +76,8 @@ export class AddAssetComponent implements OnInit {
   filteredCategories: AssetCategory[] = [];
   showCategoryDropdown = false;
   autoGenerateAssetId = false;
+  assetTypeOptions: AssetType[] = [];
+  assetTypeLoading = false;
 
   // Location & Organization Data
   locationOrg = {
@@ -233,6 +236,7 @@ export class AddAssetComponent implements OnInit {
 
     this.loadTechnicianTeams();
     this.loadCategories();
+    this.loadAssetTypes();
 
     const navigation = this.router.getCurrentNavigation();
     const asset = (navigation?.extras.state as { asset?: Asset })?.asset;
@@ -683,6 +687,7 @@ export class AddAssetComponent implements OnInit {
       assetName: this.assetMaster.assetName,
       shortDescription: this.assetMaster.shortDescription || undefined,
       assetCategory: this.assetMaster.assetCategory,
+      assetType: this.assetMaster.assetType || undefined,
       status: this.toApiStatus(this.assetMaster.status),
       criticality: this.toApiCriticality(this.assetMaster.criticality),
       ownership: this.assetMaster.ownership || undefined,
@@ -1103,7 +1108,26 @@ export class AddAssetComponent implements OnInit {
         },
         error: () => {
           this.categoryOptions = [];
-          this.toastr.error('Unable to load asset categories. You can still type a category.');
+        }
+      });
+  }
+
+  private loadAssetTypes(): void {
+    this.assetTypeLoading = true;
+    this.assetsService
+      .fetchAssetTypes()
+      .pipe(
+        finalize(() => {
+          this.assetTypeLoading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.assetTypeOptions = response.data ?? [];
+        },
+        error: () => {
+          this.assetTypeOptions = [];
         }
       });
   }
@@ -1228,6 +1252,28 @@ export class AddAssetComponent implements OnInit {
   private saveAttachments(): void {
     console.log('Saving Attachments data', this.attachments);
     // TODO: implement API call
+  }
+
+  onAssetTypeSelected(value: string): void {
+    this.assetMaster.assetType = value;
+    const selected = this.assetTypeOptions.find(
+      (type) => type.name === value || type.code === value
+    );
+    if (!selected) {
+      return;
+    }
+
+    if (selected.assetCategory) {
+      this.assetMaster.assetCategory = selected.assetCategory;
+    }
+
+    if (selected.defaultCriticality) {
+      this.assetMaster.criticality = this.normalizeCriticality(selected.defaultCriticality);
+    }
+
+    if (typeof selected.active === 'boolean') {
+      this.assetMaster.status = selected.active ? 'IN_SERVICE' : 'OUT_OF_SERVICE';
+    }
   }
 
 }

@@ -17,11 +17,27 @@
     <form class="request-form" (ngSubmit)="onCreate()">
       <div class="form-grid">
         <label class="field">
+          <span>Apply PM Template To</span>
+          <select name="applyTo" [(ngModel)]="template.applyTo" (change)="onApplyTargetChange()">
+            <option value="ASSET">Asset</option>
+            <option value="ASSET_TYPE">Asset Type</option>
+          </select>
+        </label>
+        <label class="field" *ngIf="isApplyToAsset()">
           <span>Asset</span>
           <select name="assetId" [(ngModel)]="template.assetId">
             <option [ngValue]="null">Select Asset</option>
             <option *ngFor="let asset of assetOptions" [ngValue]="asset.id">
               {{ asset.label }}
+            </option>
+          </select>
+        </label>
+        <label class="field" *ngIf="isApplyToAssetType()">
+          <span>Asset Type</span>
+          <select name="assetTypeId" [(ngModel)]="template.assetTypeId">
+            <option [ngValue]="null">Select Asset Type</option>
+            <option *ngFor="let type of assetTypeOptions" [ngValue]="type.id">
+              {{ type.label }}
             </option>
           </select>
         </label>
@@ -63,7 +79,7 @@
             </option>
           </select>
         </label>
-        <label class="field">
+        <label class="field" *ngIf="isTimeBased()">
           <span>Interval Unit <span class="required-star">*</span></span>
           <select name="intervalUnit" [(ngModel)]="template.intervalUnit" required>
             <option value="" disabled hidden>Select Unit</option>
@@ -73,11 +89,11 @@
           </select>
         </label>
 
-        <label class="field">
+        <label class="field" *ngIf="isTimeBased()">
           <span>Interval Value</span>
           <input type="number" name="intervalValue" [(ngModel)]="template.intervalValue" placeholder="e.g., 30" />
         </label>
-        <label class="field">
+        <label class="field" *ngIf="isUsageBased()">
           <span>Meter Type</span>
           <select name="meterType" [(ngModel)]="template.meterType">
             <option *ngFor="let unit of meterTypeOptions" [value]="unit.value">
@@ -86,7 +102,7 @@
           </select>
         </label>
 
-        <label class="field">
+        <label class="field" *ngIf="isUsageBased()">
           <span>Meter Interval Value</span>
           <input
             type="number"
@@ -100,7 +116,7 @@
           <input type="number" name="leadTimeDays" [(ngModel)]="template.leadTimeDays" />
         </label>
 
-        <label class="field">
+        <label class="field" *ngIf="isUsageBased()">
           <span>Current Meter Reading</span>
           <input
             type="number"
@@ -120,4 +136,3 @@
     </form>
   </section>
 </div>
-
