@@ -1,7 +1,9 @@
 <div class="roles-wrapper">
   <div class="roles-header">
     <h1 class="roles-title">Roles</h1>
-    <button class="create-btn" type="button" (click)="openModal()" *ngIf="canCreateRoles">+ Add Role</button>
+    <button class="create-btn" type="button" (click)="openModal()" *ngIf="canCreateRoles">
+      + Add Role
+    </button>
   </div>
 
   <div class="table-wrapper">
@@ -14,19 +16,32 @@
             <th>Status</th>
           </tr>
         </thead>
+
         <tbody>
-          <tr *ngIf="!roles.length">
-            <td colspan="3" class="empty-row">No roles to display.</td>
-          </tr>
-          <tr *ngFor="let r of pagedRoles">
-            <td>{{ r.name || 'ƒ?"' }}</td>
-            <td>{{ r.description || 'ƒ?"' }}</td>
-            <td>
-              <span class="status-chip" [ngClass]="{ 'status-green': r.active !== false, 'status-grey': r.active === false }">
-                {{ r.active === false ? 'Inactive' : 'Active' }}
-              </span>
-            </td>
-          </tr>
+          <!-- Mutually exclusive: rows OR empty -->
+          <ng-container *ngIf="(pagedRoles?.length ?? 0) > 0; else emptyState">
+            <tr *ngFor="let r of pagedRoles; trackBy: trackByRole">
+              <td>{{ r.name || 'ƒ?"' }}</td>
+              <td>{{ r.description || 'ƒ?"' }}</td>
+              <td>
+                <span
+                  class="status-chip"
+                  [ngClass]="{
+                    'status-green': r.active !== false,
+                    'status-grey': r.active === false
+                  }"
+                >
+                  {{ r.active === false ? 'Inactive' : 'Active' }}
+                </span>
+              </td>
+            </tr>
+          </ng-container>
+
+          <ng-template #emptyState>
+            <tr *ngIf="hasLoaded">
+              <td colspan="3" class="empty-row">No roles to display.</td>
+            </tr>
+          </ng-template>
         </tbody>
       </table>
     </div>
@@ -38,13 +53,26 @@
   </div>
 
   <div class="pagination" *ngIf="pagination.totalItems > 0">
-    <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ pagination.totalItems }}</span>
+    <span class="pager-info">
+      Showing {{ displayStart }} - {{ displayEnd }} of {{ pagination.totalItems }}
+    </span>
+
     <div class="pager-actions">
-      <button class="pager-btn" (click)="previousPage()" [disabled]="pagination.currentPage === 0 || isLoading">
+      <button
+        class="pager-btn"
+        (click)="previousPage()"
+        [disabled]="pagination.currentPage === 0 || isLoading"
+      >
         Previous
       </button>
+
       <span class="pager-info">Page {{ pagination.currentPage + 1 }} of {{ totalPages }}</span>
-      <button class="pager-btn" (click)="nextPage()" [disabled]="pagination.currentPage >= totalPages - 1 || isLoading">
+
+      <button
+        class="pager-btn"
+        (click)="nextPage()"
+        [disabled]="pagination.currentPage >= totalPages - 1 || isLoading"
+      >
         Next
       </button>
     </div>
@@ -75,10 +103,7 @@
 
       <div class="form-field">
         <label>Description</label>
-        <textarea
-          formControlName="description"
-          placeholder="Describe what this role can do"
-        ></textarea>
+        <textarea formControlName="description" placeholder="Describe what this role can do"></textarea>
         <div class="error" *ngIf="submitted && addRoleForm.controls['description'].errors">
           Required
         </div>
@@ -109,6 +134,7 @@
                 <td class="module-name" [class.sub-module]="row.isSubRow">
                   {{ formatModuleLabel(row.label) }}
                 </td>
+
                 <td class="permission-cell">
                   <label class="checkbox-wrapper" *ngIf="row.permissions.view">
                     <input
@@ -119,6 +145,7 @@
                     />
                   </label>
                 </td>
+
                 <td class="permission-cell">
                   <label class="checkbox-wrapper" *ngIf="row.permissions.create">
                     <input
@@ -128,6 +155,7 @@
                     />
                   </label>
                 </td>
+
                 <td class="permission-cell">
                   <label class="checkbox-wrapper" *ngIf="row.permissions.update">
                     <input
@@ -137,6 +165,7 @@
                     />
                   </label>
                 </td>
+
                 <td class="permission-cell">
                   <label class="checkbox-wrapper" *ngIf="row.permissions.delete">
                     <input

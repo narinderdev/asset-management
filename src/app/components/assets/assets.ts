@@ -48,6 +48,7 @@ interface ApiAssetDto {
 export class AssetsComponent implements OnInit {
   assets: Asset[] = [];
   filteredAssets: Asset[] = [];
+
   hasLoaded = false;
   loadingRows = Array.from({ length: 5 });
 
@@ -59,9 +60,11 @@ export class AssetsComponent implements OnInit {
 
   isLoading = false;
   errorMessage?: string;
+
   isDeleteModalOpen = false;
   assetToDelete?: Asset;
   isDeleting = false;
+
   canCreateAssets = false;
   canEditAssets = false;
   canDeleteAssets = false;
@@ -87,24 +90,34 @@ export class AssetsComponent implements OnInit {
 
   private loadAssets(): void {
     const pageIndex = Math.max(0, this.currentPage);
+
     this.hasLoaded = false;
     this.isLoading = true;
     this.errorMessage = undefined;
 
     this.assetsService
       .fetchAssets(pageIndex, this.itemsPerPage)
-      .pipe(finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }))
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        })
+      )
       .subscribe({
         next: (response: ApiAssetResponse) => {
           const content = response.data?.content ?? [];
-          this.assets = content.map(asset => this.transformApiAsset(asset));
+          this.assets = content.map(a => this.transformApiAsset(a));
+
           this.totalAssets = response.data?.totalElements ?? this.assets.length;
+
           const apiPage = response.data?.number;
           if (typeof apiPage === 'number') {
             this.currentPage = apiPage;
+          }
+
+          const apiSize = response.data?.size;
+          if (typeof apiSize === 'number' && apiSize > 0) {
+            this.itemsPerPage = apiSize;
           }
 
           this.hasLoaded = true;
@@ -112,12 +125,19 @@ export class AssetsComponent implements OnInit {
           this.cdr.detectChanges();
         },
         error: () => {
-          this.errorMessage = undefined;
-          this.toastr.error('Unable to load assets. Please refresh or try again later.');
+          this.assets = [];
+          this.filteredAssets = [];
+          this.totalAssets = 0;
           this.hasLoaded = true;
+          this.toastr.error('Unable to load assets. Please try again.');
           this.cdr.detectChanges();
         }
       });
+  }
+
+  /** keeps DOM stable */
+  trackByAsset(_: number, asset: Asset): string | number {
+    return asset.id ?? asset.assetId;
   }
 
   private transformApiAsset(asset: ApiAssetDto): Asset {
@@ -128,9 +148,10 @@ export class AssetsComponent implements OnInit {
       category: asset.assetCategory ?? 'Uncategorized',
       type: asset.assetType ?? '—',
       location: this.getApiLocation(asset.location) || 'Not Assigned',
-      lastServicedDate: asset.warrantyLifecycle?.lastMaintenanceDate
-        ?? asset.financialDetails?.acquisitionDate
-        ?? '—',
+      lastServicedDate:
+        asset.warrantyLifecycle?.lastMaintenanceDate ??
+        asset.financialDetails?.acquisitionDate ??
+        '—',
       warrantyExpiry: asset.warrantyLifecycle?.warrantyEnd ?? '—',
       status: this.normalizeStatus(asset.status)
     };
@@ -145,10 +166,12 @@ export class AssetsComponent implements OnInit {
       case 'IN_REPAIR':
       case 'UNDER_MAINTENANCE':
         return 'In Repair';
+
       case 'RETIRED':
       case 'DECOMMISSIONED':
       case 'RETIRED_FROM_SERVICE':
-        return 'Retried';
+        return 'Retried'; // ✔ matches Asset model
+
       case 'IN_SERVICE':
       case 'ACTIVE':
       default:
@@ -157,24 +180,18 @@ export class AssetsComponent implements OnInit {
   }
 
   private getApiLocation(location?: string | { primaryLocation?: string }): string {
-    if (!location) {
-      return '';
-    }
-    if (typeof location === 'string') {
-      return location;
-    }
+    if (!location) return '';
+    if (typeof location === 'string') return location;
     return location.primaryLocation ?? '';
   }
 
   applyFilters(): void {
-    const filterText = (value: string) => value.toLowerCase();
+    const filter = (v: string) => (v || '').toLowerCase();
 
-    this.filteredAssets = this.assets.filter(asset => {
-      const matchesAssetName = !this.filterAssetName ||
-        filterText(asset.assetName).includes(filterText(this.filterAssetName));
-
-      return matchesAssetName;
-    });
+    this.filteredAssets = this.assets.filter(asset =>
+      !this.filterAssetName ||
+      filter(asset.assetName).includes(filter(this.filterAssetName))
+    );
   }
 
   searchAssets(): void {
@@ -183,14 +200,14 @@ export class AssetsComponent implements OnInit {
 
   previousPage(): void {
     if (this.currentPage > 0 && !this.isLoading) {
-      this.currentPage -= 1;
+      this.currentPage--;
       this.loadAssets();
     }
   }
 
   nextPage(): void {
     if (this.currentPage < this.totalPages - 1 && !this.isLoading) {
-      this.currentPage += 1;
+      this.currentPage++;
       this.loadAssets();
     }
   }
@@ -200,17 +217,13 @@ export class AssetsComponent implements OnInit {
   }
 
   get displayStart(): number {
-    if (!this.totalAssets) {
-      return 0;
-    }
-    return this.currentPage * this.itemsPerPage + 1;
+    return this.totalAssets ? this.currentPage * this.itemsPerPage + 1 : 0;
   }
 
   get displayEnd(): number {
-    if (!this.totalAssets) {
-      return 0;
-    }
-    return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalAssets);
+    return this.totalAssets
+      ? Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalAssets)
+      : 0;
   }
 
   refreshAssets(): void {
@@ -220,39 +233,26 @@ export class AssetsComponent implements OnInit {
   }
 
   addNewAsset(): void {
-    if (!this.canCreateAssets) {
-      return;
+    if (this.canCreateAssets) {
+      this.router.navigate(['/assets/add-asset']);
     }
-    this.router.navigate(['/assets/add-asset']);
   }
 
   editAsset(asset: Asset): void {
-    if (!this.canEditAssets) {
-      return;
-    }
-    const id = asset.id?.toString();
-    if (!id) {
-      console.warn('Unable to edit asset without identifier');
-      return;
-    }
+    if (!this.canEditAssets || !asset.id) return;
+
     this.router.navigate(['/assets', 'add-asset', 'asset-master'], {
-      queryParams: { id }
+      queryParams: { id: asset.id }
     });
   }
 
-  toggleDropdown(asset: Asset): void {
-    console.log('Toggle dropdown for:', asset);
-  }
-
   viewAsset(asset: Asset): void {
-    const idParam = asset.id?.toString() ?? asset.assetId;
-    this.router.navigate(['/assets/view', idParam]);
+    const id = asset.id?.toString() ?? asset.assetId;
+    this.router.navigate(['/assets/view', id]);
   }
 
   deleteAsset(asset: Asset): void {
-    if (!this.canDeleteAssets) {
-      return;
-    }
+    if (!this.canDeleteAssets) return;
     this.assetToDelete = asset;
     this.isDeleteModalOpen = true;
   }
@@ -265,25 +265,21 @@ export class AssetsComponent implements OnInit {
   }
 
   confirmDeleteAsset(): void {
-    if (!this.canDeleteAssets || !this.assetToDelete) {
-      return;
-    }
-
-    const id = this.assetToDelete.id?.toString();
-    if (!id) {
-      this.toastr.error('Unable to delete asset. Missing identifier.');
+    if (!this.canDeleteAssets || !this.assetToDelete?.id) {
       this.closeDeleteModal();
       return;
     }
 
     this.isDeleting = true;
-    this.errorMessage = undefined;
 
-    this.assetsService.deleteAsset(id)
-      .pipe(finalize(() => {
-        this.isDeleting = false;
-        this.cdr.detectChanges();
-      }))
+    this.assetsService
+      .deleteAsset(this.assetToDelete.id.toString())
+      .pipe(
+        finalize(() => {
+          this.isDeleting = false;
+          this.cdr.detectChanges();
+        })
+      )
       .subscribe({
         next: () => {
           this.toastr.success('Asset deleted successfully.');
@@ -291,9 +287,8 @@ export class AssetsComponent implements OnInit {
           this.loadAssets();
         },
         error: () => {
-          this.toastr.error('Unable to delete asset. Please try again.');
-          this.errorMessage = 'Unable to delete asset. Please try again.';
-          this.cdr.detectChanges();
+          this.toastr.error('Unable to delete asset.');
+          this.closeDeleteModal();
         }
       });
   }

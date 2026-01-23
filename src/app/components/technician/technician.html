@@ -4,7 +4,10 @@
     <button
       class="create-service-btn"
       *ngIf="canCreateTechnicians"
-      (click)="addTechnician()">+ Add Technician</button>
+      (click)="addTechnician()"
+    >
+      + Add Technician
+    </button>
   </div>
 
   <div class="table-status" *ngIf="errorMessage">{{ errorMessage }}</div>
@@ -22,8 +25,10 @@
             <th>Actions</th>
           </tr>
         </thead>
+
         <tbody>
-          <ng-container *ngIf="loading">
+          <!-- Loading skeleton -->
+          <ng-container *ngIf="loading; else loadedState">
             <tr *ngFor="let _ of loadingRows" class="skeleton-row">
               <td><span class="skeleton skeleton-text medium"></span></td>
               <td><span class="skeleton skeleton-text short"></span></td>
@@ -33,46 +38,65 @@
               <td><span class="skeleton skeleton-text tiny"></span></td>
             </tr>
           </ng-container>
-          <tr *ngIf="!technicians.length && !loading && hasLoaded">
-            <td colspan="6" class="empty-row">No technicians to display.</td>
-          </tr>
-          <tr *ngFor="let tech of technicians">
-            <td>{{ tech.name }}</td>
-            <td>{{ tech.role }}</td>
-            <td>{{ tech.team }}</td>
-            <td>{{ tech.location }}</td>
-            <td>
-              <span
-                class="status-chip"
-                [ngClass]="{
-                  'status-green': tech.availability === 'Active',
-                  'status-red': tech.availability === 'Unavailable',
-                  'status-grey': tech.availability === 'On Leave'
-                }"
-              >
-                {{ formatStatus(tech.availability) }}
-              </span>
-            </td>
-            <td class="actions-cell">
-              <button class="action-icon" aria-label="View technician" (click)="viewTechnician(tech)">
-                <img src="assets/icons/Vector.svg" alt="View" />
-              </button>
-              <button
-                class="action-icon"
-                aria-label="Edit technician"
-                *ngIf="canEditTechnicians"
-                (click)="editTechnician(tech)">
-                <img src="assets/icons/edit.svg" alt="Edit" />
-              </button>
-              <button
-                class="action-icon danger"
-                aria-label="Delete technician"
-                *ngIf="canDeleteTechnicians"
-                (click)="openDeleteModal(tech)">
-                <img src="assets/icons/delete.svg" alt="Delete" />
-              </button>
-            </td>
-          </tr>
+
+          <!-- Loaded state -->
+          <ng-template #loadedState>
+            <!-- Data rows (ONLY when list has items) -->
+            <ng-container *ngIf="(technicians?.length ?? 0) > 0; else emptyState">
+              <tr *ngFor="let tech of technicians; trackBy: trackByTechId">
+                <td>{{ tech.name }}</td>
+                <td>{{ tech.role }}</td>
+                <td>{{ tech.team }}</td>
+                <td>{{ tech.location }}</td>
+                <td>
+                  <span
+                    class="status-chip"
+                    [ngClass]="{
+                      'status-green': tech.availability === 'Active',
+                      'status-red': tech.availability === 'Unavailable',
+                      'status-grey': tech.availability === 'On Leave'
+                    }"
+                  >
+                    {{ formatStatus(tech.availability) }}
+                  </span>
+                </td>
+                <td class="actions-cell">
+                  <button
+                    class="action-icon"
+                    aria-label="View technician"
+                    (click)="viewTechnician(tech)"
+                  >
+                    <img src="assets/icons/Vector.svg" alt="View" />
+                  </button>
+
+                  <button
+                    class="action-icon"
+                    aria-label="Edit technician"
+                    *ngIf="canEditTechnicians"
+                    (click)="editTechnician(tech)"
+                  >
+                    <img src="assets/icons/edit.svg" alt="Edit" />
+                  </button>
+
+                  <button
+                    class="action-icon danger"
+                    aria-label="Delete technician"
+                    *ngIf="canDeleteTechnicians"
+                    (click)="openDeleteModal(tech)"
+                  >
+                    <img src="assets/icons/delete.svg" alt="Delete" />
+                  </button>
+                </td>
+              </tr>
+            </ng-container>
+
+            <!-- Empty row (ONLY when loaded AND list is empty) -->
+            <ng-template #emptyState>
+              <tr *ngIf="hasLoaded">
+                <td colspan="6" class="empty-row">No technicians to display.</td>
+              </tr>
+            </ng-template>
+          </ng-template>
         </tbody>
       </table>
     </div>
@@ -84,17 +108,31 @@
   </div>
 
   <div class="pagination" *ngIf="totalTechnicians > 0">
-    <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ totalTechnicians }}</span>
+    <span class="pager-info">
+      Showing {{ displayStart }} - {{ displayEnd }} of {{ totalTechnicians }}
+    </span>
+
     <div class="pager-actions">
-      <button class="pager-btn" (click)="previousPage()" [disabled]="currentPage === 0 || loading">
+      <button
+        class="pager-btn"
+        (click)="previousPage()"
+        [disabled]="currentPage === 0 || loading"
+      >
         Previous
       </button>
+
       <span class="pager-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
-      <button class="pager-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1 || loading">
+
+      <button
+        class="pager-btn"
+        (click)="nextPage()"
+        [disabled]="currentPage >= totalPages - 1 || loading"
+      >
         Next
       </button>
     </div>
   </div>
+
   <app-delete-modal
     [isOpen]="isDeleteModalOpen"
     [deleting]="isDeleting"

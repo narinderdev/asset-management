@@ -35,9 +35,11 @@ export class TechnicianComponent implements OnInit {
   hasLoaded = false;
   loadingRows = Array.from({ length: 5 });
   errorMessage: string | null = null;
+
   isDeleteModalOpen = false;
   technicianToDelete?: Technician;
   isDeleting = false;
+
   canCreateTechnicians = false;
   canEditTechnicians = false;
   canDeleteTechnicians = false;
@@ -85,52 +87,6 @@ export class TechnicianComponent implements OnInit {
     this.router.navigate(['/technicians/edit', technician.id]);
   }
 
-  formatStatus(availability: Availability): string {
-    return availability;
-  }
-
-  private loadTechnicians(): void {
-    const pageIndex = Math.max(0, this.currentPage);
-    this.loading = true;
-    this.hasLoaded = false;
-    this.errorMessage = null;
-
-    this.technicianService
-      .fetchTechnicians(pageIndex, this.itemsPerPage)
-      .pipe(
-        finalize(() => {
-          this.loading = false;
-          this.cdr.detectChanges();
-        })
-      )
-      .subscribe({
-        next: (response) => {
-          const apiTechnicians = response.data?.technicians ?? [];
-          this.technicians = apiTechnicians.map((tech) => this.mapTechnician(tech));
-          this.totalTechnicians = response.data?.totalElements ?? this.technicians.length;
-          const apiSize = response.data?.size;
-          if (typeof apiSize === 'number' && apiSize > 0) {
-            this.itemsPerPage = apiSize;
-          }
-          const apiPage = response.data?.page;
-          if (typeof apiPage === 'number') {
-            this.currentPage = apiPage;
-          }
-          this.hasLoaded = true;
-          this.errorMessage = null;
-          this.cdr.detectChanges();
-        },
-        error: () => {
-          this.errorMessage = null;
-          this.toastr.error('Unable to load technicians right now.');
-          this.technicians = [];
-          this.totalTechnicians = 0;
-          this.hasLoaded = true;
-          this.cdr.detectChanges();
-        }
-      });
-  }
-
   openDeleteModal(technician: Technician): void {
     if (!this.canDeleteTechnicians) {
       return;
@@ -156,9 +112,11 @@ export class TechnicianComponent implements OnInit {
     this.isDeleting = true;
     this.technicianService
       .deleteTechnician(this.technicianToDelete.id)
-      .pipe(finalize(() => {
-        this.isDeleting = false;
-      }))
+      .pipe(
+        finalize(() => {
+          this.isDeleting = false;
+        })
+      )
       .subscribe({
         next: () => {
           this.toastr.success('Technician deleted successfully.');
@@ -172,8 +130,65 @@ export class TechnicianComponent implements OnInit {
       });
   }
 
+  formatStatus(availability: Availability): string {
+    return availability;
+  }
+
+  /** IMPORTANT: stabilizes DOM updates so empty row won't "stick" */
+  trackByTechId(_: number, tech: Technician): number {
+    return tech.id;
+  }
+
+  private loadTechnicians(): void {
+    const pageIndex = Math.max(0, this.currentPage);
+
+    this.loading = true;
+    this.hasLoaded = false;
+    this.errorMessage = null;
+
+    this.technicianService
+      .fetchTechnicians(pageIndex, this.itemsPerPage)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          const apiTechnicians = response.data?.technicians ?? [];
+
+          this.technicians = apiTechnicians.map((tech) => this.mapTechnician(tech));
+          this.totalTechnicians = response.data?.totalElements ?? this.technicians.length;
+
+          const apiSize = response.data?.size;
+          if (typeof apiSize === 'number' && apiSize > 0) {
+            this.itemsPerPage = apiSize;
+          }
+
+          const apiPage = response.data?.page;
+          if (typeof apiPage === 'number') {
+            this.currentPage = apiPage;
+          }
+
+          this.hasLoaded = true;
+          this.errorMessage = null;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.errorMessage = null;
+          this.toastr.error('Unable to load technicians right now.');
+          this.technicians = [];
+          this.totalTechnicians = 0;
+          this.hasLoaded = true;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
   private mapTechnician(apiTech: ApiTechnician): Technician {
     const teamFromMembership = apiTech.teamMemberships?.[0]?.teamName;
+
     return {
       id: apiTech.id ?? 0,
       name: this.extractFullName(apiTech),
