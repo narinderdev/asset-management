@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
@@ -56,13 +56,15 @@ export class VendorManagementComponent implements OnInit {
   canCreateVendors = false;
   canEditVendors = false;
   canDeleteVendors = false;
+  showEmptyState = false;
 
   constructor(
     private router: Router,
     private vendorService: VendorService,
     private cdr: ChangeDetectorRef,
     private toastr: ToastrService,
-    private permissionService: PermissionService
+    private permissionService: PermissionService,
+    private zone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -80,36 +82,52 @@ export class VendorManagementComponent implements OnInit {
     const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
     this.hasLoaded = false;
+    this.showEmptyState = false;
     this.errorMessage = undefined;
+    this.vendors = [];
 
     this.vendorService
       .fetchVendors(pageIndex, this.itemsPerPage)
-      .pipe(finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }))
       .subscribe({
         next: response => {
-          const content = response.data?.content ?? [];
-          this.vendors = content.map(vendor => this.mapVendor(vendor));
-          this.totalVendors = response.data?.totalElements ?? this.vendors.length;
-          if (typeof response.data?.size === 'number' && response.data.size > 0) {
-            this.itemsPerPage = response.data.size;
-          }
-          const apiPage = (response.data as any)?.number;
-          if (typeof apiPage === 'number') {
-            this.currentPage = apiPage;
-          }
-          this.hasLoaded = true;
-          this.cdr.detectChanges();
+          this.zone.run(() => {
+            try {
+              const content = response.data?.content ?? [];
+              this.vendors = content.map(vendor => this.mapVendor(vendor));
+              this.showEmptyState = this.vendors.length === 0;
+              this.totalVendors = response.data?.totalElements ?? this.vendors.length;
+              if (typeof response.data?.size === 'number' && response.data.size > 0) {
+                this.itemsPerPage = response.data.size;
+              }
+              const apiPage = (response.data as any)?.number;
+              if (typeof apiPage === 'number') {
+                this.currentPage = apiPage;
+              }
+            } finally {
+              this.hasLoaded = true;
+              this.isLoading = false;
+              this.cdr.detectChanges();
+            }
+          });
         },
         error: () => {
-          this.errorMessage = undefined;
-          this.toastr.error('Unable to load vendors right now. Please try again later.');
-          this.vendors = [];
-          this.totalVendors = 0;
-          this.hasLoaded = true;
-          this.cdr.detectChanges();
+          this.zone.run(() => {
+            this.errorMessage = undefined;
+            this.toastr.error('Unable to load vendors right now. Please try again later.');
+            this.vendors = [];
+            this.showEmptyState = true;
+            this.totalVendors = 0;
+            this.hasLoaded = true;
+            this.isLoading = false;
+            this.cdr.detectChanges();
+          });
+        },
+        complete: () => {
+          this.zone.run(() => {
+            this.isLoading = false;
+            this.hasLoaded = true;
+            this.cdr.detectChanges();
+          });
         }
       });
   }

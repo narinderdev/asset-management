@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
@@ -36,6 +36,7 @@ export class InventoryComponent implements OnInit {
   hasLoaded = false;
   loadingRows = Array.from({ length: 5 });
   errorMessage?: string;
+  showEmptyState = false;
 
   isDeleteModalOpen = false;
   itemToDelete?: InventoryItem;
@@ -49,7 +50,8 @@ export class InventoryComponent implements OnInit {
     private inventoryService: InventoryService,
     private cdr: ChangeDetectorRef,
     private toastr: ToastrService,
-    private permissionService: PermissionService
+    private permissionService: PermissionService,
+    private zone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -67,34 +69,49 @@ export class InventoryComponent implements OnInit {
     const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
     this.hasLoaded = false;
+    this.showEmptyState = false;
     this.errorMessage = undefined;
+    this.inventory = [];
 
     this.inventoryService
       .fetchInventory(pageIndex, this.itemsPerPage)
-      .pipe(finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }))
       .subscribe({
         next: response => {
-          const content = response.data?.content ?? [];
-          this.inventory = content.map(item => this.mapItem(item));
-          this.totalInventory = response.data?.totalElements ?? this.inventory.length;
-          if (typeof response.data?.size === 'number' && response.data.size > 0) {
-            this.itemsPerPage = response.data.size;
-          }
-          const apiPage = response.data?.number;
-          if (typeof apiPage === 'number') {
-            this.currentPage = apiPage;
-          }
-          this.hasLoaded = true;
+          this.zone.run(() => {
+            const content = response.data?.content ?? [];
+            this.inventory = content.map(item => this.mapItem(item));
+            this.showEmptyState = this.inventory.length === 0;
+            this.totalInventory = response.data?.totalElements ?? this.inventory.length;
+            if (typeof response.data?.size === 'number' && response.data.size > 0) {
+              this.itemsPerPage = response.data.size;
+            }
+            const apiPage = response.data?.number;
+            if (typeof apiPage === 'number') {
+              this.currentPage = apiPage;
+            }
+            this.hasLoaded = true;
+            this.isLoading = false;
+            this.cdr.detectChanges();
+          });
         },
         error: () => {
-          this.errorMessage = undefined;
-          this.toastr.error('Unable to load inventory. Please try again later.');
-          this.inventory = [];
-          this.totalInventory = 0;
-          this.hasLoaded = true;
+          this.zone.run(() => {
+            this.errorMessage = undefined;
+            this.toastr.error('Unable to load inventory. Please try again later.');
+            this.inventory = [];
+            this.showEmptyState = true;
+            this.totalInventory = 0;
+            this.hasLoaded = true;
+            this.isLoading = false;
+            this.cdr.detectChanges();
+          });
+        },
+        complete: () => {
+          this.zone.run(() => {
+            this.isLoading = false;
+            this.hasLoaded = true;
+            this.cdr.detectChanges();
+          });
         }
       });
   }

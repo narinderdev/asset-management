@@ -28,7 +28,7 @@
           </tr>
         </thead>
         <tbody>
-          <ng-container *ngIf="isLoading">
+          <ng-container *ngIf="isLoading; else loadedInventory">
             <tr *ngFor="let _ of loadingRows" class="skeleton-row">
               <td><span class="skeleton skeleton-text short"></span></td>
               <td><span class="skeleton skeleton-text medium"></span></td>
@@ -41,53 +41,56 @@
               <td><span class="skeleton skeleton-text tiny"></span></td>
             </tr>
           </ng-container>
-          <tr *ngIf="!inventory.length && !isLoading && hasLoaded">
-            <td colspan="9" class="empty-row">No inventory records to display.</td>
-          </tr>
-          <tr *ngFor="let item of inventory">
-            <td>{{ item.itemId }}</td>
-            <td>{{ item.itemName }}</td>
-            <td>{{ item.category }}</td>
-            <td>{{ item.manufacturer }}</td>
-            <td [ngClass]="{ 'low-stock': item.stockLevel <= item.reorderPoint }">{{ item.stockLevel }}</td>
-          <td>{{ item.reorderPoint }}</td>
-          <td>{{ item.costPerUnit }}</td>
-          <td>
-            <span class="status-chip"
-                    [ngClass]="{
-                      'status-green': item.status === 'In Stock',
-                      'status-red': item.status === 'Low Stock',
-                      'status-grey': item.status === 'Out of Stock'
-                    }">
-              {{ item.status }}
-            </span>
-          </td>
-          <td class="actions-cell">
-            <button
-              class="action-icon"
-              aria-label="View item"
-              (click)="viewInventory(item)"
-            >
-              <img src="assets/icons/Vector.svg" alt="View" />
-            </button>
-            <button
-              class="action-icon"
-              aria-label="Edit item"
-              *ngIf="canEditInventory"
-              (click)="editInventory(item)"
-            >
-              <img src="assets/icons/edit.svg" alt="Edit" />
-            </button>
-            <button
-              class="action-icon danger"
-              aria-label="Delete item"
-              *ngIf="canDeleteInventory"
-              (click)="promptDeleteInventory(item)"
-            >
-              <img src="assets/icons/delete.svg" alt="Delete" />
-            </button>
-            </td>
-          </tr>
+
+          <ng-template #loadedInventory>
+            <tr *ngIf="showEmptyState">
+              <td colspan="9" class="empty-row">No inventory records to display.</td>
+            </tr>
+            <tr *ngFor="let item of inventory">
+              <td>{{ item.itemId }}</td>
+              <td>{{ item.itemName }}</td>
+              <td>{{ item.category }}</td>
+              <td>{{ item.manufacturer }}</td>
+              <td [ngClass]="{ 'low-stock': item.stockLevel <= item.reorderPoint }">{{ item.stockLevel }}</td>
+              <td>{{ item.reorderPoint }}</td>
+              <td>{{ item.costPerUnit }}</td>
+              <td>
+                <span class="status-chip"
+                        [ngClass]="{
+                          'status-green': item.status === 'In Stock',
+                          'status-red': item.status === 'Low Stock',
+                          'status-grey': item.status === 'Out of Stock'
+                        }">
+                  {{ item.status }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button
+                  class="action-icon"
+                  aria-label="View item"
+                  (click)="viewInventory(item)"
+                >
+                  <img src="assets/icons/Vector.svg" alt="View" />
+                </button>
+                <button
+                  class="action-icon"
+                  aria-label="Edit item"
+                  *ngIf="canEditInventory"
+                  (click)="editInventory(item)"
+                >
+                  <img src="assets/icons/edit.svg" alt="Edit" />
+                </button>
+                <button
+                  class="action-icon danger"
+                  aria-label="Delete item"
+                  *ngIf="canDeleteInventory"
+                  (click)="promptDeleteInventory(item)"
+                >
+                  <img src="assets/icons/delete.svg" alt="Delete" />
+                </button>
+              </td>
+            </tr>
+          </ng-template>
         </tbody>
       </table>
     </div>

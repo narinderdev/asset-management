@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
@@ -33,6 +33,7 @@ export class PreventiveMaintenanceComponent implements OnInit {
   itemsPerPage = 10;
   isLoading = false;
   errorMessage?: string;
+  hasLoaded = false;
   isDeleteModalOpen = false;
   templateToDelete?: PreventiveMaintenanceTemplate;
   isDeleting = false;
@@ -51,7 +52,8 @@ export class PreventiveMaintenanceComponent implements OnInit {
     private pmTemplateService: PmTemplateService,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef,
-    private permissionService: PermissionService
+    private permissionService: PermissionService,
+    private zone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -84,104 +86,127 @@ export class PreventiveMaintenanceComponent implements OnInit {
   private loadTemplates(): void {
     const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
+    this.hasLoaded = false;
     this.errorMessage = undefined;
+    this.templates = [];
 
     if (this.isPredictiveMode) {
       this.pmTemplateService
         .fetchPredictiveThresholds(pageIndex, this.itemsPerPage)
         .pipe(finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
+          this.zone.run(() => {
+            this.isLoading = false;
+            this.hasLoaded = true;
+            this.cdr.detectChanges();
+          });
         }))
         .subscribe({
           next: response => {
-            const content: Array<{
-              id?: number;
-              assetId?: number;
-              assetName?: string;
-              meterType?: string;
-              autoCreateWo?: boolean;
-              defaultPriority?: string;
-              meterReadings?: Array<{ readingTime?: string }>;
-            }> = (response.data as any)?.thresholds ?? response.data?.content ?? [];
-            this.templates = content.map(template => this.mapPredictive(template));
-            this.totalTemplates = response.data?.totalElements ?? this.templates.length;
-            const apiSize = (response.data as any)?.size;
-            if (typeof apiSize === 'number' && apiSize > 0) {
-              this.itemsPerPage = apiSize;
-            }
-            const apiPage = (response.data as any)?.page ?? (response.data as any)?.number;
-            if (typeof apiPage === 'number') {
-              this.currentPage = apiPage;
-            }
-            this.cdr.detectChanges();
+            this.zone.run(() => {
+              const content: Array<{
+                id?: number;
+                assetId?: number;
+                assetName?: string;
+                meterType?: string;
+                autoCreateWo?: boolean;
+                defaultPriority?: string;
+                meterReadings?: Array<{ readingTime?: string }>;
+              }> = (response.data as any)?.thresholds ?? response.data?.content ?? [];
+              this.templates = content.map(template => this.mapPredictive(template));
+              this.totalTemplates = response.data?.totalElements ?? this.templates.length;
+              const apiSize = (response.data as any)?.size;
+              if (typeof apiSize === 'number' && apiSize > 0) {
+                this.itemsPerPage = apiSize;
+              }
+              const apiPage = (response.data as any)?.page ?? (response.data as any)?.number;
+              if (typeof apiPage === 'number') {
+                this.currentPage = apiPage;
+              }
+              this.cdr.detectChanges();
+            });
           },
           error: () => {
-            this.errorMessage = undefined;
-            this.toastr.error('Unable to load predictive maintenance items. Please try again later.');
-            this.templates = [];
-            this.totalTemplates = 0;
-            this.cdr.detectChanges();
+            this.zone.run(() => {
+              this.errorMessage = undefined;
+              this.toastr.error('Unable to load predictive maintenance items. Please try again later.');
+              this.templates = [];
+              this.totalTemplates = 0;
+              this.cdr.detectChanges();
+            });
           }
         });
     } else if (this.isEmergencyMode) {
       this.pmTemplateService
         .fetchEmergencyMaintenance(pageIndex, this.itemsPerPage)
         .pipe(finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
+          this.zone.run(() => {
+            this.isLoading = false;
+            this.hasLoaded = true;
+            this.cdr.detectChanges();
+          });
         }))
         .subscribe({
           next: response => {
-            const incidents = response.data?.incidents ?? [];
-            this.templates = incidents.map(incident => this.mapEmergency(incident));
-            this.totalTemplates = response.data?.totalElements ?? this.templates.length;
-            const apiSize = (response.data as any)?.size;
-            if (typeof apiSize === 'number' && apiSize > 0) {
-              this.itemsPerPage = apiSize;
-            }
-            const apiPage = (response.data as any)?.page ?? (response.data as any)?.number;
-            if (typeof apiPage === 'number') {
-              this.currentPage = apiPage;
-            }
-            this.cdr.detectChanges();
+            this.zone.run(() => {
+              const incidents = response.data?.incidents ?? [];
+              this.templates = incidents.map(incident => this.mapEmergency(incident));
+              this.totalTemplates = response.data?.totalElements ?? this.templates.length;
+              const apiSize = (response.data as any)?.size;
+              if (typeof apiSize === 'number' && apiSize > 0) {
+                this.itemsPerPage = apiSize;
+              }
+              const apiPage = (response.data as any)?.page ?? (response.data as any)?.number;
+              if (typeof apiPage === 'number') {
+                this.currentPage = apiPage;
+              }
+              this.cdr.detectChanges();
+            });
           },
           error: () => {
-            this.errorMessage = undefined;
-            this.toastr.error('Unable to load emergency maintenance items. Please try again later.');
-            this.templates = [];
-            this.totalTemplates = 0;
-            this.cdr.detectChanges();
+            this.zone.run(() => {
+              this.errorMessage = undefined;
+              this.toastr.error('Unable to load emergency maintenance items. Please try again later.');
+              this.templates = [];
+              this.totalTemplates = 0;
+              this.cdr.detectChanges();
+            });
           }
         });
     } else {
       this.pmTemplateService
         .fetchPreventiveMaintenance(pageIndex, this.itemsPerPage)
         .pipe(finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
+          this.zone.run(() => {
+            this.isLoading = false;
+            this.hasLoaded = true;
+            this.cdr.detectChanges();
+          });
         }))
         .subscribe({
           next: response => {
-            const content = response.data?.content ?? [];
-            this.templates = content.map(template => this.mapTemplate(template));
-            this.totalTemplates = response.data?.totalElements ?? this.templates.length;
-            const apiSize = (response.data as any)?.size;
-            if (typeof apiSize === 'number' && apiSize > 0) {
-              this.itemsPerPage = apiSize;
-            }
-            const apiPage = (response.data as any)?.page ?? (response.data as any)?.number;
-            if (typeof apiPage === 'number') {
-              this.currentPage = apiPage;
-            }
-            this.cdr.detectChanges();
+            this.zone.run(() => {
+              const content = response.data?.content ?? [];
+              this.templates = content.map(template => this.mapTemplate(template));
+              this.totalTemplates = response.data?.totalElements ?? this.templates.length;
+              const apiSize = (response.data as any)?.size;
+              if (typeof apiSize === 'number' && apiSize > 0) {
+                this.itemsPerPage = apiSize;
+              }
+              const apiPage = (response.data as any)?.page ?? (response.data as any)?.number;
+              if (typeof apiPage === 'number') {
+                this.currentPage = apiPage;
+              }
+              this.cdr.detectChanges();
+            });
           },
           error: () => {
-            this.errorMessage = undefined;
-            this.toastr.error('Unable to load preventive maintenance templates. Please try again later.');
-            this.templates = [];
-            this.totalTemplates = 0;
-            this.cdr.detectChanges();
+            this.zone.run(() => {
+              this.errorMessage = undefined;
+              this.toastr.error('Unable to load preventive maintenance templates. Please try again later.');
+              this.templates = [];
+              this.totalTemplates = 0;
+              this.cdr.detectChanges();
+            });
           }
         });
     }

@@ -29,46 +29,54 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngIf="!templates.length && !isLoading">
-          <td [attr.colspan]="7" class="empty-row">{{ emptyStateText }}</td>
-        </tr>
-        <tr *ngFor="let template of templates">
-          <td>{{ template.title }}</td>
-          <td>{{ template.assetName }}</td>
-          <td>{{ template.location }}</td>
-          <td>{{ template.startDate }}</td>
-          <td>{{ template.priority }}</td>
-          <td>
-            <span class="status-chip" [ngClass]="{ 'status-green': template.active }">
-              {{ template.active ? 'Yes' : 'No' }}
-            </span>
-          </td>
-          <td class="actions-cell">
-            <button
-              class="action-icon"
-              aria-label="View template"
-              (click)="viewTemplate(template)"
-            >
-              <img src="assets/icons/Vector.svg" alt="View" />
-            </button>
-            <button
-              class="action-icon"
-              aria-label="Edit template"
-              *ngIf="canEditPm && !isEmergencyMode"
-              (click)="editTemplate(template)"
-            >
-              <img src="assets/icons/edit.svg" alt="Edit" />
-            </button>
-            <button
-              class="action-icon danger"
-              aria-label="Delete template"
-              *ngIf="canDeletePm && !isEmergencyMode"
-              (click)="promptDeleteTemplate(template)"
-            >
-              <img src="assets/icons/delete.svg" alt="Delete" />
-            </button>
-          </td>
-        </tr>
+        <ng-container *ngIf="isLoading; else loadedTemplates">
+          <tr>
+            <td colspan="7" class="empty-row">Loading templates...</td>
+          </tr>
+        </ng-container>
+
+        <ng-template #loadedTemplates>
+          <tr *ngIf="hasLoaded && !templates.length">
+            <td [attr.colspan]="7" class="empty-row">{{ emptyStateText }}</td>
+          </tr>
+          <tr *ngFor="let template of templates">
+            <td>{{ template.title }}</td>
+            <td>{{ template.assetName }}</td>
+            <td>{{ template.location }}</td>
+            <td>{{ template.startDate }}</td>
+            <td>{{ template.priority }}</td>
+            <td>
+              <span class="status-chip" [ngClass]="{ 'status-green': template.active }">
+                {{ template.active ? 'Yes' : 'No' }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button
+                class="action-icon"
+                aria-label="View template"
+                (click)="viewTemplate(template)"
+              >
+                <img src="assets/icons/Vector.svg" alt="View" />
+              </button>
+              <button
+                class="action-icon"
+                aria-label="Edit template"
+                *ngIf="canEditPm && !isEmergencyMode"
+                (click)="editTemplate(template)"
+              >
+                <img src="assets/icons/edit.svg" alt="Edit" />
+              </button>
+              <button
+                class="action-icon danger"
+                aria-label="Delete template"
+                *ngIf="canDeletePm && !isEmergencyMode"
+                (click)="promptDeleteTemplate(template)"
+              >
+                <img src="assets/icons/delete.svg" alt="Delete" />
+              </button>
+            </td>
+          </tr>
+        </ng-template>
       </tbody>
     </table>
   </div>

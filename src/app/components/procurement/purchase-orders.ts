@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
@@ -36,13 +36,17 @@ export class PurchaseOrdersComponent implements OnInit {
   selectedStatus = 'ALL';
   statusOptions = ['ALL', 'Approved', 'Submitted', 'Pending Approval', 'Rejected', 'Draft', 'Completed'];
   isLoading = false;
+  hasLoaded = false;
+  showEmptyState = false;
   errorMessage?: string;
+  loadingRows = Array.from({ length: 5 });
 
   constructor(
     private procurementService: ProcurementService,
     private cdr: ChangeDetectorRef,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private zone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -52,36 +56,52 @@ export class PurchaseOrdersComponent implements OnInit {
   private loadPurchaseOrders(): void {
     const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
+    this.hasLoaded = false;
+    this.showEmptyState = false;
     this.errorMessage = undefined;
+    this.orders = [];
+    this.filteredOrders = [];
 
     this.procurementService
       .fetchPurchaseOrders(pageIndex, this.itemsPerPage)
-      .pipe(
-        finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        })
-      )
       .subscribe({
         next: (response: PurchaseOrderListResponse) => {
-          const content = response.data?.content ?? [];
-          this.orders = content.map(item => this.mapOrder(item));
-          this.totalOrders = response.data?.totalElements ?? this.orders.length;
-          if (typeof response.data?.size === 'number' && response.data.size > 0) {
-            this.itemsPerPage = response.data.size;
-          }
-          const apiPage = response.data?.number;
-          if (typeof apiPage === 'number') {
-            this.currentPage = apiPage;
-          }
-          this.filterOrders();
+          this.zone.run(() => {
+            const content = response.data?.content ?? [];
+            this.orders = content.map(item => this.mapOrder(item));
+            this.totalOrders = response.data?.totalElements ?? this.orders.length;
+            if (typeof response.data?.size === 'number' && response.data.size > 0) {
+              this.itemsPerPage = response.data.size;
+            }
+            const apiPage = response.data?.number;
+            if (typeof apiPage === 'number') {
+              this.currentPage = apiPage;
+            }
+            this.filterOrdersInternal(false);
+            this.showEmptyState = this.filteredOrders.length === 0;
+            this.hasLoaded = true;
+            this.isLoading = false;
+            this.cdr.detectChanges();
+          });
         },
         error: () => {
-          this.errorMessage = undefined;
-          this.orders = [];
-          this.filteredOrders = [];
-          this.toastr.error('Unable to load purchase orders. Please try again.');
-          this.cdr.detectChanges();
+          this.zone.run(() => {
+            this.errorMessage = undefined;
+            this.orders = [];
+            this.filteredOrders = [];
+            this.showEmptyState = true;
+            this.toastr.error('Unable to load purchase orders. Please try again.');
+            this.hasLoaded = true;
+            this.isLoading = false;
+            this.cdr.detectChanges();
+          });
+        },
+        complete: () => {
+          this.zone.run(() => {
+            this.isLoading = false;
+            this.hasLoaded = true;
+            this.cdr.detectChanges();
+          });
         }
       });
   }
@@ -98,13 +118,20 @@ export class PurchaseOrdersComponent implements OnInit {
   }
 
   filterOrders(): void {
+    this.filterOrdersInternal(true);
+  }
+
+  private filterOrdersInternal(resetPage: boolean): void {
     if (this.selectedStatus === 'ALL') {
       this.filteredOrders = [...this.orders];
     } else {
       const target = this.selectedStatus.toLowerCase();
       this.filteredOrders = this.orders.filter(order => order.status.toLowerCase() === target);
     }
-    this.currentPage = 0;
+    if (resetPage) {
+      this.currentPage = 0;
+    }
+    this.showEmptyState = !this.isLoading && this.filteredOrders.length === 0;
   }
 
   statusClass(status: string): string {

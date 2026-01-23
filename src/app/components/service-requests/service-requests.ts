@@ -69,6 +69,7 @@ export class ServiceRequestsComponent implements OnInit {
   canCreateRequests = false;
   canEditRequests = false;
   canDeleteRequests = false;
+  showEmptyState = false;
 
   constructor(
     private router: Router,
@@ -93,12 +94,16 @@ export class ServiceRequestsComponent implements OnInit {
     const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
     this.hasLoaded = false;
+    this.showEmptyState = false;
     this.errorMessage = undefined;
+    // Clear previous data to avoid showing stale rows while a fresh load is in progress.
+    this.serviceRequests = [];
 
     this.serviceRequestService
       .fetchRequests(pageIndex, this.itemsPerPage)
       .pipe(finalize(() => {
         this.isLoading = false;
+        this.hasLoaded = true;
         this.cdr.detectChanges();
       }))
       .subscribe({
@@ -107,6 +112,7 @@ export class ServiceRequestsComponent implements OnInit {
           this.serviceRequests = content.map((request: ApiServiceRequest) =>
             this.mapRequest(request)
           );
+          this.showEmptyState = this.serviceRequests.length === 0;
           this.totalRequests = response.data?.totalElements ?? this.serviceRequests.length;
           if (typeof response.data?.size === 'number' && response.data.size > 0) {
             this.itemsPerPage = response.data.size;
@@ -115,15 +121,14 @@ export class ServiceRequestsComponent implements OnInit {
           if (typeof apiPage === 'number') {
             this.currentPage = apiPage;
           }
-          this.hasLoaded = true;
           this.cdr.detectChanges();
         },
         error: () => {
           this.errorMessage = undefined;
           this.serviceRequests = [];
+          this.showEmptyState = true;
           this.totalRequests = 0;
           this.toastr.error('Unable to load service requests. Please try again later.');
-          this.hasLoaded = true;
           this.cdr.detectChanges();
         }
       });

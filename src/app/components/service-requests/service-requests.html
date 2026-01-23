@@ -27,7 +27,7 @@
         </tr>
       </thead>
       <tbody>
-        <ng-container *ngIf="isLoading">
+        <ng-container *ngIf="isLoading; else loadedBody">
           <tr *ngFor="let _ of loadingRows" class="skeleton-row">
             <td><span class="skeleton skeleton-text short"></span></td>
             <td><span class="skeleton skeleton-text short"></span></td>
@@ -39,13 +39,15 @@
             <td><span class="skeleton skeleton-text tiny"></span></td>
           </tr>
         </ng-container>
-        <tr *ngIf="!serviceRequests.length && !isLoading && hasLoaded">
-          <td colspan="8" class="empty-row">No service requests to display.</td>
-        </tr>
-        <tr *ngFor="let request of serviceRequests">
-          <td>{{ request.requestId }}</td>
-          <td>{{ request.requestDate }}</td>
-          <td>{{ request.requester }}</td>
+
+        <ng-template #loadedBody>
+          <tr *ngIf="showEmptyState">
+            <td colspan="8" class="empty-row">No service requests to display.</td>
+          </tr>
+          <tr *ngFor="let request of serviceRequests">
+            <td>{{ request.requestId }}</td>
+            <td>{{ request.requestDate }}</td>
+            <td>{{ request.requester }}</td>
           <td>{{ request.shortTitle }}</td>
           <td>{{ request.maintenanceType }}</td>
           <td>
@@ -86,6 +88,7 @@
             </div>
           </td>
         </tr>
+        </ng-template>
       </tbody>
       </table>
     </div>

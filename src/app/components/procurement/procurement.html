@@ -28,7 +28,7 @@
             </tr>
           </thead>
           <tbody>
-            <ng-container *ngIf="isLoading">
+            <ng-container *ngIf="isLoading; else loadedRequests">
               <tr *ngFor="let _ of loadingRows" class="skeleton-row">
                 <td><span class="skeleton skeleton-text short"></span></td>
                 <td><span class="skeleton skeleton-text medium"></span></td>
@@ -38,38 +38,41 @@
                 <td><span class="skeleton skeleton-text tiny"></span></td>
               </tr>
             </ng-container>
-            <tr *ngIf="!filteredRequests.length && !isLoading && hasLoaded">
-              <td colspan="6" class="empty-row">No material requisitions to display.</td>
-            </tr>
-            <tr *ngFor="let request of filteredRequests">
-              <td>{{ request.prId }}</td>
-              <td>{{ request.requester }}</td>
-              <td>{{ request.requiredBy }}</td>
-              <td>{{ request.date }}</td>
-              <td>
-                <span class="status-chip" [ngClass]="statusClass(request.status)">
-                  {{ request.status }}
-                </span>
-              </td>
-              <td class="actions-cell">
-                <button class="action-icon" aria-label="View requisition" (click)="viewRequisition(request)">
-                  <img src="assets/icons/Vector.svg" alt="View" />
-                </button>
-                <button
-                  class="action-icon"
-                  aria-label="Edit requisition"
-                  *ngIf="!request.isLocked"
-                  (click)="editRequisition(request)">
-                  <img src="assets/icons/edit.svg" alt="Edit" />
-                </button>
-                <button
-                  class="action-icon danger"
-                  aria-label="Delete requisition"
-                  *ngIf="!request.isLocked">
-                  <img src="assets/icons/delete.svg" alt="Delete" />
-                </button>
-              </td>
-            </tr>
+
+            <ng-template #loadedRequests>
+              <tr *ngIf="showEmptyState">
+                <td colspan="6" class="empty-row">No material requisitions to display.</td>
+              </tr>
+              <tr *ngFor="let request of filteredRequests">
+                <td>{{ request.prId }}</td>
+                <td>{{ request.requester }}</td>
+                <td>{{ request.requiredBy }}</td>
+                <td>{{ request.date }}</td>
+                <td>
+                  <span class="status-chip" [ngClass]="statusClass(request.status)">
+                    {{ request.status }}
+                  </span>
+                </td>
+                <td class="actions-cell">
+                  <button class="action-icon" aria-label="View requisition" (click)="viewRequisition(request)">
+                    <img src="assets/icons/Vector.svg" alt="View" />
+                  </button>
+                  <button
+                    class="action-icon"
+                    aria-label="Edit requisition"
+                    *ngIf="!request.isLocked"
+                    (click)="editRequisition(request)">
+                    <img src="assets/icons/edit.svg" alt="Edit" />
+                  </button>
+                  <button
+                    class="action-icon danger"
+                    aria-label="Delete requisition"
+                    *ngIf="!request.isLocked">
+                    <img src="assets/icons/delete.svg" alt="Delete" />
+                  </button>
+                </td>
+              </tr>
+            </ng-template>
           </tbody>
         </table>
       </div>

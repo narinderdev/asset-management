@@ -28,7 +28,7 @@
           </tr>
         </thead>
         <tbody>
-          <ng-container *ngIf="isLoading">
+          <ng-container *ngIf="isLoading; else loadedVendors">
             <tr *ngFor="let _ of loadingRows" class="skeleton-row">
               <td><span class="skeleton skeleton-text short"></span></td>
               <td><span class="skeleton skeleton-text medium"></span></td>
@@ -41,42 +41,45 @@
               <td><span class="skeleton skeleton-text tiny"></span></td>
             </tr>
           </ng-container>
-          <tr *ngIf="!vendors.length && !isLoading && hasLoaded">
-            <td colspan="9" class="empty-row">No vendors to display.</td>
-          </tr>
-          <tr *ngFor="let vendor of vendors">
-            <td>{{ vendor.vendorId }}</td>
-            <td>{{ vendor.vendorName }}</td>
-            <td>{{ vendor.contactPerson }}</td>
-            <td>{{ vendor.email }}</td>
-            <td>{{ vendor.phone }}</td>
-            <td>{{ vendor.paymentTerms }}</td>
-            <td>{{ vendor.rating }}</td>
-            <td>
-              <span class="status-chip" [ngClass]="{ 'status-green': vendor.status === 'Active', 'status-grey': vendor.status === 'Inactive' }">
-                {{ vendor.status }}
-              </span>
-            </td>
-            <td class="actions-cell">
-              <button class="action-icon" aria-label="View vendor" (click)="viewVendor(vendor)">
-                <img src="assets/icons/Vector.svg" alt="View" />
-              </button>
-              <button
-                class="action-icon"
-                aria-label="Edit vendor"
-                *ngIf="canEditVendors"
-                (click)="editVendor(vendor)">
-                <img src="assets/icons/edit.svg" alt="Edit" />
-              </button>
-              <button
-                class="action-icon danger"
-                aria-label="Delete vendor"
-                *ngIf="canDeleteVendors"
-                (click)="openDeleteModal(vendor)">
-                <img src="assets/icons/delete.svg" alt="Delete" />
-              </button>
-            </td>
-          </tr>
+
+          <ng-template #loadedVendors>
+            <tr *ngIf="showEmptyState">
+              <td colspan="9" class="empty-row">No vendors to display.</td>
+            </tr>
+            <tr *ngFor="let vendor of vendors">
+              <td>{{ vendor.vendorId }}</td>
+              <td>{{ vendor.vendorName }}</td>
+              <td>{{ vendor.contactPerson }}</td>
+              <td>{{ vendor.email }}</td>
+              <td>{{ vendor.phone }}</td>
+              <td>{{ vendor.paymentTerms }}</td>
+              <td>{{ vendor.rating }}</td>
+              <td>
+                <span class="status-chip" [ngClass]="{ 'status-green': vendor.status === 'Active', 'status-grey': vendor.status === 'Inactive' }">
+                  {{ vendor.status }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button class="action-icon" aria-label="View vendor" (click)="viewVendor(vendor)">
+                  <img src="assets/icons/Vector.svg" alt="View" />
+                </button>
+                <button
+                  class="action-icon"
+                  aria-label="Edit vendor"
+                  *ngIf="canEditVendors"
+                  (click)="editVendor(vendor)">
+                  <img src="assets/icons/edit.svg" alt="Edit" />
+                </button>
+                <button
+                  class="action-icon danger"
+                  aria-label="Delete vendor"
+                  *ngIf="canDeleteVendors"
+                  (click)="openDeleteModal(vendor)">
+                  <img src="assets/icons/delete.svg" alt="Delete" />
+                </button>
+              </td>
+            </tr>
+          </ng-template>
         </tbody>
       </table>
     </div>

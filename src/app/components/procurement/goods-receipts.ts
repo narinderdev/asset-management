@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -35,12 +35,16 @@ export class GoodsReceiptsComponent implements OnInit {
   currentPage = 0;
   itemsPerPage = 10;
   isLoading = false;
+  hasLoaded = false;
+  loadingRows = Array.from({ length: 5 });
+  showEmptyState = false;
   errorMessage?: string;
 
   constructor(
     private procurementService: ProcurementService,
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private zone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -53,39 +57,69 @@ export class GoodsReceiptsComponent implements OnInit {
 
   private loadReceipts(): void {
     this.isLoading = true;
+    this.hasLoaded = false;
+    this.showEmptyState = false;
     this.errorMessage = undefined;
+    this.receipts = [];
+    this.filteredReceipts = [];
     const pageIndex = Math.max(0, this.currentPage);
 
     this.procurementService
       .fetchGoodsReceipts(undefined, undefined, undefined, pageIndex, this.itemsPerPage)
       .pipe(
         finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
+          this.zone.run(() => {
+            this.isLoading = false;
+            this.hasLoaded = true;
+            this.cdr.detectChanges();
+          });
         })
       )
       .subscribe({
         next: (response: GoodsReceiptListResponse) => {
-          const raw = response.data?.content ?? response.data ?? [];
-          const content: GoodsReceiptItem[] = Array.isArray(raw) ? raw : [];
-          this.receipts = content.map((item: GoodsReceiptItem) => this.mapReceipt(item));
-          this.filteredReceipts = [...this.receipts];
-          this.totalReceipts = response.data && 'totalElements' in response.data
-            ? (response.data.totalElements ?? this.filteredReceipts.length)
-            : this.filteredReceipts.length;
-          if (typeof (response.data as any)?.size === 'number' && (response.data as any).size > 0) {
-            this.itemsPerPage = (response.data as any).size;
-          }
-          const apiPage = (response.data as any)?.number;
-          if (typeof apiPage === 'number') {
-            this.currentPage = apiPage;
-          }
+          this.zone.run(() => {
+            try {
+              const raw = response.data?.content ?? response.data ?? [];
+              const content: GoodsReceiptItem[] = Array.isArray(raw) ? raw : [];
+              this.receipts = content.map((item: GoodsReceiptItem) => this.mapReceipt(item));
+              this.filteredReceipts = [...this.receipts];
+              this.totalReceipts = response.data && 'totalElements' in response.data
+                ? (response.data.totalElements ?? this.filteredReceipts.length)
+                : this.filteredReceipts.length;
+              if (typeof (response.data as any)?.size === 'number' && (response.data as any).size > 0) {
+                this.itemsPerPage = (response.data as any).size;
+              }
+              const apiPage = (response.data as any)?.number;
+              if (typeof apiPage === 'number') {
+                this.currentPage = apiPage;
+              }
+              this.showEmptyState = this.filteredReceipts.length === 0;
+            } catch (err) {
+              // Fallback: ensure UI recovers if mapping fails
+              this.errorMessage = 'Unable to load goods receipts. Please try again.';
+              this.receipts = [];
+              this.filteredReceipts = [];
+              this.totalReceipts = 0;
+              this.showEmptyState = true;
+              console.error(err);
+            } finally {
+              this.hasLoaded = true;
+              this.isLoading = false;
+              this.cdr.detectChanges();
+            }
+          });
         },
         error: () => {
-          this.errorMessage = 'Unable to load goods receipts. Please try again.';
-          this.receipts = [];
-          this.filteredReceipts = [];
-          this.totalReceipts = 0;
+          this.zone.run(() => {
+            this.errorMessage = 'Unable to load goods receipts. Please try again.';
+            this.receipts = [];
+            this.filteredReceipts = [];
+            this.totalReceipts = 0;
+            this.showEmptyState = true;
+            this.hasLoaded = true;
+            this.isLoading = false;
+            this.cdr.detectChanges();
+          });
         }
       });
   }

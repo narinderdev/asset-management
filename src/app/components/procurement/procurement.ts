@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -39,12 +39,14 @@ export class ProcurementComponent implements OnInit {
   hasLoaded = false;
   loadingRows = Array.from({ length: 5 });
   errorMessage?: string;
+  showEmptyState = false;
 
   constructor(
     private router: Router,
     private procurementService: ProcurementService,
     private cdr: ChangeDetectorRef,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private zone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -69,40 +71,50 @@ export class ProcurementComponent implements OnInit {
     const pageIndex = Math.max(0, this.currentPage);
     this.isLoading = true;
     this.hasLoaded = false;
+    this.showEmptyState = false;
     this.errorMessage = undefined;
+    this.requests = [];
+    this.filteredRequests = [];
 
     this.procurementService
       .fetchRequisitions(pageIndex, this.itemsPerPage)
       .pipe(
-        finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        })
+        finalize(() =>
+          this.zone.run(() => {
+            this.isLoading = false;
+            this.hasLoaded = true;
+            this.cdr.detectChanges();
+          })
+        )
       )
       .subscribe({
         next: response => {
-          const content = response.data?.content ?? [];
-          this.requests = content.map(item => this.mapRequest(item));
-          this.totalRequests = response.data?.totalElements ?? this.requests.length;
-          if (typeof response.data?.size === 'number' && response.data.size > 0) {
-            this.itemsPerPage = response.data.size;
-          }
-          const apiPage = response.data?.number;
-          if (typeof apiPage === 'number') {
-            this.currentPage = apiPage;
-          }
-          this.hasLoaded = true;
-          this.filterRequests();
-          this.cdr.detectChanges();
+          this.zone.run(() => {
+            const content = response.data?.content ?? [];
+            this.requests = content.map(item => this.mapRequest(item));
+            this.totalRequests = response.data?.totalElements ?? this.requests.length;
+            if (typeof response.data?.size === 'number' && response.data.size > 0) {
+              this.itemsPerPage = response.data.size;
+            }
+            const apiPage = response.data?.number;
+            if (typeof apiPage === 'number') {
+              this.currentPage = apiPage;
+            }
+            this.filterRequests();
+            this.showEmptyState = this.filteredRequests.length === 0;
+            this.cdr.detectChanges();
+          });
         },
         error: () => {
-          this.errorMessage = undefined;
-          this.requests = [];
-          this.filteredRequests = [];
-          this.totalRequests = 0;
-          this.toastr.error('Unable to load purchase requisitions. Please try again.');
-          this.hasLoaded = true;
-          this.cdr.detectChanges();
+          this.zone.run(() => {
+            this.errorMessage = undefined;
+            this.requests = [];
+            this.filteredRequests = [];
+            this.showEmptyState = true;
+            this.totalRequests = 0;
+            this.toastr.error('Unable to load purchase requisitions. Please try again.');
+            this.cdr.detectChanges();
+          });
         }
       });
   }

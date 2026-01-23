@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -18,6 +18,9 @@ import { PermissionService } from '../../services/permission.service';
 export class TechnicianTeamsComponent implements OnInit {
   teams: TechnicianTeam[] = [];
   loading = false;
+  hasLoaded = false;
+  loadingRows = Array.from({ length: 5 });
+  showEmptyState = false;
   errorMessage?: string;
   isDeleteModalOpen = false;
   isDeleting = false;
@@ -34,7 +37,8 @@ export class TechnicianTeamsComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef,
     private readonly router: Router,
     private readonly toastr: ToastrService,
-    private readonly permissionService: PermissionService
+    private readonly permissionService: PermissionService,
+    private readonly zone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -114,33 +118,51 @@ export class TechnicianTeamsComponent implements OnInit {
 
   private loadTeams(): void {
     this.loading = true;
+    this.hasLoaded = false;
+    this.showEmptyState = false;
     this.errorMessage = undefined;
+    this.teams = [];
     const pageIndex = Math.max(0, this.currentPage);
 
     this.technicianService
       .fetchTechnicianTeams(pageIndex, this.itemsPerPage)
       .pipe(finalize(() => {
-        this.loading = false;
-        this.cdr.detectChanges();
+        this.zone.run(() => {
+          this.loading = false;
+          this.hasLoaded = true;
+          this.cdr.detectChanges();
+        });
       }))
       .subscribe({
         next: response => {
-          this.teams = response.data?.teams ?? [];
-          this.totalTeams = response.data?.totalElements ?? this.teams.length;
-          if (typeof response.data?.size === 'number' && response.data.size > 0) {
-            this.itemsPerPage = response.data.size;
-          }
-          const apiPage = response.data?.page;
-          if (typeof apiPage === 'number') {
-            this.currentPage = apiPage;
-          }
-          this.errorMessage = undefined;
-          this.cdr.detectChanges();
+          this.zone.run(() => {
+            this.teams = response.data?.teams ?? [];
+            this.totalTeams = response.data?.totalElements ?? this.teams.length;
+            if (typeof response.data?.size === 'number' && response.data.size > 0) {
+              this.itemsPerPage = response.data.size;
+            }
+            const apiPage = response.data?.page;
+            if (typeof apiPage === 'number') {
+              this.currentPage = apiPage;
+            }
+            this.showEmptyState = this.teams.length === 0;
+            this.errorMessage = undefined;
+            this.hasLoaded = true;
+            this.loading = false;
+            this.cdr.detectChanges();
+          });
         },
         error: () => {
-          this.errorMessage = undefined;
-          this.toastr.error('Unable to load technician teams.');
-          this.cdr.detectChanges();
+          this.zone.run(() => {
+            this.errorMessage = undefined;
+            this.toastr.error('Unable to load technician teams.');
+            this.teams = [];
+            this.totalTeams = 0;
+            this.showEmptyState = true;
+            this.hasLoaded = true;
+            this.loading = false;
+            this.cdr.detectChanges();
+          });
         }
       });
   }
