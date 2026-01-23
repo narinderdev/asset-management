@@ -8,6 +8,18 @@ export interface AssetCategory {
   name?: string;
 }
 
+export interface AssetType {
+  id?: number;
+  code?: string;
+  name?: string;
+  assetCategoryId?: number;
+  assetCategory?: string;
+  defaultCriticality?: string;
+  defaultGlAccount?: string;
+  insuranceRequired?: boolean;
+  active?: boolean;
+}
+
 interface AssetsApiResponse {
   statusCode?: number;
   status?: string;
@@ -18,6 +30,23 @@ interface AssetsApiResponse {
     number?: number;
     content?: ApiAsset[];
   };
+}
+
+interface AssetTypesApiResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: AssetType[];
+}
+
+export interface AssetTypeCreatePayload {
+  code: string;
+  name: string;
+  assetCategoryId: number;
+  defaultCriticality: string;
+  defaultGlAccount: string;
+  insuranceRequired: boolean;
+  active: boolean;
 }
 
 interface ApiAsset {
@@ -278,6 +307,16 @@ export class AssetsService {
     return this.http.get<AssetsApiResponse>(this.apiUrl, { params, headers });
   }
 
+  fetchAssetTypes(): Observable<AssetTypesApiResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.get<AssetTypesApiResponse>(`${environment.apiUrl}/api/asset-types`, {
+      headers
+    });
+  }
+
   fetchAssetCategories(): Observable<{ data?: AssetCategory[] }> {
     const headers = new HttpHeaders({
       'ngrok-skip-browser-warning': 'true'
@@ -285,6 +324,18 @@ export class AssetsService {
     return this.http.get<{ data?: AssetCategory[] }>(`${environment.apiUrl}/api/asset-categories`, {
       headers
     });
+  }
+
+  createAssetType(payload: AssetTypeCreatePayload): Observable<{ statusCode?: number; message?: string }> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.post<{ statusCode?: number; message?: string }>(
+      `${environment.apiUrl}/api/asset-types`,
+      payload,
+      { headers }
+    );
   }
 
   fetchAssetById(id: string): Observable<AssetDetailResponse> {

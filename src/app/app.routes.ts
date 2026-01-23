@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard';
 import { AssetsComponent } from './components/assets/assets';
 import { AddAssetComponent } from './components/add-asset/add-asset';
+import { AssetTypesComponent } from './components/asset-types/asset-types';
 import { ServiceRequestsComponent } from './components/service-requests/service-requests';
 import { CreateServiceRequestComponent } from './components/service-requests/create-service-request';
 import { WorkOrderManagementComponent } from './components/work-order/work-order';
@@ -48,6 +49,7 @@ import { CreatePredictiveMaintenanceComponent } from './components/predictive-ma
 import { ViewPredictiveMaintenanceComponent } from './components/predictive-maintenance/view-predictive-maintenance';
 import { CreateEmergencyMaintenanceComponent } from './components/emergency-maintenance/create-emergency-maintenance';
 import { ViewEmergencyMaintenanceComponent } from './components/emergency-maintenance/view-emergency-maintenance';
+import { CreateAssetTypeComponent } from './components/asset-types/create-asset-type';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -58,6 +60,8 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'assets/add-asset', component: AddAssetComponent, canActivate: [AuthGuard] },
   { path: 'assets/add-asset/:tab', component: AddAssetComponent, canActivate: [AuthGuard] },
+  { path: 'assets/types/create', component: CreateAssetTypeComponent, canActivate: [AuthGuard] },
+  { path: 'assets/types', component: AssetTypesComponent, canActivate: [AuthGuard] },
   { path: 'assets', component: AssetsComponent, canActivate: [AuthGuard] },
   { path: 'assets/view/:id', component: ViewAssetComponent, canActivate: [AuthGuard] },
   { path: 'service-requests/create', component: CreateServiceRequestComponent, canActivate: [AuthGuard] },

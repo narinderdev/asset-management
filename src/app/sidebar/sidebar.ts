@@ -48,7 +48,12 @@ export class SidebarComponent implements OnInit {
       activeIcon: 'fluent_web-asset-24-regular (1).svg',
       label: 'Assets',
       route: '/assets',
-      module: 'ASSET'
+      module: 'ASSET',
+      hasSubmenu: true,
+      submenu: [
+        { label: 'Asset Type', route: '/assets/types' },
+        { label: 'All Assets', route: '/assets' }
+      ]
     },
     {
       icon: 'carbon_collapse-categories.svg',

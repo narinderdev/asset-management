@@ -1,0 +1,86 @@
+<div class="create-request-page">
+  <section class="create-card">
+    <header class="create-header">
+      <button type="button" class="back-btn" aria-label="Back" (click)="cancel()">←</button>
+      <h2>Create Asset Type</h2>
+    </header>
+
+    <form class="request-form" (ngSubmit)="submit()">
+      <div class="form-grid">
+        <label class="field">
+          <span>Code <span class="required-star">*</span></span>
+          <input
+            type="text"
+            name="code"
+            [(ngModel)]="assetType.code"
+            placeholder="Enter code"
+            required
+          />
+        </label>
+        <label class="field">
+          <span>Name <span class="required-star">*</span></span>
+          <input
+            type="text"
+            name="name"
+            [(ngModel)]="assetType.name"
+            placeholder="Enter name"
+            required
+          />
+        </label>
+        <label class="field">
+          <span>Asset Category <span class="required-star">*</span></span>
+          <select
+            name="assetCategoryId"
+            [(ngModel)]="assetType.assetCategoryId"
+            required
+          >
+            <option value="0" disabled>Select category</option>
+            <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Default Criticality</span>
+          <select name="defaultCriticality" [(ngModel)]="assetType.defaultCriticality">
+            <option value="LOW">Low</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HIGH">High</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Default GL Account</span>
+          <input
+            type="text"
+            name="defaultGlAccount"
+            [(ngModel)]="assetType.defaultGlAccount"
+            placeholder="Enter GL account"
+          />
+        </label>
+
+        <label class="field">
+          <span>Insurance Required</span>
+          <select name="insuranceRequired" [(ngModel)]="assetType.insuranceRequired">
+            <option [ngValue]="true">Yes</option>
+            <option [ngValue]="false">No</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Active</span>
+          <select name="active" [(ngModel)]="assetType.active">
+            <option [ngValue]="true">Active</option>
+            <option [ngValue]="false">Inactive</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" (click)="cancel()">Cancel</button>
+        <button type="submit" class="btn primary" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Saving...' : 'Create Asset Type' }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>
