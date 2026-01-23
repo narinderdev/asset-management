@@ -65,14 +65,14 @@
     </div>
   </div>
 
-  <!-- Loading State -->
-  <div class="loading-overlay" *ngIf="isLoading">
-    <div class="loader"></div>
-    <span>Loading MR...</span>
-  </div>
-
   <!-- Main Content -->
-  <div class="main-content" *ngIf="mrDetail || mrState">
+  <div class="main-content">
+    <div class="loading-overlay" *ngIf="isLoading">
+      <div class="loader"></div>
+      <span>Loading MR...</span>
+    </div>
+
+    <ng-container *ngIf="mrDetail || mrState">
     <div class="details-grid">
       
       <!-- MR Details Card -->
@@ -154,6 +154,7 @@
       </div>
 
     </div>
+    </ng-container>
   </div>
 
   <!-- Reject Modal -->

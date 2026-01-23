@@ -20,6 +20,7 @@ import {
 } from '../../services/work-order.service';
 import { TechnicianService, ApiTechnician, TechnicianTeam } from '../../services/technician.service';
 import { InventoryService } from '../../services/inventory.service';
+import { NgZone } from '@angular/core';
 
 type WorkOrderDetail = NonNullable<WorkOrderDetailResponse['data']>;
 
@@ -114,7 +115,8 @@ export class ViewWorkOrderComponent implements OnInit {
     private workOrderService: WorkOrderService,
     private cdr: ChangeDetectorRef,
     private technicianService: TechnicianService,
-    private inventoryService: InventoryService
+    private inventoryService: InventoryService,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -137,54 +139,61 @@ export class ViewWorkOrderComponent implements OnInit {
       .fetchWorkOrderById(id)
       .pipe(
         finalize(() => {
-          this.isLoading = false;
-          this.isMarkingInProgress = false;
-          this.cdr.detectChanges();
+          // Ensure UI flags update even if fetch callbacks run outside Angular zone.
+          this.ngZone.run(() => {
+            this.isLoading = false;
+            this.isMarkingInProgress = false;
+            this.cdr.detectChanges();
+          });
         })
       )
       .subscribe({
         next: response => {
-          this.isLoading = false;
-          if (response.data) {
-            this.workOrder = response.data;
-            const logs = response.data.checkLogs ?? [];
-            const lastLog = logs.length
-              ? (logs[logs.length - 1] as { checkInAt?: string; checkOutAt?: string; pauses?: Array<{ pauseAt?: string; resumeAt?: string | null }> } | undefined)
-              : undefined;
-            const hasOpenLog = !!lastLog && !lastLog?.['checkOutAt'];
-            const lastPause = lastLog?.pauses?.length ? lastLog.pauses[lastLog.pauses.length - 1] : undefined;
-            const hasUnresolvedPause = !!lastPause && !lastPause.resumeAt;
-            // If there is a checkout today, disallow check-in again until after midnight.
-            const lastCheckout = lastLog?.['checkOutAt'] ? new Date(lastLog['checkOutAt']) : undefined;
-            const now = new Date();
-            this.checkInDisabledUntilTomorrow =
-              !!lastCheckout && !Number.isNaN(lastCheckout.getTime()) && lastCheckout.toDateString() === now.toDateString();
-            // When no check logs, default to not clocked-in to match API semantics.
-            this.hasClockedIn = hasOpenLog;
-            this.isPaused = hasUnresolvedPause || (response.data.status ?? '').toUpperCase() === 'PAUSED';
-            this.isCheckedIn = hasOpenLog;
-            const members = response.data.teamMembers ?? [];
-            if (members.length) {
-              const defaultTime = this.getNowInputValue();
-              this.teamCheckEntries = members
-                .filter((m): m is { technicianId: number; technicianName?: string; teamLeader?: boolean } => !!m.technicianId)
-                .map((m) => ({
-                  technicianId: m.technicianId,
-                  technicianName: m.technicianName ?? `Technician #${m.technicianId}`,
-                  isLeader: m.teamLeader ?? false,
-                  time: defaultTime,
-                  notes: m.teamLeader ? 'Team leader' : ''
-                }));
+          this.ngZone.run(() => {
+            this.isLoading = false;
+            if (response.data) {
+              this.workOrder = response.data;
+              const logs = response.data.checkLogs ?? [];
+              const lastLog = logs.length
+                ? (logs[logs.length - 1] as { checkInAt?: string; checkOutAt?: string; pauses?: Array<{ pauseAt?: string; resumeAt?: string | null }> } | undefined)
+                : undefined;
+              const hasOpenLog = !!lastLog && !lastLog?.['checkOutAt'];
+              const lastPause = lastLog?.pauses?.length ? lastLog.pauses[lastLog.pauses.length - 1] : undefined;
+              const hasUnresolvedPause = !!lastPause && !lastPause.resumeAt;
+              // If there is a checkout today, disallow check-in again until after midnight.
+              const lastCheckout = lastLog?.['checkOutAt'] ? new Date(lastLog['checkOutAt']) : undefined;
+              const now = new Date();
+              this.checkInDisabledUntilTomorrow =
+                !!lastCheckout && !Number.isNaN(lastCheckout.getTime()) && lastCheckout.toDateString() === now.toDateString();
+              // When no check logs, default to not clocked-in to match API semantics.
+              this.hasClockedIn = hasOpenLog;
+              this.isPaused = hasUnresolvedPause || (response.data.status ?? '').toUpperCase() === 'PAUSED';
+              this.isCheckedIn = hasOpenLog;
+              const members = response.data.teamMembers ?? [];
+              if (members.length) {
+                const defaultTime = this.getNowInputValue();
+                this.teamCheckEntries = members
+                  .filter((m): m is { technicianId: number; technicianName?: string; teamLeader?: boolean } => !!m.technicianId)
+                  .map((m) => ({
+                    technicianId: m.technicianId,
+                    technicianName: m.technicianName ?? `Technician #${m.technicianId}`,
+                    isLeader: m.teamLeader ?? false,
+                    time: defaultTime,
+                    notes: m.teamLeader ? 'Team leader' : ''
+                  }));
+              }
+            } else {
+              this.errorMessage = response.message ?? 'Work order not found.';
             }
-          } else {
-            this.errorMessage = response.message ?? 'Work order not found.';
-          }
-          this.cdr.detectChanges();
+            this.cdr.detectChanges();
+          });
         },
         error: () => {
-          this.errorMessage = 'Unable to load work order details.';
-          this.isLoading = false;
-          this.cdr.detectChanges();
+          this.ngZone.run(() => {
+            this.errorMessage = 'Unable to load work order details.';
+            this.isLoading = false;
+            this.cdr.detectChanges();
+          });
         }
       });
   }

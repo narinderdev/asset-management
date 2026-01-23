@@ -27,26 +27,25 @@
     </div>
   </div>
 
-  <!-- Loading State -->
-  <div class="loading-overlay" *ngIf="isLoading">
-    <div class="loader"></div>
-    <span>Loading GRN...</span>
-  </div>
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="loading-overlay" *ngIf="isLoading">
+      <div class="loader"></div>
+      <span>Loading GRN...</span>
+    </div>
 
-  <!-- Error Message -->
-  <div class="main-content" *ngIf="errorMessage && !isLoading">
-    <div class="card">
-      <div class="card-body">
-        <div class="empty-state">
-          <div class="empty-icon">⚠️</div>
-          <div class="empty-text">{{ errorMessage }}</div>
+    <ng-container *ngIf="errorMessage && !isLoading">
+      <div class="card">
+        <div class="card-body">
+          <div class="empty-state">
+            <div class="empty-icon">⚠️</div>
+            <div class="empty-text">{{ errorMessage }}</div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+    </ng-container>
 
-  <!-- Main Content -->
-  <div class="main-content" *ngIf="!isLoading && grn">
+    <ng-container *ngIf="!isLoading && grn">
     <div class="details-grid">
       
       <!-- GRN Details Card -->
@@ -136,5 +135,6 @@
       </div>
 
     </div>
+    </ng-container>
   </div>
 </div>

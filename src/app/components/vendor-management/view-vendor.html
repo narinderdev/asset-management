@@ -37,83 +37,84 @@
   <!-- Status Messages -->
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-  <!-- Loading State -->
-  <div class="loading-overlay" *ngIf="isLoading && !vendor">
-    <div class="loader"></div>
-    <span>Loading vendor...</span>
-  </div>
-
   <!-- Main Content -->
-  <div class="main-content" *ngIf="vendor">
-    <div class="details-grid">
-      
-      <!-- Overview Card -->
-      <div class="card full-width">
-        <div class="card-header">
-          <h2 class="card-title">Vendor Information</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-grid field-grid-4">
-            <div class="field-group">
-              <div class="field-label">Vendor ID</div>
-              <div class="field-value highlight">{{ vendor.vendorId ?? '—' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Name</div>
-              <div class="field-value">{{ vendor.vendorName ?? '—' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Contact Person</div>
-              <div class="field-value" [ngClass]="{'empty': !vendor.contactPerson}">{{ vendor.contactPerson ?? '—' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Status</div>
-              <div class="field-value">{{ vendor.active ? 'Active' : 'Inactive' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Email</div>
-              <div class="field-value" [ngClass]="{'empty': !vendor.email}">
-                <a *ngIf="vendor.email" [href]="'mailto:' + vendor.email" class="link">{{ vendor.email }}</a>
-                <span *ngIf="!vendor.email">—</span>
+  <div class="main-content">
+    <div class="loading-overlay" *ngIf="isLoading && !vendor">
+      <div class="loader"></div>
+      <span>Loading vendor...</span>
+    </div>
+
+    <ng-container *ngIf="vendor">
+      <div class="details-grid">
+        
+        <!-- Overview Card -->
+        <div class="card full-width">
+          <div class="card-header">
+            <h2 class="card-title">Vendor Information</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-4">
+              <div class="field-group">
+                <div class="field-label">Vendor ID</div>
+                <div class="field-value highlight">{{ vendor.vendorId ?? '—' }}</div>
               </div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Phone</div>
-              <div class="field-value" [ngClass]="{'empty': !vendor.phone}">
-                <a *ngIf="vendor.phone" [href]="'tel:' + vendor.phone" class="link">{{ vendor.phone }}</a>
-                <span *ngIf="!vendor.phone">—</span>
+              <div class="field-group">
+                <div class="field-label">Name</div>
+                <div class="field-value">{{ vendor.vendorName ?? '—' }}</div>
               </div>
-            </div>
-            <div class="field-group span-2">
-              <div class="field-label">Address</div>
-              <div class="field-value" [ngClass]="{'empty': !vendor.address}">{{ vendor.address ?? '—' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Payment Terms</div>
-              <div class="field-value">{{ formatPaymentTermsLabel(vendor.paymentTerms) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Rating</div>
-              <div class="field-value" [ngClass]="{'empty': !vendor.rating}">
-                <span *ngIf="vendor.rating" class="rating-display">
-                  <span class="rating-stars">{{ getStarRating(vendor.rating) }}</span>
-                  <span class="rating-number">({{ vendor.rating }})</span>
-                </span>
-                <span *ngIf="!vendor.rating">—</span>
+              <div class="field-group">
+                <div class="field-label">Contact Person</div>
+                <div class="field-value" [ngClass]="{'empty': !vendor.contactPerson}">{{ vendor.contactPerson ?? '—' }}</div>
               </div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Created</div>
-              <div class="field-value">{{ formatDateString(vendor.createdAt) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Updated</div>
-              <div class="field-value">{{ formatDateString(vendor.updatedAt) }}</div>
+              <div class="field-group">
+                <div class="field-label">Status</div>
+                <div class="field-value">{{ vendor.active ? 'Active' : 'Inactive' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Email</div>
+                <div class="field-value" [ngClass]="{'empty': !vendor.email}">
+                  <a *ngIf="vendor.email" [href]="'mailto:' + vendor.email" class="link">{{ vendor.email }}</a>
+                  <span *ngIf="!vendor.email">—</span>
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Phone</div>
+                <div class="field-value" [ngClass]="{'empty': !vendor.phone}">
+                  <a *ngIf="vendor.phone" [href]="'tel:' + vendor.phone" class="link">{{ vendor.phone }}</a>
+                  <span *ngIf="!vendor.phone">—</span>
+                </div>
+              </div>
+              <div class="field-group span-2">
+                <div class="field-label">Address</div>
+                <div class="field-value" [ngClass]="{'empty': !vendor.address}">{{ vendor.address ?? '—' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Payment Terms</div>
+                <div class="field-value">{{ formatPaymentTermsLabel(vendor.paymentTerms) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Rating</div>
+                <div class="field-value" [ngClass]="{'empty': !vendor.rating}">
+                  <span *ngIf="vendor.rating" class="rating-display">
+                    <span class="rating-stars">{{ getStarRating(vendor.rating) }}</span>
+                    <span class="rating-number">({{ vendor.rating }})</span>
+                  </span>
+                  <span *ngIf="!vendor.rating">—</span>
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Created</div>
+                <div class="field-value">{{ formatDateString(vendor.createdAt) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Updated</div>
+                <div class="field-value">{{ formatDateString(vendor.updatedAt) }}</div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-    </div>
+      </div>
+    </ng-container>
   </div>
 </div>

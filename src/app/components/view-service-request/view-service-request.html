@@ -43,14 +43,15 @@
   <!-- Status Messages -->
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-  <!-- Loading State -->
-  <div class="loading-overlay" *ngIf="isLoading && !requestLoaded">
-    <div class="loader"></div>
-    <span>Loading details...</span>
-  </div>
-
   <!-- Main Content -->
-  <div class="main-content" *ngIf="request">
+  <div class="main-content">
+    <!-- Localized loading -->
+    <div class="loading-overlay" *ngIf="isLoading && !requestLoaded">
+      <div class="loader"></div>
+      <span>Loading details...</span>
+    </div>
+
+    <ng-container *ngIf="request">
     <div class="details-grid">
       <!-- Overview Card -->
       <div class="card">
@@ -202,6 +203,7 @@
         </div>
       </div>
     </div>
+    </ng-container>
   </div>
 
   <!-- Accept Modal -->

@@ -34,15 +34,14 @@
   <!-- Status Messages -->
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-  <!-- Loading State -->
-  <div class="loading-overlay" *ngIf="isLoading && !template">
-    <div class="loader"></div>
-    <span>Loading template...</span>
-  </div>
-
   <!-- Main Content -->
-  <div class="main-content" *ngIf="template">
-    <div class="details-grid">
+  <div class="main-content">
+    <div class="loading-overlay" *ngIf="isLoading && !template">
+      <div class="loader"></div>
+      <span>Loading template...</span>
+    </div>
+
+    <div class="details-grid" *ngIf="template">
       
       <!-- Overview Card -->
       <div class="card">
@@ -89,73 +88,73 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Schedule Card -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Schedule</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-grid field-grid-3">
-            <div class="field-group">
-              <div class="field-label">Schedule Type</div>
-              <div class="field-value">{{ template.scheduleType || 'N/A' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Lead Time Days</div>
-              <div class="field-value" [ngClass]="{'empty': !template.leadTimeDays && template.leadTimeDays !== 0}">{{ template.leadTimeDays ?? 'N/A' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Start Date</div>
-              <div class="field-value">{{ formatDate(template.startDate) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Next Due Date</div>
-              <div class="field-value">{{ formatDate(template.nextDueDate) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Last Generated Due</div>
-              <div class="field-value">{{ formatDate(template.lastGeneratedDueDate) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Next Due Meter</div>
-              <div class="field-value" [ngClass]="{'empty': !template.nextDueMeter && template.nextDueMeter !== 0}">{{ template.nextDueMeter ?? 'N/A' }}</div>
+        <!-- Overview Card end -->
+        
+        <!-- Schedule Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Schedule</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group">
+                <div class="field-label">Schedule Type</div>
+                <div class="field-value">{{ template.scheduleType || 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Lead Time Days</div>
+                <div class="field-value" [ngClass]="{'empty': !template.leadTimeDays && template.leadTimeDays !== 0}">{{ template.leadTimeDays ?? 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Start Date</div>
+                <div class="field-value">{{ formatDate(template.startDate) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Next Due Date</div>
+                <div class="field-value">{{ formatDate(template.nextDueDate) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Last Generated Due</div>
+                <div class="field-value">{{ formatDate(template.lastGeneratedDueDate) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Next Due Meter</div>
+                <div class="field-value" [ngClass]="{'empty': !template.nextDueMeter && template.nextDueMeter !== 0}">{{ template.nextDueMeter ?? 'N/A' }}</div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Intervals Card -->
-      <div class="card full-width">
-        <div class="card-header">
-          <h2 class="card-title">Intervals</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-grid field-grid-3">
-            <div class="field-group">
-              <div class="field-label">Interval Value</div>
-              <div class="field-value" [ngClass]="{'empty': !template.intervalValue && template.intervalValue !== 0}">{{ template.intervalValue ?? 'N/A' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Interval Unit</div>
-              <div class="field-value" [ngClass]="{'empty': !template.intervalUnit}">{{ template.intervalUnit || 'N/A' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Meter Type</div>
-              <div class="field-value" [ngClass]="{'empty': !template.meterType}">{{ template.meterType || 'N/A' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Meter Interval Value</div>
-              <div class="field-value" [ngClass]="{'empty': !template.meterIntervalValue && template.meterIntervalValue !== 0}">{{ template.meterIntervalValue ?? 'N/A' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Current Meter Reading</div>
-              <div class="field-value" [ngClass]="{'empty': !template.currentMeterReading && template.currentMeterReading !== 0}">{{ template.currentMeterReading ?? 'N/A' }}</div>
+        <!-- Intervals Card -->
+        <div class="card full-width">
+          <div class="card-header">
+            <h2 class="card-title">Intervals</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group">
+                <div class="field-label">Interval Value</div>
+                <div class="field-value" [ngClass]="{'empty': !template.intervalValue && template.intervalValue !== 0}">{{ template.intervalValue ?? 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Interval Unit</div>
+                <div class="field-value" [ngClass]="{'empty': !template.intervalUnit}">{{ template.intervalUnit || 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Meter Type</div>
+                <div class="field-value" [ngClass]="{'empty': !template.meterType}">{{ template.meterType || 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Meter Interval Value</div>
+                <div class="field-value" [ngClass]="{'empty': !template.meterIntervalValue && template.meterIntervalValue !== 0}">{{ template.meterIntervalValue ?? 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Current Meter Reading</div>
+                <div class="field-value" [ngClass]="{'empty': !template.currentMeterReading && template.currentMeterReading !== 0}">{{ template.currentMeterReading ?? 'N/A' }}</div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
     </div>
   </div>

@@ -30,128 +30,129 @@
   <!-- Status Messages -->
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-  <!-- Loading State -->
-  <div class="loading-overlay" *ngIf="isLoading && !loaded">
-    <div class="loader"></div>
-    <span>Loading technician team details...</span>
-  </div>
-
   <!-- Main Content -->
-  <div class="main-content" *ngIf="team">
-    <div class="details-grid">
-      
-      <!-- Overview Card -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Overview</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-grid">
-            <div class="field-group">
-              <div class="field-label">Team Name</div>
-              <div class="field-value highlight">{{ formatField(team.teamName) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Status</div>
-              <div class="field-value">{{ formatEnum(team.status) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Start Date</div>
-              <div class="field-value">{{ formatDate(team.startDate) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">End Date</div>
-              <div class="field-value" [ngClass]="{'empty': !team.endDate}">{{ formatDate(team.endDate) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Team Leader</div>
-              <div class="field-value" [ngClass]="{'empty': !team.teamLeaderName}">{{ formatField(team.teamLeaderName) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Total Members</div>
-              <div class="field-value">{{ team.technicians?.length ?? 0 }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Description Card -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Description</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-grid">
-            <div class="field-group full-width">
-              <div class="field-label">Team Description</div>
-              <div class="field-value description-content" [ngClass]="{'empty': !team.teamDescription}">
-                {{ formatField(team.teamDescription) }}
-              </div>
-            </div>
-            <div class="field-group full-width" *ngIf="team.notes">
-              <div class="field-label">Notes</div>
-              <div class="field-value notes-content">
-                {{ formatField(team.notes) }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Team Members Card -->
-      <div class="card full-width" *ngIf="team.technicians?.length">
-        <div class="card-header">
-          <h2 class="card-title">Team Members ({{ team.technicians?.length || 0 }})</h2>
-        </div>
-        <div class="card-body">
-          <div class="members-grid">
-            <div class="member-card" *ngFor="let tech of team.technicians">
-              <div class="member-header">
-                <div class="member-avatar">
-                  {{ getInitials(getTechnicianName(tech)) }}
-                </div>
-                <div class="member-info">
-                  <div class="member-name">{{ getTechnicianName(tech) }}</div>
-                  <div class="member-role">{{ formatEnum(tech.technicianType) }}</div>
-                </div>
-              </div>
-              <div class="member-details">
-                <div class="member-detail-item">
-                  <span class="detail-label">Status</span>
-                  <span class="detail-badge" [ngClass]="{
-                    'badge-success': tech.status === 'ACTIVE' || tech.status === 'AVAILABLE',
-                    'badge-warning': tech.status === 'BUSY' || tech.status === 'ON_LEAVE',
-                    'badge-info': tech.status !== 'ACTIVE' && tech.status !== 'AVAILABLE' && tech.status !== 'BUSY' && tech.status !== 'ON_LEAVE'
-                  }">{{ formatEnum(tech.status) }}</span>
-                </div>
-                <div class="member-detail-item" *ngIf="tech.email">
-                  <span class="detail-label">Email</span>
-                  <a [href]="'mailto:' + tech.email" class="detail-link">{{ tech.email }}</a>
-                </div>
-                <div class="member-detail-item" *ngIf="tech.phoneNumber">
-                  <span class="detail-label">Phone</span>
-                  <a [href]="'tel:' + tech.phoneNumber" class="detail-link">{{ tech.phoneNumber }}</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Empty Members State -->
-      <div class="card full-width" *ngIf="!team.technicians?.length">
-        <div class="card-header">
-          <h2 class="card-title">Team Members</h2>
-        </div>
-        <div class="card-body">
-          <div class="empty-state">
-            <div class="empty-icon">👥</div>
-            <div class="empty-text">No team members assigned</div>
-            <div class="empty-subtext">Add technicians to build your team</div>
-          </div>
-        </div>
-      </div>
-
+  <div class="main-content">
+    <div class="loading-overlay" *ngIf="isLoading && !loaded">
+      <div class="loader"></div>
+      <span>Loading technician team details...</span>
     </div>
+
+    <ng-container *ngIf="team">
+      <div class="details-grid">
+        
+        <!-- Overview Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Overview</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid">
+              <div class="field-group">
+                <div class="field-label">Team Name</div>
+                <div class="field-value highlight">{{ formatField(team.teamName) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Status</div>
+                <div class="field-value">{{ formatEnum(team.status) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Start Date</div>
+                <div class="field-value">{{ formatDate(team.startDate) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">End Date</div>
+                <div class="field-value" [ngClass]="{'empty': !team.endDate}">{{ formatDate(team.endDate) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Team Leader</div>
+                <div class="field-value" [ngClass]="{'empty': !team.teamLeaderName}">{{ formatField(team.teamLeaderName) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Total Members</div>
+                <div class="field-value">{{ team.technicians?.length ?? 0 }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Description</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid">
+              <div class="field-group full-width">
+                <div class="field-label">Team Description</div>
+                <div class="field-value description-content" [ngClass]="{'empty': !team.teamDescription}">
+                  {{ formatField(team.teamDescription) }}
+                </div>
+              </div>
+              <div class="field-group full-width" *ngIf="team.notes">
+                <div class="field-label">Notes</div>
+                <div class="field-value notes-content">
+                  {{ formatField(team.notes) }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Team Members Card -->
+        <div class="card full-width" *ngIf="team.technicians?.length">
+          <div class="card-header">
+            <h2 class="card-title">Team Members ({{ team.technicians?.length || 0 }})</h2>
+          </div>
+          <div class="card-body">
+            <div class="members-grid">
+              <div class="member-card" *ngFor="let tech of team.technicians">
+                <div class="member-header">
+                  <div class="member-avatar">
+                    {{ getInitials(getTechnicianName(tech)) }}
+                  </div>
+                  <div class="member-info">
+                    <div class="member-name">{{ getTechnicianName(tech) }}</div>
+                    <div class="member-role">{{ formatEnum(tech.technicianType) }}</div>
+                  </div>
+                </div>
+                <div class="member-details">
+                  <div class="member-detail-item">
+                    <span class="detail-label">Status</span>
+                    <span class="detail-badge" [ngClass]="{
+                      'badge-success': tech.status === 'ACTIVE' || tech.status === 'AVAILABLE',
+                      'badge-warning': tech.status === 'BUSY' || tech.status === 'ON_LEAVE',
+                      'badge-info': tech.status !== 'ACTIVE' && tech.status !== 'AVAILABLE' && tech.status !== 'BUSY' && tech.status !== 'ON_LEAVE'
+                    }">{{ formatEnum(tech.status) }}</span>
+                  </div>
+                  <div class="member-detail-item" *ngIf="tech.email">
+                    <span class="detail-label">Email</span>
+                    <a [href]="'mailto:' + tech.email" class="detail-link">{{ tech.email }}</a>
+                  </div>
+                  <div class="member-detail-item" *ngIf="tech.phoneNumber">
+                    <span class="detail-label">Phone</span>
+                    <a [href]="'tel:' + tech.phoneNumber" class="detail-link">{{ tech.phoneNumber }}</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty Members State -->
+        <div class="card full-width" *ngIf="!team.technicians?.length">
+          <div class="card-header">
+            <h2 class="card-title">Team Members</h2>
+          </div>
+          <div class="card-body">
+            <div class="empty-state">
+              <div class="empty-icon">👥</div>
+              <div class="empty-text">No team members assigned</div>
+              <div class="empty-subtext">Add technicians to build your team</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
   </div>
 </div>

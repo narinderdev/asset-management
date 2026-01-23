@@ -103,7 +103,7 @@
             </button>
           </div>
         </ng-container>
-        <ng-template #technicianActions>
+       <ng-template #technicianActions>
           <ng-container *ngIf="workOrder?.status?.toUpperCase() !== 'COMPLETED' && workOrder?.status?.toUpperCase() !== 'CLOSED'">
           <div class="action-buttons technician-actions">
             <button
@@ -141,18 +141,19 @@
   </div>
 
   <!-- Status Messages -->
-  <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <!-- Error banner removed per UX request -->
   <div class="status-message" *ngIf="inProgressError">{{ inProgressError }}</div>
   <div class="status-message" *ngIf="clockingError">{{ clockingError }}</div>
 
-  <!-- Loading State -->
-  <div class="loading-overlay" *ngIf="isLoading && !workOrder">
-    <div class="loader"></div>
-    <span>Loading work order details...</span>
-  </div>
-
   <!-- Main Content -->
-  <div class="main-content" *ngIf="workOrder">
+  <div class="main-content">
+    <!-- Localized loading state (only over content area) -->
+    <div class="loading-overlay" *ngIf="isLoading && !workOrder">
+      <div class="loader"></div>
+      <span>Loading work order details...</span>
+    </div>
+
+    <ng-container *ngIf="workOrder">
     <div class="details-grid">
       
       <!-- Overview Card -->
@@ -296,6 +297,7 @@
       </div>
 
     </div>
+    </ng-container>
   </div>
 
   <!-- Approve Modal -->

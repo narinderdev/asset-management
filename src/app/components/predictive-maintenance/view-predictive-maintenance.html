@@ -42,14 +42,14 @@
   <!-- Status Messages -->
   <div class="status-message" *ngIf="errorMessage && !isLoading && !threshold">{{ errorMessage }}</div>
 
-  <!-- Loading State -->
-  <div class="loading-overlay" *ngIf="isLoading && !threshold">
-    <div class="loader"></div>
-    <span>Loading predictive maintenance...</span>
-  </div>
-
   <!-- Main Content -->
-  <div class="main-content" *ngIf="threshold">
+  <div class="main-content">
+    <div class="loading-overlay" *ngIf="isLoading && !threshold">
+      <div class="loader"></div>
+      <span>Loading predictive maintenance...</span>
+    </div>
+
+    <ng-container *ngIf="threshold">
     <div class="details-grid">
       
       <!-- Overview Card -->
@@ -146,6 +146,7 @@
       </div>
 
     </div>
+    </ng-container>
   </div>
 
   <!-- Add Meter Reading Modal -->

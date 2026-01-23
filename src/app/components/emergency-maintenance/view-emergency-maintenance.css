@@ -120,12 +120,17 @@
 
 /* Loading State */
 .loading-overlay {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   padding: 60px 20px;
   color: #1e40af;
+  background: rgba(255, 255, 255, 0.75);
+  z-index: 2;
+  pointer-events: none;
 }
 
 .loader {
@@ -148,6 +153,7 @@
 
 /* Main Content */
 .main-content {
+  position: relative;
   padding: 32px 40px;
 }
 

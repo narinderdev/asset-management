@@ -31,113 +31,114 @@
   <!-- Status Messages -->
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-  <!-- Loading State -->
-  <div class="loading-overlay" *ngIf="isLoading && !incident">
-    <div class="loader"></div>
-    <span>Loading incident...</span>
-  </div>
-
   <!-- Main Content -->
-  <div class="main-content" *ngIf="incident">
-    <div class="details-grid">
-      
-      <!-- Overview Card -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Overview</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-grid field-grid-3">
-            <div class="field-group">
-              <div class="field-label">Work Order Number</div>
-              <div class="field-value highlight">{{ incident.workOrderNumber || 'N/A' }}</div>
-            </div>
-            <div class="field-group span-2">
-              <div class="field-label">Title</div>
-              <div class="field-value">{{ incident.failureDescription || 'N/A' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Asset</div>
-              <div class="field-value">{{ incident.assetName || incident.assetId || 'N/A' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Location</div>
-              <div class="field-value" [ngClass]="{'empty': !incident.location}">{{ incident.location || 'N/A' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Reporter</div>
-              <div class="field-value" [ngClass]="{'empty': !incident.reporter}">{{ incident.reporter || 'N/A' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Created At</div>
-              <div class="field-value">{{ formatDateTime(incident.createdAt) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Updated At</div>
-              <div class="field-value">{{ formatDateTime(incident.updatedAt) }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Timing Card -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Timing Information</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-grid field-grid-3">
-            <div class="field-group">
-              <div class="field-label">Failure Time</div>
-              <div class="field-value">{{ formatDateTime(incident.failureTime) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Downtime Start</div>
-              <div class="field-value">{{ formatDateTime(incident.downtimeStart) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Downtime End</div>
-              <div class="field-value" [ngClass]="{'empty': !incident.downtimeEnd}">{{ formatDateTime(incident.downtimeEnd) }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Work Order Card -->
-      <div class="card full-width" *ngIf="incident.workOrder">
-        <div class="card-header">
-          <h2 class="card-title">Work Order Details</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-grid field-grid-3">
-            <div class="field-group span-2">
-              <div class="field-label">WO Title</div>
-              <div class="field-value">{{ incident.workOrder?.woTitle || 'N/A' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Work Type</div>
-              <div class="field-value">{{ incident.workOrder?.workType || 'N/A' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Priority</div>
-              <div class="field-value">{{ incident.workOrder?.priority || 'N/A' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Planned Start</div>
-              <div class="field-value">{{ formatDateTime(incident.workOrder?.plannedStartDateTime) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Planned End</div>
-              <div class="field-value">{{ formatDateTime(incident.workOrder?.plannedEndDateTime) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Target Completion Date</div>
-              <div class="field-value">{{ formatDate(incident.workOrder?.targetCompletionDate) }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+  <div class="main-content">
+    <div class="loading-overlay" *ngIf="isLoading && !incident">
+      <div class="loader"></div>
+      <span>Loading incident...</span>
     </div>
+
+    <ng-container *ngIf="incident">
+      <div class="details-grid">
+        
+        <!-- Overview Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Overview</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group">
+                <div class="field-label">Work Order Number</div>
+                <div class="field-value highlight">{{ incident.workOrderNumber || 'N/A' }}</div>
+              </div>
+              <div class="field-group span-2">
+                <div class="field-label">Title</div>
+                <div class="field-value">{{ incident.failureDescription || 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Asset</div>
+                <div class="field-value">{{ incident.assetName || incident.assetId || 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Location</div>
+                <div class="field-value" [ngClass]="{'empty': !incident.location}">{{ incident.location || 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Reporter</div>
+                <div class="field-value" [ngClass]="{'empty': !incident.reporter}">{{ incident.reporter || 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Created At</div>
+                <div class="field-value">{{ formatDateTime(incident.createdAt) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Updated At</div>
+                <div class="field-value">{{ formatDateTime(incident.updatedAt) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timing Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Timing Information</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group">
+                <div class="field-label">Failure Time</div>
+                <div class="field-value">{{ formatDateTime(incident.failureTime) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Downtime Start</div>
+                <div class="field-value">{{ formatDateTime(incident.downtimeStart) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Downtime End</div>
+                <div class="field-value" [ngClass]="{'empty': !incident.downtimeEnd}">{{ formatDateTime(incident.downtimeEnd) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Work Order Card -->
+        <div class="card full-width" *ngIf="incident.workOrder">
+          <div class="card-header">
+            <h2 class="card-title">Work Order Details</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group span-2">
+                <div class="field-label">WO Title</div>
+                <div class="field-value">{{ incident.workOrder?.woTitle || 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Work Type</div>
+                <div class="field-value">{{ incident.workOrder?.workType || 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Priority</div>
+                <div class="field-value">{{ incident.workOrder?.priority || 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Planned Start</div>
+                <div class="field-value">{{ formatDateTime(incident.workOrder?.plannedStartDateTime) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Planned End</div>
+                <div class="field-value">{{ formatDateTime(incident.workOrder?.plannedEndDateTime) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Target Completion Date</div>
+                <div class="field-value">{{ formatDate(incident.workOrder?.targetCompletionDate) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
   </div>
 </div>

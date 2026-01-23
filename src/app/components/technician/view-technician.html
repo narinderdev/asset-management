@@ -34,119 +34,120 @@
   <!-- Status Messages -->
   <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-  <!-- Loading State -->
-  <div class="loading-overlay" *ngIf="isLoading && !technicianLoaded">
-    <div class="loader"></div>
-    <span>Loading technician details...</span>
-  </div>
-
   <!-- Main Content -->
-  <div class="main-content" *ngIf="technician">
-    <div class="details-grid">
-      
-      <!-- Overview Card -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Overview</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-grid">
-            <div class="field-group">
-              <div class="field-label">First Name</div>
-              <div class="field-value">{{ formatField(technician.firstName) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Last Name</div>
-              <div class="field-value">{{ formatField(technician.lastName) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Technician Type</div>
-              <div class="field-value">{{ formatEnum(technician.technicianType) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Status</div>
-              <div class="field-value">{{ formatField(technician.status) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Team Name</div>
-              <div class="field-value" [ngClass]="{'empty': !technician.teamName}">{{ formatField(technician.teamName) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Team Leader</div>
-              <div class="field-value">{{ formatBoolean(technician.teamLeader) }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Contact Card -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Contact Information</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-grid">
-            <div class="field-group">
-              <div class="field-label">Phone</div>
-              <div class="field-value" [ngClass]="{'empty': !technician.phoneNumber}">
-                <a *ngIf="technician.phoneNumber" [href]="'tel:' + technician.phoneNumber" class="link">{{ formatField(technician.phoneNumber) }}</a>
-                <span *ngIf="!technician.phoneNumber">{{ formatField(technician.phoneNumber) }}</span>
-              </div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Email</div>
-              <div class="field-value" [ngClass]="{'empty': !technician.email}">
-                <a *ngIf="technician.email" [href]="'mailto:' + technician.email" class="link">{{ formatField(technician.email) }}</a>
-                <span *ngIf="!technician.email">{{ formatField(technician.email) }}</span>
-              </div>
-            </div>
-            <div class="field-group full-width">
-              <div class="field-label">Address</div>
-              <div class="field-value" [ngClass]="{'empty': !technician.address}">{{ formatField(technician.address) }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Work Information Card -->
-      <div class="card full-width">
-        <div class="card-header">
-          <h2 class="card-title">Work Information</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-grid field-grid-4">
-            <div class="field-group">
-              <div class="field-label">Hire Date</div>
-              <div class="field-value">{{ formatDate(technician.hireDate) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Work Shift</div>
-              <div class="field-value">{{ formatEnum(technician.workShift) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Skills</div>
-              <div class="field-value" [ngClass]="{'empty': !technician.skills}">{{ formatField(technician.skills) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Certifications</div>
-              <div class="field-value" [ngClass]="{'empty': !technician.certifications}">{{ formatField(technician.certifications) }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Notes Card -->
-      <div class="card full-width" *ngIf="technician.notes">
-        <div class="card-header">
-          <h2 class="card-title">Notes</h2>
-        </div>
-        <div class="card-body">
-          <div class="field-group">
-            <div class="field-value notes-content">{{ formatField(technician.notes) }}</div>
-          </div>
-        </div>
-      </div>
-
+  <div class="main-content">
+    <div class="loading-overlay" *ngIf="isLoading && !technicianLoaded">
+      <div class="loader"></div>
+      <span>Loading technician details...</span>
     </div>
+
+    <ng-container *ngIf="technician">
+      <div class="details-grid">
+        
+        <!-- Overview Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Overview</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid">
+              <div class="field-group">
+                <div class="field-label">First Name</div>
+                <div class="field-value">{{ formatField(technician.firstName) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Last Name</div>
+                <div class="field-value">{{ formatField(technician.lastName) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Technician Type</div>
+                <div class="field-value">{{ formatEnum(technician.technicianType) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Status</div>
+                <div class="field-value">{{ formatField(technician.status) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Team Name</div>
+                <div class="field-value" [ngClass]="{'empty': !technician.teamName}">{{ formatField(technician.teamName) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Team Leader</div>
+                <div class="field-value">{{ formatBoolean(technician.teamLeader) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Contact Information</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid">
+              <div class="field-group">
+                <div class="field-label">Phone</div>
+                <div class="field-value" [ngClass]="{'empty': !technician.phoneNumber}">
+                  <a *ngIf="technician.phoneNumber" [href]="'tel:' + technician.phoneNumber" class="link">{{ formatField(technician.phoneNumber) }}</a>
+                  <span *ngIf="!technician.phoneNumber">{{ formatField(technician.phoneNumber) }}</span>
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Email</div>
+                <div class="field-value" [ngClass]="{'empty': !technician.email}">
+                  <a *ngIf="technician.email" [href]="'mailto:' + technician.email" class="link">{{ formatField(technician.email) }}</a>
+                  <span *ngIf="!technician.email">{{ formatField(technician.email) }}</span>
+                </div>
+              </div>
+              <div class="field-group full-width">
+                <div class="field-label">Address</div>
+                <div class="field-value" [ngClass]="{'empty': !technician.address}">{{ formatField(technician.address) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Work Information Card -->
+        <div class="card full-width">
+          <div class="card-header">
+            <h2 class="card-title">Work Information</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-4">
+              <div class="field-group">
+                <div class="field-label">Hire Date</div>
+                <div class="field-value">{{ formatDate(technician.hireDate) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Work Shift</div>
+                <div class="field-value">{{ formatEnum(technician.workShift) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Skills</div>
+                <div class="field-value" [ngClass]="{'empty': !technician.skills}">{{ formatField(technician.skills) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Certifications</div>
+                <div class="field-value" [ngClass]="{'empty': !technician.certifications}">{{ formatField(technician.certifications) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes Card -->
+        <div class="card full-width" *ngIf="technician.notes">
+          <div class="card-header">
+            <h2 class="card-title">Notes</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-group">
+              <div class="field-value notes-content">{{ formatField(technician.notes) }}</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
   </div>
 </div>

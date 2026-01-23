@@ -49,18 +49,18 @@
     </div>
   </div>
 
-  <!-- Loading State -->
-  <div class="loading-overlay" *ngIf="isLoading && !assetLoaded">
-    <div class="loader"></div>
-    <span>Loading asset details...</span>
-  </div>
-
   <!-- Main Content -->
-  <div class="main-content" *ngIf="asset">
-    <div class="details-grid">
+  <div class="main-content">
+    <div class="loading-overlay" *ngIf="isLoading && !assetLoaded">
+      <div class="loader"></div>
+      <span>Loading asset details...</span>
+    </div>
+
+    <ng-container *ngIf="asset">
+      <div class="details-grid">
       
       <!-- Overview Card -->
-      <div class="card">
+        <div class="card">
         <div class="card-header">
           <h2 class="card-title">Overview</h2>
         </div>
@@ -336,9 +336,10 @@
             </div>
           </div>
         </div>
-      </div>
+        </div>
 
-    </div>
+      </div>
+    </ng-container>
   </div>
 
   <!-- Meter Reading Modal -->

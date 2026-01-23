@@ -218,6 +218,7 @@
 
 /* Main Content */
 .main-content {
+  position: relative;
   padding: 32px 40px;
 }
 
