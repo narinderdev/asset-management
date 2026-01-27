@@ -1,0 +1,111 @@
+﻿<div class="view-inventory-page">
+  <div class="header">
+    <button class="back-button" type="button" aria-label="Back to warehouses" (click)="back()">
+      &larr; Back to warehouses
+    </button>
+
+    <div class="header-content" *ngIf="warehouse">
+      <div class="title-section">
+        <h1>{{ warehouse.name || 'Warehouse Details' }}</h1>
+        <div class="inventory-meta">
+          <span class="item-id">#{{ warehouse.id ?? '—' }}</span>
+          <span>&bull;</span>
+          <span>{{ warehouse.zoneAisle || 'No zone' }}</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="status-badges">
+          <span class="badge" [ngClass]="warehouse.active ? 'badge-success' : 'badge-info'">
+            {{ warehouse.active ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div> -->
+
+  <div class="main-content">
+    <div class="loading-overlay" *ngIf="isLoading && !warehouse">
+      <div class="loader"></div>
+      <span>Loading warehouse...</span>
+    </div>
+
+    <ng-container *ngIf="warehouse">
+      <div class="details-grid">
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Overview</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-2">
+              <div class="field-group">
+                <div class="field-label">Name</div>
+                <div class="field-value">{{ warehouse.name || '—' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Bin Description</div>
+                <div class="field-value">{{ warehouse.binDescription || '—' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Bin Code</div>
+                <div class="field-value highlight">{{ warehouse.binCode || '—' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Status</div>
+                <div class="field-value">{{ warehouse.active ? 'Active' : 'Inactive' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Location</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-2">
+              <div class="field-group span-2">
+                <div class="field-label">Address</div>
+                <div class="field-value">{{ warehouse.address || '—' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Zone / Aisle</div>
+                <div class="field-value">{{ warehouse.zoneAisle || '—' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Rack / Shelf</div>
+                <div class="field-value">{{ warehouse.rackShelf || '—' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card full-width">
+          <div class="card-header">
+            <h2 class="card-title">Audit</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group">
+                <div class="field-label">Created At</div>
+                <div class="field-value">{{ formatDate(warehouse.createdAt) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Updated At</div>
+                <div class="field-value">{{ formatDate(warehouse.updatedAt) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Warehouse ID</div>
+                <div class="field-value">{{ warehouse.id ?? '—' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
+  </div>
+</div>

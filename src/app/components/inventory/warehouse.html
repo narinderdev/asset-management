@@ -1,0 +1,96 @@
+<div class="preventive-wrapper">
+  <div class="preventive-header">
+    <h1 class="preventive-title">Warehouse</h1>
+    <button class="create-service-btn" (click)="createWarehouse()">+ Add Warehouse</button>
+  </div>
+
+  <!-- <div class="table-status" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div> -->
+
+  <div class="table-wrapper">
+    <div class="table-container">
+      <table class="preventive-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Zone / Aisle</th>
+            <th>Rack / Shelf</th>
+            <th>Bin Code</th>
+            <th>Bin Description</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="isLoading; else loadedWarehouses">
+            <tr *ngFor="let _ of loadingRows" class="skeleton-row">
+              <td><span class="skeleton skeleton-text medium"></span></td>
+              <td><span class="skeleton skeleton-text long"></span></td>
+              <td><span class="skeleton skeleton-text short"></span></td>
+              <td><span class="skeleton skeleton-text short"></span></td>
+              <td><span class="skeleton skeleton-text short"></span></td>
+              <td><span class="skeleton skeleton-text medium"></span></td>
+              <td><span class="skeleton skeleton-pill"></span></td>
+              <td><span class="skeleton skeleton-text short"></span></td>
+            </tr>
+          </ng-container>
+
+          <ng-template #loadedWarehouses>
+            <tr *ngIf="showEmptyState">
+              <td colspan="8" class="empty-row">No warehouses to display.</td>
+            </tr>
+            <tr *ngFor="let wh of warehouses">
+              <td>{{ wh.name || '-' }}</td>
+              <td>{{ wh.address || '-' }}</td>
+              <td>{{ wh.zoneAisle || '-' }}</td>
+              <td>{{ wh.rackShelf || '-' }}</td>
+              <td>{{ wh.binCode || '-' }}</td>
+              <td>{{ wh.binDescription || '-' }}</td>
+              <td>
+                <span class="status-chip"
+                  [ngClass]="{
+                    'status-green': wh.active === true,
+                    'status-grey': wh.active === false
+                  }">
+                  {{ wh.active === false ? 'Inactive' : 'Active' }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button class="action-icon" aria-label="View warehouse" (click)="viewWarehouse(wh)">
+                  <img src="assets/icons/Vector.svg" alt="View" />
+                </button>
+                <button class="action-icon" aria-label="Edit warehouse" (click)="editWarehouse(wh)">
+                  <img src="assets/icons/edit.svg" alt="Edit" />
+                </button>
+                <button
+                  class="action-icon danger"
+                  aria-label="Delete warehouse"
+                  [disabled]="isDeleting && deleteTargetId === wh.id"
+                  (click)="deleteWarehouse(wh)">
+                  <img src="assets/icons/delete.svg" alt="Delete" />
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="loading-overlay" *ngIf="isLoading">
+      <div class="loader"></div>
+      <span>Loading warehouses...</span>
+    </div>
+  </div>
+
+  <app-delete-modal
+    [isOpen]="showDeleteModal"
+    [title]="'Delete warehouse'"
+    [message]="'Are you sure you want to delete ' + (deleteTarget?.name || 'this warehouse') + '?'"
+    [deleting]="isDeleting"
+    confirmLabel="Delete"
+    (cancel)="onDeleteCancel()"
+    (confirm)="confirmDelete()">
+  </app-delete-modal>
+</div>

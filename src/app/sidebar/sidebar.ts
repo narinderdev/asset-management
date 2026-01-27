@@ -87,7 +87,12 @@ export class SidebarComponent implements OnInit {
       activeIcon: 'proicons_document (1).svg',
       label: 'Inventory',
       route: '/inventory',
-      module: 'INVENTORY'
+      module: 'INVENTORY',
+      hasSubmenu: true,
+      submenu: [
+        { label: 'Warehouse', route: '/inventory/warehouse' },
+        { label: 'Inventory', route: '/inventory' }
+      ]
     },
     {
       icon: 'Icon.svg',
@@ -104,21 +109,21 @@ export class SidebarComponent implements OnInit {
       module: 'PROCUREMENT',
       hasSubmenu: true,
       submenu: [
-        { label: 'Material Requisitions', route: '/procurement/material-requisitions' },
-        { label: 'Purchase Orders', route: '/procurement/purchase-orders' },
-        { label: 'Goods Receipts (GRN)', route: '/procurement/goods-receipts' }
+        { label: 'Material Requisition', route: '/procurement/material-requisitions' },
+        { label: 'Purchase Order', route: '/procurement/purchase-orders' },
+        { label: 'Goods Receipt (GRN)', route: '/procurement/goods-receipts' }
       ]
     },
     {
       icon: 'tec.svg',
       activeIcon: 'tec.svg',
-      label: 'Technician / Teams',
+      label: 'Technician / Team',
       route: '/technicians',
       module: 'TECHNICIAN',
       hasSubmenu: true,
         submenu: [
         { label: 'Technician', route: '/technicians' },
-        { label: 'Technician Teams', route: '/technicians/teams' }
+        { label: 'Technician Team', route: '/technicians/teams' }
       ]
     },
     {

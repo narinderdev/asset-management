@@ -90,33 +90,51 @@ export class ProcurementComponent implements OnInit {
       .subscribe({
         next: response => {
           this.zone.run(() => {
-            const content = response.data?.content ?? [];
-            this.requests = content.map(item => this.mapRequest(item));
-            this.totalRequests = response.data?.totalElements ?? this.requests.length;
-            if (typeof response.data?.size === 'number' && response.data.size > 0) {
-              this.itemsPerPage = response.data.size;
+            try {
+              const raw = response.data?.content ?? response.data ?? [];
+              const content = Array.isArray(raw) ? raw : [];
+              this.requests = content.map(item => this.mapRequest(item));
+              this.totalRequests =
+                response.data && 'totalElements' in response.data
+                  ? response.data.totalElements ?? this.requests.length
+                  : this.requests.length;
+              if (typeof (response.data as any)?.size === 'number' && (response.data as any).size > 0) {
+                this.itemsPerPage = (response.data as any).size;
+              }
+              const apiPage = (response.data as any)?.number;
+              if (typeof apiPage === 'number') {
+                this.currentPage = apiPage;
+              }
+              this.filterRequests();
+              this.showEmptyState = this.filteredRequests.length === 0;
+            } catch (err) {
+              this.handleLoadError();
+              console.error(err);
+            } finally {
+              this.hasLoaded = true;
+              this.isLoading = false;
+              this.cdr.detectChanges();
             }
-            const apiPage = response.data?.number;
-            if (typeof apiPage === 'number') {
-              this.currentPage = apiPage;
-            }
-            this.filterRequests();
-            this.showEmptyState = this.filteredRequests.length === 0;
-            this.cdr.detectChanges();
           });
         },
         error: () => {
           this.zone.run(() => {
-            this.errorMessage = undefined;
-            this.requests = [];
-            this.filteredRequests = [];
-            this.showEmptyState = true;
-            this.totalRequests = 0;
-            this.toastr.error('Unable to load purchase requisitions. Please try again.');
+            this.handleLoadError();
+            this.hasLoaded = true;
+            this.isLoading = false;
             this.cdr.detectChanges();
           });
         }
       });
+  }
+
+  private handleLoadError(): void {
+    this.errorMessage = 'Unable to load purchase requisitions. Please try again.';
+    this.requests = [];
+    this.filteredRequests = [];
+    this.showEmptyState = true;
+    this.totalRequests = 0;
+    this.toastr.error(this.errorMessage);
   }
 
   private mapRequest(item: PurchaseRequisitionItem): ProcurementRequest {

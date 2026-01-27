@@ -36,8 +36,8 @@ export class CreateWorkOrderComponent implements OnInit {
   isSubmitting = false;
 
   assetOptions: Array<{ id: number; label: string }> = [];
-  workTypeOptions = ['CORRECTIVE', 'PREVENTIVE', 'INSPECTION', 'EMERGENCY'];
-  priorityOptions = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+  workTypeOptions = ['Corrective', 'Preventive', 'Inspection', 'Emergency'];
+  priorityOptions = ['Low', 'Medium', 'High', 'Critical'];
 
   constructor(
     private router: Router,

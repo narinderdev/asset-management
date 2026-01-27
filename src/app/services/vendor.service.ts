@@ -18,6 +18,7 @@ interface VendorsApiResponse {
 interface ApiVendor {
   vendorId?: string;
   vendorName?: string;
+  taxId?: string;
   contactPerson?: string;
   email?: string;
   phone?: string;
@@ -34,6 +35,7 @@ interface ApiVendor {
 export interface CreateVendorPayload {
   vendorId?: string;
   vendorName: string;
+  taxId?: string;
   address: string;
   contactPerson: string;
   email: string;

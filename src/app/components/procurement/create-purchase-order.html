@@ -1,7 +1,7 @@
 <div class="create-request-page">
   <section class="create-card">
     <header class="create-header">
-      <button type="button" class="back-btn" aria-label="Back to purchase orders" (click)="onCancel()">
+      <button type="button" class="back-btn" aria-label="Back to purchase order" (click)="onCancel()">
         &larr;
       </button>
       <h2>Create Purchase Order</h2>
@@ -21,11 +21,11 @@
           <span class="helper" *ngIf="isLoadingVendors">Loading vendors...</span>
         </label>
         <label class="field">
-          <span>Expected Delivery</span>
+          <span>Expected Delivery Date</span>
           <input type="date" name="expectedDelivery" [(ngModel)]="poInfo.expectedDelivery" />
         </label>
         <label class="field">
-          <span>Remarks (optional)</span>
+          <span>Delivery Instruction</span>
           <input type="text" name="remarks" [(ngModel)]="poInfo.remarks" placeholder="Delivery instructions..." />
         </label>
       </div>
@@ -37,7 +37,7 @@
           <input type="text" name="requestedBy" [(ngModel)]="requisition.requestedBy" placeholder="e.g., TM-102 / Shubham" />
         </label>
         <label class="field">
-          <span>Needed By (optional)</span>
+          <span>Need By</span>
           <input type="date" name="neededBy" [(ngModel)]="requisition.neededBy" />
         </label>
         <label class="field">
@@ -48,7 +48,7 @@
 
       <div class="line-items">
         <div class="line-items-toolbar">
-          <div class="section-title">Line Items</div>
+          <div class="section-title">Line Item</div>
           <button type="button" class="link-btn add-line-btn" (click)="addLineItem()">+ Add Line Item</button>
         </div>
         <div class="line-items-header">

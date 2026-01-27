@@ -1,0 +1,61 @@
+﻿<div class="create-request-page">
+  <section class="create-card">
+    <header class="create-header">
+      <button type="button" class="back-btn" aria-label="Back to warehouses" (click)="cancel()">&larr;</button>
+      <h2>{{ isEdit ? 'Edit Warehouse' : 'Create Warehouse' }}</h2>
+    </header>
+
+    <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <div class="form-wrapper">
+      <form class="request-form" (ngSubmit)="submit()">
+        <div class="form-grid">
+          <label class="field">
+            <span>Name</span>
+            <input type="text" name="name" [(ngModel)]="form.name" required placeholder="Enter name" [disabled]="isLoading" />
+          </label>
+
+          <label class="field">
+            <span>Address</span>
+            <input type="text" name="address" [(ngModel)]="form.address" required placeholder="Enter address" [disabled]="isLoading" />
+          </label>
+
+          <label class="field">
+            <span>Zone / Aisle</span>
+            <input type="text" name="zoneAisle" [(ngModel)]="form.zoneAisle" required placeholder="Enter zone / aisle" [disabled]="isLoading" />
+          </label>
+
+          <label class="field">
+            <span>Rack / Shelf</span>
+            <input type="text" name="rackShelf" [(ngModel)]="form.rackShelf" required placeholder="Enter rack / shelf" [disabled]="isLoading" />
+          </label>
+
+          <label class="field">
+            <span>Bin Code</span>
+            <input type="text" name="binCode" [(ngModel)]="form.binCode" required placeholder="Enter bin code" [disabled]="isLoading" />
+          </label>
+
+          <label class="field">
+            <span>Bin Description</span>
+            <input type="text" name="binDescription" [(ngModel)]="form.binDescription" required placeholder="Enter bin description" [disabled]="isLoading" />
+          </label>
+
+          <label class="field">
+            <span>Status</span>
+            <select name="active" [(ngModel)]="form.active" [disabled]="isLoading">
+              <option [ngValue]="true">Active</option>
+              <option [ngValue]="false">Inactive</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn ghost" (click)="cancel()" [disabled]="isSubmitting">Cancel</button>
+          <button type="submit" class="btn primary" [disabled]="isSubmitting || isLoading">
+            {{ isEdit ? 'Update' : 'Create' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>

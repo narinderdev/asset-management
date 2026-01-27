@@ -35,6 +35,7 @@ export class CreateVendorComponent implements OnInit {
   vendor = {
     vendorId: '',
     vendorName: '',
+    taxId: '',
     address: '',
     contactPerson: '',
     email: '',
@@ -105,6 +106,7 @@ export class CreateVendorComponent implements OnInit {
 
     const payload: CreateVendorPayload = {
       vendorName: this.vendor.vendorName,
+      taxId: this.vendor.taxId || undefined,
       address: this.vendor.address,
       contactPerson: this.vendor.contactPerson,
       email: this.vendor.email,
@@ -165,6 +167,7 @@ export class CreateVendorComponent implements OnInit {
               ...this.vendor,
               vendorId: response.data.vendorId ?? this.vendor.vendorId,
               vendorName: response.data.vendorName ?? '',
+              taxId: (response.data as any).taxId ?? '',
               address: response.data.address ?? '',
               contactPerson: response.data.contactPerson ?? '',
               email: response.data.email ?? '',

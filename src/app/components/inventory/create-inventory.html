@@ -18,9 +18,13 @@
                   (change)="onAutoGenerateItemIdChange()" />
                 <span>Auto-generate</span>
               </div>
-            </div>
-            <input type="text" name="itemId" [(ngModel)]="inventoryItem.itemId"
-              [disabled]="isEditMode || autoGenerateItemId" />
+          </div>
+          <input type="text" name="itemId" [(ngModel)]="inventoryItem.itemId"
+            [disabled]="isEditMode || autoGenerateItemId" />
+          </label>
+          <label class="field">
+            <span>SKU Number</span>
+            <input type="text" name="skuNumber" [(ngModel)]="inventoryItem.skuNumber" placeholder="Enter SKU number" />
           </label>
           <label class="field">
             <span>Item Name</span>
@@ -65,7 +69,7 @@
           </label>
 
           <label class="field">
-            <span>Cost per Unit</span>
+            <span>Unit Cost</span>
             <input type="number" name="costPerUnit" [(ngModel)]="inventoryItem.costPerUnit" step="0.01" min="0" />
           </label>
           <label class="field">
@@ -77,6 +81,15 @@
             <input type="number" name="maxStockLevel" [(ngModel)]="inventoryItem.maxStockLevel" min="0" />
           </label>
 
+          <label class="field">
+            <span>Warehouse</span>
+            <select name="warehouse" [(ngModel)]="inventoryItem.warehouseId">
+              <option [ngValue]="null" disabled hidden>Select Warehouse</option>
+              <option *ngFor="let wh of warehouseOptions" [ngValue]="wh.id">
+                {{ wh.label }}
+              </option>
+            </select>
+          </label>
           <label class="field">
             <span>Primary Vendor</span>
             <select name="primaryVendor" [(ngModel)]="inventoryItem.primaryVendorDbId">

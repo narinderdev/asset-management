@@ -12,6 +12,9 @@ import { CreatePreventiveMaintenanceComponent } from './components/preventive-ma
 import { ViewPreventiveMaintenanceComponent } from './components/preventive-maintenance/view-preventive-maintenance';
 import { InventoryComponent } from './components/inventory/inventory';
 import { CreateInventoryComponent } from './components/inventory/create-inventory';
+import { WarehouseComponent } from './components/inventory/warehouse';
+import { CreateWarehouseComponent } from './components/inventory/create-warehouse';
+import { ViewWarehouseComponent } from './components/inventory/view-warehouse';
 import { VendorManagementComponent } from './components/vendor-management/vendor-management';
 import { CreateVendorComponent } from './components/vendor-management/create-vendor';
 import { ViewVendorComponent } from './components/vendor-management/view-vendor';
@@ -94,6 +97,9 @@ export const routes: Routes = [
   { path: 'emergency-maintenance/create', component: CreateEmergencyMaintenanceComponent, canActivate: [AuthGuard] },
   { path: 'emergency-maintenance/view/:id', component: ViewEmergencyMaintenanceComponent, canActivate: [AuthGuard] },
   { path: 'emergency-maintenance/edit/:id', component: CreateEmergencyMaintenanceComponent, canActivate: [AuthGuard] },
+  { path: 'inventory/warehouse', component: WarehouseComponent, canActivate: [AuthGuard] },
+  { path: 'inventory/warehouse/view/:id', component: ViewWarehouseComponent, canActivate: [AuthGuard] },
+  { path: 'inventory/warehouse/create', component: CreateWarehouseComponent, canActivate: [AuthGuard] },
   { path: 'inventory', component: InventoryComponent, canActivate: [AuthGuard] },
   { path: 'inventory/create', component: CreateInventoryComponent, canActivate: [AuthGuard] },
   { path: 'inventory/edit/:id', component: CreateInventoryComponent, canActivate: [AuthGuard] },
