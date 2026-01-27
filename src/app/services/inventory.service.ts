@@ -136,9 +136,13 @@ export class InventoryService {
     });
 
     if (typeof localStorage !== 'undefined') {
-      const token = localStorage.getItem('authToken');
-      if (token) {
-        headers = headers.set('Authorization', `Bearer ${token}`);
+      const raw =
+        localStorage.getItem('authToken') ||
+        localStorage.getItem('authtoken') ||
+        localStorage.getItem('token');
+      if (raw) {
+        const value = raw.startsWith('Bearer ') ? raw : `Bearer ${raw}`;
+        headers = headers.set('Authorization', value);
       }
     }
 

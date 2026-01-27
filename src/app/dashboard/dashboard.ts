@@ -61,6 +61,7 @@ export class DashboardComponent {
       this.buildStatCard('Active Work Orders', data?.metrics.activeWorkOrders, loading),
       this.buildStatCard('Overdue Tasks', data?.metrics.overdueTasks, loading),
       this.buildStatCard('Critical Assets Down', data?.metrics.criticalAssetsDown, loading),
+      this.buildStatCard('Requests Not Accepted', data?.metrics.requestsNotAccepted, loading),
     ];
   });
 

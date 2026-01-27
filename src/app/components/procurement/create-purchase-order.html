@@ -30,8 +30,8 @@
         </label>
       </div>
 
-      <div class="section-title">Material Requisition Info</div>
-      <div class="form-grid">
+      <!-- <div class="section-title">Material Requisition Info</div> -->
+      <div class="form-grid form-grid-3">
         <label class="field">
           <span>Requested By (userId/name)</span>
           <input type="text" name="requestedBy" [(ngModel)]="requisition.requestedBy" placeholder="e.g., TM-102 / Shubham" />
@@ -44,6 +44,35 @@
           <span>Notes (optional)</span>
           <input type="text" name="notes" [(ngModel)]="requisition.notes" placeholder="Reason / job / project context..." />
         </label>
+
+        <label class="field">
+          <span>Department</span>
+          <input type="text" name="department" [(ngModel)]="requisition.department" placeholder="Enter department" />
+        </label>
+
+        <label class="field">
+          <span>Shipping Location</span>
+          <select name="shippingLocation" [(ngModel)]="requisition.shippingLocation">
+            <option value="WAREHOUSE">Warehouse</option>
+            <option value="WORK_SITE">Work site</option>
+          </select>
+        </label>
+
+        <label class="field" *ngIf="requisition.shippingLocation === 'WAREHOUSE'">
+          <span>Warehouse</span>
+          <select name="shippingTargetId" [(ngModel)]="requisition.shippingTargetId">
+            <option [ngValue]="null" disabled hidden>Select warehouse</option>
+            <option *ngFor="let wh of warehouseOptions" [ngValue]="wh.id">{{ wh.name }}</option>
+          </select>
+        </label>
+
+        <label class="field" *ngIf="requisition.shippingLocation === 'WORK_SITE'">
+          <span>Work Order</span>
+          <select name="shippingTargetId" [(ngModel)]="requisition.shippingTargetId">
+            <option [ngValue]="null" disabled hidden>Select work order</option>
+            <option *ngFor="let wo of workOrderOptions" [ngValue]="wo.id">{{ wo.name }}</option>
+          </select>
+        </label>
       </div>
 
       <div class="line-items">
@@ -54,7 +83,7 @@
         <div class="line-items-header">
           <div>Inventory name</div>
           <div>Item / Asset ID</div>
-          <div>Qty</div>
+          <div>Order Quantity</div>
           <div>Unit Price</div>
           <div>UOM</div>
           <div class="actions-column">Actions</div>
@@ -75,6 +104,7 @@
               name="assetId-{{ i }}"
               [(ngModel)]="line.assetId"
               placeholder="e.g., ITEM-001 / ASSET-12"
+              [readonly]="!!line.itemId"
             />
           </div>
           <div class="line-field">
@@ -84,7 +114,7 @@
             <input type="number" name="unitPrice-{{ i }}" [(ngModel)]="line.unitPrice" min="0" step="0.01" />
           </div>
           <div class="line-field">
-            <input type="text" name="uom-{{ i }}" [(ngModel)]="line.uom" />
+            <input type="text" name="uom-{{ i }}" [(ngModel)]="line.uom" [readonly]="!!line.itemId" />
           </div>
           <div class="line-field actions-field">
             <button type="button" class="icon-btn" aria-label="Remove line" (click)="removeLineItem(i)"></button>

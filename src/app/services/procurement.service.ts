@@ -26,6 +26,9 @@ export interface CreateMrPayload {
   requestedByUserId: string;
   neededByDate?: string;
   notes?: string;
+  shipToType?: string;
+  shipToWarehouseId?: number;
+  shipToWorkOrderId?: number;
   lines: CreateMrLine[];
 }
 
@@ -223,6 +226,9 @@ export interface CreatePoPayload {
   mrId?: number;
   neededByDate?: string;
   notes?: string;
+  shipToType?: string;
+  shipToWarehouseId?: number;
+  shipToWorkOrderId?: number;
   lines: CreatePoLine[];
 }
 

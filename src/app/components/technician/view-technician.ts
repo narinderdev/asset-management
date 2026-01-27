@@ -14,6 +14,8 @@ import { ApiTechnician, TechnicianService } from '../../services/technician.serv
 })
 export class ViewTechnicianComponent implements OnInit {
   technician?: ApiTechnician;
+  teamNameDisplay?: string;
+  teamLeaderNamesDisplay?: string;
   isLoading = false;
   technicianLoaded = false;
   errorMessage?: string;
@@ -59,6 +61,7 @@ export class ViewTechnicianComponent implements OnInit {
         next: (response) => {
           if (response.data) {
             this.technician = response.data;
+            this.setTeamDisplayFields(response.data);
           } else {
             this.errorMessage = response.message ?? 'Technician not found.';
           }
@@ -78,6 +81,18 @@ export class ViewTechnicianComponent implements OnInit {
       return '-';
     }
     return String(value);
+  }
+
+  private setTeamDisplayFields(tech: ApiTechnician): void {
+    const primaryMembership = tech.teamMemberships && tech.teamMemberships.length ? tech.teamMemberships[0] : undefined;
+    const teamName = tech.teamName || primaryMembership?.teamName;
+    const leaderNames = primaryMembership?.teamLeaderNames;
+
+    this.teamNameDisplay = teamName || '-';
+    this.teamLeaderNamesDisplay = leaderNames && leaderNames.length ? leaderNames.join(', ') : '-';
+    if (tech.teamLeader === undefined && primaryMembership?.teamLeader !== undefined) {
+      tech.teamLeader = primaryMembership.teamLeader;
+    }
   }
 
   formatBoolean(value?: boolean): string {

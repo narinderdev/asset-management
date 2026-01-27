@@ -10,8 +10,8 @@
         <h1>{{ technician.firstName }} {{ technician.lastName }}</h1>
         <div class="technician-meta">
           <span class="tech-type">{{ formatEnum(technician.technicianType) }}</span>
-          <span *ngIf="technician.teamName">•</span>
-          <span *ngIf="technician.teamName">{{ technician.teamName }}</span>
+          <span *ngIf="teamNameDisplay && teamNameDisplay !== '-'">&bull;</span>
+          <span *ngIf="teamNameDisplay && teamNameDisplay !== '-'">{{ teamNameDisplay }}</span>
         </div>
       </div>
 
@@ -69,11 +69,15 @@
               </div>
               <div class="field-group">
                 <div class="field-label">Team Name</div>
-                <div class="field-value" [ngClass]="{'empty': !technician.teamName}">{{ formatField(technician.teamName) }}</div>
+                <div class="field-value" [ngClass]="{'empty': !teamNameDisplay}">{{ formatField(teamNameDisplay) }}</div>
               </div>
               <div class="field-group">
                 <div class="field-label">Team Leader</div>
                 <div class="field-value">{{ formatBoolean(technician.teamLeader) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Team Leader Name</div>
+                <div class="field-value" [ngClass]="{'empty': !teamLeaderNamesDisplay || teamLeaderNamesDisplay === '-'}">{{ formatField(teamLeaderNamesDisplay) }}</div>
               </div>
             </div>
           </div>

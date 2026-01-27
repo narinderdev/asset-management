@@ -25,6 +25,7 @@ export interface ApiTechnician {
     teamId?: number;
     teamLeader?: boolean;
     teamName?: string;
+    teamLeaderNames?: string[];
   }>;
 }
 

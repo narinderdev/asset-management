@@ -17,6 +17,7 @@ export interface DashboardData {
   new_service_requests?: RecentServiceRequest[];
   summary_metrics?: SummaryMetrics;
   work_orders_by_status?: WorkOrdersByStatus;
+  requests_not_accepted_count?: number;
 }
 
 export interface DashboardMetadata {
@@ -41,6 +42,7 @@ export interface SummaryMetrics {
   active_work_orders?: SummaryMetric;
   critical_assets_down?: SummaryMetric;
   open_service_requests?: SummaryMetric;
+  requests_not_accepted_count?: SummaryMetric;
 }
 
 export interface SummaryMetric {

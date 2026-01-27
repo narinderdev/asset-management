@@ -1,76 +1,104 @@
 ﻿<div class="create-request-page">
   <section class="create-card">
     <header class="create-header">
-      <button type="button" class="back-btn" aria-label="Back to procurement" (click)="onCancel()">
-        &larr;
-      </button>
+      <button class="back-btn" type="button" aria-label="Back" (click)="onCancel()">&larr;</button>
       <h2>{{ isEditMode ? 'Edit MR' : 'Create MR' }}</h2>
     </header>
 
-    <form class="request-form" (ngSubmit)="onSubmit()">
-      <div class="section-title">{{ isEditMode ? 'Update Material Requisition (MR)' : 'Create Material Requisition (MR)' }}</div>
-      <div class="form-grid">
-        <label class="field">
-          <span>Requested By</span>
-          <input type="text" name="requestedBy" [(ngModel)]="requisition.requestedBy" placeholder="e.g., TM-102 / Shubham" />
-        </label>
-        <label class="field">
-          <span>Needed By </span>
-          <input type="date" name="neededBy" [(ngModel)]="requisition.neededBy" />
-        </label>
-        <label class="field">
-          <span>Notes (optional)</span>
-          <input type="text" name="notes" [(ngModel)]="requisition.notes" placeholder="Reason / job / project context..." />
-        </label>
-      </div>
+    <div class="form-wrapper">
+      <form class="request-form" (ngSubmit)="onSubmit()">
+        <div class="form-grid form-grid-3">
+          <label class="field">
+            <span>Requested By</span>
+            <input type="text" name="requestedBy" [(ngModel)]="requisition.requestedBy" placeholder="e.g., TM-102 / Shubham" />
+          </label>
+          <label class="field">
+            <span>Needed By</span>
+            <input type="date" name="neededBy" [(ngModel)]="requisition.neededBy" />
+          </label>
+          <label class="field">
+            <span>Notes (optional)</span>
+            <input type="text" name="notes" [(ngModel)]="requisition.notes" placeholder="Reason / job / project context..." />
+          </label>
 
-      <div class="line-items">
-        <div class="line-items-toolbar">
-          <div class="section-title">Inventory Items</div>
-          <button type="button" class="link-btn add-line-btn" (click)="addLineItem()">+ Add Line Item</button>
-        </div>
-        <div class="line-items-header">
-          <div>Inventory name</div>
-          <div>Item ID</div>
-          <div>Qty</div>
-          <!-- <div>UOM</div> -->
-          <div class="actions-column">Actions</div>
-        </div>
+          <label class="field">
+            <span>Department</span>
+            <input type="text" name="department" [(ngModel)]="requisition.department" placeholder="Enter department" />
+          </label>
 
-        <div class="line-item-row" *ngFor="let line of lineItems; let i = index">
-          <div class="line-field">
-            <select name="itemId-{{ i }}" [(ngModel)]="line.itemId" (change)="onItemSelected(i)">
-              <option value="" disabled hidden>Select item</option>
-              <option *ngFor="let option of itemOptions" [value]="option.id">
-                {{ option.name }}
-              </option>
+          <label class="field">
+            <span>Shipping Location</span>
+            <select name="shippingLocation" [(ngModel)]="requisition.shippingLocation">
+              <option value="WAREHOUSE">Warehouse</option>
+              <option value="WORK_SITE">Work site</option>
             </select>
+          </label>
+
+          <label class="field" *ngIf="requisition.shippingLocation === 'WAREHOUSE'">
+            <span>Warehouse</span>
+            <select name="shippingTargetId" [(ngModel)]="requisition.shippingTargetId">
+              <option [ngValue]="null" disabled hidden>Select warehouse</option>
+              <option *ngFor="let wh of warehouseOptions" [ngValue]="wh.id">{{ wh.name }}</option>
+            </select>
+          </label>
+
+          <label class="field" *ngIf="requisition.shippingLocation === 'WORK_SITE'">
+            <span>Work Order</span>
+            <select name="shippingTargetId" [(ngModel)]="requisition.shippingTargetId">
+              <option [ngValue]="null" disabled hidden>Select work order</option>
+              <option *ngFor="let wo of workOrderOptions" [ngValue]="wo.id">{{ wo.name }}</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="section-header">
+          <!-- <h3>Create Material Requisition (MR)</h3> -->
+        </div>
+
+        <div class="line-items">
+          <div class="line-items-header">
+            <span>Inventory name</span>
+            <span>Item ID</span>
+            <span>Qty</span>
+            <span>UOM</span>
+            <span>Remarks</span>
+            <span class="actions-column">Actions</span>
           </div>
-          <div class="line-field">
-            <input
-              type="text"
-              name="assetId-{{ i }}"
-              [(ngModel)]="line.assetId"
-              placeholder="e.g., ITEM-001"
-            />
+
+          <div class="line-item-row" *ngFor="let item of lineItems; index as i">
+            <div class="line-field">
+              <select [(ngModel)]="item.itemId" name="item-{{ i }}" (change)="onItemSelected(i)">
+                <option [ngValue]="''" disabled hidden>Select item</option>
+                <option *ngFor="let opt of itemOptions" [ngValue]="opt.id">{{ opt.name }}</option>
+              </select>
+            </div>
+            <div class="line-field">
+              <input type="text" [(ngModel)]="item.assetId" name="asset-{{ i }}" placeholder="e.g., ITEM-001" />
+            </div>
+            <div class="line-field">
+              <input type="number" min="1" [(ngModel)]="item.qty" name="qty-{{ i }}" />
+            </div>
+            <div class="line-field">
+              <input type="text" [(ngModel)]="item.uom" name="uom-{{ i }}" placeholder="Each" />
+            </div>
+            <div class="line-field">
+              <input type="text" [(ngModel)]="item.itemName" name="remarks-{{ i }}" placeholder="Remarks" />
+            </div>
+            <div class="actions-field">
+              <button type="button" class="icon-btn danger" (click)="removeLineItem(i)" [disabled]="lineItems.length === 1"></button>
+            </div>
           </div>
-          <div class="line-field">
-            <input type="number" name="qty-{{ i }}" [(ngModel)]="line.qty" min="1" />
-          </div>
-          <!-- <div class="line-field">
-            <input type="text" name="uom-{{ i }}" [(ngModel)]="line.uom" />
-          </div> -->
-          <div class="line-field actions-field">
-            <button type="button" class="icon-btn" aria-label="Remove line" (click)="removeLineItem(i)"></button>
+
+          <div class="line-items-toolbar">
+            <button type="button" class="add-line-btn" (click)="addLineItem()">+ Add Line Item</button>
           </div>
         </div>
-      </div>
 
-      <div class="form-actions">
-        <button type="submit" class="btn primary" [disabled]="isSubmitting">
-          {{ isEditMode ? 'Update' : 'Submit' }}
-        </button>
-      </div>
-    </form>
+        <div class="form-actions">
+          <button type="button" class="btn ghost" (click)="onCancel()">Cancel</button>
+          <button type="submit" class="btn primary" [disabled]="isSubmitting">Submit</button>
+        </div>
+      </form>
+    </div>
   </section>
 </div>

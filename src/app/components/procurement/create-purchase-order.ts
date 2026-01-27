@@ -9,6 +9,7 @@ import {
   CreatePoLine
 } from '../../services/procurement.service';
 import { InventoryService } from '../../services/inventory.service';
+import { WorkOrderService } from '../../services/work-order.service';
 import { VendorService } from '../../services/vendor.service';
 
 interface LineItem {
@@ -36,7 +37,10 @@ export class CreatePurchaseOrderComponent implements OnInit {
   requisition = {
     requestedBy: '',
     neededBy: this.today,
-    notes: ''
+    notes: '',
+    department: '',
+    shippingLocation: 'WAREHOUSE',
+    shippingTargetId: null as number | null
   };
 
   poInfo = {
@@ -58,18 +62,25 @@ export class CreatePurchaseOrderComponent implements OnInit {
 
   itemOptions: { id: number; name: string; code?: string; uom?: string }[] = [];
   vendorOptions: { id: number; name: string }[] = [];
+  warehouseOptions: { id: number; name: string }[] = [];
+  workOrderOptions: { id: number; name: string }[] = [];
+  isLoadingWarehouses = false;
+  isLoadingWorkOrders = false;
 
   constructor(
     private router: Router,
     private procurementService: ProcurementService,
     private inventoryService: InventoryService,
     private vendorService: VendorService,
+    private workOrderService: WorkOrderService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.fetchItemOptions();
     this.fetchVendors();
+    this.fetchWarehouses();
+    this.fetchWorkOrders();
   }
 
   onCancel(): void {
@@ -142,6 +153,9 @@ export class CreatePurchaseOrderComponent implements OnInit {
       createdByUserId: this.requisition.requestedBy || '',
       neededByDate: this.requisition.neededBy,
       notes: this.requisition.notes,
+      shipToType: this.requisition.shippingLocation,
+      shipToWarehouseId: this.requisition.shippingLocation === 'WAREHOUSE' ? this.requisition.shippingTargetId ?? undefined : undefined,
+      shipToWorkOrderId: this.requisition.shippingLocation === 'WORK_SITE' ? this.requisition.shippingTargetId ?? undefined : undefined,
       lines
     };
   }
@@ -185,6 +199,50 @@ export class CreatePurchaseOrderComponent implements OnInit {
         console.error('Unable to load vendors for dropdown', err);
         this.vendorOptions = [];
         this.isLoadingVendors = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private fetchWarehouses(): void {
+    this.isLoadingWarehouses = true;
+    this.inventoryService.fetchWarehouses().subscribe({
+      next: res => {
+        const list = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray((res as any)?.data?.content)
+            ? (res as any).data.content
+            : [];
+        this.warehouseOptions = list
+          .filter((w: any) => w?.id !== undefined)
+          .map((w: any) => ({ id: w.id as number, name: w.name || `Warehouse ${w.id}` }));
+      },
+      error: err => {
+        console.error('Unable to load warehouses', err);
+        this.warehouseOptions = [];
+      },
+      complete: () => {
+        this.isLoadingWarehouses = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private fetchWorkOrders(): void {
+    this.isLoadingWorkOrders = true;
+    this.workOrderService.fetchWorkOrders(0, 50).subscribe({
+      next: res => {
+        const list = (res as any)?.data?.workOrders ?? (res as any)?.data?.content ?? [];
+        this.workOrderOptions = list
+          .filter((wo: any) => wo?.id !== undefined)
+          .map((wo: any) => ({ id: wo.id as number, name: wo.woTitle || wo.workOrderId || `Work Order ${wo.id}` }));
+      },
+      error: err => {
+        console.error('Unable to load work orders', err);
+        this.workOrderOptions = [];
+      },
+      complete: () => {
+        this.isLoadingWorkOrders = false;
         this.cdr.detectChanges();
       }
     });

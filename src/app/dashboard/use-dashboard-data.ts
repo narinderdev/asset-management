@@ -56,6 +56,7 @@ export interface DashboardViewData {
     activeWorkOrders: MetricDisplay;
     overdueTasks: MetricDisplay;
     criticalAssetsDown: MetricDisplay;
+    requestsNotAccepted: MetricDisplay;
   };
   workOrdersByStatus: {
     total: number;
@@ -148,6 +149,10 @@ function normalizeDashboardResponse(response: DashboardApiResponse): DashboardVi
   );
   const overdueCount = calculateOverdueCount(recentWorkOrders);
 
+  const requestsNotAcceptedMetric =
+    dashboard.summary_metrics?.requests_not_accepted_count ??
+    ({ count: dashboard.requests_not_accepted_count ?? 0 } as SummaryMetric);
+
   const metrics = {
     openServiceRequests: normalizeMetric(
       dashboard.summary_metrics?.open_service_requests,
@@ -166,6 +171,10 @@ function normalizeDashboardResponse(response: DashboardApiResponse): DashboardVi
     criticalAssetsDown: normalizeMetric(
       dashboard.summary_metrics?.critical_assets_down,
       'Critical Assets Down',
+    ),
+    requestsNotAccepted: normalizeMetric(
+      requestsNotAcceptedMetric,
+      'Requests Not Accepted',
     ),
   };
 
@@ -231,12 +240,17 @@ function normalizeMetric(metric: SummaryMetric | undefined, label: string): Metr
       ? null
       : metric.change_percentage;
 
+  const comparisonPeriodRaw = metric?.comparison_period ?? null;
+  const comparisonPeriod = comparisonPeriodRaw
+    ? comparisonPeriodRaw.replace(/_/g, ' ').toLowerCase()
+    : null;
+
   return {
     label,
     count: toNumber(metric?.count),
     changeDirection,
     changePercentage,
-    comparisonPeriod: metric?.comparison_period ?? null,
+    comparisonPeriod,
   };
 }
 

@@ -54,16 +54,7 @@
       <span>Loading PO...</span>
     </div>
 
-    <ng-container *ngIf="errorMessage && !isLoading">
-      <div class="card">
-        <div class="card-body">
-          <div class="empty-state">
-            <div class="empty-icon">⚠️</div>
-            <div class="empty-text">{{ errorMessage }}</div>
-          </div>
-        </div>
-      </div>
-    </ng-container>
+    <!-- Removed error empty-state card per request -->
 
     <ng-container *ngIf="!isLoading && po">
     <div class="details-grid">
