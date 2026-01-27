@@ -39,7 +39,7 @@
 }
 
 .wo-table th {
-  text-transform: uppercase;
+  text-transform: capitalize;
   font-size: 12px;
   letter-spacing: 0.05em;
   color: #6b7280;

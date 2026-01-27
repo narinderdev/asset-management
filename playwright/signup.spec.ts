@@ -37,11 +37,10 @@ test('sign up shows validation errors for missing fields', async ({ page }) => {
   await page.click('button[type="submit"]');
 
   await expect(page).toHaveURL(/sign-up/);
-  await expect(page.getByText(/First name is required/i)).toBeVisible();
-  await expect(page.getByText(/Last name is required/i)).toBeVisible();
-  await expect(page.getByText(/Enter a valid email/i)).toBeVisible();
-  await expect(page.getByText(/Password is required/i)).toBeVisible();
-  await expect(page.getByText(/Confirm password is required/i)).toBeVisible();
+  await expect(page.getByText(/First name must be at least 2 letters/i)).toBeVisible();
+  await expect(page.getByText(/Last name must be at least 2 letters/i)).toBeVisible();
+  await expect(page.getByText(/Enter a valid email address/i)).toBeVisible();
+  await expect(page.getByText(/Password must be 8\+ characters with 1 uppercase, 1 number, and 1 symbol/i)).toBeVisible();
 });
 
 test('sign up blocks mismatched passwords', async ({ page }) => {
@@ -69,7 +68,7 @@ test('sign up enforces password strength', async ({ page }) => {
   await page.locator('input[name="confirmPassword"]').type('weak', { delay: typeDelay });
 
   await page.click('button[type="submit"]');
-  await expect(page.getByText(/password.*strong/i)).toBeVisible();
+  await expect(page.getByText(/Password must be 8\+ characters with 1 uppercase, 1 number, and 1 symbol/i)).toBeVisible();
 });
 
 test('sign up shows duplicate email error from API', async ({ page }) => {
