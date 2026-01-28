@@ -138,7 +138,7 @@ export class DashboardComponent {
 
   openTestImportDialog(): void {
     this.dialog.open(TestImportDialogComponent, {
-      width: '520px',
+      width: '900px',
       maxWidth: '95vw',
       autoFocus: false,
       restoreFocus: false,
