@@ -11,7 +11,9 @@ import { finalize } from 'rxjs/operators';
 interface GrnLine {
   itemId?: string;
   itemName?: string;
+  orderedQty: number;
   receivedQty: number;
+  returnQty: number;
 }
 
 @Component({
@@ -30,7 +32,7 @@ export class CreateGrnComponent implements OnInit {
   };
 
   lines: GrnLine[] = [
-    { itemId: '', itemName: '', receivedQty: 0 }
+    { itemId: '', itemName: '', orderedQty: 0, receivedQty: 0, returnQty: 0 }
   ];
 
   itemOptions: { id: number; name: string; code?: string; uom?: string }[] = [];
@@ -48,12 +50,12 @@ export class CreateGrnComponent implements OnInit {
   }
 
   addLine(): void {
-    this.lines.push({ itemId: '', itemName: '', receivedQty: 0 });
+    this.lines.push({ itemId: '', itemName: '', orderedQty: 0, receivedQty: 0, returnQty: 0 });
   }
 
   removeLine(index: number): void {
     if (this.lines.length === 1) {
-      this.lines[0] = { itemId: '', itemName: '', receivedQty: 0 };
+      this.lines[0] = { itemId: '', itemName: '', orderedQty: 0, receivedQty: 0, returnQty: 0 };
       return;
     }
     this.lines.splice(index, 1);
@@ -69,7 +71,10 @@ export class CreateGrnComponent implements OnInit {
       notes: this.form.notes || undefined,
       lines: this.lines.map(line => ({
         itemId: Number(line.itemId || 0),
+        orderedQty: Number(line.orderedQty) || 0,
         receivedQty: Number(line.receivedQty) || 0
+        ,
+        returnQty: Number(line.returnQty) || 0
       }))
     };
     const parsedPoId = Number(this.form.poId);

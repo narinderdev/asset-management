@@ -233,7 +233,9 @@
                 <tr>
                   <th>Item ID</th>
                   <th>Ordered</th>
+                  <th>Received To‑date</th>
                   <th>Receive Now</th>
+                  <th>Return Qty</th>
                   <th>UOM</th>
                 </tr>
               </thead>
@@ -241,6 +243,7 @@
                 <tr *ngFor="let line of grnForm.lines">
                   <td class="item-id">{{ line.itemId || '—' }}</td>
                   <td><strong>{{ line.orderedQty }}</strong></td>
+                  <td><strong>{{ line.receivedQty }}</strong></td>
                   <td>
                     <input
                       type="number"
@@ -249,10 +252,18 @@
                       [(ngModel)]="line.receiveNow"
                     />
                   </td>
+                  <td>
+                    <input
+                      type="number"
+                      min="0"
+                      class="inline-input"
+                      [(ngModel)]="line.returnQty"
+                    />
+                  </td>
                   <td>{{ line.uom || '—' }}</td>
                 </tr>
                 <tr *ngIf="!grnForm.lines?.length">
-                  <td colspan="4" class="empty-cell">
+                  <td colspan="6" class="empty-cell">
                     <div class="empty-state">
                       <div class="empty-icon">📦</div>
                       <div class="empty-text">No lines available</div>

@@ -1,5 +1,8 @@
 import { Component, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { StatCard } from '../components/stat-card/stat-card';
 import { WorkOrderChart, WorkOrderStatus } from '../components/work-order-chart/work-order-chart';
 import { CostChart, CostChartPoint } from '../components/cost-chart/cost-chart';
@@ -7,6 +10,7 @@ import { WorkOrderTable } from '../components/work-order-table/work-order-table'
 import { ServiceRequestTable } from '../components/service-request-table/service-request-table';
 import { MetricDisplay, DashboardRecentWorkOrder, DashboardRecentServiceRequest, useDashboardData } from './use-dashboard-data';
 import { ToastrService } from 'ngx-toastr';
+import { TestImportDialogComponent } from './test-import-dialog/test-import-dialog.component';
 
 interface DashboardStatCard {
   title: string;
@@ -44,7 +48,17 @@ interface DashboardTableServiceRequest {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, StatCard, WorkOrderChart, CostChart, WorkOrderTable, ServiceRequestTable],
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule,
+    StatCard,
+    WorkOrderChart,
+    CostChart,
+    WorkOrderTable,
+    ServiceRequestTable,
+  ],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css'],
 })
@@ -106,7 +120,7 @@ export class DashboardComponent {
   readonly isLoading = computed<boolean>(() => this.state.loading());
   readonly error = computed<string | null>(() => this.state.error());
 
-  constructor(private toastr: ToastrService) {
+  constructor(private toastr: ToastrService, private dialog: MatDialog) {
     effect(() => {
       const errorMessage = this.error();
       if (errorMessage && errorMessage !== this.lastErrorShown) {
@@ -120,6 +134,15 @@ export class DashboardComponent {
 
   refetch(): void {
     this.state.refetch();
+  }
+
+  openTestImportDialog(): void {
+    this.dialog.open(TestImportDialogComponent, {
+      width: '520px',
+      maxWidth: '95vw',
+      autoFocus: false,
+      restoreFocus: false,
+    });
   }
 
   private buildStatCard(

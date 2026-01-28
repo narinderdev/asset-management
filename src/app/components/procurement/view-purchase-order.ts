@@ -43,7 +43,15 @@ export class ViewPurchaseOrderComponent implements OnInit {
     receivedBy: '',
     receivedAt: '',
     notes: '',
-    lines: [] as { id?: number; itemId?: number; receiveNow: number; orderedQty: number; receivedQty: number; uom: string }[]
+    lines: [] as {
+      id?: number;
+      itemId?: number;
+      receiveNow: number;
+      orderedQty: number;
+      receivedQty: number;
+      returnQty: number;
+      uom: string;
+    }[]
   };
   isSubmittingGrn = false;
 
@@ -223,6 +231,7 @@ export class ViewPurchaseOrderComponent implements OnInit {
       orderedQty: line.orderedQty,
       receivedQty: line.receivedQty,
       receiveNow: 0,
+      returnQty: 0,
       uom: line.uom
     }));
   }
@@ -232,7 +241,9 @@ export class ViewPurchaseOrderComponent implements OnInit {
       .filter(l => Number(l.receiveNow) > 0 && (l.itemId !== undefined || l.id !== undefined))
       .map(l => ({
         itemId: Number(l.itemId || l.id),
-        receivedQty: Number(l.receiveNow)
+        orderedQty: Number(l.orderedQty) || 0,
+        receivedQty: Number(l.receiveNow),
+        returnQty: Number(l.returnQty) || 0
       }));
 
     return {

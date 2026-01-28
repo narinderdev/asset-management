@@ -1,0 +1,150 @@
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.section {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: #fafafa;
+}
+
+.file-section {
+  background: #fff;
+}
+
+.section-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #111827;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.file-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.choose-btn {
+  min-width: 130px;
+}
+
+.hidden-input {
+  display: none;
+}
+
+.file-name {
+  font-size: 13px;
+  color: #111827;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-name.muted {
+  color: #6b7280;
+}
+
+.hint {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 6px;
+}
+
+.error {
+  margin-top: 6px;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+.warning {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #92400e;
+  font-size: 13px;
+}
+
+.upload-summary .summary-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.summary-title {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.summary-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  word-break: break-word;
+}
+
+.summary-value.code,
+.code {
+  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 12px;
+}
+
+.success {
+  margin-top: 8px;
+  color: #0b7a32;
+  font-size: 13px;
+}
+
+.run-status .status-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.logs {
+  margin-top: 10px;
+}
+
+.logs-title {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.log-list {
+  max-height: 180px;
+  overflow: auto;
+  background: #0b1221;
+  color: #e5e7eb;
+  padding: 10px;
+  border-radius: 6px;
+  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.log-line + .log-line {
+  margin-top: 4px;
+}
+
+.dialog-actions {
+  gap: 10px;
+}
+
+.dialog-actions mat-progress-spinner {
+  margin-left: 6px;
+}
+
+@media (max-width: 640px) {
+  .dialog-content {
+    padding: 0 2px;
+  }
+}

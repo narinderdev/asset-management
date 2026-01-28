@@ -1,0 +1,119 @@
+<h2 mat-dialog-title>Import Test Data &amp; Run</h2>
+
+<mat-dialog-content class="dialog-content">
+  <div class="section file-section">
+    <label class="section-title">Select file</label>
+    <div class="file-row">
+      <button
+        mat-stroked-button
+        color="primary"
+        class="choose-btn"
+        type="button"
+        (click)="fileInputEl.click()"
+        [disabled]="uploading || running"
+      >
+        <mat-icon>upload_file</mat-icon>
+        Choose file
+      </button>
+      <input
+        #fileInputEl
+        type="file"
+        class="hidden-input"
+        accept=".csv,.xls,.xlsx"
+        (change)="onFileSelected($event)"
+      />
+      <div class="file-name" [class.muted]="!selectedFile">{{ selectedFileName }}</div>
+      <button
+        *ngIf="selectedFile"
+        mat-icon-button
+        type="button"
+        aria-label="Clear file"
+        (click)="onClearSelectedFile()"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="hint">Accepted file types: .csv, .xls, .xlsx</div>
+    <div class="error" *ngIf="uploadError">{{ uploadError }}</div>
+  </div>
+
+  <div class="section upload-summary" *ngIf="uploadInfo">
+    <div class="summary-row">
+      <div>
+        <div class="summary-title">Uploaded</div>
+        <div class="summary-value">{{ uploadInfo.fileName }}</div>
+      </div>
+      <div>
+        <div class="summary-title">Rows</div>
+        <div class="summary-value">{{ uploadInfo.rows }}</div>
+      </div>
+      <div>
+        <div class="summary-title">Upload ID</div>
+        <div class="summary-value code">{{ uploadInfo.uploadId }}</div>
+      </div>
+    </div>
+    <div class="success" *ngIf="uploadInfo.message">{{ uploadInfo.message }}</div>
+  </div>
+
+  <div class="section warning" *ngIf="!uploadInfo">
+    No file uploaded; running tests will use the last uploaded data on the server.
+  </div>
+
+  <div class="section run-status" *ngIf="status">
+    <div class="status-header">
+      <mat-chip [color]="statusColor(status.status)" selected>
+        {{ status.status | titlecase }}
+      </mat-chip>
+      <span class="code">Run ID: {{ status.runId }}</span>
+    </div>
+    <mat-progress-bar
+      *ngIf="status.progress !== null && status.progress !== undefined"
+      mode="determinate"
+      [value]="status.progress"
+    ></mat-progress-bar>
+    <div class="logs" *ngIf="logs.length">
+      <div class="logs-title">Latest logs</div>
+      <div class="log-list">
+        <div class="log-line" *ngFor="let line of logs; trackBy: trackByIndex">{{ line }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="error" *ngIf="runError">{{ runError }}</div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-stroked-button type="button" (click)="onClose()" [disabled]="uploading || running">
+    Close
+  </button>
+  <button
+    mat-stroked-button
+    color="primary"
+    type="button"
+    (click)="onUpload()"
+    [disabled]="uploadDisabled"
+  >
+    <span *ngIf="!uploading">Upload File</span>
+    <mat-progress-spinner
+      *ngIf="uploading"
+      diameter="18"
+      mode="indeterminate"
+      strokeWidth="3"
+    ></mat-progress-spinner>
+  </button>
+  <button
+    mat-flat-button
+    color="primary"
+    type="button"
+    (click)="onRun()"
+    [disabled]="runDisabled"
+  >
+    <span *ngIf="!running">Run Test</span>
+    <mat-progress-spinner
+      *ngIf="running"
+      diameter="18"
+      mode="indeterminate"
+      strokeWidth="3"
+    ></mat-progress-spinner>
+  </button>
+</mat-dialog-actions>

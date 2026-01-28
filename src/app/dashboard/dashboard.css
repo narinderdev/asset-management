@@ -29,19 +29,32 @@
   margin: 0;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.action-btn {
+  font-weight: 600;
+  min-width: 110px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .refresh-btn {
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e5e7eb !important;
   background: #ffffff;
   border-radius: 8px;
-  padding: 8px 12px;
-  font-weight: 600;
-  cursor: pointer;
-  color: #374151;
+  color: #374151 !important;
 }
 
 .refresh-btn:hover {
-  border-color: #2563eb;
-  color: #2563eb;
+  border-color: #2563eb !important;
+  color: #2563eb !important;
 }
 
 .stats-grid {

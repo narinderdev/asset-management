@@ -27,7 +27,9 @@
         </div>
         <div class="line-items-header">
           <div>Inventory name</div>
+          <div>Order Qty</div>
           <div>Received Qty</div>
+          <div>Return Qty</div>
           <div class="actions-column">Actions</div>
         </div>
 
@@ -41,7 +43,13 @@
             </select>
           </div>
           <div class="line-field">
+            <input type="number" name="orderedQty-{{ i }}" [(ngModel)]="line.orderedQty" min="0" />
+          </div>
+          <div class="line-field">
             <input type="number" name="receivedQty-{{ i }}" [(ngModel)]="line.receivedQty" min="0" />
+          </div>
+          <div class="line-field">
+            <input type="number" name="returnQty-{{ i }}" [(ngModel)]="line.returnQty" min="0" />
           </div>
           <div class="line-field actions-field">
             <button type="button" class="icon-btn" aria-label="Remove line" (click)="removeLine(i)"></button>

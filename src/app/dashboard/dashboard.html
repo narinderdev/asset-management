@@ -4,7 +4,16 @@
       <div>
         <h1>Maintenance Dashboard</h1>
       </div>
-      <button class="refresh-btn" type="button" (click)="refetch()">Refresh</button>
+      <div class="header-actions">
+        <button mat-stroked-button color="primary" class="action-btn" type="button" (click)="openTestImportDialog()">
+          <mat-icon>upload</mat-icon>
+          Import File
+        </button>
+        <button mat-stroked-button class="action-btn refresh-btn" type="button" (click)="refetch()">
+          <mat-icon>refresh</mat-icon>
+          Refresh
+        </button>
+      </div>
     </div>
 
     <div class="stats-grid">
