@@ -5,6 +5,8 @@ import { environment } from '../../environments/environment';
 
 export interface ApiTechnician {
   id?: number;
+  technicianId?: string;
+  badgeNumber?: string;
   firstName?: string;
   lastName?: string;
   fullName?: string;
@@ -17,6 +19,11 @@ export interface ApiTechnician {
   hireDate?: string;
   workShift?: string;
   certifications?: string;
+  certificateIssueDate?: string;
+  certificateExpiryDate?: string;
+  terminationDate?: string;
+  technicianPhotoUrl?: string;
+  certificateUrl?: string;
   notes?: string;
   teamId?: number;
   teamName?: string;
@@ -98,6 +105,8 @@ export interface TechnicianTeamDetailResponse {
 }
 
 export interface CreateTechnicianPayload {
+  technicianId?: string;
+  badgeNumber?: string;
   firstName: string;
   lastName: string;
   technicianType: string;
@@ -109,6 +118,12 @@ export interface CreateTechnicianPayload {
   hireDate: string;
   workShift: string;
   certifications: string;
+  certificateIssueDate?: string;
+  certificateExpiryDate?: string;
+  terminationDate?: string;
+  technicianPhotoUrl?: string;
+  certificateUrl?: string;
+  attachmentUrl?: string;
   notes: string;
   teamId?: number;
   teamLeader?: boolean;

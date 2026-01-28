@@ -35,15 +35,24 @@
           <span>Work Type <span class="required-star">*</span></span>
           <select name="workType" [(ngModel)]="workOrder.workType" required>
             <option value="" disabled hidden>Select Work Type</option>
-            <option *ngFor="let workType of workTypeOptions" [value]="workType">{{ workType }}</option>
+            <option *ngFor="let workType of workTypeOptions" [value]="workType.value">{{ workType.label }}</option>
           </select>
         </label>
         <label class="field">
           <span>Priority <span class="required-star">*</span></span>
           <select name="priority" [(ngModel)]="workOrder.priority" required>
             <option value="" disabled hidden>Select Priority</option>
-            <option *ngFor="let priority of priorityOptions" [value]="priority">{{ priority }}</option>
+            <option *ngFor="let priority of priorityOptions" [value]="priority.value">{{ priority.label }}</option>
           </select>
+        </label>
+        <label class="field">
+          <span>Work Request Type Code</span>
+          <input
+            type="text"
+            name="workRequestTypeCode"
+            [(ngModel)]="workOrder.workRequestTypeCode"
+            placeholder="Enter request type code"
+          />
         </label>
 
         <label class="field">

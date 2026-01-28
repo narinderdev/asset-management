@@ -175,7 +175,9 @@ export interface GoodsReceiptDetailResponse {
 export interface CreateGrnLinePayload {
   itemId?: number;
   poLineId?: number;
+  orderedQty?: number;
   receivedQty: number;
+  returnQty?: number;
 }
 
 export interface CreateGrnPayload {

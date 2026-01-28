@@ -100,6 +100,7 @@ export interface CreateWorkOrderRequest {
   descriptionScope: string;
   targetCompletionDate: string;
   attachmentUrl?: string;
+  workRequestTypeCode?: string;
 }
 
 interface WorkOrdersApiResponse {
@@ -169,6 +170,7 @@ interface ApiWorkOrderDetail extends ApiWorkOrder {
   assetDbId?: number;
   location?: string;
   workType?: string;
+  workRequestTypeCode?: string;
   descriptionScope?: string;
   planner?: string;
   assignedTechnicianId?: number;

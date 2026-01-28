@@ -8,6 +8,8 @@ import { ToastrService } from 'ngx-toastr';
 import { ApiTechnician, CreateTechnicianPayload, TechnicianService } from '../../services/technician.service';
 
 interface TechnicianForm {
+  technicianId: string;
+  badgeNumber: string;
   firstName: string;
   lastName: string;
   technicianType: string;
@@ -20,6 +22,13 @@ interface TechnicianForm {
   workShift: string;
   notes: string;
   certifications: string;
+  certificateIssueDate: string;
+  certificateExpiryDate: string;
+  terminationDate: string;
+  technicianPhotoUrl?: string;
+  certificateUrl?: string;
+  photoName?: string;
+  certificateName?: string;
 }
 
 @Component({
@@ -36,6 +45,7 @@ export class CreateTechnicianComponent implements OnInit {
   editTechnicianId?: number;
   isLoadingDetails = false;
   errorMessage?: string;
+  autoGenerateTechnicianId = false;
 
   technicianTypeOptions = [
     { value: 'FULL_TIME', label: 'Full Time Technician' },
@@ -103,6 +113,38 @@ export class CreateTechnicianComponent implements OnInit {
     });
   }
 
+  onPhotoSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) {
+      this.form.technicianPhotoUrl = undefined;
+      this.form.photoName = undefined;
+      return;
+    }
+    this.form.technicianPhotoUrl = file.name;
+    this.form.photoName = file.name;
+  }
+
+  onCertificateSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) {
+      this.form.certificateUrl = undefined;
+      this.form.certificateName = undefined;
+      return;
+    }
+    this.form.certificateUrl = file.name;
+    this.form.certificateName = file.name;
+  }
+
+  get isContractor(): boolean {
+    return this.form.technicianType === 'CONTRACT';
+  }
+
+  onAutoGenerateTechnicianIdChange(): void {
+    if (this.autoGenerateTechnicianId) {
+      this.form.technicianId = '';
+    }
+  }
+
   private loadTechnicianDetails(id: string): void {
     this.isLoadingDetails = true;
 
@@ -130,6 +172,8 @@ export class CreateTechnicianComponent implements OnInit {
 
   private populateForm(data: ApiTechnician): void {
     this.form = {
+      technicianId: data.technicianId ?? '',
+      badgeNumber: data.badgeNumber ?? '',
       firstName: data.firstName ?? '',
       lastName: data.lastName ?? '',
       technicianType: data.technicianType ?? '',
@@ -141,13 +185,23 @@ export class CreateTechnicianComponent implements OnInit {
       hireDate: data.hireDate ?? new Date().toISOString().split('T')[0],
       workShift: data.workShift ?? '',
       notes: data.notes ?? '',
-      certifications: data.certifications ?? ''
+      certifications: data.certifications ?? '',
+      certificateIssueDate: data.certificateIssueDate ?? '',
+      certificateExpiryDate: data.certificateExpiryDate ?? '',
+      terminationDate: data.terminationDate ?? '',
+      technicianPhotoUrl: data.technicianPhotoUrl,
+      certificateUrl: data.certificateUrl,
+      photoName: undefined,
+      certificateName: undefined
     };
+    this.autoGenerateTechnicianId = false;
   }
 
   private createEmptyForm(): TechnicianForm {
     const today = new Date().toISOString().split('T')[0];
     return {
+      technicianId: '',
+      badgeNumber: '',
       firstName: '',
       lastName: '',
       technicianType: '',
@@ -159,12 +213,21 @@ export class CreateTechnicianComponent implements OnInit {
       hireDate: today,
       workShift: '',
       notes: '',
-      certifications: ''
+      certifications: '',
+      certificateIssueDate: '',
+      certificateExpiryDate: '',
+      terminationDate: '',
+      technicianPhotoUrl: undefined,
+      certificateUrl: undefined,
+      photoName: undefined,
+      certificateName: undefined
     };
   }
 
   private buildPayload(): CreateTechnicianPayload {
     return {
+      technicianId: this.autoGenerateTechnicianId ? undefined : this.form.technicianId?.trim() || undefined,
+      badgeNumber: this.form.badgeNumber?.trim() || undefined,
       firstName: this.form.firstName.trim(),
       lastName: this.form.lastName.trim(),
       technicianType: this.form.technicianType,
@@ -176,6 +239,12 @@ export class CreateTechnicianComponent implements OnInit {
       hireDate: this.form.hireDate,
       workShift: this.form.workShift,
       certifications: this.form.certifications,
+      certificateIssueDate: this.form.certificateIssueDate || undefined,
+      certificateExpiryDate: this.form.certificateExpiryDate || undefined,
+      terminationDate: this.isContractor ? this.form.terminationDate || undefined : undefined,
+      technicianPhotoUrl: this.form.technicianPhotoUrl,
+      certificateUrl: this.form.certificateUrl,
+      attachmentUrl: this.form.technicianPhotoUrl || undefined,
       notes: this.form.notes
     };
   }

@@ -30,14 +30,25 @@ export class CreateWorkOrderComponent implements OnInit {
     descriptionScope: '',
     targetCompletionDate: this.dateToday,
     attachmentUrl: '',
-    attachmentFile: null as File | null
+    attachmentFile: null as File | null,
+    workRequestTypeCode: ''
   };
 
   isSubmitting = false;
 
   assetOptions: Array<{ id: number; label: string }> = [];
-  workTypeOptions = ['Corrective', 'Preventive', 'Inspection', 'Emergency'];
-  priorityOptions = ['Low', 'Medium', 'High', 'Critical'];
+  workTypeOptions = [
+    { label: 'Corrective', value: 'CORRECTIVE' },
+    { label: 'Preventive', value: 'PREVENTIVE' },
+    { label: 'Inspection', value: 'INSPECTION' },
+    { label: 'Emergency', value: 'EMERGENCY' }
+  ];
+  priorityOptions = [
+    { label: 'Low', value: 'LOW' },
+    { label: 'Medium', value: 'MEDIUM' },
+    { label: 'High', value: 'HIGH' },
+    { label: 'Critical', value: 'CRITICAL' }
+  ];
 
   constructor(
     private router: Router,
@@ -102,7 +113,8 @@ export class CreateWorkOrderComponent implements OnInit {
       woTitle: this.workOrder.woTitle,
       descriptionScope: this.workOrder.descriptionScope,
       targetCompletionDate: this.workOrder.targetCompletionDate,
-      attachmentUrl: this.workOrder.attachmentUrl || undefined
+      attachmentUrl: this.workOrder.attachmentUrl || undefined,
+      workRequestTypeCode: this.workOrder.workRequestTypeCode || undefined
     };
 
     if (this.isEditMode && this.workOrderId) {
@@ -173,13 +185,14 @@ export class CreateWorkOrderComponent implements OnInit {
     this.workOrder = {
       assetId: assetId && !Number.isNaN(assetId) ? assetId : null,
       location: detail.location ?? '',
-      workType: detail.workType ?? '',
-      priority: detail.priority ?? '',
+      workType: (detail.workType ?? '').toUpperCase(),
+      priority: (detail.priority ?? '').toUpperCase(),
       woTitle: detail.woTitle ?? '',
       descriptionScope: detail.descriptionScope ?? '',
       targetCompletionDate: (detail.targetCompletionDate ?? '').slice(0, 10) || this.dateToday,
       attachmentUrl: detail.beforePhotoUrl || detail.afterPhotoUrl || '',
-      attachmentFile: null
+      attachmentFile: null,
+      workRequestTypeCode: detail.workRequestTypeCode ?? ''
     };
     this.cdr.detectChanges();
   }

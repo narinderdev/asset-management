@@ -19,6 +19,31 @@
     <form class="request-form" (ngSubmit)="onSubmit()" *ngIf="!isEditMode || !isLoadingDetails">
       <div class="form-grid">
         <label class="field">
+          <div class="field-label-row">
+            <span>Technician ID</span>
+            <div class="auto-generate-control" *ngIf="!isEditMode">
+              <input
+                type="checkbox"
+                name="autoGenerateTechnicianId"
+                [(ngModel)]="autoGenerateTechnicianId"
+                (change)="onAutoGenerateTechnicianIdChange()"
+              />
+              <span>Auto-generate</span>
+            </div>
+          </div>
+          <input
+            type="text"
+            name="technicianId"
+            [(ngModel)]="form.technicianId"
+            placeholder="Enter Technician ID"
+            [disabled]="isEditMode || autoGenerateTechnicianId"
+          />
+        </label>
+        <label class="field">
+          <span>Badge Number</span>
+          <input type="text" name="badgeNumber" [(ngModel)]="form.badgeNumber" placeholder="Badge #" />
+        </label>
+        <label class="field">
           <span>First Name</span>
           <input type="text" name="firstName" [(ngModel)]="form.firstName" placeholder="John" />
         </label>
@@ -83,6 +108,28 @@
             placeholder="Add description"
            
           />
+        </label>
+        <label class="field">
+          <span>Certificate Issue Date</span>
+          <input type="date" name="certificateIssueDate" [(ngModel)]="form.certificateIssueDate" />
+        </label>
+        <label class="field">
+          <span>Certificate Expiry Date</span>
+          <input type="date" name="certificateExpiryDate" [(ngModel)]="form.certificateExpiryDate" />
+        </label>
+        <label class="field" *ngIf="isContractor">
+          <span>Termination Date</span>
+          <input type="date" name="terminationDate" [(ngModel)]="form.terminationDate" />
+        </label>
+        <label class="field">
+          <span>Technician Photo</span>
+          <input type="file" accept="image/*" (change)="onPhotoSelected($event)" />
+          <small class="helper" *ngIf="form.photoName">{{ form.photoName }}</small>
+        </label>
+        <label class="field">
+          <span>Certificate Upload</span>
+          <input type="file" accept=".pdf,image/*" (change)="onCertificateSelected($event)" />
+          <small class="helper" *ngIf="form.certificateName">{{ form.certificateName }}</small>
         </label>
       </div>
 

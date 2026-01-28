@@ -25,28 +25,40 @@
           <div class="section-title">Items</div>
           <button type="button" class="link-btn add-line-btn" (click)="addLine()">+ Add Line</button>
         </div>
-        <div class="line-items-header">
-          <div>Inventory name</div>
-          <div>Received Qty</div>
-          <div class="actions-column">Actions</div>
-        </div>
+      <div class="line-items-header">
+        <div>Inventory name</div>
+        <div>PO Line ID</div>
+        <div>Ordered Qty</div>
+        <div>Received Qty</div>
+        <div>Return Qty</div>
+        <div class="actions-column">Actions</div>
+      </div>
 
-        <div class="line-item-row" *ngFor="let line of lines; let i = index">
-          <div class="line-field">
-            <select name="itemId-{{ i }}" [(ngModel)]="line.itemId" (change)="onItemSelected(i)">
-              <option value="" disabled hidden>Select item</option>
-              <option *ngFor="let option of itemOptions" [value]="option.id">
-                {{ option.name }}
-              </option>
-            </select>
-          </div>
-          <div class="line-field">
-            <input type="number" name="receivedQty-{{ i }}" [(ngModel)]="line.receivedQty" min="0" />
-          </div>
-          <div class="line-field actions-field">
-            <button type="button" class="icon-btn" aria-label="Remove line" (click)="removeLine(i)"></button>
-          </div>
+      <div class="line-item-row" *ngFor="let line of lines; let i = index">
+        <div class="line-field">
+          <select name="itemId-{{ i }}" [(ngModel)]="line.itemId" (change)="onItemSelected(i)">
+            <option value="" disabled hidden>Select item</option>
+            <option *ngFor="let option of itemOptions" [value]="option.id">
+              {{ option.name }}
+            </option>
+          </select>
         </div>
+        <div class="line-field">
+          <input type="number" name="poLineId-{{ i }}" [(ngModel)]="line.poLineId" min="0" />
+        </div>
+        <div class="line-field">
+          <input type="number" name="orderedQty-{{ i }}" [(ngModel)]="line.orderedQty" min="0" />
+        </div>
+        <div class="line-field">
+          <input type="number" name="receivedQty-{{ i }}" [(ngModel)]="line.receivedQty" min="0" />
+        </div>
+        <div class="line-field">
+          <input type="number" name="returnQty-{{ i }}" [(ngModel)]="line.returnQty" min="0" />
+        </div>
+        <div class="line-field actions-field">
+          <button type="button" class="icon-btn" aria-label="Remove line" (click)="removeLine(i)"></button>
+        </div>
+      </div>
       </div>
 
       <div class="form-actions">
