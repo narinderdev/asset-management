@@ -7,6 +7,8 @@ import { ChangeDetectorRef } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
 import { AssetsService } from '../../services/assets.service';
+import { InventoryService } from '../../services/inventory.service';
+import { TechnicianService, TechnicianListResponse, TechnicianTeamResponse } from '../../services/technician.service';
 import { CreateEmergencyMaintenancePayload, PmTemplateService } from '../../services/pm-template.service';
 
 interface EmergencyForm {
@@ -16,6 +18,20 @@ interface EmergencyForm {
   failureTime: string;
   reporter: string;
   sendNotification: boolean;
+  assignmentMode: 'TECHNICIAN' | 'TEAM';
+  assignedTechnicianId: number | null;
+  assignedTeamId: number | null;
+  plannedStartDateTime: string;
+  plannedEndDateTime: string;
+  planner: string;
+  preCheckNotes: string;
+  plannedMaterials: PlannedMaterial[];
+}
+
+interface PlannedMaterial {
+  inventoryItemId: number | null;
+  quantity: number;
+  notes: string;
 }
 
 @Component({
@@ -29,6 +45,9 @@ export class CreateEmergencyMaintenanceComponent implements OnInit {
   isSubmitting = false;
   errorMessage?: string;
   assetOptions: Array<{ id: number; label: string }> = [];
+  technicianOptions: Array<{ id: number; name: string }> = [];
+  teamOptions: Array<{ id: number; name: string }> = [];
+  inventoryOptions: Array<{ id: number; name: string }> = [];
   isEditMode = false;
   editId?: string;
 
@@ -38,13 +57,23 @@ export class CreateEmergencyMaintenanceComponent implements OnInit {
     failureDescription: '',
     failureTime: new Date().toISOString().split('.')[0],
     reporter: '',
-    sendNotification: true
+    sendNotification: true,
+    assignmentMode: 'TECHNICIAN',
+    assignedTechnicianId: null,
+    assignedTeamId: null,
+    plannedStartDateTime: '',
+    plannedEndDateTime: '',
+    planner: '',
+    preCheckNotes: '',
+    plannedMaterials: [{ inventoryItemId: null, quantity: 1, notes: '' }]
   };
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private assetsService: AssetsService,
+    private technicianService: TechnicianService,
+    private inventoryService: InventoryService,
     private pmTemplateService: PmTemplateService,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef
@@ -52,6 +81,9 @@ export class CreateEmergencyMaintenanceComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAssets();
+    this.loadTechnicians();
+    this.loadTeams();
+    this.loadInventory();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
@@ -82,7 +114,21 @@ export class CreateEmergencyMaintenanceComponent implements OnInit {
       failureDescription: this.form.failureDescription,
       failureTime: this.form.failureTime,
       reporter: this.form.reporter || undefined,
-      sendNotification: this.form.sendNotification
+      sendNotification: this.form.sendNotification,
+      assignedTechnicianId:
+        this.form.assignmentMode === 'TECHNICIAN' ? this.form.assignedTechnicianId ?? undefined : undefined,
+      assignedTeamId: this.form.assignmentMode === 'TEAM' ? this.form.assignedTeamId ?? undefined : undefined,
+      plannedStartDateTime: this.form.plannedStartDateTime || undefined,
+      plannedEndDateTime: this.form.plannedEndDateTime || undefined,
+      planner: this.form.planner || undefined,
+      preCheckNotes: this.form.preCheckNotes || undefined,
+      plannedMaterials: this.form.plannedMaterials
+        .filter((m) => m.inventoryItemId && m.quantity > 0)
+        .map((m) => ({
+          inventoryItemId: m.inventoryItemId as number,
+          quantity: m.quantity,
+          notes: m.notes || undefined
+        }))
     };
 
     const request$ = this.isEditMode && this.editId
@@ -125,6 +171,65 @@ export class CreateEmergencyMaintenanceComponent implements OnInit {
     });
   }
 
+  private loadTechnicians(): void {
+    this.technicianService.fetchTechnicians(0, 100).pipe(finalize(() => this.cdr.detectChanges())).subscribe({
+      next: (res: TechnicianListResponse) => {
+        const list = res.data?.technicians ?? [];
+        this.technicianOptions = list
+          .filter((t) => t.id)
+          .map((t) => {
+            const nameCandidate = t.fullName ?? `${t.firstName ?? ''} ${t.lastName ?? ''}`.trim();
+            const name = nameCandidate && nameCandidate.length ? nameCandidate : `Technician #${t.id}`;
+            return { id: t.id as number, name };
+          });
+      },
+      error: () => {
+        this.technicianOptions = [];
+      }
+    });
+  }
+
+  private loadTeams(): void {
+    this.technicianService.fetchTechnicianTeams(0, 100).pipe(finalize(() => this.cdr.detectChanges())).subscribe({
+      next: (res: TechnicianTeamResponse) => {
+        const teams = res.data?.teams ?? [];
+        this.teamOptions = teams.filter((t) => t.id).map((t) => ({ id: t.id as number, name: t.teamName ?? `Team #${t.id}` }));
+      },
+      error: () => {
+        this.teamOptions = [];
+      }
+    });
+  }
+
+  private loadInventory(): void {
+    this.inventoryService.fetchInventory(0, 100).pipe(finalize(() => this.cdr.detectChanges())).subscribe({
+      next: (res: any) => {
+        const items = res.data?.content ?? [];
+        this.inventoryOptions = items
+          .filter((i: { id?: number }) => i.id !== undefined)
+          .map((i: { id?: number; itemName?: string; itemId?: string }) => ({
+            id: i.id as number,
+            name: i.itemName ?? i.itemId ?? `Item #${i.id}`
+          }));
+      },
+      error: () => {
+        this.inventoryOptions = [];
+      }
+    });
+  }
+
+  addMaterial(): void {
+    this.form.plannedMaterials.push({ inventoryItemId: null, quantity: 1, notes: '' });
+  }
+
+  removeMaterial(index: number): void {
+    if (this.form.plannedMaterials.length === 1) {
+      this.form.plannedMaterials[0] = { inventoryItemId: null, quantity: 1, notes: '' };
+      return;
+    }
+    this.form.plannedMaterials.splice(index, 1);
+  }
+
   private loadForEdit(id: string): void {
     this.pmTemplateService.fetchEmergencyMaintenanceById(id).pipe(
       finalize(() => this.cdr.detectChanges())
@@ -141,7 +246,15 @@ export class CreateEmergencyMaintenanceComponent implements OnInit {
           failureDescription: incident.failureDescription ?? '',
           failureTime: incident.failureTime ?? '',
           reporter: incident.reporter ?? '',
-          sendNotification: true
+          sendNotification: true,
+          assignmentMode: incident.workOrder && incident.workOrder.assignedTeamId ? 'TEAM' : 'TECHNICIAN',
+          assignedTechnicianId: incident.workOrder?.assignedTechnicianId ?? null,
+          assignedTeamId: incident.workOrder?.assignedTeamId ?? null,
+          plannedStartDateTime: incident.workOrder?.plannedStartDateTime ?? '',
+          plannedEndDateTime: incident.workOrder?.plannedEndDateTime ?? '',
+          planner: incident.workOrder?.planner ?? '',
+          preCheckNotes: incident.workOrder?.preCheckNotes ?? '',
+          plannedMaterials: []
         };
       },
       error: () => {

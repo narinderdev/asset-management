@@ -192,8 +192,12 @@ interface EmergencyIncidentItem {
     workType?: string;
     priority?: string;
     woTitle?: string;
+    assignedTechnicianId?: number;
+    assignedTeamId?: number;
     plannedStartDateTime?: string;
     plannedEndDateTime?: string;
+    planner?: string;
+    preCheckNotes?: string;
     targetCompletionDate?: string;
     failureDescription?: string;
     failureCause?: string;
@@ -234,6 +238,17 @@ export interface CreateEmergencyMaintenancePayload {
   failureTime: string;
   reporter?: string;
   sendNotification: boolean;
+  assignedTechnicianId?: number;
+  assignedTeamId?: number;
+  plannedStartDateTime?: string;
+  plannedEndDateTime?: string;
+  planner?: string;
+  preCheckNotes?: string;
+  plannedMaterials?: Array<{
+    inventoryItemId: number;
+    quantity: number;
+    notes?: string;
+  }>;
 }
 
 export interface PredictiveThresholdPayload {

@@ -52,6 +52,74 @@
         </label>
       </div>
 
+      <div class="assignment-card">
+        <div class="section-title">Assignment</div>
+        <div class="assignment-toggle">
+          <label>
+            <input type="radio" name="assignmentMode" value="TECHNICIAN" [(ngModel)]="form.assignmentMode" />
+            Technician
+          </label>
+          <label>
+            <input type="radio" name="assignmentMode" value="TEAM" [(ngModel)]="form.assignmentMode" />
+            Team
+          </label>
+        </div>
+
+        <div class="assignment-grid">
+          <label class="field" *ngIf="form.assignmentMode === 'TECHNICIAN'">
+            <span>Select technician</span>
+            <select name="assignedTechnicianId" [(ngModel)]="form.assignedTechnicianId">
+              <option [ngValue]="null">Select technician</option>
+              <option *ngFor="let tech of technicianOptions" [ngValue]="tech.id">{{ tech.name }}</option>
+            </select>
+          </label>
+
+          <label class="field" *ngIf="form.assignmentMode === 'TEAM'">
+            <span>Select team</span>
+            <select name="assignedTeamId" [(ngModel)]="form.assignedTeamId">
+              <option [ngValue]="null">Select team</option>
+              <option *ngFor="let team of teamOptions" [ngValue]="team.id">{{ team.name }}</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Planned Start DateTime</span>
+            <input type="datetime-local" name="plannedStartDateTime" [(ngModel)]="form.plannedStartDateTime" />
+          </label>
+
+          <label class="field">
+            <span>Planned End DateTime</span>
+            <input type="datetime-local" name="plannedEndDateTime" [(ngModel)]="form.plannedEndDateTime" />
+          </label>
+
+          <label class="field">
+            <span>Planner</span>
+            <input type="text" name="planner" [(ngModel)]="form.planner" placeholder="Planner name" />
+          </label>
+
+          <label class="field full-width">
+            <span>Pre-check Notes</span>
+            <textarea name="preCheckNotes" [(ngModel)]="form.preCheckNotes" rows="3" placeholder="Add pre-check notes"></textarea>
+          </label>
+        </div>
+      </div>
+
+      <div class="materials-card">
+        <div class="section-title">Planned Materials</div>
+        <div class="materials-list">
+          <div class="material-row" *ngFor="let mat of form.plannedMaterials; let i = index">
+            <select name="material-{{ i }}" [(ngModel)]="mat.inventoryItemId">
+              <option [ngValue]="null">Select item</option>
+              <option *ngFor="let item of inventoryOptions" [ngValue]="item.id">{{ item.name }}</option>
+            </select>
+            <input type="number" min="1" [(ngModel)]="mat.quantity" name="qty-{{ i }}" />
+            <input type="text" placeholder="Notes" [(ngModel)]="mat.notes" name="notes-{{ i }}" />
+            <button type="button" class="icon-btn remove-btn" (click)="removeMaterial(i)" aria-label="Remove">×</button>
+          </div>
+        </div>
+        <button type="button" class="btn ghost add-btn" (click)="addMaterial()">+ Add Material</button>
+      </div>
+
       <div class="form-actions">
         <button type="button" class="btn ghost" (click)="onCancel()">Cancel</button>
         <button type="submit" class="btn primary" [disabled]="isSubmitting">

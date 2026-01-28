@@ -61,6 +61,89 @@
   gap: 24px;
 }
 
+.assignment-card,
+.materials-card {
+  /* border: 1px solid #e5e7eb; */
+  border-radius: 10px;
+  padding: 18px 0px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); */
+}
+
+.assignment-toggle {
+  display: flex;
+  gap: 16px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.assignment-toggle input {
+  margin-right: 6px;
+}
+
+.assignment-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.assignment-grid .full-width {
+  grid-column: 1 / -1;
+}
+
+.materials-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.material-row {
+  display: grid;
+  grid-template-columns: 2fr 0.7fr 2fr auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.material-row select,
+.material-row input {
+  width: 100%;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+  background: #ffffff;
+  color: #333333;
+  box-sizing: border-box;
+}
+
+.material-row select:focus,
+.material-row input:focus {
+  border-color: #2196f3;
+  outline: none;
+}
+
+.remove-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.add-btn {
+  align-self: flex-start;
+  padding: 8px 14px;
+  font-weight: 600;
+  border: 1px solid #d1d5db;
+  background: #f3f4f6;
+  color: #374151;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
