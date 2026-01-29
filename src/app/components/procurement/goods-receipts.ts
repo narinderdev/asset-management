@@ -9,6 +9,7 @@ import {
   GoodsReceiptListResponse,
   ProcurementService
 } from '../../services/procurement.service';
+import { Loader } from '../loader/loader';
 
 interface GoodsReceiptRow {
   id: number;
@@ -24,7 +25,7 @@ interface GoodsReceiptRow {
 @Component({
   selector: 'app-goods-receipts',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Loader],
   templateUrl: './goods-receipts.html',
   styleUrls: ['./procurement.css']
 })

@@ -78,10 +78,7 @@
       </table>
     </div>
 
-    <div class="loading-overlay" *ngIf="isLoading">
-      <div class="loader"></div>
-      <span>Loading warehouses...</span>
-    </div>
+    <app-loader [visible]="isLoading"></app-loader>
   </div>
 
   <app-delete-modal

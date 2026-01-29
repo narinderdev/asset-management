@@ -46,10 +46,7 @@
       </table>
     </div>
 
-    <div class="loading-overlay" *ngIf="isLoading">
-      <div class="loader"></div>
-      <span>Loading roles...</span>
-    </div>
+    <app-loader [visible]="isLoading"></app-loader>
   </div>
 
   <div class="pagination" *ngIf="pagination.totalItems > 0">

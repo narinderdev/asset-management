@@ -8,6 +8,7 @@ import { PmTemplateService } from '../../services/pm-template.service';
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
 import { ToastrService } from 'ngx-toastr';
 import { PermissionService } from '../../services/permission.service';
+import { Loader } from '../loader/loader';
 
 interface PreventiveMaintenanceTemplate {
   id?: number;
@@ -22,7 +23,7 @@ interface PreventiveMaintenanceTemplate {
 @Component({
   selector: 'app-preventive-maintenance',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, DeleteModalComponent],
+  imports: [CommonModule, HttpClientModule, DeleteModalComponent, Loader],
   templateUrl: './preventive-maintenance.html',
   styleUrls: ['./preventive-maintenance.css']
 })

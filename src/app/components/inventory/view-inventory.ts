@@ -4,11 +4,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 
 import { InventoryService, InventoryDetailResponse } from '../../services/inventory.service';
+import { Loader } from '../loader/loader';
 
 @Component({
   selector: 'app-view-inventory',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Loader],
   templateUrl: './view-inventory.html',
   styleUrls: ['./view-inventory.css']
 })

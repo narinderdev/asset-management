@@ -6,11 +6,12 @@ import { finalize } from 'rxjs/operators';
 import { InventoryService, WarehouseItem } from '../../services/inventory.service';
 import { ToastrService } from 'ngx-toastr';
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
+import { Loader } from '../loader/loader';
 
 @Component({
   selector: 'app-warehouse',
   standalone: true,
-  imports: [CommonModule, DeleteModalComponent],
+  imports: [CommonModule, DeleteModalComponent, Loader],
   templateUrl: './warehouse.html',
   styleUrls: ['./inventory.css']
 })

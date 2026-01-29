@@ -8,6 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import { VendorService } from '../../services/vendor.service';
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
 import { PermissionService } from '../../services/permission.service';
+import { Loader } from '../loader/loader';
 
 interface Vendor {
   id?: number;
@@ -37,7 +38,7 @@ interface ApiVendor {
 @Component({
   selector: 'app-vendor-management',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, DeleteModalComponent],
+  imports: [CommonModule, HttpClientModule, DeleteModalComponent, Loader],
   templateUrl: './vendor-management.html',
   styleUrls: ['./vendor-management.css']
 })

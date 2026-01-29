@@ -88,7 +88,7 @@
           <input type="text" name="address" [(ngModel)]="form.address" placeholder="123 Main St, City, Country" />
         </label>
         <label class="field">
-          <span>Hire Date</span>
+          <span>Start Date</span>
           <input type="date" name="hireDate" [(ngModel)]="form.hireDate" />
         </label>
         <label class="field">
@@ -118,7 +118,7 @@
           <input type="date" name="certificateExpiryDate" [(ngModel)]="form.certificateExpiryDate" />
         </label>
         <label class="field" *ngIf="isContractor">
-          <span>Termination Date</span>
+          <span>End Date</span>
           <input type="date" name="terminationDate" [(ngModel)]="form.terminationDate" />
         </label>
         <label class="field">

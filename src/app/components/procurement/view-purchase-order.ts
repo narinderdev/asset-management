@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
+import { Loader } from '../loader/loader';
 
 import {
   ProcurementService,
@@ -26,7 +27,7 @@ interface UiPoLine {
 @Component({
   selector: 'app-view-purchase-order',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Loader],
   templateUrl: './view-purchase-order.html',
   styleUrls: ['./view-purchase-order.css']
 })

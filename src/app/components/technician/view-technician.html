@@ -36,10 +36,7 @@
 
   <!-- Main Content -->
   <div class="main-content">
-    <div class="loading-overlay" *ngIf="isLoading && !technicianLoaded">
-      <div class="loader"></div>
-      <span>Loading technician details...</span>
-    </div>
+    <app-loader [visible]="isLoading && !technicianLoaded"></app-loader>
 
     <ng-container *ngIf="technician">
       <div class="details-grid">

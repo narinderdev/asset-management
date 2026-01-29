@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
 import { ApiTechnician, TechnicianService } from '../../services/technician.service';
 import { PermissionService } from '../../services/permission.service';
+import { Loader } from '../loader/loader';
 
 type Availability = 'Active' | 'On Leave' | 'Unavailable';
 
@@ -22,7 +23,7 @@ interface Technician {
 @Component({
   selector: 'app-technician',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, DeleteModalComponent],
+  imports: [CommonModule, HttpClientModule, DeleteModalComponent, Loader],
   templateUrl: './technician.html',
   styleUrls: ['./technician.css']
 })

@@ -67,10 +67,7 @@
 
   <!-- Main Content -->
   <div class="main-content">
-    <div class="loading-overlay" *ngIf="isLoading">
-      <div class="loader"></div>
-      <span>Loading MR...</span>
-    </div>
+    <app-loader [visible]="isLoading"></app-loader>
 
     <ng-container *ngIf="mrDetail || mrState">
     <div class="details-grid">

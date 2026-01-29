@@ -121,10 +121,7 @@
         </div>
       </form>
 
-      <div class="loading-overlay" *ngIf="isEditMode && isLoadingDetails">
-        <div class="loader"></div>
-        <span>Loading inventory item...</span>
-      </div>
+      <app-loader [visible]="isEditMode && isLoadingDetails"></app-loader>
     </div>
   </section>
 </div>

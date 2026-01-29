@@ -9,6 +9,7 @@ import {
   ProcurementService,
   PurchaseRequisitionItem
 } from '../../services/procurement.service';
+import { Loader } from '../loader/loader';
 
 interface ProcurementRequest {
   id: number;
@@ -23,7 +24,7 @@ interface ProcurementRequest {
 @Component({
   selector: 'app-procurement',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Loader],
   templateUrl: './procurement.html',
   styleUrls: ['./procurement.css']
 })

@@ -5,6 +5,7 @@ import { finalize } from 'rxjs/operators';
 import { formatDate } from '@angular/common';
 
 import { VendorService } from '../../services/vendor.service';
+import { Loader } from '../loader/loader';
 
 interface VendorDetail {
   id?: number;
@@ -24,7 +25,7 @@ interface VendorDetail {
 @Component({
   selector: 'app-view-vendor',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Loader],
   templateUrl: './view-vendor.html',
   styleUrls: ['./view-vendor.css']
 })
@@ -103,3 +104,4 @@ export class ViewVendorComponent implements OnInit {
     return '?'.repeat(rating) + '?'.repeat(5 - rating);
   }
 }
+

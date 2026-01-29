@@ -22,10 +22,7 @@
     </div>
   </div>
 
-  <div class="loading-overlay" *ngIf="isEditMode && isLoadingDetails">
-    <div class="loader"></div>
-    <span>Loading asset details...</span>
-  </div>
+  <app-loader [visible]="isEditMode && isLoadingDetails"></app-loader>
 
   <!-- Tabs Navigation -->
   <div class="tabs-container">

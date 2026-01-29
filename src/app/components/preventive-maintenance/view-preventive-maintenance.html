@@ -36,10 +36,7 @@
 
   <!-- Main Content -->
   <div class="main-content">
-    <div class="loading-overlay" *ngIf="isLoading && !template">
-      <div class="loader"></div>
-      <span>Loading template...</span>
-    </div>
+    <app-loader [visible]="isLoading && !template"></app-loader>
 
     <div class="details-grid" *ngIf="template">
       

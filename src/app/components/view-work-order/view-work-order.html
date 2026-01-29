@@ -148,10 +148,7 @@
   <!-- Main Content -->
   <div class="main-content">
     <!-- Localized loading state (only over content area) -->
-    <div class="loading-overlay" *ngIf="isLoading && !workOrder">
-      <div class="loader"></div>
-      <span>Loading work order details...</span>
-    </div>
+    <app-loader [visible]="isLoading && !workOrder"></app-loader>
 
     <ng-container *ngIf="workOrder">
     <div class="details-grid">

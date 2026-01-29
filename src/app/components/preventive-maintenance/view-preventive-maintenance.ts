@@ -8,11 +8,12 @@ import {
   PreventiveMaintenanceDetailResponse,
   PreventiveMaintenanceDetail
 } from '../../services/pm-template.service';
+import { Loader } from '../loader/loader';
 
 @Component({
   selector: 'app-view-preventive-maintenance',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Loader],
   templateUrl: './view-preventive-maintenance.html',
   styleUrls: ['./view-preventive-maintenance.css']
 })

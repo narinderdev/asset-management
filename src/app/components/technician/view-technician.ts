@@ -4,11 +4,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 
 import { ApiTechnician, TechnicianService } from '../../services/technician.service';
+import { Loader } from '../loader/loader';
 
 @Component({
   selector: 'app-view-technician',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Loader],
   templateUrl: './view-technician.html',
   styleUrls: ['./view-technician.css']
 })

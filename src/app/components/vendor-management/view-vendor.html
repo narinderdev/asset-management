@@ -39,10 +39,7 @@
 
   <!-- Main Content -->
   <div class="main-content">
-    <div class="loading-overlay" *ngIf="isLoading && !vendor">
-      <div class="loader"></div>
-      <span>Loading vendor...</span>
-    </div>
+    <app-loader [visible]="isLoading && !vendor"></app-loader>
 
     <ng-container *ngIf="vendor">
       <div class="details-grid">

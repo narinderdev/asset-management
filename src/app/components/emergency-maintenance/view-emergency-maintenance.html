@@ -33,10 +33,7 @@
 
   <!-- Main Content -->
   <div class="main-content">
-    <div class="loading-overlay" *ngIf="isLoading && !incident">
-      <div class="loader"></div>
-      <span>Loading incident...</span>
-    </div>
+    <app-loader [visible]="isLoading && !incident"></app-loader>
 
     <ng-container *ngIf="incident">
       <div class="details-grid">

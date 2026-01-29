@@ -19,13 +19,14 @@ import {
 import { TechnicianTeam, TechnicianTeamResponse } from '../../services/technician.service';
 import { PmTemplateService, PredictiveThresholdPayload } from '../../services/pm-template.service';
 import { environment } from '../../../environments/environment';
+import { Loader } from '../loader/loader';
 
 type AssetDetail = NonNullable<AssetDetailResponse['data']>;
 
 @Component({
   selector: 'app-add-asset',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Loader],
   templateUrl: './add-asset.html',
   styleUrls: ['./add-asset.css']
 })

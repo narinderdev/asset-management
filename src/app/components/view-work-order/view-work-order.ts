@@ -21,13 +21,14 @@ import {
 import { TechnicianService, ApiTechnician, TechnicianTeam } from '../../services/technician.service';
 import { InventoryService } from '../../services/inventory.service';
 import { NgZone } from '@angular/core';
+import { Loader } from '../loader/loader';
 
 type WorkOrderDetail = NonNullable<WorkOrderDetailResponse['data']>;
 
 @Component({
   standalone: true,
   selector: 'app-view-work-order',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Loader],
   templateUrl: './view-work-order.html',
   styleUrls: ['./view-work-order.css']
 })

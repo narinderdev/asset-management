@@ -9,6 +9,7 @@ import { finalize } from 'rxjs/operators';
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
 import { ToastrService } from 'ngx-toastr';
 import { PermissionService } from '../../services/permission.service';
+import { Loader } from '../loader/loader';
 
 interface ApiAssetResponse {
   data?: {
@@ -41,7 +42,7 @@ interface ApiAssetDto {
 @Component({
   selector: 'app-assets',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule, DeleteModalComponent],
+  imports: [CommonModule, FormsModule, HttpClientModule, DeleteModalComponent, Loader],
   templateUrl: './assets.html',
   styleUrls: ['./assets.css']
 })

@@ -8,11 +8,12 @@ import {
   EmergencyIncidentDetailResponse,
   EmergencyIncidentDetail
 } from '../../services/pm-template.service';
+import { Loader } from '../loader/loader';
 
 @Component({
   selector: 'app-view-emergency-maintenance',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Loader],
   templateUrl: './view-emergency-maintenance.html',
   styleUrls: [
     '../preventive-maintenance/view-preventive-maintenance.css',

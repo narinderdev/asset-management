@@ -6,6 +6,7 @@ import { finalize } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
 import { FailureCodeService } from '../../services/failure-code.service';
+import { Loader } from '../loader/loader';
 
 interface FailureCodeEntry {
   symptomCode: string;
@@ -28,7 +29,7 @@ interface FailureCodeDto {
 @Component({
   selector: 'app-failure-code',
   standalone: true,
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule, HttpClientModule, Loader],
   templateUrl: './failure-code.html',
   styleUrls: ['./failure-code.css']
 })

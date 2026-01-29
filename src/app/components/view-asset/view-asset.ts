@@ -7,6 +7,7 @@ import { finalize } from 'rxjs/operators';
 import { AssetsService, AssetDetailResponse } from '../../services/assets.service';
 import { PmTemplateService } from '../../services/pm-template.service';
 import { ToastrService } from 'ngx-toastr';
+import { Loader } from '../loader/loader';
 
 type AssetDetail = NonNullable<AssetDetailResponse['data']>;
 type AssetLocationDetails = Exclude<AssetDetail['location'], string>;
@@ -14,7 +15,7 @@ type AssetLocationDetails = Exclude<AssetDetail['location'], string>;
 @Component({
   standalone: true,
   selector: 'app-view-asset',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Loader],
   templateUrl: './view-asset.html',
   styleUrls: ['./view-asset.css']
 })

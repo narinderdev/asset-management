@@ -77,10 +77,7 @@
         </table>
       </div>
 
-      <div class="loading-overlay" *ngIf="isLoading">
-        <div class="loader"></div>
-        <span>Loading purchase requisitions...</span>
-      </div>
+      <app-loader [visible]="isLoading"></app-loader>
     </div>
 
     <div class="pagination" *ngIf="totalRequests > 0">

@@ -10,6 +10,7 @@ import {
   PurchaseOrderListResponse
 } from '../../services/procurement.service';
 import { ToastrService } from 'ngx-toastr';
+import { Loader } from '../loader/loader';
 
 interface PurchaseOrderRow {
   id: number;
@@ -23,7 +24,7 @@ interface PurchaseOrderRow {
 @Component({
   selector: 'app-purchase-orders',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Loader],
   templateUrl: './purchase-orders.html',
   styleUrls: ['./procurement.css']
 })

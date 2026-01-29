@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { PmTemplateService } from '../../services/pm-template.service';
 import { FormsModule } from '@angular/forms';
+import { Loader } from '../loader/loader';
 
 type PredictiveThreshold = {
   id?: number;
@@ -29,7 +30,7 @@ type PredictiveThreshold = {
 @Component({
   selector: 'app-view-predictive-maintenance',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Loader],
   templateUrl: './view-predictive-maintenance.html',
   styleUrls: ['./view-predictive-maintenance.css']
 })

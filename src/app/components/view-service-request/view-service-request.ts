@@ -5,6 +5,7 @@ import { finalize } from 'rxjs/operators';
 
 import { ServiceRequestService, ServiceRequestDetailResponse } from '../../services/service-request.service';
 import { ToastrService } from 'ngx-toastr';
+import { Loader } from '../loader/loader';
 
 type ServiceRequestDetail = NonNullable<ServiceRequestDetailResponse['data']>;
 
@@ -18,7 +19,7 @@ const VIEW_STATUS_LABELS: Record<string, string> = {
 @Component({
   standalone: true,
   selector: 'app-view-service-request',
-  imports: [CommonModule],
+  imports: [CommonModule, Loader],
   templateUrl: './view-service-request.html',
   styleUrls: ['./view-service-request.css']
 })

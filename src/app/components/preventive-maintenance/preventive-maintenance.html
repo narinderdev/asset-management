@@ -81,10 +81,7 @@
     </table>
   </div>
 
-  <div class="loading-overlay" *ngIf="isLoading">
-    <div class="loader"></div>
-    <span>Loading templates...</span>
-  </div>
+  <app-loader [visible]="isLoading"></app-loader>
 
   <app-delete-modal
     [isOpen]="isDeleteModalOpen"

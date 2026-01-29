@@ -64,10 +64,7 @@
 
   <!-- Main Content -->
   <div class="main-content">
-    <div class="loading-overlay" *ngIf="isLoading && !assetLoaded">
-      <div class="loader"></div>
-      <span>Loading asset details...</span>
-    </div>
+    <app-loader [visible]="isLoading && !assetLoaded"></app-loader>
 
     <ng-container *ngIf="asset">
       <div class="details-grid">

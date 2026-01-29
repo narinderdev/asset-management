@@ -27,10 +27,7 @@
   <!-- <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div> -->
 
   <div class="main-content">
-    <div class="loading-overlay" *ngIf="isLoading && !warehouse">
-      <div class="loader"></div>
-      <span>Loading warehouse...</span>
-    </div>
+    <app-loader [visible]="isLoading && !warehouse"></app-loader>
 
     <ng-container *ngIf="warehouse">
       <div class="details-grid">

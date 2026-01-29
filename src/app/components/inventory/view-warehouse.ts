@@ -5,11 +5,12 @@ import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs/operators';
 
 import { InventoryService, WarehouseItem } from '../../services/inventory.service';
+import { Loader } from '../loader/loader';
 
 @Component({
   selector: 'app-view-warehouse',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Loader],
   templateUrl: './view-warehouse.html',
   styleUrls: ['./view-warehouse.css']
 })

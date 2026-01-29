@@ -38,10 +38,7 @@
 
   <!-- Main Content -->
   <div class="main-content">
-    <div class="loading-overlay" *ngIf="isLoading && !inventoryItem">
-      <div class="loader"></div>
-      <span>Loading inventory item...</span>
-    </div>
+    <app-loader [visible]="isLoading && !inventoryItem"></app-loader>
 
     <ng-container *ngIf="inventoryItem">
       <div class="details-grid">

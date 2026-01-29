@@ -8,6 +8,7 @@ import { WorkOrderService } from '../../services/work-order.service';
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
 import { ToastrService } from 'ngx-toastr';
 import { PermissionService } from '../../services/permission.service';
+import { Loader } from '../loader/loader';
 
 interface WorkOrder {
   id: string;
@@ -40,7 +41,7 @@ interface ApiWorkOrder {
 @Component({
   selector: 'app-work-order-table',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, RouterModule, DeleteModalComponent],
+  imports: [CommonModule, HttpClientModule, RouterModule, DeleteModalComponent, Loader],
   templateUrl: './work-order-table.html',
   styleUrls: ['./work-order-table.css'],
 })

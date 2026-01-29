@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { SpinnerComponent } from '../spinner/spinner';
+import { Loader } from '../loader/loader';
 import { RoleService, CreateRolePayload } from '../../services/role.service';
 import { finalize } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
@@ -15,7 +16,7 @@ interface PermissionRow {
 @Component({
   selector: 'app-roles',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SpinnerComponent],
+  imports: [CommonModule, ReactiveFormsModule, SpinnerComponent, Loader],
   templateUrl: './roles.html',
   styleUrls: ['./roles.css']
 })

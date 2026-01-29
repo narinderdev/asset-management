@@ -64,10 +64,7 @@
   <!-- MAIN CONTENT -->
   <div class="main-content">
     <!-- LOADING STATE -->
-    <div class="loading-overlay" *ngIf="isLoading">
-      <div class="loader"></div>
-      <span>Loading details...</span>
-    </div>
+    <app-loader [visible]="isLoading"></app-loader>
 
     <!-- DATA STATE -->
     <ng-container *ngIf="request">

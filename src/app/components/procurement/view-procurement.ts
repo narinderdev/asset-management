@@ -11,11 +11,12 @@ import {
 import { finalize } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { VendorService } from '../../services/vendor.service';
+import { Loader } from '../loader/loader';
 
 @Component({
   selector: 'app-view-procurement',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Loader],
   templateUrl: './view-procurement.html',
   styleUrls: ['./view-procurement.css']
 })

@@ -7,11 +7,12 @@ import { ToastrService } from 'ngx-toastr';
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
 import { TechnicianService, TechnicianTeam } from '../../services/technician.service';
 import { PermissionService } from '../../services/permission.service';
+import { Loader } from '../loader/loader';
 
 @Component({
   selector: 'app-technician-teams',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, DeleteModalComponent],
+  imports: [CommonModule, HttpClientModule, DeleteModalComponent, Loader],
   templateUrl: './technician-teams.html',
   styleUrls: ['./technician-teams.css']
 })

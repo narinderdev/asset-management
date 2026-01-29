@@ -95,10 +95,7 @@
       </table>
     </div>
 
-    <div class="loading-overlay" *ngIf="loadLive && isLoading">
-      <div class="loader"></div>
-      <span>Loading work orders...</span>
-    </div>
+    <app-loader [visible]="loadLive && isLoading"></app-loader>
   </div>
 
   <div class="pagination" *ngIf="loadLive && totalOrders > 0">

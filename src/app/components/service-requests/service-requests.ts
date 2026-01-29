@@ -8,6 +8,7 @@ import { ServiceRequestService, ServiceRequestsApiResponse } from '../../service
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
 import { ToastrService } from 'ngx-toastr';
 import { PermissionService } from '../../services/permission.service';
+import { Loader } from '../loader/loader';
 
 type PriorityLabel = 'Critical' | 'High' | 'Medium' | 'Low';
 
@@ -47,7 +48,7 @@ const STATUS_LABELS: Record<string, string> = {
 @Component({
   selector: 'app-service-requests',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, DeleteModalComponent],
+  imports: [CommonModule, HttpClientModule, DeleteModalComponent, Loader],
   templateUrl: './service-requests.html',
   styleUrls: ['./service-requests.css']
 })

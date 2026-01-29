@@ -73,10 +73,7 @@
       </table>
     </div>
 
-    <div class="loading-overlay" *ngIf="loading">
-      <div class="loader"></div>
-      <span>Loading technician teams...</span>
-    </div>
+    <app-loader [visible]="loading"></app-loader>
   </div>
 
   <div class="pagination" *ngIf="totalTeams > 0">

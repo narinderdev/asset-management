@@ -6,6 +6,7 @@ import { finalize } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
 import { ServiceContractService } from '../../services/service-contract.service';
+import { Loader } from '../loader/loader';
 
 interface ServiceContract {
   contractId: string;
@@ -35,7 +36,7 @@ interface ApiServiceContract {
 @Component({
   selector: 'app-service-contract',
   standalone: true,
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule, HttpClientModule, Loader],
   templateUrl: './service-contract.html',
   styleUrls: ['./service-contract.css']
 })

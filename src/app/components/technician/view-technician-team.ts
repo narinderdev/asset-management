@@ -4,11 +4,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 
 import { TechnicianService, TechnicianTeamDetailResponse, TechnicianTeamMember } from '../../services/technician.service';
+import { Loader } from '../loader/loader';
 
 @Component({
   selector: 'app-view-technician-team',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Loader],
   templateUrl: './view-technician-team.html',
   styleUrls: ['./view-technician-team.css']
 })

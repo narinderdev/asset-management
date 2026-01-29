@@ -7,6 +7,7 @@ import { InventoryService } from '../../services/inventory.service';
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
 import { ToastrService } from 'ngx-toastr';
 import { PermissionService } from '../../services/permission.service';
+import { Loader } from '../loader/loader';
 
 interface InventoryItem {
   id?: number;
@@ -23,7 +24,7 @@ interface InventoryItem {
 @Component({
   selector: 'app-inventory',
   standalone: true,
-  imports: [CommonModule, DeleteModalComponent],
+  imports: [CommonModule, DeleteModalComponent, Loader],
   templateUrl: './inventory.html',
   styleUrls: ['./inventory.css']
 })

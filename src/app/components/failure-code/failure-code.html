@@ -49,10 +49,7 @@
     </table>
   </div>
 
-  <div class="loading-overlay" *ngIf="isLoading">
-    <div class="loader"></div>
-    <span>Loading failure codes...</span>
-  </div>
+  <app-loader [visible]="isLoading"></app-loader>
 
   <div class="pagination" *ngIf="totalEntries > 0">
     <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ totalEntries }}</span>

@@ -44,10 +44,7 @@
 
   <!-- Main Content -->
   <div class="main-content">
-    <div class="loading-overlay" *ngIf="isLoading && !threshold">
-      <div class="loader"></div>
-      <span>Loading predictive maintenance...</span>
-    </div>
+    <app-loader [visible]="isLoading && !threshold"></app-loader>
 
     <ng-container *ngIf="threshold">
     <div class="details-grid">

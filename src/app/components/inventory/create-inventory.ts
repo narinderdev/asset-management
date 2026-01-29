@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { InventoryService, CreateInventoryPayload, WarehouseItem } from '../../services/inventory.service';
 import { VendorService } from '../../services/vendor.service';
+import { Loader } from '../loader/loader';
 
 interface SelectOption {
   label: string;
@@ -33,7 +34,7 @@ interface InventoryItemForm {
 @Component({
   selector: 'app-create-inventory',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Loader],
   templateUrl: './create-inventory.html',
   styleUrls: ['./create-inventory.css']
 })

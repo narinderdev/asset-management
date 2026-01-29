@@ -59,10 +59,7 @@
       </table>
     </div>
 
-    <div class="loading-overlay" *ngIf="isLoading">
-      <div class="loader"></div>
-      <span>Loading contracts...</span>
-    </div>
+    <app-loader [visible]="isLoading"></app-loader>
   </div>
 
   <div class="pagination" *ngIf="totalContracts > 0">

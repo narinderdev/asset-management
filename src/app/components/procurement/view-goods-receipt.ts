@@ -9,6 +9,7 @@ import {
   GoodsReceiptLine,
   ProcurementService
 } from '../../services/procurement.service';
+import { Loader } from '../loader/loader';
 
 interface UiGrnLine {
   id?: number;
@@ -21,7 +22,7 @@ interface UiGrnLine {
 @Component({
   selector: 'app-view-goods-receipt',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Loader],
   templateUrl: './view-goods-receipt.html',
   styleUrls: ['./goods-reciept-grn.css']
 })
