@@ -129,7 +129,7 @@ export class SidebarComponent implements OnInit {
     {
       icon: 'carbon_user-role.svg',
       activeIcon: 'carbon_user-role.svg',
-      label: 'Roles / Users',
+      label: 'Security',
       route: '/roles-permissions',
       module: 'ROLES',
       hasSubmenu: true,

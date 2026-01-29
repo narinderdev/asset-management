@@ -50,6 +50,22 @@
               placeholder="Enter Manufacturer" />
           </label>
           <label class="field">
+            <span>GL Account</span>
+            <input
+              type="text"
+              name="glAccountString"
+              [(ngModel)]="inventoryItem.glAccountString"
+              placeholder="Enter GL account (e.g., 5000-120-01)" />
+          </label>
+          <label class="field">
+            <span>Expense Code</span>
+            <input
+              type="text"
+              name="expenseCode"
+              [(ngModel)]="inventoryItem.expenseCode"
+              placeholder="Enter expense code" />
+          </label>
+          <label class="field">
             <span>Manufacturer Part Number</span>
             <input type="text" name="manufacturerPartNumber" [(ngModel)]="inventoryItem.manufacturerPartNumber"
               placeholder="Manufacturer Part Number" />

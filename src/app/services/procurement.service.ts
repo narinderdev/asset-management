@@ -224,6 +224,7 @@ export interface CreatePoPayload {
   vendorId: number;
   expectedDeliveryDate: string;
   remarks?: string;
+  glAccountString?: string;
   createdByUserId: string;
   mrId?: number;
   neededByDate?: string;

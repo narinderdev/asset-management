@@ -22,6 +22,8 @@ interface ApiInventoryItem {
   category?: string;
   unitOfMeasure?: string;
   manufacturer?: string;
+  glAccountString?: string;
+  expenseCode?: string;
   stockLevel?: number;
   reorderPoint?: number;
   reorderQuantity?: number;
@@ -93,6 +95,8 @@ export interface CreateInventoryPayload {
   category: string;
   unitOfMeasure: string;
   manufacturer: string;
+  glAccountString?: string;
+  expenseCode?: string;
   manufacturerPartNumber?: string;
   stockLevel: number;
   reorderPoint: number;

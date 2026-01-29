@@ -5,11 +5,12 @@ import { HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { AssetsService, AssetType } from '../../services/assets.service';
+import { Loader } from '../loader/loader';
 
 @Component({
   selector: 'app-asset-types',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, HttpClientModule, Loader],
   templateUrl: './asset-types.html',
   styleUrls: ['./asset-types.css']
 })

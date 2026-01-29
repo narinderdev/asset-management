@@ -113,8 +113,14 @@
         </label>
       </div>
 
-      <div class="form-field">
-        <label>Permissions</label>
+      <div class="form-field permissions-field">
+        <div class="permissions-header">
+          <label>Permissions</label>
+          <label class="checkbox-wrapper assign-all">
+            <input type="checkbox" [checked]="assignAllChecked" (change)="onToggleAssignAll($event.target.checked)" />
+            Assign all
+          </label>
+        </div>
         <div class="permissions-table-wrapper">
           <table class="permissions-table">
             <thead>

@@ -19,6 +19,8 @@ interface InventoryItemForm {
   category: string;
   unitOfMeasure: string;
   manufacturer: string;
+  glAccountString: string;
+  expenseCode: string;
   manufacturerPartNumber: string;
   stockLevel: string | number;
   reorderPoint: string | number;
@@ -155,6 +157,8 @@ export class CreateInventoryComponent implements OnInit {
           category: item.category ?? 'BEARING',
           unitOfMeasure: item.unitOfMeasure ?? 'EACH',
           manufacturer: item.manufacturer ?? '',
+          glAccountString: (item as any).glAccountString ?? '',
+          expenseCode: (item as any).expenseCode ?? '',
           manufacturerPartNumber: item.manufacturerPartNumber ?? '',
           stockLevel: item.stockLevel ?? 0,
           reorderPoint: item.reorderPoint ?? 0,
@@ -203,6 +207,8 @@ export class CreateInventoryComponent implements OnInit {
       category: this.inventoryItem.category,
       unitOfMeasure: this.inventoryItem.unitOfMeasure || 'EACH',
       manufacturer: this.inventoryItem.manufacturer,
+      glAccountString: this.inventoryItem.glAccountString || undefined,
+      expenseCode: this.inventoryItem.expenseCode || undefined,
       manufacturerPartNumber: this.inventoryItem.manufacturerPartNumber,
       stockLevel: Number(this.inventoryItem.stockLevel || 0),
       reorderPoint: Number(this.inventoryItem.reorderPoint || 0),
@@ -246,6 +252,8 @@ export class CreateInventoryComponent implements OnInit {
       category: 'BEARING',
       unitOfMeasure: 'EACH',
       manufacturer: '',
+      glAccountString: '',
+      expenseCode: '',
       manufacturerPartNumber: '',
       stockLevel: 0,
       reorderPoint: 0,

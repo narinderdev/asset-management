@@ -37,6 +37,7 @@ export class RolesComponent implements OnInit {
   Math = Math;
   pagination = { pageSize: 10, currentPage: 0, totalPages: 0, totalItems: 0 };
   requiredViewCode = '';
+  assignAllChecked = false;
 
   constructor(
     private fb: FormBuilder,
@@ -135,6 +136,9 @@ export class RolesComponent implements OnInit {
             label: mod.module || 'Module',
             permissions: this.mapActions(mod.permissions || [], mod.module)
           }));
+
+          // reset assign-all checkbox whenever permissions refreshed
+          this.assignAllChecked = false;
 
           this.cdr.detectChanges();
         },
@@ -254,6 +258,9 @@ export class RolesComponent implements OnInit {
 
       control?.setValue(updated);
     }
+
+    // keep assign-all checkbox in sync
+    this.assignAllChecked = this.isAllSelected();
   }
 
   isViewDisabled(row: PermissionRow): boolean {
@@ -311,5 +318,42 @@ export class RolesComponent implements OnInit {
 
   get totalPages(): number {
     return Math.max(1, this.pagination.totalPages || 0);
+  }
+
+  onToggleAssignAll(checked: boolean): void {
+    this.assignAllChecked = checked;
+    const control = this.addRoleForm.get('permissions');
+    if (!control) {
+      return;
+    }
+
+    if (checked) {
+      control.setValue(this.getAllPermissionCodes());
+    } else {
+      control.setValue([]);
+    }
+  }
+
+  private getAllPermissionCodes(): string[] {
+    const codes: string[] = [];
+    this.permissionRows.forEach(row => {
+      Object.values(row.permissions)
+        .filter(Boolean)
+        .forEach(code => {
+          if (!codes.includes(code as string)) {
+            codes.push(code as string);
+          }
+        });
+    });
+    return codes;
+  }
+
+  private isAllSelected(): boolean {
+    const selected = this.addRoleForm.get('permissions')?.value;
+    if (!Array.isArray(selected) || !selected.length) {
+      return false;
+    }
+    const all = this.getAllPermissionCodes();
+    return all.every(code => selected.includes(code));
   }
 }

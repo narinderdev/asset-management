@@ -60,3 +60,47 @@
     width: 100%;
   }
 }
+
+/* Permissions panel (deprecated block) */
+.permissions-field {
+  padding: 12px 12px 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.permissions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 12px;
+}
+
+.permissions-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.permissions-count {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.assign-all {
+  gap: 6px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Assign-all checkbox row in permissions modal */
+.assign-all-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 8px;
+}

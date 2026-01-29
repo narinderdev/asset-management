@@ -19,6 +19,7 @@
   </div>
 
   <div class="table-wrapper">
+    <app-loader [visible]="isLoading"></app-loader>
     <table class="asset-types-table">
       <thead>
         <tr>
@@ -32,38 +33,28 @@
         </tr>
       </thead>
       <tbody>
-        <ng-container *ngIf="isLoading; else loadedState">
-          <tr *ngFor="let _ of loadingRows" class="skeleton-row">
-            <td colspan="7">
-              <span class="skeleton skeleton-text long"></span>
+        <ng-container *ngIf="filteredTypes.length; else emptyState">
+          <tr *ngFor="let type of filteredTypes; trackBy: trackByType">
+            <td>{{ type.code }}</td>
+            <td>{{ type.name }}</td>
+            <td>{{ type.assetCategory }}</td>
+            <td>{{ type.defaultCriticality }}</td>
+            <td>{{ type.defaultGlAccount }}</td>
+            <td>
+              <span class="pill" [class.pill-yes]="type.insuranceRequired" [class.pill-no]="!type.insuranceRequired">
+                {{ type.insuranceRequired ? 'Yes' : 'No' }}
+              </span>
+            </td>
+            <td>
+              <span class="pill" [class.pill-yes]="type.active" [class.pill-no]="!type.active">
+                {{ type.active ? 'Active' : 'Inactive' }}
+              </span>
             </td>
           </tr>
         </ng-container>
 
-        <ng-template #loadedState>
-          <ng-container *ngIf="filteredTypes.length; else emptyState">
-            <tr *ngFor="let type of filteredTypes; trackBy: trackByType">
-              <td>{{ type.code }}</td>
-              <td>{{ type.name }}</td>
-              <td>{{ type.assetCategory }}</td>
-              <td>{{ type.defaultCriticality }}</td>
-              <td>{{ type.defaultGlAccount }}</td>
-              <td>
-                <span class="pill" [class.pill-yes]="type.insuranceRequired" [class.pill-no]="!type.insuranceRequired">
-                  {{ type.insuranceRequired ? 'Yes' : 'No' }}
-                </span>
-              </td>
-              <td>
-                <span class="pill" [class.pill-yes]="type.active" [class.pill-no]="!type.active">
-                  {{ type.active ? 'Active' : 'Inactive' }}
-                </span>
-              </td>
-            </tr>
-          </ng-container>
-        </ng-template>
-
         <ng-template #emptyState>
-          <tr *ngIf="hasLoaded">
+          <tr *ngIf="hasLoaded && !isLoading">
             <td colspan="7" class="empty-row">
               {{ errorMessage || 'No asset types to display.' }}
             </td>

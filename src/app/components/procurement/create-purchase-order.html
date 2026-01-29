@@ -25,13 +25,22 @@
           <input type="date" name="expectedDelivery" [(ngModel)]="poInfo.expectedDelivery" />
         </label>
         <label class="field">
-          <span>Delivery Instruction</span>
-          <input type="text" name="remarks" [(ngModel)]="poInfo.remarks" placeholder="Delivery instructions..." />
+          <span>GL Account</span>
+          <input
+            type="text"
+            name="glAccountString"
+            [(ngModel)]="poInfo.glAccountString"
+            placeholder="Enter GL account (e.g., 5000-120-01)"
+          />
         </label>
       </div>
 
       <!-- <div class="section-title">Material Requisition Info</div> -->
       <div class="form-grid form-grid-3">
+        <label class="field">
+          <span>Delivery Instruction</span>
+          <input type="text" name="remarks" [(ngModel)]="poInfo.remarks" placeholder="Delivery instructions..." />
+        </label>
         <label class="field">
           <span>Requested By (userId/name)</span>
           <input type="text" name="requestedBy" [(ngModel)]="requisition.requestedBy" placeholder="e.g., TM-102 / Shubham" />
@@ -58,7 +67,7 @@
           </select>
         </label>
 
-        <label class="field" *ngIf="requisition.shippingLocation === 'WAREHOUSE'">
+        <label class="field " *ngIf="requisition.shippingLocation === 'WAREHOUSE'">
           <span>Warehouse</span>
           <select name="shippingTargetId" [(ngModel)]="requisition.shippingTargetId">
             <option [ngValue]="null" disabled hidden>Select warehouse</option>
