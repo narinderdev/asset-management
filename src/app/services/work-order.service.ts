@@ -159,6 +159,13 @@ interface WorkOrderTypeResponse {
   };
 }
 
+interface WorkOrderTypeDetailResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: WorkOrderType;
+}
+
 interface ApiPlannedMaterial {
   id?: number;
   inventoryItemId?: number;
@@ -287,6 +294,13 @@ export class WorkOrderService {
       'ngrok-skip-browser-warning': 'true'
     });
     return this.http.post<WorkOrderTypeResponse>(this.workOrderTypesUrl, payload, { headers });
+  }
+
+  fetchWorkOrderTypeById(id: number | string): Observable<WorkOrderTypeDetailResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.get<WorkOrderTypeDetailResponse>(`${this.workOrderTypesUrl}/${id}`, { headers });
   }
 
   fetchWorkOrdersForTechnician(

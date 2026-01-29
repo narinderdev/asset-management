@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WorkOrderService, WorkOrderType } from '../../services/work-order.service';
 import { Loader } from '../loader/loader';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-work-order-types',
@@ -22,7 +22,8 @@ export class WorkOrderTypesComponent implements OnInit {
 
   constructor(
     private readonly workOrderService: WorkOrderService,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {
@@ -76,5 +77,10 @@ export class WorkOrderTypesComponent implements OnInit {
       this.page -= 1;
       this.loadTypes();
     }
+  }
+
+  viewType(type: WorkOrderType): void {
+    if (!type?.id) return;
+    this.router.navigate(['/work-orders/types/view', type.id]);
   }
 }

@@ -1,0 +1,132 @@
+<div class="view-workorder-page">
+  <!-- Header -->
+  <div class="header">
+    <button class="back-button" type="button" aria-label="Back to work order types" (click)="back()">
+      ← Back to work order types
+    </button>
+    
+    <div class="header-content" *ngIf="type">
+      <div class="title-section">
+        <h1>{{ type.workOrderType || 'Work Order Type Details' }}</h1>
+        <div class="workorder-meta">
+          <span class="badge" [ngClass]="type.active ? 'badge-success' : 'badge-info'">
+            {{ type.active ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Localized loading state -->
+    <app-loader [visible]="isLoading && !type"></app-loader>
+
+    <ng-container *ngIf="type">
+      <div class="details-grid">
+        
+        <!-- Overview Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Type Information</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-2">
+              <div class="field-group">
+                <div class="field-label">Work Order Type</div>
+                <div class="field-value highlight">{{ type.workOrderType || 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Cost Treatment</div>
+                <div class="field-value">{{ type.costTreatment || 'N/A' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Status</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-2">
+              <div class="field-group">
+                <div class="field-label">Status</div>
+                <div class="field-value">
+                  <span class="badge" [ngClass]="type.active ? 'badge-success' : 'badge-info'">
+                    {{ type.active ? 'Active' : 'Inactive' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- GL Accounts Card -->
+        <div class="card full-width">
+          <div class="card-header">
+            <h2 class="card-title">General Ledger Accounts</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group">
+                <div class="field-label">Default GL Account</div>
+                <div class="field-value" [ngClass]="{'empty': !type.defaultGlAccount}">
+                  {{ type.defaultGlAccount || 'N/A' }}
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Labor GL Account</div>
+                <div class="field-value" [ngClass]="{'empty': !type.laborGlAccount}">
+                  {{ type.laborGlAccount || 'N/A' }}
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Inventory GL Account</div>
+                <div class="field-value" [ngClass]="{'empty': !type.inventoryGlAccount}">
+                  {{ type.inventoryGlAccount || 'N/A' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Utility Accounts Card -->
+        <div class="card full-width">
+          <div class="card-header">
+            <h2 class="card-title">Utility Accounts</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group">
+                <div class="field-label">Default Utility Account</div>
+                <div class="field-value" [ngClass]="{'empty': !type.defaultUtilityAccount}">
+                  {{ type.defaultUtilityAccount || 'N/A' }}
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Labor Utility Account</div>
+                <div class="field-value" [ngClass]="{'empty': !type.laborUtilityAccount}">
+                  {{ type.laborUtilityAccount || 'N/A' }}
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Inventory Utility Account</div>
+                <div class="field-value" [ngClass]="{'empty': !type.inventoryUtilityAccount}">
+                  {{ type.inventoryUtilityAccount || 'N/A' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
+
+    <!-- Error State -->
+    <div class="status-message" *ngIf="!isLoading && errorMessage">
+      {{ errorMessage }}
+    </div>
+  </div>
+</div>

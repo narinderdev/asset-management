@@ -24,6 +24,7 @@
             <th>Inventory GL</th>
             <th>Inventory Utility</th>
             <th>Status</th>
+            <th class="actions-col">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -40,6 +41,15 @@
               <span class="pill" [class.pill-yes]="t.active" [class.pill-no]="!t.active">
                 {{ t.active ? 'Active' : 'Inactive' }}
               </span>
+            </td>
+            <td class="actions-cell">
+              <a
+                class="icon-btn"
+                title="View"
+                [routerLink]="['/work-orders/types/view', t.id]"
+                [class.disabled]="!t.id">
+                  <img src="assets/icons/Vector.svg" alt="View work order" class="view-icon" />
+              </a>
             </td>
           </tr>
           <tr *ngIf="!types.length && !isLoading">
