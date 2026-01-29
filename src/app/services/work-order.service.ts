@@ -8,6 +8,10 @@ export interface ApproveWorkOrderRequest {
   estimatedLaborHours: number;
   estimatedMaterialCost: number;
   approvalNotes?: string;
+  laborGlAccount?: string;
+  laborUtilityAccount?: string;
+  inventoryGlAccount?: string;
+  inventoryUtilityAccount?: string;
 }
 
 export interface PlannedMaterialPayload {
@@ -101,6 +105,9 @@ export interface CreateWorkOrderRequest {
   targetCompletionDate: string;
   attachmentUrl?: string;
   workRequestTypeCode?: string;
+  workOrderTypeId?: number;
+  glAccount?: string;
+  utilityAccount?: string;
 }
 
 interface WorkOrdersApiResponse {
@@ -249,6 +256,9 @@ interface ApiWorkOrderDetail extends ApiWorkOrder {
     technicianId?: number;
     technicianName?: string;
   }>;
+  workOrderTypeId?: number;
+  glAccount?: string;
+  utilityAccount?: string;
 }
 
 export interface WorkOrderDetailResponse {

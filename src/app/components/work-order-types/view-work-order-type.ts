@@ -53,4 +53,20 @@ export class ViewWorkOrderTypeComponent implements OnInit {
   back(): void {
     this.router.navigate(['/work-orders/types']);
   }
+
+  formatName(value?: string): string {
+    if (!value) return '--';
+    return value.replace(/_/g, ' ');
+  }
+
+  /**
+   * Converts strings like "MAJOR_REPAIR" to "Major repair"
+   */
+  prettify(value?: string): string {
+    if (!value) return 'N/A';
+    return value
+      .toLowerCase()
+      .replace(/_/g, ' ')
+      .replace(/^\w/, c => c.toUpperCase());
+  }
 }

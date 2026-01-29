@@ -7,7 +7,7 @@
     
     <div class="header-content" *ngIf="type">
       <div class="title-section">
-        <h1>{{ type.workOrderType || 'Work Order Type Details' }}</h1>
+        <h1>{{ prettify(type.workOrderType) || 'Work Order Type Details' }}</h1>
         <div class="workorder-meta">
           <span class="badge" [ngClass]="type.active ? 'badge-success' : 'badge-info'">
             {{ type.active ? 'Active' : 'Inactive' }}
@@ -34,7 +34,7 @@
             <div class="field-grid field-grid-2">
               <div class="field-group">
                 <div class="field-label">Work Order Type</div>
-                <div class="field-value highlight">{{ type.workOrderType || 'N/A' }}</div>
+                <div class="field-value highlight">{{ prettify(type.workOrderType) }}</div>
               </div>
               <div class="field-group">
                 <div class="field-label">Cost Treatment</div>
@@ -125,8 +125,8 @@
     </ng-container>
 
     <!-- Error State -->
-    <div class="status-message" *ngIf="!isLoading && errorMessage">
+    <!-- <div class="status-message" *ngIf="!isLoading && errorMessage">
       {{ errorMessage }}
-    </div>
+    </div> -->
   </div>
 </div>

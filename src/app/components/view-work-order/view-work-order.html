@@ -312,14 +312,32 @@
           <label class="form-label">Estimated Labor Hours</label>
           <input type="number" name="estimatedLaborHours" min="0" step="0.1" [(ngModel)]="approveForm.estimatedLaborHours" required class="form-input" />
         </div>
-        <div class="form-group">
-          <label class="form-label">Estimated Material Cost</label>
-          <input type="number" name="estimatedMaterialCost" min="0" step="0.01" [(ngModel)]="approveForm.estimatedMaterialCost" required class="form-input" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Approval Notes</label>
-          <textarea name="approvalNotes" [(ngModel)]="approveForm.approvalNotes" rows="3" class="form-input"></textarea>
-        </div>
+          <div class="form-group">
+            <label class="form-label">Estimated Material Cost</label>
+            <input type="number" name="estimatedMaterialCost" min="0" step="0.01" [(ngModel)]="approveForm.estimatedMaterialCost" required class="form-input" />
+          </div>
+          <div class="form-grid two-col">
+            <div class="form-group">
+              <label class="form-label">Labor GL Account</label>
+              <input type="text" name="laborGlAccount" [(ngModel)]="approveForm.laborGlAccount" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Labor Utility Account</label>
+              <input type="text" name="laborUtilityAccount" [(ngModel)]="approveForm.laborUtilityAccount" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Inventory GL Account</label>
+              <input type="text" name="inventoryGlAccount" [(ngModel)]="approveForm.inventoryGlAccount" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Inventory Utility Account</label>
+              <input type="text" name="inventoryUtilityAccount" [(ngModel)]="approveForm.inventoryUtilityAccount" class="form-input" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Approval Notes</label>
+            <textarea name="approvalNotes" [(ngModel)]="approveForm.approvalNotes" rows="3" class="form-input"></textarea>
+          </div>
         <div class="modal-error" *ngIf="approveError">{{ approveError }}</div>
       </form>
       <div class="modal-footer">

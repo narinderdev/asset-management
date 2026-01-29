@@ -2,7 +2,12 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { WorkOrderService, CreateWorkOrderRequest, WorkOrderDetailResponse } from '../../services/work-order.service';
+import {
+  WorkOrderService,
+  CreateWorkOrderRequest,
+  WorkOrderDetailResponse,
+  WorkOrderType
+} from '../../services/work-order.service';
 import { AssetsService } from '../../services/assets.service';
 import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs/operators';
@@ -31,24 +36,28 @@ export class CreateWorkOrderComponent implements OnInit {
     targetCompletionDate: this.dateToday,
     attachmentUrl: '',
     attachmentFile: null as File | null,
-    workRequestTypeCode: ''
+    workRequestTypeCode: '',
+    workOrderTypeId: null as number | null,
+    glAccount: '',
+    utilityAccount: ''
   };
 
   isSubmitting = false;
 
   assetOptions: Array<{ id: number; label: string }> = [];
-  workTypeOptions = [
-    { label: 'Corrective', value: 'CORRECTIVE' },
-    { label: 'Preventive', value: 'PREVENTIVE' },
-    { label: 'Inspection', value: 'INSPECTION' },
-    { label: 'Emergency', value: 'EMERGENCY' }
-  ];
   priorityOptions = [
     { label: 'Low', value: 'LOW' },
     { label: 'Medium', value: 'MEDIUM' },
     { label: 'High', value: 'HIGH' },
     { label: 'Critical', value: 'CRITICAL' }
   ];
+  workTypeOptions = [
+    { label: 'Corrective', value: 'CORRECTIVE' },
+    { label: 'Preventive', value: 'PREVENTIVE' },
+    { label: 'Inspection', value: 'INSPECTION' },
+    { label: 'Emergency', value: 'EMERGENCY' }
+  ];
+  workOrderTypeOptions: Array<WorkOrderType & { label: string }> = [];
 
   constructor(
     private router: Router,
@@ -61,6 +70,7 @@ export class CreateWorkOrderComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAssets();
+    this.loadWorkOrderTypes();
     this.workOrderId = this.route.snapshot.paramMap.get('id') ?? undefined;
     if (this.workOrderId) {
       this.isEditMode = true;
@@ -114,7 +124,10 @@ export class CreateWorkOrderComponent implements OnInit {
       descriptionScope: this.workOrder.descriptionScope,
       targetCompletionDate: this.workOrder.targetCompletionDate,
       attachmentUrl: this.workOrder.attachmentUrl || undefined,
-      workRequestTypeCode: this.workOrder.workRequestTypeCode || undefined
+      workRequestTypeCode: this.workOrder.workRequestTypeCode || undefined,
+      workOrderTypeId: this.workOrder.workOrderTypeId ?? undefined,
+      glAccount: this.workOrder.glAccount || undefined,
+      utilityAccount: this.workOrder.utilityAccount || undefined
     };
 
     if (this.isEditMode && this.workOrderId) {
@@ -192,8 +205,53 @@ export class CreateWorkOrderComponent implements OnInit {
       targetCompletionDate: (detail.targetCompletionDate ?? '').slice(0, 10) || this.dateToday,
       attachmentUrl: detail.beforePhotoUrl || detail.afterPhotoUrl || '',
       attachmentFile: null,
-      workRequestTypeCode: detail.workRequestTypeCode ?? ''
+      workRequestTypeCode: detail.workRequestTypeCode ?? '',
+      workOrderTypeId: detail.workOrderTypeId ?? null,
+      glAccount: detail.glAccount ?? '',
+      utilityAccount: detail.utilityAccount ?? ''
     };
     this.cdr.detectChanges();
+  }
+
+  private loadWorkOrderTypes(): void {
+    this.workOrderService.fetchWorkOrderTypes(0, 100).subscribe({
+      next: (res) => {
+        const list = res.data?.content ?? [];
+        this.workOrderTypeOptions = list
+          .filter((item) => item.id && item.workOrderType)
+          .map((item) => ({
+            id: item.id as number,
+            label: (item.workOrderType as string).replace(/_/g, ' '),
+            workOrderType: item.workOrderType,
+            defaultGlAccount: item.defaultGlAccount,
+            defaultUtilityAccount: item.defaultUtilityAccount,
+            costTreatment: item.costTreatment,
+            laborGlAccount: item.laborGlAccount,
+            laborUtilityAccount: item.laborUtilityAccount,
+            inventoryGlAccount: item.inventoryGlAccount,
+            inventoryUtilityAccount: item.inventoryUtilityAccount,
+            active: item.active,
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt
+          }));
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load work order types', err);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onWorkOrderTypeChange(selectedId: number | null): void {
+    if (!selectedId) {
+      return;
+    }
+    const match = this.workOrderTypeOptions.find((opt) => opt.id === selectedId);
+    if (match) {
+      this.workOrder.glAccount = match.defaultGlAccount ?? '';
+      this.workOrder.utilityAccount = match.defaultUtilityAccount ?? '';
+      this.cdr.detectChanges();
+    }
   }
 }

@@ -45,7 +45,11 @@ export class ViewWorkOrderComponent implements OnInit {
     approvedBy: '',
     estimatedLaborHours: 0,
     estimatedMaterialCost: 0,
-    approvalNotes: ''
+    approvalNotes: '',
+    laborGlAccount: '',
+    laborUtilityAccount: '',
+    inventoryGlAccount: '',
+    inventoryUtilityAccount: ''
   };
   showScheduleModal = false;
   scheduleError?: string;

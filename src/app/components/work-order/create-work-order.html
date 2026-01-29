@@ -32,6 +32,20 @@
           />
         </label>
         <label class="field">
+          <span>Work Order Type <span class="required-star">*</span></span>
+          <select
+            name="workOrderTypeId"
+            [(ngModel)]="workOrder.workOrderTypeId"
+            (ngModelChange)="onWorkOrderTypeChange($event)"
+            required
+          >
+            <option [ngValue]="null" disabled hidden>Select Work Order Type</option>
+            <option *ngFor="let type of workOrderTypeOptions" [ngValue]="type.id">
+              {{ type.label }}
+            </option>
+          </select>
+        </label>
+        <label class="field">
           <span>Work Type <span class="required-star">*</span></span>
           <select name="workType" [(ngModel)]="workOrder.workType" required>
             <option value="" disabled hidden>Select Work Type</option>
@@ -60,12 +74,30 @@
           <input type="text" name="woTitle" [(ngModel)]="workOrder.woTitle" placeholder="Enter WO Title" required />
         </label>
         <label class="field">
+          <span>GL Account</span>
+          <input
+            type="text"
+            name="glAccount"
+            [(ngModel)]="workOrder.glAccount"
+            placeholder="Enter GL account"
+          />
+        </label>
+        <label class="field">
           <span>Description Scope <span class="required-star">*</span></span>
           <input
             name="descriptionScope"
             [(ngModel)]="workOrder.descriptionScope"
             placeholder="Describe the issue or scope"
             required
+          />
+        </label>
+        <label class="field">
+          <span>Utility Account</span>
+          <input
+            type="text"
+            name="utilityAccount"
+            [(ngModel)]="workOrder.utilityAccount"
+            placeholder="Enter utility account"
           />
         </label>
 
