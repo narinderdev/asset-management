@@ -53,6 +53,8 @@ import { ViewPredictiveMaintenanceComponent } from './components/predictive-main
 import { CreateEmergencyMaintenanceComponent } from './components/emergency-maintenance/create-emergency-maintenance';
 import { ViewEmergencyMaintenanceComponent } from './components/emergency-maintenance/view-emergency-maintenance';
 import { CreateAssetTypeComponent } from './components/asset-types/create-asset-type';
+import { WorkOrderTypesComponent } from './components/work-order-types/work-order-types';
+import { CreateWorkOrderTypeComponent } from './components/work-order-types/create-work-order-type';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -74,6 +76,8 @@ export const routes: Routes = [
   { path: 'work-orders/create', component: CreateWorkOrderComponent, canActivate: [AuthGuard] },
   { path: 'work-orders/edit/:id', component: CreateWorkOrderComponent, canActivate: [AuthGuard] },
   { path: 'work-orders/view/:id', component: ViewWorkOrderComponent, canActivate: [AuthGuard] },
+  { path: 'work-orders/types/create', component: CreateWorkOrderTypeComponent, canActivate: [AuthGuard] },
+  { path: 'work-orders/types', component: WorkOrderTypesComponent, canActivate: [AuthGuard] },
   { path: 'work-orders', component: WorkOrderManagementComponent, canActivate: [AuthGuard] },
   { path: 'technicians', component: TechnicianComponent, canActivate: [AuthGuard] },
   { path: 'technicians/create', component: CreateTechnicianComponent, canActivate: [AuthGuard] },

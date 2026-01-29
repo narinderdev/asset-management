@@ -9,7 +9,8 @@
   </div>
 
   <div class="table-wrapper">
-    <div class="table-container">
+    <app-loader [visible]="loadingUsers"></app-loader>
+    <div class="table-container" *ngIf="!loadingUsers">
       <table class="preventive-table">
         <thead>
           <tr>

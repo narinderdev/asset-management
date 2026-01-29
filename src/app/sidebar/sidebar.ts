@@ -67,7 +67,13 @@ export class SidebarComponent implements OnInit {
       activeIcon: 'fluent-mdl2_work-flow (1).svg',
       label: 'Work Orders',
       route: '/work-orders',
-      module: 'WORK_ORDER'
+      module: 'WORK_ORDER',
+      hasSubmenu: true,
+      submenu: [
+        { label: 'Work Order Types', route: '/work-orders/types' },
+        { label: 'Work Orders', route: '/work-orders' }
+        
+      ]
     },
     {
       icon: 'streamline_hierarchy-10.svg',

@@ -1,0 +1,61 @@
+<div class="work-order-wrapper">
+  <div class="work-order-header">
+    <h1 class="work-order-title">Work Order Types</h1>
+    <button
+      class="create-work-order-btn"
+      type="button"
+      routerLink="/work-orders/types/create">
+      + Create Work Order Type
+    </button>
+  </div>
+
+  <div class="table-wrapper">
+    <app-loader [visible]="isLoading"></app-loader>
+    <div class="table-container" *ngIf="!isLoading">
+      <table class="work-order-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Cost Treatment</th>
+            <th>Default GL</th>
+            <th>Default Utility</th>
+            <th>Labor GL</th>
+            <th>Labor Utility</th>
+            <th>Inventory GL</th>
+            <th>Inventory Utility</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of types">
+            <td>{{ t.workOrderType || '--' }}</td>
+            <td>{{ t.costTreatment || '--' }}</td>
+            <td>{{ t.defaultGlAccount || '--' }}</td>
+            <td>{{ t.defaultUtilityAccount || '--' }}</td>
+            <td>{{ t.laborGlAccount || '--' }}</td>
+            <td>{{ t.laborUtilityAccount || '--' }}</td>
+            <td>{{ t.inventoryGlAccount || '--' }}</td>
+            <td>{{ t.inventoryUtilityAccount || '--' }}</td>
+            <td>
+              <span class="pill" [class.pill-yes]="t.active" [class.pill-no]="!t.active">
+                {{ t.active ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="!types.length && !isLoading">
+            <td colspan="9" class="empty-row">{{ errorMessage || 'No work order types found.' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="pagination" *ngIf="total > size">
+    <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ total }}</span>
+    <div class="pager-actions">
+      <button class="pager-btn" (click)="previousPage()" [disabled]="page === 0 || isLoading">Previous</button>
+      <span class="pager-info">Page {{ page + 1 }} of {{ totalPages }}</span>
+      <button class="pager-btn" (click)="nextPage()" [disabled]="page >= totalPages - 1 || isLoading">Next</button>
+    </div>
+  </div>
+</div>

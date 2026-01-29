@@ -81,13 +81,6 @@ export class RolesComponent implements OnInit {
 
     this.roleService
       .getRoles()
-      .pipe(
-        finalize(() => {
-          this.isLoading = false;
-          this.hasLoaded = true;
-          this.cdr.detectChanges();
-        })
-      )
       .subscribe({
         next: res => {
           const data: any = res?.data;
@@ -107,6 +100,8 @@ export class RolesComponent implements OnInit {
               )
             : 0;
 
+          this.isLoading = false;
+          this.hasLoaded = true;
           this.cdr.detectChanges();
         },
         error: () => {
@@ -114,6 +109,8 @@ export class RolesComponent implements OnInit {
           this.pagination.totalItems = 0;
           this.pagination.totalPages = 0;
           this.pagination.currentPage = 0;
+          this.isLoading = false;
+          this.hasLoaded = true;
           this.cdr.detectChanges();
         }
       });

@@ -131,6 +131,34 @@ interface ApiWorkOrder {
   targetCompletionDate?: string;
 }
 
+export interface WorkOrderType {
+  id?: number;
+  workOrderType?: string;
+  defaultGlAccount?: string;
+  defaultUtilityAccount?: string;
+  costTreatment?: string;
+  laborGlAccount?: string;
+  laborUtilityAccount?: string;
+  inventoryGlAccount?: string;
+  inventoryUtilityAccount?: string;
+  active?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface WorkOrderTypeResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: {
+    content?: WorkOrderType[];
+    totalElements?: number;
+    totalPages?: number;
+    size?: number;
+    number?: number;
+  };
+}
+
 interface ApiPlannedMaterial {
   id?: number;
   inventoryItemId?: number;
@@ -228,6 +256,7 @@ export interface WorkOrderDetailResponse {
 })
 export class WorkOrderService {
   private readonly apiUrl = `${environment.apiUrl}/api/work-orders`;
+  private readonly workOrderTypesUrl = `${environment.apiUrl}/api/work-order-types`;
 
   constructor(private http: HttpClient) {}
 
@@ -240,6 +269,24 @@ export class WorkOrderService {
     });
 
     return this.http.get<WorkOrdersApiResponse>(this.apiUrl, { params, headers });
+  }
+
+  fetchWorkOrderTypes(page: number, size: number): Observable<WorkOrderTypeResponse> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.get<WorkOrderTypeResponse>(this.workOrderTypesUrl, { params, headers });
+  }
+
+  createWorkOrderType(payload: WorkOrderType): Observable<WorkOrderTypeResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.post<WorkOrderTypeResponse>(this.workOrderTypesUrl, payload, { headers });
   }
 
   fetchWorkOrdersForTechnician(

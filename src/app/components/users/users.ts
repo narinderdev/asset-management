@@ -1,6 +1,7 @@
 ﻿import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Loader } from '../loader/loader';
 import { finalize } from 'rxjs';
 import { RoleService } from '../../services/role.service';
 import { UserService, UserListItem } from '../../services/user.service';
@@ -17,7 +18,7 @@ interface UserRow {
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Loader],
   templateUrl: './users.html',
   styleUrls: ['./users.css']
 })
@@ -140,39 +141,33 @@ export class UsersComponent {
 
   private fetchUsers(): void {
     this.loadingUsers = true;
-    this.userService
-      .fetchUsers()
-      .pipe(
-        finalize(() => {
-          this.loadingUsers = false;
-          this.cdr.detectChanges();
-        })
-      )
-      .subscribe({
-        next: res => {
-          const rawData: any = res?.data;
-          const list: UserListItem[] | any[] = Array.isArray(rawData)
-            ? rawData
-            : Array.isArray(rawData?.users)
-              ? rawData.users
-              : Array.isArray(rawData?.content)
-                ? rawData.content
-                : [];
-          this.users = list.map((u: UserListItem | any) => ({
-            name: u?.name || 'N/A',
-            email: u?.email || 'N/A',
-            role: Array.isArray(u?.roles) && u.roles.length ? u.roles.join(', ') : 'N/A',
-            status: this.formatStatus(u?.status)
-          }));
-          this.totalUsers = this.users.length;
-          this.cdr.detectChanges();
-        },
-        error: () => {
-          this.users = [];
-          this.totalUsers = 0;
-          this.cdr.detectChanges();
-        }
-      });
+    this.userService.fetchUsers().subscribe({
+      next: res => {
+        const rawData: any = res?.data;
+        const list: UserListItem[] | any[] = Array.isArray(rawData)
+          ? rawData
+          : Array.isArray(rawData?.users)
+            ? rawData.users
+            : Array.isArray(rawData?.content)
+              ? rawData.content
+              : [];
+        this.users = list.map((u: UserListItem | any) => ({
+          name: u?.name || 'N/A',
+          email: u?.email || 'N/A',
+          role: Array.isArray(u?.roles) && u.roles.length ? u.roles.join(', ') : 'N/A',
+          status: this.formatStatus(u?.status)
+        }));
+        this.totalUsers = this.users.length;
+        this.loadingUsers = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.users = [];
+        this.totalUsers = 0;
+        this.loadingUsers = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   get pagedUsers(): UserRow[] {

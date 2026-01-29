@@ -1,0 +1,64 @@
+<div class="create-wrapper">
+  <div class="create-card">
+    <div class="create-header">
+      <button class="back-btn" type="button" (click)="onCancel()" aria-label="Back">&#8592;</button>
+      <h2>Create Work Order Type</h2>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
+      <label class="field">
+        <span>Type</span>
+        <input type="text" formControlName="workOrderType" placeholder="e.g., PREVENTIVE" />
+      </label>
+
+      <label class="field">
+        <span>Cost Treatment</span>
+        <select formControlName="costTreatment">
+          <option *ngFor="let opt of costTreatmentOptions" [value]="opt">{{ opt }}</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Default GL Account</span>
+        <input type="text" formControlName="defaultGlAccount" placeholder="Default GL" />
+      </label>
+
+      <label class="field">
+        <span>Default Utility Account</span>
+        <input type="text" formControlName="defaultUtilityAccount" placeholder="Default Utility" />
+      </label>
+
+      <label class="field">
+        <span>Labor GL Account</span>
+        <input type="text" formControlName="laborGlAccount" placeholder="Labor GL" />
+      </label>
+
+      <label class="field">
+        <span>Labor Utility Account</span>
+        <input type="text" formControlName="laborUtilityAccount" placeholder="Labor Utility" />
+      </label>
+
+      <label class="field">
+        <span>Inventory GL Account</span>
+        <input type="text" formControlName="inventoryGlAccount" placeholder="Inventory GL" />
+      </label>
+
+      <label class="field">
+        <span>Inventory Utility Account</span>
+        <input type="text" formControlName="inventoryUtilityAccount" placeholder="Inventory Utility" />
+      </label>
+
+      <label class="field checkbox-field">
+        <input type="checkbox" formControlName="active" />
+        <span>Active</span>
+      </label>
+
+      <div class="form-actions">
+        <button type="button" class="secondary-btn" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="primary-btn" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Creating...' : 'Create Work Order Type' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

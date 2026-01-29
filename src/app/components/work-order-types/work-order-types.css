@@ -1,0 +1,139 @@
+.work-order-wrapper {
+  padding: 30px;
+  padding-bottom: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #ebedef;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  min-height: 88vh;
+}
+
+.work-order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.work-order-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.create-work-order-btn {
+  background-color: #2196F3;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+}
+
+.create-work-order-btn:hover {
+  background-color: #1976D2;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+}
+
+.table-wrapper {
+  position: relative;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.work-order-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.work-order-table thead {
+  background: #fafafa;
+  border-bottom: 1px solid #e4e4e4;
+}
+
+.work-order-table th {
+  padding: 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5b5b5b;
+  letter-spacing: 0.3px;
+}
+
+.work-order-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f1f1f1;
+  font-size: 14px;
+  color: #333;
+}
+
+.work-order-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pill-yes {
+  background: #ecfdf3;
+  color: #166534;
+}
+
+.pill-no {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  gap: 12px;
+  color: #374151;
+  font-size: 14px;
+}
+
+.pager-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pager-btn {
+  padding: 8px 14px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.pager-btn:hover:not(:disabled) {
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+.pager-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pager-info {
+  font-size: 14px;
+  color: #4b5563;
+}
