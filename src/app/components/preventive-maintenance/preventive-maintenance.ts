@@ -67,8 +67,8 @@ export class PreventiveMaintenanceComponent implements OnInit {
       this.emptyStateText = 'No predictive maintenance items to display.';
       this.deleteMessage = 'Are you sure you want to delete this predictive maintenance item?';
     } else if (this.isEmergencyMode) {
-      this.headingText = 'Emergency Maintenance';
-      this.createButtonText = '+ Create Emergency Maintenance';
+      this.headingText = 'Corrective Maintenance';
+      this.createButtonText = '+ Create Corrective Maintenance';
       this.emptyStateText = 'No emergency maintenance items to display.';
       this.deleteMessage = 'Delete is not available for emergency maintenance.';
     } else {

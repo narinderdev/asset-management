@@ -21,7 +21,7 @@
           <span class="helper" *ngIf="isLoadingVendors">Loading vendors...</span>
         </label>
         <label class="field">
-          <span>Expected Delivery Date</span>
+          <span>Required Delivery Date</span>
           <input type="date" name="expectedDelivery" [(ngModel)]="poInfo.expectedDelivery" />
         </label>
         <label class="field">
@@ -45,10 +45,10 @@
           <span>Requested By (userId/name)</span>
           <input type="text" name="requestedBy" [(ngModel)]="requisition.requestedBy" placeholder="e.g., TM-102 / Shubham" />
         </label>
-        <label class="field">
+        <!-- <label class="field">
           <span>Need By</span>
           <input type="date" name="neededBy" [(ngModel)]="requisition.neededBy" />
-        </label>
+        </label> -->
         <label class="field">
           <span>Notes (optional)</span>
           <input type="text" name="notes" [(ngModel)]="requisition.notes" placeholder="Reason / job / project context..." />

@@ -34,9 +34,6 @@
         </ul>
       </nav>
 
-      <button type="button" class="logout-link">
-        â» Logout
-      </button>
     </aside>
 
     <main class="tm-main">
@@ -84,7 +81,12 @@
 
         <ng-container *ngSwitchCase="'technicians'">
           <section class="card search-card">
-            <div class="input-icon">ðŸ”</div>
+            <div class="input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="7" />
+                <line x1="16.65" y1="16.65" x2="21" y2="21" />
+              </svg>
+            </div>
             <input type="text" placeholder="Search technician..." />
           </section>
           <section class="card table-card">
@@ -121,20 +123,35 @@
                     </td>
                     <td>{{ row.workingDays }}</td>
                     <td class="actions">
-                      <button aria-label="View">ðŸ‘ï¸</button>
-                      <button aria-label="Edit">âœï¸</button>
+                      <button class="icon-btn ghost" aria-label="View">
+                        <img src="/assets/icons/Vector.svg" alt="View" />
+                      </button>
+                      <button class="icon-btn ghost" aria-label="Edit">
+                        <img src="/assets/icons/edit.svg" alt="Edit" />
+                      </button>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            <div class="table-footer">Showing 1 to 10 of 12 results</div>
+            <div class="table-footer pagination">
+              <span>Page {{ techPage + 1 }} of {{ techTotalPages() }}</span>
+              <div class="pager">
+                <button type="button" (click)="changeTechPage(-1)" [disabled]="techPage === 0">Previous</button>
+                <button type="button" (click)="changeTechPage(1)" [disabled]="techPage + 1 >= techTotalPages()">Next</button>
+              </div>
+            </div>
           </section>
         </ng-container>
 
         <ng-container *ngSwitchCase="'teams'">
           <section class="card search-card">
-            <div class="input-icon">ðŸ”</div>
+            <div class="input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="7" />
+                <line x1="16.65" y1="16.65" x2="21" y2="21" />
+              </svg>
+            </div>
             <input type="text" placeholder="Search teams..." />
           </section>
           <section class="card table-card">
@@ -158,21 +175,36 @@
                     <td><span class="badge badge-blue">{{ row.total }}</span></td>
                     <td><span class="badge badge-purple">{{ row.activeWos }}</span></td>
                     <td class="actions">
-                      <button aria-label="View">ðŸ‘ï¸</button>
-                      <button aria-label="Edit">âœï¸</button>
+                      <button class="icon-btn ghost" aria-label="View">
+                        <img src="/assets/icons/Vector.svg" alt="View" />
+                      </button>
+                      <button class="icon-btn ghost" aria-label="Edit">
+                        <img src="/assets/icons/edit.svg" alt="Edit" />
+                      </button>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            <div class="table-footer">Showing 1 to 6 of 6 results</div>
+            <div class="table-footer pagination">
+              <span>Page {{ teamPage + 1 }} of {{ teamTotalPages() }}</span>
+              <div class="pager">
+                <button type="button" (click)="changeTeamPage(-1)" [disabled]="teamPage === 0">Previous</button>
+                <button type="button" (click)="changeTeamPage(1)" [disabled]="teamPage + 1 >= teamTotalPages()">Next</button>
+              </div>
+            </div>
           </section>
         </ng-container>
 
         <ng-container *ngSwitchCase="'work-orders'">
           <section class="card search-card">
-            <div class="input-icon">ðŸ”</div>
-            <input type="text" placeholder="Search teams..." />
+            <div class="input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="7" />
+                <line x1="16.65" y1="16.65" x2="21" y2="21" />
+              </svg>
+            </div>
+            <input type="text" placeholder="Search work orders..." />
           </section>
           <section class="card table-card">
             <div class="table-wrapper">
@@ -209,22 +241,130 @@
                       <span class="pill"
                         [ngClass]="{
                           'pill-blue': row.status === 'In Progress',
-                          'pill-green': row.status === 'Completed',
-                          'pill-amber': row.status === 'Pending'
+                          'pill-green': row.status === 'Completed' || row.status === 'Approved',
+                          'pill-amber': row.status === 'Pending' || row.status === 'On Hold',
+                          'pill-purple': row.status === 'Scheduled',
+                          'pill-gray': row.status === 'New' || row.status === 'Draft',
+                          'pill-red': row.status === 'Cancelled'
                         }">
                         {{ row.status }}
                       </span>
                     </td>
                     <td>{{ row.dueDate }}</td>
                     <td class="actions">
-                      <button aria-label="View">ðŸ‘ï¸</button>
-                      <button aria-label="Edit">âœï¸</button>
+                      <button class="icon-btn ghost" aria-label="View">
+                        <img src="/assets/icons/Vector.svg" alt="View" />
+                      </button>
+                      <button class="icon-btn ghost" aria-label="Edit">
+                        <img src="/assets/icons/edit.svg" alt="Edit" />
+                      </button>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            <div class="table-footer">Showing 1 to 8 of 8 results</div>
+            <div class="table-footer pagination">
+              <span>Page {{ woPage + 1 }} of {{ woTotalPages() }}</span>
+              <div class="pager">
+                <button type="button" (click)="changeWoPage(-1)" [disabled]="woPage === 0">Previous</button>
+                <button type="button" (click)="changeWoPage(1)" [disabled]="woPage + 1 >= woTotalPages()">Next</button>
+              </div>
+            </div>
+          </section>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'leaves'">
+          <section class="lh-card">
+            <div class="lh-tabs">
+              <button type="button" [class.active]="leavesView === 'leaves'" (click)="setLeavesView('leaves')">Leaves</button>
+              <button type="button" [class.active]="leavesView === 'holidays'" (click)="setLeavesView('holidays')">Holidays</button>
+            </div>
+
+            <div class="lh-search">
+              <div class="search-card inline">
+                <div class="input-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="7" />
+                    <line x1="16.65" y1="16.65" x2="21" y2="21" />
+                  </svg>
+                </div>
+                <input type="text" [placeholder]="leavesView === 'leaves' ? 'Search leaves...' : 'Search holidays...'" />
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <table *ngIf="leavesView === 'leaves'">
+                <thead>
+                  <tr>
+                    <th>Leave ID</th>
+                    <th>Technician</th>
+                    <th>Leave Type</th>
+                    <th>From Date</th>
+                    <th>To Date</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of leaveRows">
+                    <td class="linkish">{{ row.id }}</td>
+                    <td>{{ row.technician }}</td>
+                    <td>{{ row.type }}</td>
+                    <td>{{ row.from }}</td>
+                    <td>{{ row.to }}</td>
+                    <td>{{ row.reason }}</td>
+                    <td>
+                      <span class="pill"
+                        [ngClass]="{
+                          'pill-green': row.status === 'Approved',
+                          'pill-amber': row.status === 'Pending',
+                          'pill-red': row.status === 'Rejected'
+                        }">
+                        {{ row.status }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <table *ngIf="leavesView === 'holidays'">
+                <thead>
+                  <tr>
+                    <th>Holiday ID</th>
+                    <th>Holiday Name</th>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of holidayRows">
+                    <td class="linkish">{{ row.id }}</td>
+                    <td>{{ row.name }}</td>
+                    <td>{{ row.date }}</td>
+                    <td>
+                      <span class="pill"
+                        [ngClass]="{
+                          'pill-blue': row.type === 'National',
+                          'pill-purple': row.type === 'Company'
+                        }">
+                        {{ row.type }}
+                      </span>
+                    </td>
+                    <td>{{ row.notes }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="table-footer pagination">
+              <span>Showing 1 to {{ leavesView === 'leaves' ? leaveRows.length : holidayRows.length }} of {{ leavesView === 'leaves' ? leaveRows.length : holidayRows.length }} results</span>
+              <div class="pager">
+                <button type="button" disabled>&lt;</button>
+                <button type="button" class="active-page" disabled>1</button>
+                <button type="button" disabled>&gt;</button>
+              </div>
+            </div>
           </section>
         </ng-container>
 
@@ -238,5 +378,3 @@
     </main>
   </div>
 </div>
-
-

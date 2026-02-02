@@ -1,14 +1,14 @@
 :root {
-  --tm-bg: #f8f9fc;
+  --tm-bg: #f9fafb;
   --tm-panel: #ffffff;
-  --tm-muted: #64748b;
-  --tm-border: #e2e8f0;
+  --tm-muted: #6b7280;
+  --tm-border: #e5e7eb;
   --tm-accent: #6366f1;
   --tm-text: #0f172a;
   --tm-sidebar-bg: #f8fafc;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 10px 30px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 20px 50px rgba(15, 23, 42, 0.08);
 }
 
 * {
@@ -106,14 +106,14 @@ body {
 }
 
 .tm-sidebar-card {
-  background: var(--tm-sidebar-bg);
-  border-radius: 16px;
-  padding: 24px 20px;
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 22px 18px;
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   min-height: 600px;
-  border: 1px solid var(--tm-border);
+  border: 1px solid #e5e7eb;
 }
 
 .tm-brand h2 {
@@ -219,15 +219,16 @@ body {
 }
 
 .tm-main {
-  background: var(--tm-panel);
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: var(--shadow-sm);
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow-md);
   min-height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  border: 1px solid var(--tm-border);
+  gap: 20px;
+  border: 1px solid #e5e7eb;
+  backdrop-filter: blur(4px);
 }
 
 .tm-main-header h1 {
@@ -334,7 +335,7 @@ body {
   width: 20px;
   height: 20px;
   left: 28px;
-  color: #94a3b8;
+  color: #111827;
   pointer-events: none;
 }
 
@@ -389,6 +390,12 @@ tbody tr {
 
 tbody tr:hover {
   background: #f8fafc;
+}
+
+/* Keep ID and due date on a single line */
+td:nth-child(1),
+td:nth-child(7) {
+  white-space: nowrap;
 }
 
 .linkish {
@@ -448,6 +455,7 @@ tbody tr:hover {
   font-weight: 600;
   font-size: 12px;
   letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 
 .pill-green { 
@@ -468,6 +476,16 @@ tbody tr:hover {
 .pill-blue { 
   background: #dbeafe; 
   color: #1e40af; 
+}
+
+.pill-purple {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.pill-gray {
+  background: #f3f4f6;
+  color: #374151;
 }
 
 .badge {
@@ -495,24 +513,27 @@ tbody tr:hover {
 
 .actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
 }
 
 .actions button {
-  border: none;
-  background: transparent;
+  border: 1px solid var(--tm-border);
+  background: #fff;
   cursor: pointer;
-  font-size: 16px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 6px;
-  border-radius: 6px;
   transition: all 0.15s ease;
-  color: var(--tm-muted);
 }
 
 .actions button:hover {
   background: #f1f5f9;
-  color: var(--tm-accent);
+  border-color: #d1d5db;
 }
 
 .actions-col {
@@ -525,6 +546,91 @@ tbody tr:hover {
   color: #64748b;
   border-top: 1px solid var(--tm-border);
   background: #fafbfc;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pager {
+  display: flex;
+  gap: 8px;
+}
+
+.pager button {
+  border: 1px solid var(--tm-border);
+  background: #ffffff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #1f2937;
+  transition: all 0.15s ease;
+  min-width: 86px;
+}
+
+.pager button:hover:not(:disabled) {
+  border-color: var(--tm-accent);
+  color: var(--tm-accent);
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.12);
+}
+
+.pager button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lh-card {
+  background: #fff;
+  border: 1px solid var(--tm-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  padding: 12px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lh-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 4px;
+  border: 1px solid var(--tm-border);
+}
+
+.lh-tabs button {
+  border: none;
+  background: transparent;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lh-tabs button.active {
+  background: #3b82f6;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(59, 130, 246, 0.25);
+}
+
+.lh-search {
+  padding: 0 4px;
+}
+
+.lh-card .table-wrapper {
+  padding: 0 4px;
+}
+
+.active-page {
+  background: #3b82f6 !important;
+  color: #fff !important;
+  border-color: #3b82f6 !important;
 }
 
 .placeholder {

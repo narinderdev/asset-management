@@ -7,7 +7,7 @@
     
     <div class="header-content" *ngIf="incident">
       <div class="title-section">
-        <h1>{{ incident.failureDescription || 'Emergency Maintenance Details' }}</h1>
+        <h1>{{ incident.failureDescription || 'Corrective Maintenance Details' }}</h1>
         <div class="emergency-meta">
           <span class="work-order-number">{{ incident.workOrderNumber || 'N/A' }}</span>
           <span *ngIf="incident.assetName || incident.assetId">•</span>
