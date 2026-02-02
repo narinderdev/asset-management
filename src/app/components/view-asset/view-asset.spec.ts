@@ -2,9 +2,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
+import { vi } from 'vitest';
 
 import { ViewAssetComponent } from './view-asset';
 import { AssetsService } from '../../services/assets.service';
+import { ToastrService } from 'ngx-toastr';
 
 class AssetsServiceStub {
   fetchAssetById = vi.fn().mockReturnValue(of({
@@ -26,7 +28,8 @@ describe('ViewAssetComponent', () => {
       imports: [ViewAssetComponent, RouterTestingModule],
       providers: [
         { provide: AssetsService, useClass: AssetsServiceStub },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: '1' }) } } }
+        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: '1' }) } } },
+        { provide: ToastrService, useValue: { success: vi.fn(), error: vi.fn() } }
       ]
     }).compileComponents();
 

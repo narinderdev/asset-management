@@ -1,44 +1,71 @@
 import { test, expect, Page, Request } from '@playwright/test';
 
-const seedAuth = (page: Page) =>
-  page.addInitScript(() => {
+interface PreventiveMaintenancePayload {
+  assetId?: number;
+  assetTypeId?: number;
+  title?: string;
+  priority?: string;
+  location?: string;
+  startDate?: string;
+  scheduleType?: string;
+  intervalUnit?: string;
+  intervalValue?: number;
+  leadTimeDays?: number;
+  applyTo?: string;
+  [key: string]: unknown;
+}
+
+const seedAuth = async (page: Page) => {
+  await page.addInitScript(() => {
     localStorage.setItem('authToken', 'playwright-token');
     localStorage.setItem('userPermissions', JSON.stringify({ modules: { PREVENTIVE_MAINTENANCE: ['CREATE', 'UPDATE', 'DELETE', 'VIEW'] } }));
   });
+  await page.goto('/');
+  await page.evaluate(() => {
+    localStorage.setItem('authToken', 'playwright-token');
+    localStorage.setItem('userPermissions', JSON.stringify({ modules: { PREVENTIVE_MAINTENANCE: ['CREATE', 'UPDATE', 'DELETE', 'VIEW'] } }));
+  });
+};
 
 const mockPmList = async (page: Page) => {
   await page.route('**/api/maintenance/preventive**', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        data: {
-          totalElements: 2,
-          size: 10,
-          number: 0,
-          content: [
-            {
-              id: 1,
-              title: 'Quarterly Inspection',
-              assetName: 'Pump A',
-              location: 'Plant 1',
-              startDate: '2026-02-01T00:00:00Z',
-              priority: 'HIGH',
-              active: true
-            },
-            {
-              id: 2,
-              title: 'Filter Change',
-              assetName: 'Conveyor B',
-              location: 'Line 2',
-              startDate: '2026-02-15T00:00:00Z',
-              priority: 'LOW',
-              active: false
-            }
-          ]
-        }
-      })
-    });
+    const url = route.request().url();
+    // Only handle GET requests for the list endpoint, not specific IDs
+    if (route.request().method() === 'GET' && !url.match(/\/preventive\/\d+$/)) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: {
+            totalElements: 2,
+            size: 10,
+            number: 0,
+            content: [
+              {
+                id: 1,
+                title: 'Quarterly Inspection',
+                assetName: 'Pump A',
+                location: 'Plant 1',
+                startDate: '2026-02-01T00:00:00Z',
+                priority: 'HIGH',
+                active: true
+              },
+              {
+                id: 2,
+                title: 'Filter Change',
+                assetName: 'Conveyor B',
+                location: 'Line 2',
+                startDate: '2026-02-15T00:00:00Z',
+                priority: 'LOW',
+                active: false
+              }
+            ]
+          }
+        })
+      });
+      return;
+    }
+    await route.continue();
   });
 };
 
@@ -83,11 +110,12 @@ test.describe('Preventive Maintenance', () => {
 
   test('creates a preventive maintenance template', async ({ page }) => {
     await mockAssetsAndTypes(page);
+    await mockPmList(page); // Mock list for redirect after create
 
-    let postPayload: Record<string, unknown> = {};
+    let postPayload: PreventiveMaintenancePayload = {};
     await page.route('**/api/maintenance/preventive', async (route) => {
       if (route.request().method() === 'POST') {
-        postPayload = JSON.parse(route.request().postData() || '{}');
+        postPayload = JSON.parse(route.request().postData() || '{}') as PreventiveMaintenancePayload;
         await route.fulfill({
           status: 201,
           contentType: 'application/json',
@@ -100,8 +128,15 @@ test.describe('Preventive Maintenance', () => {
 
     await page.goto('/preventive-maintenance/create');
 
+    // Wait for form to be ready
+    await page.locator('select[name="applyTo"]').waitFor({ state: 'visible', timeout: 10000 });
+    
     await page.locator('select[name="applyTo"]').selectOption('ASSET');
+    
+    // Wait for asset select to appear after applyTo selection
+    await page.locator('select[name="assetId"]').waitFor({ state: 'visible', timeout: 10000 });
     await page.locator('select[name="assetId"]').selectOption({ label: 'Pump A' });
+    
     await page.locator('input[name="title"]').fill('Quarterly Pump Check');
     await page.locator('select[name="priority"]').selectOption('HIGH');
     await page.locator('input[name="location"]').fill('Plant 1');
@@ -121,11 +156,12 @@ test.describe('Preventive Maintenance', () => {
     expect(postPayload.intervalValue).toBe(30);
     expect(postPayload.leadTimeDays).toBe(5);
 
-    await expect(page).toHaveURL(/\/maintenance\/preventive$/);
+    await expect(page).toHaveURL(/\/maintenance\/preventive$/, { timeout: 10000 });
   });
 
   test('edits a preventive maintenance template', async ({ page }) => {
     await mockAssetsAndTypes(page);
+    await mockPmList(page); // Mock list for redirect after edit
 
     await page.route('**/api/maintenance/preventive/77', async (route) => {
       const method = route.request().method();
@@ -143,13 +179,14 @@ test.describe('Preventive Maintenance', () => {
               intervalUnit: 'WEEKS',
               intervalValue: 4,
               leadTimeDays: 2,
-              startDate: '2026-02-01T00:00:00Z'
+              startDate: '2026-02-01T00:00:00Z',
+              applyTo: 'ASSET'
             }
           })
         });
         return;
       }
-      if (method === 'PATCH') {
+      if (method === 'PATCH' || method === 'PUT') {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -160,34 +197,50 @@ test.describe('Preventive Maintenance', () => {
       await route.continue();
     });
 
-    let patchPayload: Record<string, unknown> = {};
+    let patchPayload: PreventiveMaintenancePayload = {};
     page.on('request', (req: Request) => {
-      if (req.method() === 'PATCH' && req.url().includes('/api/maintenance/preventive/77')) {
-        patchPayload = JSON.parse(req.postData() || '{}');
+      if ((req.method() === 'PATCH' || req.method() === 'PUT') && req.url().includes('/api/maintenance/preventive/77')) {
+        patchPayload = JSON.parse(req.postData() || '{}') as PreventiveMaintenancePayload;
       }
     });
 
     await page.goto('/preventive-maintenance/edit/77');
+    
+    // Wait for form to load
+    await page.locator('input[name="title"]').waitFor({ state: 'visible', timeout: 10000 });
     await page.locator('input[name="title"]').fill('Monthly Check Updated');
-    await page.getByRole('button', { name: /Update PM Template/i }).click();
+    
+    const updateButton = page.getByRole('button', { name: /Update PM Template/i });
+    await updateButton.waitFor({ state: 'visible' });
+    await updateButton.click();
 
     expect(patchPayload.title).toBe('Monthly Check Updated');
     expect(patchPayload.intervalUnit).toBe('WEEKS');
-    await expect(page).toHaveURL(/\/maintenance\/preventive$/);
+    await expect(page).toHaveURL(/\/maintenance\/preventive$/, { timeout: 10000 });
   });
 
   test('deletes a preventive maintenance template from listing', async ({ page }) => {
     await mockPmList(page);
     let deleteCalled = false;
     await page.route('**/api/maintenance/preventive/1', async (route) => {
-      deleteCalled = true;
-      await route.fulfill({ status: 204, contentType: 'application/json', body: '' });
+      if (route.request().method() === 'DELETE') {
+        deleteCalled = true;
+        await route.fulfill({ status: 204, contentType: 'application/json', body: '' });
+      } else {
+        await route.continue();
+      }
     });
 
     await page.goto('/maintenance/preventive');
     await page.waitForTimeout(200);
 
-    await page.getByLabel('Delete template').first().click();
+    // Wait for delete button to be visible
+    const deleteButton = page.getByLabel('Delete template').first();
+    await deleteButton.waitFor({ state: 'visible', timeout: 10000 });
+    await deleteButton.click();
+    
+    // Wait for modal to appear
+    await page.locator('.modal .deleteBtn').waitFor({ state: 'visible' });
     await page.locator('.modal .deleteBtn').click();
 
     expect(deleteCalled).toBe(true);

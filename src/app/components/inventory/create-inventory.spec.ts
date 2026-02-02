@@ -12,6 +12,7 @@ class InventoryServiceStub {
   fetchInventoryItemById = vi.fn().mockReturnValue(of({ data: null }));
   createInventory = vi.fn().mockReturnValue(of({}));
   updateInventory = vi.fn().mockReturnValue(of({}));
+  fetchWarehouses = vi.fn().mockReturnValue(of({ data: [] }));
 }
 
 class VendorServiceStub {

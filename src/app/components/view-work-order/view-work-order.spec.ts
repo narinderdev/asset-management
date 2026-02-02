@@ -41,7 +41,7 @@ describe('ViewWorkOrderComponent', () => {
   });
 
   it('should format helpers', () => {
-    expect(component.formatDate(undefined)).toBe('—');
+    expect(component.formatDate(undefined)).toBe('--');
     expect(component.formatCurrency(100)).toBe('$100.00');
   });
 });

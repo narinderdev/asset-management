@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ToastrService } from 'ngx-toastr';
+import { vi } from 'vitest';
 
 import { AssetsComponent } from './assets';
 import { environment } from '../../../environments/environment';
@@ -52,7 +53,7 @@ describe('AssetsComponent', () => {
     };
 
     const request = httpMock.expectOne(req =>
-      req.url === `${environment.apiUrl}/api/assets` && req.params.has('pageable')
+      req.url === `${environment.apiUrl}/api/assets` && req.params.has('page') && req.params.has('size')
     );
     expect(request.request.headers.get('ngrok-skip-browser-warning')).toBe('true');
     request.flush(mockResponse);

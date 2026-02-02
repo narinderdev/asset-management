@@ -46,6 +46,8 @@ describe('CreateTechnicianComponent', () => {
 
   it('should submit new technician when not editing', () => {
     component.form = {
+      technicianId: '',
+      badgeNumber: '',
       firstName: 'John',
       lastName: 'Doe',
       technicianType: 'FULL_TIME',
@@ -57,7 +59,14 @@ describe('CreateTechnicianComponent', () => {
       hireDate: component.form.hireDate,
       workShift: '',
       notes: '',
-      certifications: ''
+      certifications: '',
+      certificateIssueDate: '',
+      certificateExpiryDate: '',
+      terminationDate: '',
+      technicianPhotoUrl: undefined,
+      certificateUrl: undefined,
+      photoName: undefined,
+      certificateName: undefined
     };
 
     component.onSubmit();

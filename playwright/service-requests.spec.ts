@@ -1,10 +1,16 @@
 import { test, expect, Page, Request } from '@playwright/test';
 
-const seedAuth = (page: Page, perms: string[] = ['CREATE', 'UPDATE', 'DELETE']) =>
-  page.addInitScript(({ perms }) => {
+const seedAuth = async (page: Page, perms: string[] = ['CREATE', 'UPDATE', 'DELETE']) => {
+  await page.addInitScript(({ perms }) => {
     localStorage.setItem('authToken', 'playwright-token');
     localStorage.setItem('userPermissions', JSON.stringify({ modules: { SERVICE_REQUEST: perms } }));
   }, { perms });
+  await page.goto('/');
+  await page.evaluate((p: string[]) => {
+    localStorage.setItem('authToken', 'playwright-token');
+    localStorage.setItem('userPermissions', JSON.stringify({ modules: { SERVICE_REQUEST: p } }));
+  }, perms);
+};
 
 const mockListApi = async (page: Page) => {
   await page.route('**/api/service-requests**', async (route) => {

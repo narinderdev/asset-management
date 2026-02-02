@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { vi } from 'vitest';
 
 import { SetPasswordComponent } from './set-password';
 import { ActivatedRoute, Router } from '@angular/router';

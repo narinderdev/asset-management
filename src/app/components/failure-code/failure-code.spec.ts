@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { ToastrService } from 'ngx-toastr';
+import { vi } from 'vitest';
 
 import { FailureCodeComponent } from './failure-code';
 import { environment } from '../../../environments/environment';
@@ -11,7 +13,10 @@ describe('FailureCodeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FailureCodeComponent, HttpClientTestingModule]
+      imports: [FailureCodeComponent, HttpClientTestingModule],
+      providers: [
+        { provide: ToastrService, useValue: { success: vi.fn(), error: vi.fn() } }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(FailureCodeComponent);

@@ -48,6 +48,7 @@ describe('CreateVendorComponent', () => {
     component.vendor = {
       vendorId: 'V-1',
       vendorName: 'Vendor One',
+      taxId: '',
       address: '123',
       contactPerson: 'John',
       email: 'john@example.com',

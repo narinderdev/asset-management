@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ToastrService } from 'ngx-toastr';
+import { vi } from 'vitest';
 
 import { InventoryComponent } from './inventory';
 import { environment } from '../../../environments/environment';
@@ -42,7 +43,7 @@ describe('InventoryComponent', () => {
     };
 
     const request = httpMock.expectOne(req =>
-      req.url === `${environment.apiUrl}/api/inventory-items` && req.params.has('pageable')
+      req.url === `${environment.apiUrl}/api/inventory-items` && req.params.has('page') && req.params.has('size')
     );
     expect(request.request.headers.get('ngrok-skip-browser-warning')).toBe('true');
     request.flush(mockResponse);

@@ -1,56 +1,50 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ToastrService } from 'ngx-toastr';
+import { vi } from 'vitest';
+import { of } from 'rxjs';
 
 import { PreventiveMaintenanceComponent } from './preventive-maintenance';
-import { environment } from '../../../environments/environment';
+import { PmTemplateService } from '../../services/pm-template.service';
+import { PermissionService } from '../../services/permission.service';
+
+class PmTemplateServiceStub {
+  fetchPreventiveMaintenance = vi.fn().mockReturnValue(of({
+    data: {
+      content: [
+        {
+          id: 1,
+          title: 'Monthly Check',
+          assetName: 'Asset 1',
+          location: 'Plant',
+          startDate: '2025-12-16',
+          priority: 'HIGH',
+          active: true
+        }
+      ],
+      totalElements: 1,
+      size: 10,
+      number: 0
+    }
+  }));
+}
 
 describe('PreventiveMaintenanceComponent', () => {
   let component: PreventiveMaintenanceComponent;
   let fixture: ComponentFixture<PreventiveMaintenanceComponent>;
-  let httpMock: HttpTestingController;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PreventiveMaintenanceComponent, HttpClientTestingModule],
+      imports: [PreventiveMaintenanceComponent],
       providers: [
+        { provide: PmTemplateService, useClass: PmTemplateServiceStub },
+        { provide: PermissionService, useValue: { hasPermission: () => true } },
         { provide: ToastrService, useValue: { success: vi.fn(), error: vi.fn() } }
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(PreventiveMaintenanceComponent);
     component = fixture.componentInstance;
-    httpMock = TestBed.inject(HttpTestingController);
-
     fixture.detectChanges();
-
-    const mockResponse = {
-      statusCode: 0,
-      data: {
-        content: [
-          {
-            pmId: 'PM-001',
-            pmName: 'Monthly Check',
-            pmType: 'INSPECTION',
-            appliesToType: 'ASSET',
-            frequencyValue: 30,
-            timeUnit: 'DAYS',
-            autoGenerateWo: true,
-            nextDueDate: '2025-12-16'
-          }
-        ]
-      }
-    };
-
-    const request = httpMock.expectOne(req =>
-      req.url === `${environment.apiUrl}/api/pm-templates` && req.params.has('pageable')
-    );
-    expect(request.request.headers.get('ngrok-skip-browser-warning')).toBe('true');
-    request.flush(mockResponse);
-  });
-
-  afterEach(() => {
-    httpMock.verify();
   });
 
   it('should create', () => {

@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { vi } from 'vitest';
+import { ToastrService } from 'ngx-toastr';
 
 import { ServiceContractComponent } from './service-contract';
 import { environment } from '../../../environments/environment';
@@ -11,7 +13,10 @@ describe('ServiceContractComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ServiceContractComponent, HttpClientTestingModule]
+      imports: [ServiceContractComponent, HttpClientTestingModule],
+      providers: [
+        { provide: ToastrService, useValue: { success: vi.fn(), error: vi.fn() } }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ServiceContractComponent);
@@ -41,7 +46,7 @@ describe('ServiceContractComponent', () => {
     };
 
     const request = httpMock.expectOne(req =>
-      req.url === `${environment.apiUrl}/api/service-contracts` && req.params.has('pageable')
+      req.url === `${environment.apiUrl}/api/service-contracts` && req.params.has('page') && req.params.has('size')
     );
     expect(request.request.headers.get('ngrok-skip-browser-warning')).toBe('true');
     request.flush(mockResponse);

@@ -15,6 +15,14 @@ class PmTemplateServiceStub {
       timeUnit: 'DAYS'
     }
   }));
+  fetchPreventiveMaintenanceById = vi.fn().mockReturnValue(of({
+    data: {
+      title: 'PM Template',
+      frequencyValue: 3,
+      timeUnit: 'DAYS',
+      startDate: '2025-01-01'
+    }
+  }));
 }
 
 describe('ViewPreventiveMaintenanceComponent', () => {
@@ -46,6 +54,6 @@ describe('ViewPreventiveMaintenanceComponent', () => {
 
   it('should format frequency and date values', () => {
     expect(component.formatFrequency(5, 'WEEKS')).toBe('5 Weeks');
-    expect(component.formatDate(undefined)).toBe('—');
+    expect(component.formatDate(undefined)).toBe('N/A');
   });
 });

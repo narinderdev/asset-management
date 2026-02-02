@@ -7,6 +7,7 @@ import { vi } from 'vitest';
 import { TechnicianComponent } from './technician';
 import { TechnicianService } from '../../services/technician.service';
 import { ToastrService } from 'ngx-toastr';
+import { PermissionService } from '../../services/permission.service';
 
 class TechnicianServiceStub {
   fetchTechnicians = vi.fn().mockReturnValue(of({
@@ -35,7 +36,8 @@ describe('TechnicianComponent', () => {
       imports: [TechnicianComponent, RouterTestingModule],
       providers: [
         { provide: TechnicianService, useClass: TechnicianServiceStub },
-        { provide: ToastrService, useValue: toastrStub }
+        { provide: ToastrService, useValue: toastrStub },
+        { provide: PermissionService, useValue: { hasPermission: () => true } }
       ]
     }).compileComponents();
 
@@ -57,6 +59,7 @@ describe('TechnicianComponent', () => {
   });
 
   it('should delete technician when confirmed', () => {
+    component.canDeleteTechnicians = true;
     component.technicianToDelete = { id: 1, name: 'Alex Smith', availability: 'Active', location: '', role: '', team: '' } as any;
     component.confirmDelete();
 

@@ -29,6 +29,7 @@ describe('ViewServiceRequestComponent', () => {
   let router: Router;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [ViewServiceRequestComponent, RouterTestingModule],
       providers: [

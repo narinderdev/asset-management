@@ -16,6 +16,7 @@ class InventoryServiceStub {
   fetchInventory = vi.fn().mockReturnValue(of({
     data: { content: [{ id: 1, itemName: 'Bearing', itemId: 'IT-1', unitOfMeasure: 'Each' }] }
   }));
+  fetchWarehouses = vi.fn().mockReturnValue(of({ data: [] }));
 }
 
 describe('CreateProcurementComponent', () => {
@@ -25,6 +26,7 @@ describe('CreateProcurementComponent', () => {
   let router: Router;
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [CreateProcurementComponent, RouterTestingModule],
       providers: [

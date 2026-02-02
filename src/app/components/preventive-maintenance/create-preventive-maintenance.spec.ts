@@ -13,10 +13,13 @@ class PmTemplateServiceStub {
   fetchTemplateById = vi.fn().mockReturnValue(of({ data: null }));
   createTemplate = vi.fn().mockReturnValue(of({}));
   updateTemplate = vi.fn().mockReturnValue(of({}));
+  createPreventiveMaintenance = vi.fn().mockReturnValue(of({}));
+  updatePreventiveMaintenance = vi.fn().mockReturnValue(of({}));
 }
 
 class AssetsServiceStub {
   fetchAssets = vi.fn().mockReturnValue(of({ data: { content: [] } }));
+  fetchAssetTypes = vi.fn().mockReturnValue(of({ data: [] }));
 }
 
 const toastrStub = {
@@ -61,29 +64,28 @@ describe('CreatePreventiveMaintenanceComponent', () => {
       ...component.template,
       pmId: 'PM-1',
       pmName: 'Oil Change',
-      pmType: 'INSPECTION',
-      appliesToType: 'ASSET',
-      assetDbId: 1,
-      assetCategory: 'HVAC',
-      planStartDate: component.dateToday,
-      planEndDate: component.dateToday,
-      frequencyType: 'TIME_BASED',
-      frequencyValue: '5',
-      timeUnit: 'DAYS',
-      meterUnit: 'HOURS',
-      graceDays: '1',
-      generateWOAutomatically: 'Yes',
+      applyTo: 'ASSET',
+      assetId: 1,
+      location: 'Plant 1',
+      title: 'Oil change title',
+      priority: 'LOW',
+      scheduleType: 'TIME_BASED',
       leadTimeDays: '2',
-      linkedWorkType: 'PREVENTIVE',
-      defaultPriority: 'LOW'
+      startDate: component.dateToday,
+      intervalUnit: 'DAYS',
+      intervalValue: '5',
+      meterType: 'RUN_HOURS',
+      meterIntervalValue: '',
+      currentMeterReading: '0',
+      workType: 'PREVENTIVE'
     };
 
     component.onCreate();
 
-    expect(pmTemplateService.createTemplate).toHaveBeenCalled();
-    const payload = pmTemplateService.createTemplate.mock.calls.at(-1)?.[0] as any;
-    expect(payload.pmName).toBe('Oil Change');
-    expect(payload.autoGenerateWo).toBe(true);
+    expect(pmTemplateService.createPreventiveMaintenance).toHaveBeenCalled();
+    const payload = pmTemplateService.createPreventiveMaintenance.mock.calls.at(-1)?.[0] as any;
+    expect(payload.title).toBe('Oil change title');
+    expect(payload.workType).toBe('PREVENTIVE');
   });
 
   it('should call update when in edit mode', () => {
@@ -93,28 +95,24 @@ describe('CreatePreventiveMaintenanceComponent', () => {
     component.template = {
       ...component.template,
       pmName: 'Updated Template',
-      frequencyValue: '2',
-      generateWOAutomatically: 'No',
-      defaultPriority: 'HIGH',
-      appliesToType: 'ASSET',
-      pmType: 'CALIBRATION',
-      timeUnit: 'DAYS',
-      meterUnit: 'HOURS',
-      graceDays: '0',
-      linkedWorkType: 'PREVENTIVE',
-      assetCategory: '',
-      planStartDate: component.dateToday,
-      planEndDate: component.dateToday,
-      frequencyType: 'TIME_BASED',
-      assetDbId: null,
+      intervalValue: '2',
+      priority: 'HIGH',
+      applyTo: 'ASSET',
+      scheduleType: 'TIME_BASED',
+      intervalUnit: 'DAYS',
+      meterType: 'RUN_HOURS',
+      meterIntervalValue: '',
+      currentMeterReading: '0',
+      workType: 'PREVENTIVE',
+      assetId: null,
       pmId: '',
       leadTimeDays: '1'
     };
 
     component.onCreate();
 
-    expect(pmTemplateService.updateTemplate).toHaveBeenCalled();
-    const lastCall = pmTemplateService.updateTemplate.mock.calls.at(-1);
+    expect(pmTemplateService.updatePreventiveMaintenance).toHaveBeenCalled();
+    const lastCall = pmTemplateService.updatePreventiveMaintenance.mock.calls.at(-1);
     expect(lastCall?.[0]).toBe(10);
   });
 });

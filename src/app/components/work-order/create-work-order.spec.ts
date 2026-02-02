@@ -7,6 +7,7 @@ import { vi } from 'vitest';
 import { CreateWorkOrderComponent } from './create-work-order';
 import { WorkOrderService } from '../../services/work-order.service';
 import { AssetsService } from '../../services/assets.service';
+import { ToastrService } from 'ngx-toastr';
 
 describe('CreateWorkOrderComponent', () => {
   let component: CreateWorkOrderComponent;
@@ -16,7 +17,10 @@ describe('CreateWorkOrderComponent', () => {
 
   beforeEach(async () => {
     const mockWorkOrderService = {
-      createWorkOrder: vi.fn().mockReturnValue(of({}))
+      createWorkOrder: vi.fn().mockReturnValue(of({})),
+      fetchWorkOrderTypes: vi.fn().mockReturnValue(of({ data: { content: [] } })),
+      fetchWorkOrderById: vi.fn().mockReturnValue(of({ data: null })),
+      updateWorkOrder: vi.fn().mockReturnValue(of({}))
     };
     const mockAssetsService = {
       fetchAssets: vi.fn().mockReturnValue(of({ data: { content: [{ id: 1, assetName: 'Asset 1' }] } }))
@@ -26,7 +30,8 @@ describe('CreateWorkOrderComponent', () => {
       imports: [CreateWorkOrderComponent, RouterTestingModule],
       providers: [
         { provide: WorkOrderService, useValue: mockWorkOrderService },
-        { provide: AssetsService, useValue: mockAssetsService }
+        { provide: AssetsService, useValue: mockAssetsService },
+        { provide: ToastrService, useValue: { success: vi.fn(), error: vi.fn() } }
       ]
     }).compileComponents();
 

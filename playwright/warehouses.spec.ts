@@ -1,10 +1,26 @@
 import { test, expect, Page, Request } from '@playwright/test';
 
-const seedAuth = (page: Page) =>
-  page.addInitScript(() => {
+const seedAuth = async (page: Page) => {
+  await page.addInitScript(() => {
     localStorage.setItem('authToken', 'playwright-token');
-    localStorage.setItem('userPermissions', JSON.stringify({ modules: { WAREHOUSE: ['CREATE', 'UPDATE', 'DELETE', 'VIEW'] } }));
+    localStorage.setItem('userPermissions', JSON.stringify({
+      modules: {
+        INVENTORY: ['CREATE', 'UPDATE', 'DELETE', 'VIEW'],
+        WAREHOUSE: ['CREATE', 'UPDATE', 'DELETE', 'VIEW']
+      }
+    }));
   });
+  await page.goto('/');
+  await page.evaluate(() => {
+    localStorage.setItem('authToken', 'playwright-token');
+    localStorage.setItem('userPermissions', JSON.stringify({
+      modules: {
+        INVENTORY: ['CREATE', 'UPDATE', 'DELETE', 'VIEW'],
+        WAREHOUSE: ['CREATE', 'UPDATE', 'DELETE', 'VIEW']
+      }
+    }));
+  });
+};
 
 const mockWarehouseList = async (page: Page) => {
   await page.route('**/api/warehouses**', async (route) => {

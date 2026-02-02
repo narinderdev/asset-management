@@ -12,6 +12,7 @@ class TechnicianServiceStub {
   fetchTechnicianTeamById = vi.fn().mockReturnValue(of({ data: null }));
   createTechnicianTeam = vi.fn().mockReturnValue(of({}));
   updateTechnicianTeam = vi.fn().mockReturnValue(of({}));
+  fetchTechnicians = vi.fn().mockReturnValue(of({ data: { content: [] } }));
 }
 
 const toastrStub = {

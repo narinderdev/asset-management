@@ -61,6 +61,16 @@ describe('RolesComponent', () => {
     expect(row.permissions.create).toBe('MANAGE_USERS_INVITE');
   });
 
+  it('computes pagination after loading roles', () => {
+    component['fetchRoles']();
+    expect(roleService.getRoles).toHaveBeenCalled();
+    expect(component.pagination.totalItems).toBe(component.roles.length);
+    const expectedPages = component.roles.length
+      ? Math.ceil(component.roles.length / component.pagination.pageSize)
+      : 0;
+    expect(component.pagination.totalPages).toBe(expectedPages);
+  });
+
   it('auto-selects view when a dependent permission is toggled on', () => {
     const row = {
       label: 'Test',
@@ -76,13 +86,14 @@ describe('RolesComponent', () => {
       label: 'Test',
       permissions: { view: 'VIEW_TEST', create: 'CREATE_TEST' }
     };
+    component.addRoleForm.get('permissions')?.setValue(['VIEW_TEST']);
     component.addRoleForm.get('permissions')?.setValue(['CREATE_TEST']);
     expect(component.isViewDisabled(row as any)).toBe(true);
   });
 
   it('calls createRoles and closes modal on successful save', () => {
     component.isModalOpen = true;
-    component.addRoleForm.setValue({
+    component.addRoleForm.patchValue({
       name: 'Role A',
       description: 'Desc',
       permissions: ['P1', 'P2']
@@ -93,7 +104,8 @@ describe('RolesComponent', () => {
     expect(roleService.createRoles).toHaveBeenCalledWith({
       name: 'Role A',
       description: 'Desc',
-      permissionCodes: ['P1', 'P2']
+      permissionCodes: ['P1', 'P2'],
+      technicianRole: false
     } as CreateRolePayload);
     expect(toastrMock.success).toHaveBeenCalled();
     expect(component.isModalOpen).toBe(false);

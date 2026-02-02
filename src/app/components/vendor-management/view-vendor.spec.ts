@@ -48,7 +48,7 @@ describe('ViewVendorComponent', () => {
 
   it('should format helpers', () => {
     expect(component.formatPaymentTermsLabel('NET_15')).toBe('NET 15');
-    expect(component.formatDateString(undefined)).toBe('â€”');
+    expect(component.formatDateString(undefined)).toBe('—');
   });
 });
 

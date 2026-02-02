@@ -7,6 +7,7 @@ import { vi } from 'vitest';
 import { ServiceRequestsComponent } from './service-requests';
 import { ServiceRequestService } from '../../services/service-request.service';
 import { ToastrService } from 'ngx-toastr';
+import { PermissionService } from '../../services/permission.service';
 
 class ServiceRequestServiceStub {
   fetchRequests = vi.fn().mockReturnValue(of({
@@ -47,7 +48,8 @@ describe('ServiceRequestsComponent', () => {
       imports: [ServiceRequestsComponent, RouterTestingModule],
       providers: [
         { provide: ServiceRequestService, useClass: ServiceRequestServiceStub },
-        { provide: ToastrService, useValue: toastrStub }
+        { provide: ToastrService, useValue: toastrStub },
+        { provide: PermissionService, useValue: { hasPermission: () => true } }
       ]
     }).compileComponents();
 
@@ -77,6 +79,7 @@ describe('ServiceRequestsComponent', () => {
   it('should delete a request when confirmed', () => {
     const navigateSpy = vi.spyOn(router, 'navigate');
     const request = { apiId: '1', requestId: 'REQ-1', requestDate: '', requester: '', shortTitle: '', maintenanceType: '', priority: 'Low', status: 'New' };
+    component.canDeleteRequests = true;
     component.requestToDelete = request as any;
     component.isDeleteModalOpen = true;
 
