@@ -69,7 +69,12 @@ export class AddAssetComponent implements OnInit {
     status: '',
     criticality: '',
     ownership: '',
-    assetTag: ''
+    assetTag: '',
+    functionalClass: '',      // NEW
+    retirementUnit: '',       // NEW
+    utilityAccount: '',       // NEW
+    propertyGroup: '',        // NEW
+    serialNumber: ''          // NEW
   };
   categoryOptions: AssetCategory[] = [];
   categoryLoading = false;
@@ -299,6 +304,13 @@ export class AddAssetComponent implements OnInit {
     this.assetMaster.assetType = asset.type;
     this.assetMaster.status = asset.status;
     this.assetMaster.shortDescription = asset.assetName;
+    // Add these lines if your Asset interface has these fields
+    // this.assetMaster.functionalClass = asset.functionalClass ?? '';
+    // this.assetMaster.retirementUnit = asset.retirementUnit ?? '';
+    // this.assetMaster.utilityAccount = asset.utilityAccount ?? '';
+    // this.assetMaster.propertyGroup = asset.propertyGroup ?? '';
+    // this.assetMaster.serialNumber = asset.serialNumber ?? '';
+    
     this.locationOrg.location = asset.location ?? '';
     this.locationOrg.department = '';
     this.locationOrg.costCenter = '';
@@ -383,6 +395,13 @@ export class AddAssetComponent implements OnInit {
     this.assetMaster.status = detail.status ?? '';
     this.assetMaster.criticality = this.normalizeCriticality(detail.criticality);
     this.assetMaster.ownership = detail.ownership ?? '';
+    // NEW FIELDS - Populate from API response
+    this.assetMaster.functionalClass = (detail as any).functionalClass ?? '';
+    this.assetMaster.retirementUnit = (detail as any).retirementUnit ?? '';
+    this.assetMaster.utilityAccount = (detail as any).utilityAccount ?? '';
+    this.assetMaster.propertyGroup = (detail as any).propertyGroup ?? '';
+    this.assetMaster.serialNumber = (detail as any).serialNumber ?? '';
+    
     this.currentAssetId = detail.id !== undefined ? String(detail.id) : this.currentAssetId;
 
     const detailLocation = detail.location;
@@ -692,7 +711,13 @@ export class AddAssetComponent implements OnInit {
       status: this.toApiStatus(this.assetMaster.status),
       criticality: this.toApiCriticality(this.assetMaster.criticality),
       ownership: this.assetMaster.ownership || undefined,
-      assetTag: this.assetMaster.assetTag || undefined
+      assetTag: this.assetMaster.assetTag || undefined,
+      // NEW FIELDS
+      functionalClass: this.assetMaster.functionalClass || undefined,
+      retirementUnit: this.assetMaster.retirementUnit || undefined,
+      utilityAccount: this.assetMaster.utilityAccount || undefined,
+      propertyGroup: this.assetMaster.propertyGroup || undefined,
+      serialNumber: this.assetMaster.serialNumber || undefined
     };
 
     if (!this.autoGenerateAssetId && this.assetMaster.assetId) {
@@ -761,7 +786,13 @@ export class AddAssetComponent implements OnInit {
         status: this.toApiStatus(this.assetMaster.status),
         criticality: this.toApiCriticality(this.assetMaster.criticality),
         ownership: this.assetMaster.ownership || undefined,
-        assetTag: this.assetMaster.assetTag || undefined
+        assetTag: this.assetMaster.assetTag || undefined,
+        // NEW FIELDS
+        functionalClass: this.assetMaster.functionalClass || undefined,
+        retirementUnit: this.assetMaster.retirementUnit || undefined,
+        utilityAccount: this.assetMaster.utilityAccount || undefined,
+        propertyGroup: this.assetMaster.propertyGroup || undefined,
+        serialNumber: this.assetMaster.serialNumber || undefined
       }
     };
 

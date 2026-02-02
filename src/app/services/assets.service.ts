@@ -113,6 +113,12 @@ export interface AssetDetailResponse {
     shortDescription?: string;
     location?: string | AssetLocationDetails;
     parentAssetId?: number | null;
+    // NEW FIELDS
+    functionalClass?: string;
+    retirementUnit?: string;
+    utilityAccount?: string;
+    propertyGroup?: string;
+    serialNumber?: string;
     insurance?: {
       insuranceProvider?: string;
       policyNumber?: string;
@@ -197,6 +203,12 @@ export interface AssetCreatePayload {
   ownership?: string;
   assetTag?: string;
   location?: string | AssetLocationDetails;
+  // NEW FIELDS
+  functionalClass?: string;
+  retirementUnit?: string;
+  utilityAccount?: string;
+  propertyGroup?: string;
+  serialNumber?: string;
   insurance?: {
     insuranceProvider?: string;
     policyNumber?: string;
@@ -259,6 +271,12 @@ export interface AssetUpdatePayload {
     criticality?: string;
     ownership?: string;
     assetTag?: string;
+    // NEW FIELDS
+    functionalClass?: string;
+    retirementUnit?: string;
+    utilityAccount?: string;
+    propertyGroup?: string;
+    serialNumber?: string;
   };
   locationOrg?: AssetLocationOrgPayload;
   insurance?: {

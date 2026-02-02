@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { WorkOrderService, WorkOrderType } from '../../services/work-order.service';
 import { ToastrService } from 'ngx-toastr';
 import { Loader } from '../loader/loader';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-create-work-order-type',
@@ -57,16 +58,17 @@ export class CreateWorkOrderTypeComponent {
     };
 
     this.isSubmitting = true;
-    this.workOrderService.createWorkOrderType(payload).subscribe({
-      next: () => {
-        this.isSubmitting = false;
-        this.toastr.success('Work order type created');
-        this.router.navigate(['/work-orders/types']);
-      },
-      error: () => {
-        this.isSubmitting = false;
-        this.toastr.error('Failed to create work order type');
-      }
-    });
+    this.workOrderService
+      .createWorkOrderType(payload)
+      .pipe(finalize(() => (this.isSubmitting = false)))
+      .subscribe({
+        next: () => {
+          this.toastr.success('Work order type created');
+          this.router.navigate(['/work-orders/types']);
+        },
+        error: () => {
+          this.toastr.error('Failed to create work order type');
+        }
+      });
   }
 }

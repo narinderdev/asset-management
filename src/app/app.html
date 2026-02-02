@@ -3,14 +3,17 @@
     class="app-shell"
     [class.sidebar-collapsed]="isSidebarCollapsed"
     [class.mobile-sidebar-open]="isMobileSidebarVisible"
+    [class.sidebar-hidden]="isStandaloneRoute"
   >
-    <app-sidebar
-      (collapsedChange)="onSidebarCollapseChange($event)"
-      (mobileClose)="closeMobileSidebar()"
-      [mobileOpen]="isMobileSidebarVisible"
-    ></app-sidebar>
+    <ng-container *ngIf="!isStandaloneRoute">
+      <app-sidebar
+        (collapsedChange)="onSidebarCollapseChange($event)"
+        (mobileClose)="closeMobileSidebar()"
+        [mobileOpen]="isMobileSidebarVisible"
+      ></app-sidebar>
+    </ng-container>
 
-    <div class="mobile-header">
+    <div class="mobile-header" *ngIf="!isStandaloneRoute">
       <button class="mobile-menu-btn" (click)="toggleMobileSidebar()" aria-label="Toggle menu">
         <span></span>
         <span></span>
@@ -25,7 +28,7 @@
       </div>
     </div>
 
-    <div class="sidebar-overlay" *ngIf="isMobileSidebarVisible" (click)="closeMobileSidebar()"></div>
+    <div class="sidebar-overlay" *ngIf="!isStandaloneRoute && isMobileSidebarVisible" (click)="closeMobileSidebar()"></div>
   </div>
 </ng-container>
 

@@ -10,10 +10,18 @@
   transition: margin-left 0.3s ease;
 }
 
+.app-shell.sidebar-hidden .main-content {
+  margin-left: 0;
+}
+
 .main-content-sub {
   padding: 30px;
   padding-left: 38px;
   background: #f5f5f5;
+}
+
+.app-shell.sidebar-hidden .main-content-sub {
+  padding: 0;
 }
 
 .app-shell.sidebar-collapsed .main-content {

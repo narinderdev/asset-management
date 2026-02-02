@@ -64,6 +64,11 @@
   font-size: 14px;
 }
 
+.field-error {
+  color: #e11d48;
+  font-size: 12px;
+}
+
 .checkbox-field {
   flex-direction: row;
   align-items: center;

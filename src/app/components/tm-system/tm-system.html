@@ -1,0 +1,242 @@
+﻿<div class="tm-page">
+  <!-- <header class="tm-header">
+    <div class="tm-breadcrumb">Dashboard</div>
+    <div class="tm-header-actions">
+      <button type="button" class="icon-btn" aria-label="Notifications">🔔</button>
+      <div class="user-chip">
+        <img src="/assets/icons/profile.svg" alt="User avatar">
+      </div>
+      <button type="button" class="icon-btn" aria-label="Call">📞</button>
+    </div>
+  </header> -->
+
+  <div class="tm-layout">
+    <aside class="tm-sidebar-card">
+      <div class="tm-brand">
+        <h2>Technician Panel</h2>
+        <span>Management System</span>
+      </div>
+      <nav>
+        <ul>
+          <li
+            *ngFor="let item of navItems"
+            [class.active]="activeTab === item.id"
+            (click)="selectTab(item.id)"
+            [routerLink]="['/tm-system', item.id]"
+            routerLinkActive="active"
+            tabindex="0"
+            role="button"
+            (keydown.enter)="selectTab(item.id)"
+          >
+            <img class="nav-icon-img" [src]="iconPath + item.icon" [alt]="item.label" />
+            <span>{{ item.label }}</span>
+          </li>
+        </ul>
+      </nav>
+
+      <button type="button" class="logout-link">
+        â» Logout
+      </button>
+    </aside>
+
+    <main class="tm-main">
+      <div class="tm-main-header">
+        <h1>{{ activeLabel }}</h1>
+      </div>
+
+      <ng-container [ngSwitch]="activeTab">
+        <ng-container *ngSwitchCase="'dashboard'">
+          <section class="metrics-grid">
+            <div class="metric-card" *ngFor="let metric of metrics" [ngClass]="['metric-card', metric.accent]">
+              <div class="metric-value">{{ metric.value }}</div>
+              <div class="metric-label">{{ metric.label }}</div>
+            </div>
+          </section>
+
+          <section class="activities-card">
+            <div class="card-head">
+              <h3>Recent Activities</h3>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Technician</th>
+                    <th>Activity</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of activities">
+                    <td>{{ item.technician }}</td>
+                    <td>{{ item.activity }}</td>
+                    <td>{{ item.time }}</td>
+                    <td>
+                      <span class="status-pill" [ngClass]="'status-' + item.status.toLowerCase()">{{ item.status }}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'technicians'">
+          <section class="card search-card">
+            <div class="input-icon">ðŸ”</div>
+            <input type="text" placeholder="Search technician..." />
+          </section>
+          <section class="card table-card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Technician ID</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Team</th>
+                    <th>Status</th>
+                    <th>Working Days</th>
+                    <th class="actions-col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of technicianRows">
+                    <td class="linkish">{{ row.id }}</td>
+                    <td>{{ row.name }}</td>
+                    <td>{{ row.phone }}</td>
+                    <td>{{ row.email }}</td>
+                    <td>{{ row.team }}</td>
+                    <td>
+                      <span class="pill"
+                        [ngClass]="{
+                          'pill-green': row.status === 'Available',
+                          'pill-amber': row.status === 'Working',
+                          'pill-red': row.status === 'On leave'
+                        }">
+                        {{ row.status }}
+                      </span>
+                    </td>
+                    <td>{{ row.workingDays }}</td>
+                    <td class="actions">
+                      <button aria-label="View">ðŸ‘ï¸</button>
+                      <button aria-label="Edit">âœï¸</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="table-footer">Showing 1 to 10 of 12 results</div>
+          </section>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'teams'">
+          <section class="card search-card">
+            <div class="input-icon">ðŸ”</div>
+            <input type="text" placeholder="Search teams..." />
+          </section>
+          <section class="card table-card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Team ID</th>
+                    <th>Team Name</th>
+                    <th>Team Leader</th>
+                    <th>Total Technicians</th>
+                    <th>Active Work Orders</th>
+                    <th class="actions-col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of teamRows">
+                    <td class="linkish">{{ row.id }}</td>
+                    <td>{{ row.name }}</td>
+                    <td>{{ row.leader }}</td>
+                    <td><span class="badge badge-blue">{{ row.total }}</span></td>
+                    <td><span class="badge badge-purple">{{ row.activeWos }}</span></td>
+                    <td class="actions">
+                      <button aria-label="View">ðŸ‘ï¸</button>
+                      <button aria-label="Edit">âœï¸</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="table-footer">Showing 1 to 6 of 6 results</div>
+          </section>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'work-orders'">
+          <section class="card search-card">
+            <div class="input-icon">ðŸ”</div>
+            <input type="text" placeholder="Search teams..." />
+          </section>
+          <section class="card table-card">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Work Order ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Assigned To</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Due Date</th>
+                    <th class="actions-col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of workOrderRows">
+                    <td class="linkish">{{ row.id }}</td>
+                    <td>{{ row.name }}</td>
+                    <td>{{ row.description }}</td>
+                    <td>{{ row.assigned }}</td>
+                    <td>
+                      <span class="pill"
+                        [ngClass]="{
+                          'pill-red': row.priority === 'High',
+                          'pill-amber': row.priority === 'Medium',
+                          'pill-green': row.priority === 'Low'
+                        }">
+                        {{ row.priority }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="pill"
+                        [ngClass]="{
+                          'pill-blue': row.status === 'In Progress',
+                          'pill-green': row.status === 'Completed',
+                          'pill-amber': row.status === 'Pending'
+                        }">
+                        {{ row.status }}
+                      </span>
+                    </td>
+                    <td>{{ row.dueDate }}</td>
+                    <td class="actions">
+                      <button aria-label="View">ðŸ‘ï¸</button>
+                      <button aria-label="Edit">âœï¸</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="table-footer">Showing 1 to 8 of 8 results</div>
+          </section>
+        </ng-container>
+
+        <section class="placeholder" *ngSwitchDefault>
+          <div class="placeholder-card">
+            <h3>{{ activeLabel }}</h3>
+            <p>Coming soon. Click Dashboard to return.</p>
+          </div>
+        </section>
+      </ng-container>
+    </main>
+  </div>
+</div>
+
+

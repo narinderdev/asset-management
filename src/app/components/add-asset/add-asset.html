@@ -111,7 +111,7 @@
               {{ type.name || type.code }}
             </option>
           </select>
-          <div class="helper-text" *ngIf="assetTypeLoading">Loading asset types...</div>
+          <!-- <div class="helper-text" *ngIf="assetTypeLoading">Loading asset types...</div> -->
         </div>
         <div class="form-group">
           <label class="form-label">
@@ -134,7 +134,7 @@
                 {{ category.name }}
               </button>
             </div>
-            <div class="helper-text" *ngIf="categoryLoading">Loading categories...</div>
+            <!-- <div class="helper-text" *ngIf="categoryLoading">Loading categories...</div> -->
           </div>
 
         <div class="form-group">
@@ -168,11 +168,58 @@
             </option>
           </select>
         </div>
+        
+        <div class="form-group">
+          <label class="form-label">Functional Class</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Functional Class"
+            [(ngModel)]="assetMaster.functionalClass">
+        </div>
 
       </div>
 
-      <!-- Row 3 -->
-      <div class="form-row"></div>
+      <!-- Row 3 - NEW FIELDS -->
+      <div class="form-row">
+        
+
+        <div class="form-group">
+          <label class="form-label">Retirement Unit</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Retirement Unit"
+            [(ngModel)]="assetMaster.retirementUnit">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Utility Account</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Utility Account"
+            [(ngModel)]="assetMaster.utilityAccount">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Property Group</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Property Group"
+            [(ngModel)]="assetMaster.propertyGroup">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Serial Number</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            placeholder="Enter Serial Number"
+            [(ngModel)]="assetMaster.serialNumber">
+        </div>
+      </div>
     </div>
 
     <!-- Location & Organization Tab -->

@@ -143,6 +143,12 @@ export class SidebarComponent implements OnInit {
         { label: 'Roles', route: '/roles-permissions' },
         { label: 'Users', route: '/users' }
       ]
+    },
+    {
+      icon: 'tm-system.svg',
+      activeIcon: 'tm-system.svg',
+      label: 'TM System',
+      route: '/tm-system'
     }
   ];
 

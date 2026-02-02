@@ -9,6 +9,9 @@
       <label class="field">
         <span>Type</span>
         <input type="text" formControlName="workOrderType" placeholder="e.g., PREVENTIVE" />
+        <span class="field-error" *ngIf="form.get('workOrderType')?.hasError('required') && form.get('workOrderType')?.touched">
+          Work order type is required.
+        </span>
       </label>
 
       <label class="field">

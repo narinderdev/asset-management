@@ -56,6 +56,7 @@ import { CreateAssetTypeComponent } from './components/asset-types/create-asset-
 import { WorkOrderTypesComponent } from './components/work-order-types/work-order-types';
 import { CreateWorkOrderTypeComponent } from './components/work-order-types/create-work-order-type';
 import { ViewWorkOrderTypeComponent } from './components/work-order-types/view-work-order-type';
+import { TmSystemComponent } from './components/tm-system/tm-system';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -129,6 +130,8 @@ export const routes: Routes = [
   { path: 'service-contracts/create', component: CreateServiceContractComponent, canActivate: [AuthGuard] },
   { path: 'failure-codes', component: FailureCodeComponent, canActivate: [AuthGuard] },
   { path: 'failure-codes/create', component: CreateFailureCodeComponent, canActivate: [AuthGuard] },
+  { path: 'tm-system', pathMatch: 'full', redirectTo: 'tm-system/dashboard' },
+  { path: 'tm-system/:tab', component: TmSystemComponent, canActivate: [AuthGuard] },
   { path: 'roles-permissions', component: RolesComponent, canActivate: [AuthGuard] },
   { path: 'users', component: UsersComponent, canActivate: [AuthGuard] }
 ];

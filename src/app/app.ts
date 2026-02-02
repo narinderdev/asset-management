@@ -18,19 +18,20 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   isSidebarCollapsed = false;
   isMobileSidebarVisible = false;
   isLoginRoute = false;
+  isStandaloneRoute = false;
   private readonly destroy$ = new Subject<void>();
   @ViewChild(ToastContainerDirective, { static: true })
   toastContainer!: ToastContainerDirective;
 
   constructor(private toastrService: ToastrService, private router: Router) {
-    this.updateLoginRoute(this.router.url);
+    this.updateRouteState(this.router.url);
     this.router.events
       .pipe(
         filter((event): event is NavigationEnd => event instanceof NavigationEnd),
         takeUntil(this.destroy$)
       )
       .subscribe((event) => {
-        this.updateLoginRoute(event.urlAfterRedirects);
+        this.updateRouteState(event.urlAfterRedirects);
       });
   }
 
@@ -55,12 +56,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.isMobileSidebarVisible = false;
   }
 
-  private updateLoginRoute(url: string) {
+  private updateRouteState(url: string) {
     const path = url.split('?')[0];
     const normalized = path.startsWith('/') ? path : `/${path}`;
     const authRoutes = ['/login', '/sign-up', '/verify-otp', '/set-password'];
     this.isLoginRoute = authRoutes.includes(normalized);
-    if (this.isLoginRoute) {
+    this.isStandaloneRoute = normalized.startsWith('/tm-system');
+    if (this.isLoginRoute || this.isStandaloneRoute) {
       this.isSidebarCollapsed = false;
       this.isMobileSidebarVisible = false;
     }
