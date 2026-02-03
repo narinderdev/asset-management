@@ -243,6 +243,17 @@ interface ApiWorkOrderDetail extends ApiWorkOrder {
   source?: string;
   laborEntries?: ApiLaborEntry[];
   materialUsages?: ApiMaterialUsage[];
+  warrantyLifecycle?: {
+    commissioningDate?: string;
+    warrantyStart?: string;
+    warrantyEnd?: string;
+    warrantyProvider?: string;
+    serviceContract?: string | null;
+    expectedUsefulLifeYears?: number | null;
+    plannedReplacementDate?: string;
+    lastMaintenanceDate?: string;
+    nextPlannedMaintenance?: string;
+  };
   notes?: string;
   activities?: Array<{ title?: string; status?: string; dueDate?: string }>;
   scheduledCompletionDate?: string;

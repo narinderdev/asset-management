@@ -211,6 +211,20 @@
               <div class="field-label">Location</div>
               <div class="field-value" [ngClass]="{'empty': !workOrder.location}">{{ workOrder.location ?? 'N/A' }}</div>
             </div>
+            <div class="field-group">
+              <div class="field-label">Warranty Start</div>
+              <div class="field-value">{{ formatDate(workOrder.warrantyLifecycle?.warrantyStart) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Warranty End</div>
+              <div class="field-value">{{ formatDate(workOrder.warrantyLifecycle?.warrantyEnd) }}</div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Warranty Provider</div>
+              <div class="field-value" [ngClass]="{'empty': !workOrder.warrantyLifecycle?.warrantyProvider}">
+                {{ workOrder.warrantyLifecycle?.warrantyProvider || 'N/A' }}
+              </div>
+            </div>
           </div>
         </div>
       </div>

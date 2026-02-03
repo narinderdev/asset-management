@@ -2,7 +2,7 @@
   <section class="create-card">
     <header class="create-header">
       <button type="button" class="back-btn" aria-label="Back" (click)="cancel()">←</button>
-      <h2>Create Asset Type</h2>
+      <h2>{{ isEditMode ? 'Edit Asset Type' : 'Create Asset Type' }}</h2>
     </header>
 
     <form class="request-form" (ngSubmit)="submit()">
@@ -78,7 +78,7 @@
       <div class="form-actions">
         <button type="button" class="btn ghost" (click)="cancel()">Cancel</button>
         <button type="submit" class="btn primary" [disabled]="isSubmitting">
-          {{ isSubmitting ? 'Saving...' : 'Create Asset Type' }}
+          {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Asset Type' : 'Create Asset Type') }}
         </button>
       </div>
     </form>

@@ -53,6 +53,7 @@ import { ViewPredictiveMaintenanceComponent } from './components/predictive-main
 import { CreateEmergencyMaintenanceComponent } from './components/emergency-maintenance/create-emergency-maintenance';
 import { ViewEmergencyMaintenanceComponent } from './components/emergency-maintenance/view-emergency-maintenance';
 import { CreateAssetTypeComponent } from './components/asset-types/create-asset-type';
+import { ViewAssetTypeComponent } from './components/asset-types/view-asset-type';
 import { WorkOrderTypesComponent } from './components/work-order-types/work-order-types';
 import { CreateWorkOrderTypeComponent } from './components/work-order-types/create-work-order-type';
 import { ViewWorkOrderTypeComponent } from './components/work-order-types/view-work-order-type';
@@ -68,6 +69,8 @@ export const routes: Routes = [
   { path: 'assets/add-asset', component: AddAssetComponent, canActivate: [AuthGuard] },
   { path: 'assets/add-asset/:tab', component: AddAssetComponent, canActivate: [AuthGuard] },
   { path: 'assets/types/create', component: CreateAssetTypeComponent, canActivate: [AuthGuard] },
+  { path: 'assets/types/edit/:id', component: CreateAssetTypeComponent, canActivate: [AuthGuard] },
+  { path: 'assets/types/view/:id', component: ViewAssetTypeComponent, canActivate: [AuthGuard] },
   { path: 'assets/types', component: AssetTypesComponent, canActivate: [AuthGuard] },
   { path: 'assets', component: AssetsComponent, canActivate: [AuthGuard] },
   { path: 'assets/view/:id', component: ViewAssetComponent, canActivate: [AuthGuard] },

@@ -20,6 +20,15 @@
 
   <div class="table-wrapper">
     <app-loader [visible]="isLoading"></app-loader>
+    <app-delete-modal
+      [isOpen]="showDeleteModal"
+      [deleting]="deleting"
+      title="Delete Asset Type"
+      message="Are you sure you want to delete this asset type?"
+      confirmLabel="Yes, delete"
+      (cancel)="closeDeleteModal()"
+      (confirm)="confirmDelete()"
+    ></app-delete-modal>
     <table class="asset-types-table">
       <thead>
         <tr>
@@ -30,6 +39,7 @@
           <th>GL Account</th>
           <th>Insurance Required</th>
           <th>Active</th>
+          <th class="actions-col">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -50,12 +60,23 @@
                 {{ type.active ? 'Active' : 'Inactive' }}
               </span>
             </td>
+            <td class="actions-cell">
+              <button type="button" class="action-icon" aria-label="View asset type" (click)="onView(type)">
+                <img src="assets/icons/Vector.svg" alt="View asset type" />
+              </button>
+              <button type="button" class="action-icon" aria-label="Edit asset type" (click)="onEdit(type)">
+                <img src="assets/icons/edit.svg" alt="Edit asset type" />
+              </button>
+              <button type="button" class="action-icon danger" aria-label="Delete asset type" (click)="onDelete(type)">
+                <img src="assets/icons/delete.svg" alt="Delete asset type" />
+              </button>
+            </td>
           </tr>
         </ng-container>
 
         <ng-template #emptyState>
           <tr *ngIf="hasLoaded && !isLoading">
-            <td colspan="7" class="empty-row">
+            <td colspan="8" class="empty-row">
               {{ errorMessage || 'No asset types to display.' }}
             </td>
           </tr>

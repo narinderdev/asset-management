@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AssetsService, AssetCategory, AssetTypeCreatePayload } from '../../services/assets.service';
 import { ToastrService } from 'ngx-toastr';
 
@@ -14,6 +14,8 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./create-asset-type.css']
 })
 export class CreateAssetTypeComponent implements OnInit {
+  isEditMode = false;
+  assetTypeId?: string;
   assetType: AssetTypeCreatePayload = {
     code: '',
     name: '',
@@ -30,20 +32,57 @@ export class CreateAssetTypeComponent implements OnInit {
   constructor(
     private assetsService: AssetsService,
     private router: Router,
-    private toastr: ToastrService
+    private route: ActivatedRoute,
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    this.assetTypeId = this.route.snapshot.paramMap.get('id') ?? undefined;
+    this.isEditMode = !!this.assetTypeId;
     this.loadCategories();
+    if (this.isEditMode && this.assetTypeId) {
+      this.loadAssetType(this.assetTypeId);
+    }
   }
 
   private loadCategories(): void {
     this.assetsService.fetchAssetCategories().subscribe({
       next: (res) => {
         this.categories = res.data ?? [];
+        this.cdr.detectChanges();
       },
       error: () => {
         this.categories = [];
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private loadAssetType(id: string): void {
+    this.assetsService.fetchAssetTypeById(id).subscribe({
+      next: (res) => {
+        if (res.data) {
+          const type = res.data;
+          this.assetType = {
+            code: type.code ?? '',
+            name: type.name ?? '',
+            assetCategoryId: type.assetCategoryId ?? 0,
+            defaultCriticality: type.defaultCriticality ?? 'LOW',
+            defaultGlAccount: type.defaultGlAccount ?? '',
+            insuranceRequired: type.insuranceRequired ?? false,
+            active: type.active ?? false
+          };
+          this.cdr.detectChanges();
+        } else {
+          this.toastr.error('Asset type not found.');
+          this.router.navigate(['/assets/types']);
+        }
+      },
+      error: () => {
+        this.toastr.error('Failed to load asset type.');
+        this.router.navigate(['/assets/types']);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -59,13 +98,17 @@ export class CreateAssetTypeComponent implements OnInit {
     }
 
     this.isSubmitting = true;
-    this.assetsService.createAssetType(this.assetType).subscribe({
+    const request$ = this.isEditMode && this.assetTypeId
+      ? this.assetsService.updateAssetType(this.assetTypeId, this.assetType)
+      : this.assetsService.createAssetType(this.assetType);
+
+    request$.subscribe({
       next: () => {
-        this.toastr.success('Asset type created successfully.');
+        this.toastr.success(this.isEditMode ? 'Asset type updated successfully.' : 'Asset type created successfully.');
         this.router.navigate(['/assets/types']);
       },
       error: () => {
-        this.toastr.error('Failed to create asset type. Please try again.');
+        this.toastr.error(this.isEditMode ? 'Failed to update asset type. Please try again.' : 'Failed to create asset type. Please try again.');
         this.isSubmitting = false;
       }
     });

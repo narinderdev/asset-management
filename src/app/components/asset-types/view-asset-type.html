@@ -1,0 +1,81 @@
+<div class="view-asset-type-page">
+  <div class="header">
+    <button class="back-button" type="button" aria-label="Back to asset types" (click)="goBack()">
+      <- Back to asset types
+    </button>
+
+    <div class="header-content" *ngIf="assetType">
+      <div class="title-section">
+        <h1>{{ formatField(assetType.name) }}</h1>
+        <div class="meta">
+          <span class="meta-id">{{ formatField(assetType.code) }}</span>
+          <span *ngIf="assetType.assetCategory">•</span>
+          <span *ngIf="assetType.assetCategory">{{ formatField(assetType.assetCategory) }}</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span class="badge" [ngClass]="{ 'badge-success': assetType.active, 'badge-danger': !assetType.active }">
+          {{ assetType.active ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <app-loader [visible]="isLoading && !hasLoaded"></app-loader>
+
+    <!-- <div class="status-message" *ngIf="errorMessage && hasLoaded">
+      {{ errorMessage }}
+    </div> -->
+
+    <ng-container *ngIf="assetType">
+      <div class="details-grid">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Overview</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group">
+                <div class="field-label">Code</div>
+                <div class="field-value">{{ formatField(assetType.code) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Name</div>
+                <div class="field-value">{{ formatField(assetType.name) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Category</div>
+                <div class="field-value">{{ formatField(assetType.assetCategory) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Criticality</div>
+                <div class="field-value">{{ formatField(assetType.defaultCriticality) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">GL Account</div>
+                <div class="field-value">{{ formatField(assetType.defaultGlAccount) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Insurance Required</div>
+                <div class="field-value">
+                  <span class="pill" [class.pill-yes]="assetType.insuranceRequired" [class.pill-no]="!assetType.insuranceRequired">
+                    {{ assetType.insuranceRequired ? 'Yes' : 'No' }}
+                  </span>
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Active</div>
+                <div class="field-value">
+                  <span class="pill" [class.pill-yes]="assetType.active" [class.pill-no]="!assetType.active">
+                    {{ assetType.active ? 'Yes' : 'No' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

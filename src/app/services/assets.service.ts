@@ -39,6 +39,13 @@ interface AssetTypesApiResponse {
   data?: AssetType[];
 }
 
+export interface AssetTypeDetailResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: AssetType;
+}
+
 export interface AssetTypeCreatePayload {
   code: string;
   name: string;
@@ -333,6 +340,34 @@ export class AssetsService {
     return this.http.get<AssetTypesApiResponse>(`${environment.apiUrl}/api/asset-types`, {
       headers
     });
+  }
+
+  fetchAssetTypeById(id: string | number): Observable<AssetTypeDetailResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.get<AssetTypeDetailResponse>(`${environment.apiUrl}/api/asset-types/${id}`, {
+      headers
+    });
+  }
+
+  updateAssetType(id: string | number, payload: AssetTypeCreatePayload): Observable<AssetTypeDetailResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.put<AssetTypeDetailResponse>(`${environment.apiUrl}/api/asset-types/${id}`, payload, {
+      headers
+    });
+  }
+
+  deleteAssetType(id: string | number): Observable<void> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.delete<void>(`${environment.apiUrl}/api/asset-types/${id}`, { headers });
   }
 
   fetchAssetCategories(): Observable<{ data?: AssetCategory[] }> {

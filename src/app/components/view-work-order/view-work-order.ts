@@ -156,9 +156,15 @@ export class ViewWorkOrderComponent implements OnInit {
         next: response => {
           this.ngZone.run(() => {
             this.isLoading = false;
-            if (response.data) {
-              this.workOrder = response.data;
-              const logs = response.data.checkLogs ?? [];
+            const detail =
+              response.data ||
+              // Fallbacks in case API nests the payload differently on refresh.
+              (response as unknown as { workOrder?: WorkOrderDetail })?.workOrder ||
+              (response as unknown as { data?: { workOrder?: WorkOrderDetail } })?.data?.workOrder;
+
+            if (detail) {
+              this.workOrder = detail;
+              const logs = detail.checkLogs ?? [];
               const lastLog = logs.length
                 ? (logs[logs.length - 1] as { checkInAt?: string; checkOutAt?: string; pauses?: Array<{ pauseAt?: string; resumeAt?: string | null }> } | undefined)
                 : undefined;
@@ -172,9 +178,9 @@ export class ViewWorkOrderComponent implements OnInit {
                 !!lastCheckout && !Number.isNaN(lastCheckout.getTime()) && lastCheckout.toDateString() === now.toDateString();
               // When no check logs, default to not clocked-in to match API semantics.
               this.hasClockedIn = hasOpenLog;
-              this.isPaused = hasUnresolvedPause || (response.data.status ?? '').toUpperCase() === 'PAUSED';
+              this.isPaused = hasUnresolvedPause || (detail.status ?? '').toUpperCase() === 'PAUSED';
               this.isCheckedIn = hasOpenLog;
-              const members = response.data.teamMembers ?? [];
+              const members = detail.teamMembers ?? [];
               if (members.length) {
                 const defaultTime = this.getNowInputValue();
                 this.teamCheckEntries = members
