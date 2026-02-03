@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+﻿import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -94,6 +94,7 @@ export class AddAssetComponent implements OnInit {
     maintenanceTeam: ''
   };
   maintenanceTeams: TechnicianTeam[] = [];
+  locationError?: string;
 
   // Insurance Data
   insurance = {
@@ -118,6 +119,7 @@ export class AddAssetComponent implements OnInit {
     voltage: '',
     capacity: ''
   };
+  yearOptions: string[] = [];
 
   // Financial Data
   financial = {
@@ -127,6 +129,7 @@ export class AddAssetComponent implements OnInit {
     poInvoiceNumber: '',
     depreciationMethod: '',
     usefulLife: '',
+    expectedUsefulLifeYears: '',
     depreciationStartDate: '',
     salvageValue: '',
     accumulatedDepreciation: '',
@@ -143,6 +146,38 @@ export class AddAssetComponent implements OnInit {
     defaultPriority: 'LOW',
     cooldownHours: ''
   };
+
+  get cooldownLabel(): string {
+    switch (this.threshold.meterType) {
+      case 'RUN_HOURS':
+        return 'Cooldown Hours';
+      case 'CYCLES':
+        return 'Cooldown Cycles';
+      case 'MILEAGE':
+        return 'Cooldown Mileage';
+      default:
+        return 'Cooldown';
+    }
+  }
+
+  showCooldown(): boolean {
+    return this.threshold.meterType !== 'TEMPERATURE';
+  }
+
+  get unitLabel(): string {
+    switch (this.threshold.meterType) {
+      case 'RUN_HOURS':
+        return 'Hours';
+      case 'MILEAGE':
+        return 'Miles';
+      case 'CYCLES':
+        return 'Cycles';
+      case 'TEMPERATURE':
+        return '\u00B0C';
+      default:
+        return '';
+    }
+  }
 
   // Warranty & Lifecycle Data
   warranty = {
@@ -186,6 +221,19 @@ export class AddAssetComponent implements OnInit {
     { value: 'PENDING_RENEWAL', label: 'Pending Renewal' },
     { value: 'CANCELLED', label: 'Cancelled' }
   ];
+  policyTypeOptions = [
+    'Liability',
+    'Property',
+    'Comprehensive',
+    'Fire',
+    'Equipment Breakdown',
+    'Well Control',
+    'Environmental/Pollution',
+    'Pipeline',
+    'Offshore/Marine',
+    'Cargo',
+    'Business Interruption'
+  ];
   depreciationMethodOptions = [
     { value: 'STRAIGHT_LINE', label: 'Straight Line' },
     { value: 'DECLINING_BALANCE', label: 'Declining Balance' },
@@ -224,6 +272,7 @@ export class AddAssetComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.yearOptions = this.buildYearOptions();
     this.isEditMode = false;
     this.route.paramMap.subscribe(params => {
       const tabFromUrl = this.normalizeTab(params.get('tab') ?? this.defaultTab);
@@ -288,6 +337,15 @@ export class AddAssetComponent implements OnInit {
     }
     const nextTabId = this.tabs[currentIndex + 1].id;
     this.navigateToTab(nextTabId);
+  }
+
+  private buildYearOptions(): string[] {
+    const currentYear = new Date().getFullYear();
+    const years: string[] = [];
+    for (let year = currentYear; year >= 1950; year--) {
+      years.push(String(year));
+    }
+    return years;
   }
 
   private getAssetIdFromParams(): string | undefined {
@@ -456,6 +514,7 @@ export class AddAssetComponent implements OnInit {
     this.financial.poInvoiceNumber = financial.poInvoiceNumber ?? '';
     this.financial.depreciationMethod = financial.depreciationMethod ?? '';
     this.financial.usefulLife = this.toString(financial.usefulLifeYears);
+    this.financial.expectedUsefulLifeYears = this.toString((financial as any).expectedUsefulLifeYears);
     this.financial.depreciationStartDate = financial.depreciationStartDate ?? '';
     this.financial.salvageValue = this.toString(financial.salvageValue);
     this.financial.accumulatedDepreciation = this.toString(financial.accumulatedDepreciation);
@@ -515,9 +574,60 @@ export class AddAssetComponent implements OnInit {
     }
   }
 
+  formatCurrencyInput(
+    field: 'coverageAmount' | 'premiumAmount' | 'acquisitionCost' | 'salvageValue',
+    section: 'insurance' | 'financial',
+    event: Event
+  ): void {
+    const input = event.target as HTMLInputElement;
+    const raw = input.value.replace(/[^0-9.]/g, '');
+    if (!raw) {
+      if (section === 'insurance') {
+        (this.insurance as any)[field] = '';
+      } else {
+        (this.financial as any)[field] = '';
+      }
+      input.value = '';
+      return;
+    }
+    const [intPart, decimalPart] = raw.split('.');
+    const intFormatted = Number(intPart).toLocaleString('en-US');
+    const formatted = decimalPart !== undefined ? `${intFormatted}.${decimalPart.slice(0, 2)}` : intFormatted;
+    if (section === 'insurance') {
+      (this.insurance as any)[field] = formatted;
+    } else {
+      (this.financial as any)[field] = formatted;
+    }
+    input.value = formatted;
+  }
+
+  formatNumberInput(
+    field: 'warningThreshold' | 'criticalThreshold' | 'cooldownHours',
+    event: Event
+  ): void {
+    const input = event.target as HTMLInputElement;
+    const raw = input.value.replace(/[^0-9.]/g, '');
+    if (!raw) {
+      (this.threshold as any)[field] = '';
+      input.value = '';
+      return;
+    }
+    const [intPart, decimalPart] = raw.split('.');
+    const intFormatted = Number(intPart).toLocaleString('en-US');
+    const formatted = decimalPart !== undefined ? `${intFormatted}.${decimalPart.slice(0, 2)}` : intFormatted;
+    (this.threshold as any)[field] = formatted;
+    input.value = formatted;
+  }
+
   onAutoGenerateAssetIdChange(): void {
     if (this.autoGenerateAssetId) {
       this.assetMaster.assetId = '';
+    }
+  }
+
+  onLocationChange(): void {
+    if (this.locationOrg.location && this.locationOrg.location.trim()) {
+      this.locationError = undefined;
     }
   }
 
@@ -526,8 +636,67 @@ export class AddAssetComponent implements OnInit {
       return undefined;
     }
 
-    const parsed = Number(value);
+    const str = typeof value === 'number' ? String(value) : value;
+    const cleaned = str.replace(/,/g, '');
+    const parsed = Number(cleaned);
     return Number.isNaN(parsed) ? undefined : parsed;
+  }
+
+  private computePlannedReplacementDate(): string {
+    const start = this.warranty.commissioningDate;
+    const lifeYears = this.parseNumber(this.financial.expectedUsefulLifeYears);
+    if (!start || lifeYears === undefined) {
+      return '';
+    }
+    const base = this.parseDateFlexible(start);
+    if (!base) {
+      return '';
+    }
+    base.setFullYear(base.getFullYear() + lifeYears);
+    const iso = base.toISOString().slice(0, 10); // yyyy-MM-dd
+    return iso;
+  }
+
+  private parseDateFlexible(value: string): Date | null {
+    const direct = new Date(value);
+    if (!Number.isNaN(direct.getTime())) {
+      return direct;
+    }
+    const parts = value.split(/[-/]/);
+    if (parts.length === 3) {
+      const [a, b, c] = parts;
+      const isDMY = a.length === 2 && b.length === 2 && c.length === 4;
+      const isYMD = a.length === 4 && b.length === 2 && c.length === 2;
+      if (isDMY) {
+        const day = Number(a);
+        const month = Number(b) - 1;
+        const year = Number(c);
+        const date = new Date(year, month, day);
+        return Number.isNaN(date.getTime()) ? null : date;
+      }
+      if (isYMD) {
+        const year = Number(a);
+        const month = Number(b) - 1;
+        const day = Number(c);
+        const date = new Date(year, month, day);
+        return Number.isNaN(date.getTime()) ? null : date;
+      }
+    }
+    return null;
+  }
+
+  onCommissioningChange(): void {
+    this.applyPlannedReplacementFromInputs();
+  }
+
+  onExpectedUsefulLifeChange(): void {
+    this.applyPlannedReplacementFromInputs();
+  }
+
+  private applyPlannedReplacementFromInputs(): void {
+    const computed = this.computePlannedReplacementDate();
+    this.warranty.lastMaintenanceDate = computed || '';
+    this.cdr.detectChanges();
   }
 
   private normalizeCriticality(value?: string): string {
@@ -652,6 +821,7 @@ export class AddAssetComponent implements OnInit {
       poInvoiceNumber: this.financial.poInvoiceNumber || undefined,
       depreciationMethod: this.financial.depreciationMethod || undefined,
       usefulLifeYears: this.parseNumber(this.financial.usefulLife),
+      expectedUsefulLifeYears: this.parseNumber(this.financial.expectedUsefulLifeYears),
       depreciationStartDate: this.financial.depreciationStartDate || undefined,
       salvageValue: this.parseNumber(this.financial.salvageValue),
       accumulatedDepreciation: this.parseNumber(this.financial.accumulatedDepreciation),
@@ -971,10 +1141,13 @@ export class AddAssetComponent implements OnInit {
 
   private saveLocationOrganization(): void {
     const payload = this.buildLocationPayload();
-    if (!payload) {
+    if (!payload || !payload.location) {
+      this.locationError = 'Location is required';
+      this.cdr.detectChanges();
       console.warn('No location data to save');
       return;
     }
+    this.locationError = undefined;
 
     const assetId = this.getAssetIdFromParams();
     if (!assetId) {
@@ -1309,3 +1482,6 @@ export class AddAssetComponent implements OnInit {
   }
 
 }
+
+
+

@@ -148,6 +148,27 @@
   border-top: 1px solid #e0e0e0;
 }
 
+.field-error {
+  margin-top: 4px;
+  color: #d32f2f;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Unit suffix for threshold inputs */
+.form-input.has-suffix {
+  padding-right: 48px;
+}
+
+.unit-suffix {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  color: #6b7280;
+  font-size: 13px;
+  pointer-events: none;
+}
+
 .loading-overlay {
   position: absolute;
   inset: 0;
@@ -281,6 +302,24 @@
 
 .form-input:disabled::placeholder {
   color: #9ca3af;
+}
+
+.input-with-prefix {
+  position: relative;
+}
+
+.input-with-prefix .form-input {
+  padding-left: 32px;
+}
+
+.input-prefix {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-weight: 400;
+  pointer-events: none;
 }
 
 .combo-dropdown {

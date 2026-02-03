@@ -35,7 +35,7 @@ export class ProcurementComponent implements OnInit {
   currentPage = 0;
   itemsPerPage = 10;
   selectedStatus = 'ALL';
-  statusOptions = ['ALL', 'Approved', 'Submitted', 'Pending Approval', 'Rejected', 'Draft'];
+  statusOptions = ['ALL', 'Draft', 'Submitted', 'Approved', 'Rejected', 'Converted to PO', 'Closed'];
   isLoading = false;
   hasLoaded = false;
   loadingRows = Array.from({ length: 5 });

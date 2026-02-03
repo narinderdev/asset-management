@@ -22,6 +22,8 @@ export class CreateAssetTypeComponent implements OnInit {
     assetCategoryId: 0,
     defaultCriticality: 'LOW',
     defaultGlAccount: '',
+    utilityAccount: '',
+    retirementAccount: '',
     insuranceRequired: true,
     active: true
   };
@@ -70,6 +72,8 @@ export class CreateAssetTypeComponent implements OnInit {
             assetCategoryId: type.assetCategoryId ?? 0,
             defaultCriticality: type.defaultCriticality ?? 'LOW',
             defaultGlAccount: type.defaultGlAccount ?? '',
+            utilityAccount: type.utilityAccount ?? '',
+            retirementAccount: type.retirementAccount ?? '',
             insuranceRequired: type.insuranceRequired ?? false,
             active: type.active ?? false
           };

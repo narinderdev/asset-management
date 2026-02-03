@@ -16,6 +16,8 @@ export interface AssetType {
   assetCategory?: string;
   defaultCriticality?: string;
   defaultGlAccount?: string;
+  utilityAccount?: string;
+  retirementAccount?: string;
   insuranceRequired?: boolean;
   active?: boolean;
 }
@@ -52,6 +54,8 @@ export interface AssetTypeCreatePayload {
   assetCategoryId: number;
   defaultCriticality: string;
   defaultGlAccount: string;
+  utilityAccount?: string;
+  retirementAccount?: string;
   insuranceRequired: boolean;
   active: boolean;
 }
@@ -153,6 +157,7 @@ export interface AssetDetailResponse {
       poInvoiceNumber?: string;
       depreciationMethod?: string;
       usefulLifeYears?: number | null;
+      expectedUsefulLifeYears?: number | null;
       depreciationStartDate?: string;
       salvageValue?: number;
       accumulatedDepreciation?: number;
@@ -243,6 +248,7 @@ export interface AssetCreatePayload {
     poInvoiceNumber?: string;
     depreciationMethod?: string;
     usefulLifeYears?: number | null;
+    expectedUsefulLifeYears?: number | null;
     depreciationStartDate?: string;
     salvageValue?: number;
     accumulatedDepreciation?: number;

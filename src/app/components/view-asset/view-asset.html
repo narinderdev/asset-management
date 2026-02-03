@@ -212,7 +212,7 @@
               </div>
               <div class="spec-row">
                 <div class="spec-label">Acquisition Cost</div>
-                <div class="spec-value spec-highlight">{{ formatField(asset.financialDetails?.acquisitionCost) }}</div>
+                <div class="spec-value spec-highlight">{{ formatMoney(asset.financialDetails?.acquisitionCost) }}</div>
               </div>
               <div class="spec-row">
                 <div class="spec-label">Supplier</div>
@@ -225,7 +225,7 @@
               <div class="spec-row">
                 <div class="spec-label">Book Value</div>
                 <div class="spec-value" [ngClass]="{ empty: !asset.financialDetails?.currentBookValue }">
-                  {{ formatField(asset.financialDetails?.currentBookValue) }}
+                  {{ formatMoney(asset.financialDetails?.currentBookValue) }}
                 </div>
               </div>
             </div>
@@ -286,12 +286,12 @@
 
               <div class="spec-row">
                 <div class="spec-label">Coverage Amount</div>
-                <div class="spec-value spec-highlight">{{ formatCurrency(asset.insurance?.coverageAmount) }}</div>
+                <div class="spec-value spec-highlight">{{ formatMoney(asset.insurance?.coverageAmount) }}</div>
               </div>
 
               <div class="spec-row">
                 <div class="spec-label">Premium Amount</div>
-                <div class="spec-value">{{ formatCurrency(asset.insurance?.premiumAmount) }}</div>
+                <div class="spec-value">{{ formatMoney(asset.insurance?.premiumAmount) }}</div>
               </div>
 
               <div class="spec-row">
@@ -482,7 +482,12 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Reading *</label>
-            <input type="number" class="form-input" [(ngModel)]="meterReadingForm.readingValue" placeholder="00" />
+            <input
+              type="number"
+              class="form-input has-suffix"
+              [(ngModel)]="meterReadingForm.readingValue"
+              placeholder="00" />
+            <span class="unit-suffix">{{ getMeterUnit(meterReadingForm.meterType) }}</span>
           </div>
           <div class="form-group">
             <label class="form-label">Reading Time</label>

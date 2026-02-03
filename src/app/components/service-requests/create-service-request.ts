@@ -43,6 +43,7 @@ export class CreateServiceRequestComponent implements OnInit {
 
   departmentOptions = ['Production', 'Engineering', 'Facilities'];
   assetOptions: Array<{ id: string; label: string }> = [];
+  private assetOptionMap: Record<string, { id: string; label: string; locationText?: string; department?: string; costCenter?: string; assignedOwner?: string; maintenanceTeam?: string }> = {};
   maintenanceOptions = [
     { value: 'CORRECTIVE', label: 'Corrective' },
     { value: 'PREVENTIVE', label: 'Preventive' },
@@ -234,14 +235,48 @@ export class CreateServiceRequestComponent implements OnInit {
           const content = response.data?.content ?? [];
           this.assetOptions = content
             .filter(asset => asset.id !== undefined)
-            .map(asset => ({
-              id: String(asset.id),
-              label: asset.assetName ?? asset.assetId ?? `Asset ${asset.id}`
-            }));
+            .map(asset => {
+              const loc = asset.location as any;
+              const locationText =
+                typeof loc === 'string'
+                  ? loc
+                  : loc?.location ?? loc?.primaryLocation ?? loc?.functionalLocation ?? '';
+              return {
+                id: String(asset.id),
+                label: asset.assetName ?? asset.assetId ?? `Asset ${asset.id}`,
+                locationText,
+                department: loc?.department ?? '',
+                costCenter: loc?.costCenter ?? '',
+                assignedOwner: loc?.assignedOwner ?? '',
+                maintenanceTeam: loc?.maintenanceTeam ?? ''
+              };
+            });
+          this.assetOptionMap = this.assetOptions.reduce((acc, opt) => {
+            acc[opt.id] = opt;
+            return acc;
+          }, {} as Record<string, { id: string; label: string; locationText?: string; department?: string; costCenter?: string; assignedOwner?: string; maintenanceTeam?: string }>);
+          if (this.request.asset) {
+            this.applyAssetLocationFromSelection(this.request.asset);
+          }
         },
         error: () => {
           this.assetOptions = [];
         }
       });
+  }
+
+  onAssetChange(assetId: string): void {
+    this.request.asset = assetId;
+    this.applyAssetLocationFromSelection(assetId);
+  }
+
+  private applyAssetLocationFromSelection(assetId: string): void {
+    const match = this.assetOptionMap[assetId];
+    if (match) {
+      this.request.location = match.locationText ?? '';
+      if (match.department) {
+        this.request.department = match.department;
+      }
+    }
   }
 }

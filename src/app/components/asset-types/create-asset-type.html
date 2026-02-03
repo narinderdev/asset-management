@@ -59,6 +59,26 @@
         </label>
 
         <label class="field">
+          <span>Utility Account <span class="optional">(optional)</span></span>
+          <input
+            type="text"
+            name="utilityAccount"
+            [(ngModel)]="assetType.utilityAccount"
+            placeholder="Enter utility account"
+          />
+        </label>
+
+        <label class="field">
+          <span>Retirement Account <span class="optional">(optional)</span></span>
+          <input
+            type="text"
+            name="retirementAccount"
+            [(ngModel)]="assetType.retirementAccount"
+            placeholder="Enter retirement account"
+          />
+        </label>
+
+        <label class="field">
           <span>Insurance Required</span>
           <select name="insuranceRequired" [(ngModel)]="assetType.insuranceRequired">
             <option [ngValue]="true">Yes</option>

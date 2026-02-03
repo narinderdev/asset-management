@@ -219,7 +219,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
               phone: tech.phoneNumber ?? '—',
               email: tech.email ?? '—',
               team: tech.teamMemberships?.[0]?.teamName || tech.teamName || 'Unassigned',
-              status: tech.status ?? 'N/A',
+              status: this.formatWorkStatus((tech as any)?.workStatus),
               workingDays: this.formatWorkShift(tech.workShift)
             }));
             this.techTotal = response.data?.totalElements ?? list.length;
@@ -286,6 +286,28 @@ export class TmSystemComponent implements OnInit, OnDestroy {
           });
         }
       });
+  }
+
+  private formatWorkStatus(status?: string): string {
+    if (!status) {
+      return 'N/A';
+    }
+    const normalized = status.toUpperCase();
+    switch (normalized) {
+      case 'AVAILABLE':
+        return 'Available';
+      case 'WORKING':
+        return 'Working';
+      case 'ON_LEAVE':
+      case 'ON LEAVE':
+        return 'On leave';
+      default:
+        return status
+          .toLowerCase()
+          .split('_')
+          .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+          .join(' ');
+    }
   }
 
   private loadWorkOrders(): void {

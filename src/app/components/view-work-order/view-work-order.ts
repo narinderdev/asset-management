@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
 
 import {
   WorkOrderService,
@@ -58,10 +59,16 @@ export class ViewWorkOrderComponent implements OnInit {
     assignedTechnicianId: undefined,
     plannedStartDateTime: '',
     plannedEndDateTime: '',
+    totalDaysRequired: undefined,
     planner: '',
     preCheckNotes: '',
     plannedMaterials: []
   };
+  availabilitySlots: any = null;
+  availabilityOptions: Array<{ label: string; start: string; end: string }> = [];
+  selectedAvailabilityIndex?: number;
+  availabilityLoading = false;
+  availabilityError?: string;
   plannedMaterials: PlannedMaterialPayload[] = [];
   newMaterial: PlannedMaterialPayload = {
     inventoryItemId: 0,
@@ -121,7 +128,8 @@ export class ViewWorkOrderComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private technicianService: TechnicianService,
     private inventoryService: InventoryService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -296,6 +304,11 @@ export class ViewWorkOrderComponent implements OnInit {
     this.showScheduleModal = false;
     this.isScheduling = false;
     this.scheduleError = undefined;
+    this.availabilitySlots = null;
+    this.availabilityOptions = [];
+    this.selectedAvailabilityIndex = undefined;
+    this.availabilityLoading = false;
+    this.availabilityError = undefined;
   }
 
   openInProgressConfirm(): void {
@@ -306,6 +319,121 @@ export class ViewWorkOrderComponent implements OnInit {
   cancelInProgressConfirm(): void {
     this.showInProgressConfirm = false;
     this.inProgressError = undefined;
+  }
+
+  onTechnicianChange(id: number | string | undefined): void {
+    const parsedId = id === undefined || id === null ? undefined : Number(id);
+    this.selectedTechnicianId = parsedId;
+    if (this.assignmentMode === 'TECHNICIAN' && parsedId) {
+      this.fetchAvailabilityForSelection('TECHNICIAN', parsedId);
+    }
+  }
+
+  onTeamChange(id: number | string | undefined): void {
+    const parsedId = id === undefined || id === null ? undefined : Number(id);
+    this.selectedTeamId = parsedId;
+    if (this.assignmentMode === 'TEAM' && parsedId) {
+      this.fetchAvailabilityForSelection('TEAM', parsedId);
+    }
+  }
+
+  onTotalDaysChange(): void {
+    if (this.assignmentMode === 'TECHNICIAN' && this.selectedTechnicianId) {
+      this.fetchAvailabilityForSelection('TECHNICIAN', this.selectedTechnicianId);
+    } else if (this.assignmentMode === 'TEAM' && this.selectedTeamId) {
+      this.fetchAvailabilityForSelection('TEAM', this.selectedTeamId);
+    }
+  }
+
+  compareById = (a: any, b: any): boolean => {
+    return Number(a ?? NaN) === Number(b ?? NaN);
+  };
+
+  private fetchAvailabilityForSelection(kind: 'TECHNICIAN' | 'TEAM', id: number): void {
+    const payload = this.buildAvailabilityPayload();
+    if (!payload) {
+      return;
+    }
+    this.availabilityLoading = true;
+    this.availabilityError = undefined;
+    const request$ =
+      kind === 'TECHNICIAN'
+        ? this.workOrderService.getTechnicianAvailability(id, payload)
+        : this.workOrderService.getTeamAvailability(id, payload);
+
+    request$
+      .pipe(finalize(() => (this.availabilityLoading = false)))
+      .subscribe({
+        next: res => {
+          this.availabilitySlots = res?.data ?? res;
+          const slots: Array<{ start?: string; end?: string; technicianName?: string; teamName?: string }> =
+            this.availabilitySlots ?? [];
+          this.availabilityOptions = slots
+            .filter(s => s.start && s.end)
+            .map((s, idx) => ({
+              label: this.formatRangeLabel(s.start!, s.end!, s.technicianName || s.teamName),
+              start: s.start!,
+              end: s.end!
+            }));
+          if (this.availabilityOptions.length) {
+            this.selectAvailability(0);
+          } else {
+            this.selectedAvailabilityIndex = undefined;
+          }
+        },
+        error: err => {
+          console.error(err);
+          this.availabilityError = 'Unable to load availability.';
+          this.toastr.error(this.availabilityError);
+        }
+      });
+  }
+
+  private buildAvailabilityPayload():
+    | {
+        fromDate: string;
+        toDate: string;
+        slotMinutes: number;
+      }
+    | null {
+    const days = this.scheduleForm.totalDaysRequired ?? 1;
+    const slotMinutes = 1440 * days;
+
+    const today = new Date();
+    const toDateObj = new Date(today);
+    toDateObj.setMonth(toDateObj.getMonth() + 1);
+
+    const fmt = (d: Date) => d.toISOString().slice(0, 10);
+
+    return {
+      fromDate: fmt(today),
+      toDate: fmt(toDateObj),
+      slotMinutes
+    };
+  }
+
+  selectAvailability(index: number | string | null | undefined): void {
+    const idx = index === null || index === undefined ? NaN : Number(index);
+    if (Number.isNaN(idx) || idx < 0 || idx >= this.availabilityOptions.length) {
+      this.selectedAvailabilityIndex = undefined;
+      this.scheduleForm.plannedStartDateTime = '';
+      this.scheduleForm.plannedEndDateTime = '';
+      return;
+    }
+    this.selectedAvailabilityIndex = idx;
+    const opt = this.availabilityOptions[idx];
+    this.scheduleForm.plannedStartDateTime = opt.start;
+    this.scheduleForm.plannedEndDateTime = opt.end;
+  }
+
+  private formatRangeLabel(startIso: string, endIso: string, name?: string): string {
+    const fmt = (iso: string) => {
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return iso;
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+    const label = `${fmt(startIso)} - ${fmt(endIso)}`;
+    return name ? `${label}` : label;
   }
 
   confirmInProgress(): void {
@@ -362,14 +490,42 @@ export class ViewWorkOrderComponent implements OnInit {
       return;
     }
 
-    this.scheduleForm.plannedMaterials = this.plannedMaterials;
-    this.scheduleForm.assignedTechnicianId =
-      this.assignmentMode === 'TECHNICIAN' ? this.selectedTechnicianId : undefined;
-    this.scheduleForm.assignedTeamId = this.assignmentMode === 'TEAM' ? this.selectedTeamId : undefined;
+    const isTeam = this.assignmentMode === 'TEAM';
+    if (isTeam && !this.selectedTeamId) {
+      this.scheduleError = 'Select a team before scheduling.';
+      this.cdr.detectChanges();
+      return;
+    }
+    if (!isTeam && !this.selectedTechnicianId) {
+      this.scheduleError = 'Select a technician before scheduling.';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    // Force sync start/end with currently selected availability option
+    if (
+      this.selectedAvailabilityIndex !== undefined &&
+      this.selectedAvailabilityIndex !== null &&
+      this.selectedAvailabilityIndex >= 0 &&
+      this.selectedAvailabilityIndex < this.availabilityOptions.length
+    ) {
+      const opt = this.availabilityOptions[this.selectedAvailabilityIndex];
+      this.scheduleForm.plannedStartDateTime = opt.start;
+      this.scheduleForm.plannedEndDateTime = opt.end;
+    }
+
+    const payload: ScheduleWorkOrderRequest = {
+      ...this.scheduleForm,
+      plannedMaterials: this.plannedMaterials,
+      assignedTechnicianId: isTeam ? undefined : this.selectedTechnicianId,
+      assignedTeamId: isTeam ? this.selectedTeamId : undefined
+    };
+    // totalDaysRequired is for availability lookup only; omit from API payload
+    delete (payload as any).totalDaysRequired;
     this.isScheduling = true;
     this.scheduleError = undefined;
 
-    this.workOrderService.scheduleWorkOrder(this.workOrder.id, this.scheduleForm).subscribe({
+    this.workOrderService.scheduleWorkOrder(this.workOrder.id, payload).subscribe({
       next: () => {
         this.closeScheduleModal();
         this.router.navigate(['/work-orders']);

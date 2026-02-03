@@ -233,7 +233,9 @@
             type="text"
             class="form-input"
             placeholder="Enter Location"
-            [(ngModel)]="locationOrg.location">
+            [(ngModel)]="locationOrg.location"
+            (ngModelChange)="onLocationChange()">
+          <div class="field-error" *ngIf="locationError">{{ locationError }}</div>
         </div>
         
          <div class="form-group">
@@ -302,11 +304,12 @@
 
         <div class="form-group">
           <label class="form-label">Policy Type</label>
-          <input 
-            type="text" 
-            class="form-input" 
-            placeholder="Enter Policy Type"
+          <select 
+            class="form-select" 
             [(ngModel)]="insurance.policyType">
+            <option value="" disabled selected>Select policy type</option>
+            <option *ngFor="let option of policyTypeOptions" [value]="option">{{ option }}</option>
+          </select>
         </div>
       </div>
 
@@ -343,20 +346,28 @@
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Coverage Amount</label>
-          <input 
-            type="number" 
-            class="form-input" 
-            placeholder="$"
-            [(ngModel)]="insurance.coverageAmount">
+          <div class="input-with-prefix">
+            <span class="input-prefix">$</span>
+            <input 
+              type="text" 
+              class="form-input" 
+              placeholder="0"
+              [(ngModel)]="insurance.coverageAmount"
+              (input)="formatCurrencyInput('coverageAmount', 'insurance', $event)">
+          </div>
         </div>
 
         <div class="form-group">
           <label class="form-label">Premium Amount</label>
-          <input 
-            type="number" 
-            class="form-input" 
-            placeholder="$"
-            [(ngModel)]="insurance.premiumAmount">
+          <div class="input-with-prefix">
+            <span class="input-prefix">$</span>
+            <input 
+              type="text" 
+              class="form-input" 
+              placeholder="0"
+              [(ngModel)]="insurance.premiumAmount"
+              (input)="formatCurrencyInput('premiumAmount', 'insurance', $event)">
+          </div>
         </div>
 
         <div class="form-group">
@@ -406,14 +417,12 @@
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Year of Manufacture</label>
-          <input 
-            type="number" 
-            class="form-input" 
-            placeholder="Enter Year"
-            [(ngModel)]="technical.yearOfManufacture"
-            min="0"
-            max="9999"
-            (input)="onYearInput($event)">
+          <select 
+            class="form-select" 
+            [(ngModel)]="technical.yearOfManufacture">
+            <option value="" disabled selected>Select year</option>
+            <option *ngFor="let year of yearOptions" [value]="year">{{ year }}</option>
+          </select>
         </div>
 
         <div class="form-group">
@@ -466,11 +475,15 @@
           <label class="form-label">
             Acquisition Cost<span class="required">*</span>
           </label>
-          <input 
-            type="number" 
-            class="form-input" 
-            placeholder="$"
-            [(ngModel)]="financial.acquisitionCost">
+          <div class="input-with-prefix">
+            <span class="input-prefix">$</span>
+            <input 
+              type="text" 
+              class="form-input" 
+              placeholder="0"
+              [(ngModel)]="financial.acquisitionCost"
+              (input)="formatCurrencyInput('acquisitionCost', 'financial', $event)">
+          </div>
         </div>
 
         <div class="form-group">
@@ -506,11 +519,15 @@
         
         <div class="form-group">
           <label class="form-label">Salvage Value</label>
-          <input 
-            type="number" 
-            class="form-input" 
-            placeholder="$"
-            [(ngModel)]="financial.salvageValue">
+          <div class="input-with-prefix">
+            <span class="input-prefix">$</span>
+            <input 
+              type="text" 
+              class="form-input" 
+              placeholder="0"
+              [(ngModel)]="financial.salvageValue"
+              (input)="formatCurrencyInput('salvageValue', 'financial', $event)">
+          </div>
         </div>
       </div>
 
@@ -522,6 +539,16 @@
             type="date" 
             class="form-input" 
             [(ngModel)]="financial.depreciationStartDate">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Expected Useful Life (years)</label>
+          <input 
+            type="number" 
+            class="form-input" 
+            placeholder="Enter Number"
+            [(ngModel)]="financial.expectedUsefulLifeYears"
+            (ngModelChange)="onExpectedUsefulLifeChange()">
         </div>
       </div>
     </div>
@@ -541,19 +568,23 @@
         <div class="form-group">
           <label class="form-label">Warning Threshold</label>
           <input 
-            type="number" 
-            class="form-input" 
+            type="text" 
+            class="form-input has-suffix" 
             placeholder="Enter threshold"
-            [(ngModel)]="threshold.warningThreshold">
+            [(ngModel)]="threshold.warningThreshold"
+            (input)="formatNumberInput('warningThreshold', $event)">
+          <span class="unit-suffix">{{ unitLabel }}</span>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Cooldown Hours</label>
+        <div class="form-group" *ngIf="showCooldown()">
+          <label class="form-label">{{ cooldownLabel }}</label>
           <input 
-            type="number" 
-            class="form-input" 
-            placeholder="Enter hours"
-            [(ngModel)]="threshold.cooldownHours">
+            type="text" 
+            class="form-input has-suffix" 
+            placeholder="Enter value"
+            [(ngModel)]="threshold.cooldownHours"
+            (input)="formatNumberInput('cooldownHours', $event)">
+          <span class="unit-suffix">{{ unitLabel }}</span>
         </div>
       </div>
 
@@ -561,10 +592,12 @@
         <div class="form-group">
           <label class="form-label">Critical Threshold</label>
           <input 
-            type="number" 
-            class="form-input" 
+            type="text" 
+            class="form-input has-suffix" 
             placeholder="Enter threshold"
-            [(ngModel)]="threshold.criticalThreshold">
+            [(ngModel)]="threshold.criticalThreshold"
+            (input)="formatNumberInput('criticalThreshold', $event)">
+          <span class="unit-suffix">{{ unitLabel }}</span>
         </div>
 
         <div class="form-group">
@@ -598,7 +631,8 @@
             type="date" 
             class="form-input" 
             placeholder="DD/MM/YYYY"
-            [(ngModel)]="warranty.commissioningDate">
+            [(ngModel)]="warranty.commissioningDate"
+            (ngModelChange)="onCommissioningChange()">
         </div>
 
         <div class="form-group">
@@ -632,25 +666,12 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Expected Useful Life</label>
-          <input 
-            type="number" 
-            class="form-input" 
-            placeholder="Enter Number"
-            [(ngModel)]="warranty.expectedUsefulLifeYears">
-        </div>
-        
-        <div class="form-group">
           <label class="form-label">Planned Replacement Date</label>
           <input 
             type="date" 
             class="form-input" 
             [(ngModel)]="warranty.plannedReplacementDate">
         </div>
-      </div>
-
-      <!-- Row 3 -->
-      <div class="form-row">
         <div class="form-group">
           <label class="form-label">Last Maintenance Date</label>
           <input 
@@ -658,6 +679,11 @@
             class="form-input" 
             [(ngModel)]="warranty.lastMaintenanceDate">
         </div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="form-row">
+        
 
         <div class="form-group">
           <label class="form-label">Next Planned Maintenance</label>

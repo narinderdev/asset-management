@@ -419,6 +419,19 @@
       </div>
       <form (ngSubmit)="submitSchedule()" class="modal-body">
         <div class="form-group">
+          <label class="form-label">Total Days Required to Complete</label>
+          <input
+            type="number"
+            name="totalDaysRequired"
+            class="form-input"
+            min="0"
+            step="1"
+            placeholder="Enter total days"
+            [(ngModel)]="scheduleForm.totalDaysRequired"
+            (ngModelChange)="onTotalDaysChange()"
+          />
+        </div>
+        <div class="form-group">
           <label class="form-label">Assignment</label>
           <div class="radio-group">
             <label class="radio-option">
@@ -431,7 +444,12 @@
             </label>
           </div>
           <div *ngIf="assignmentMode === 'TECHNICIAN'" class="select-wrapper">
-            <select [(ngModel)]="selectedTechnicianId" name="selectedTechnicianId" class="form-input">
+            <select
+              [(ngModel)]="selectedTechnicianId"
+              name="selectedTechnicianId"
+              class="form-input"
+              [compareWith]="compareById"
+              (ngModelChange)="onTechnicianChange($event)">
               <option [ngValue]="undefined" disabled hidden>Select technician</option>
               <option *ngFor="let tech of technicianOptions" [ngValue]="tech.id">
                 {{ tech.fullName || (tech.firstName + ' ' + tech.lastName) || tech.id }}
@@ -439,7 +457,12 @@
             </select>
           </div>
           <div *ngIf="assignmentMode === 'TEAM'" class="select-wrapper">
-            <select [(ngModel)]="selectedTeamId" name="selectedTeamId" class="form-input">
+            <select
+              [(ngModel)]="selectedTeamId"
+              name="selectedTeamId"
+              class="form-input"
+              [compareWith]="compareById"
+              (ngModelChange)="onTeamChange($event)">
               <option [ngValue]="undefined" disabled hidden>Select team</option>
               <option *ngFor="let team of teamOptions" [ngValue]="team.id">
                 {{ team.teamName || ('Team #' + team.id) }}
@@ -447,15 +470,17 @@
             </select>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Planned Start DateTime</label>
-            <input type="datetime-local" name="plannedStartDateTime" [(ngModel)]="scheduleForm.plannedStartDateTime" class="form-input" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Planned End DateTime</label>
-            <input type="datetime-local" name="plannedEndDateTime" [(ngModel)]="scheduleForm.plannedEndDateTime" class="form-input" />
-          </div>
+        <div class="form-group">
+          <label class="form-label">Planned Window</label>
+          <select
+            class="form-input"
+            [(ngModel)]="selectedAvailabilityIndex"
+            (ngModelChange)="selectAvailability($event)">
+            <option [ngValue]="undefined" disabled hidden>Select availability</option>
+            <option *ngFor="let slot of availabilityOptions; index as i" [ngValue]="i">
+              {{ slot.label }}
+            </option>
+          </select>
         </div>
         <div class="form-group">
           <label class="form-label">Planner</label>

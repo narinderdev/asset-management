@@ -146,6 +146,13 @@
   margin-left: 2px;
 }
 
+.optional {
+  color: #9ca3af;
+  font-weight: 500;
+  font-size: 12px;
+  margin-left: 4px;
+}
+
 @media (max-width: 1200px) {
   .form-grid {
     grid-template-columns: repeat(2, 1fr);

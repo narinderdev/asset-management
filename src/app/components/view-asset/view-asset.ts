@@ -127,6 +127,21 @@ export class ViewAssetComponent implements OnInit {
       .join(' ');
   }
 
+  formatMoney(value?: number | string | null): string {
+    if (value === undefined || value === null || value === '') {
+      return '-';
+    }
+    const num = typeof value === 'string' ? Number(value) : value;
+    if (Number.isNaN(num)) {
+      return '-';
+    }
+    return num.toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 2
+    });
+  }
+
   /** NEW: currency formatting for insurance amounts, acquisition costs etc. */
   formatCurrency(value?: number | string | null): string {
     if (value === undefined || value === null || value === '') {
@@ -179,6 +194,21 @@ export class ViewAssetComponent implements OnInit {
   closeMeterModal(): void {
     this.meterModalOpen = false;
     this.cdr.detectChanges();
+  }
+
+  getMeterUnit(meterType: string): string {
+    switch (meterType) {
+      case 'RUN_HOURS':
+        return 'Hours';
+      case 'MILEAGE':
+        return 'Miles';
+      case 'CYCLES':
+        return 'Cycles';
+      case 'TEMPERATURE':
+        return '\u00B0C';
+      default:
+        return '';
+    }
   }
 
   submitMeterReading(): void {

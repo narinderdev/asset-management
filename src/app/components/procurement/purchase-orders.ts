@@ -35,7 +35,7 @@ export class PurchaseOrdersComponent implements OnInit {
   currentPage = 0;
   itemsPerPage = 10;
   selectedStatus = 'ALL';
-  statusOptions = ['ALL', 'Approved', 'Submitted', 'Pending Approval', 'Rejected', 'Draft', 'Completed'];
+  statusOptions = ['ALL', 'Draft', 'Issued', 'Delivered', 'Cancelled', 'Closed'];
   isLoading = false;
   hasLoaded = false;
   showEmptyState = false;

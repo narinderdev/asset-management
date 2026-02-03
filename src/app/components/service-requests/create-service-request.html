@@ -46,7 +46,7 @@
         </label>
         <label class="field">
           <span>Asset</span>
-          <select name="asset" [(ngModel)]="request.asset" [disabled]="!assetOptions.length">
+          <select name="asset" [(ngModel)]="request.asset" (ngModelChange)="onAssetChange($event)" [disabled]="!assetOptions.length">
             <option value="" disabled>
               {{ assetOptions.length ? 'Select Asset' : 'No assets available' }}
             </option>
@@ -55,7 +55,7 @@
         </label>
         <label class="field">
           <span>Location</span>
-          <input type="text" name="location" [(ngModel)]="request.location" placeholder="Enter location" />
+          <input type="text" name="location" [(ngModel)]="request.location" placeholder="Enter location" [disabled]="true" />
         </label>
         <label class="field">
           <span>Maintenance Type</span>

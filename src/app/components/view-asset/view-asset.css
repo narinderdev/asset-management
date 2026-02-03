@@ -563,6 +563,7 @@
   flex-direction: column;
   gap: 8px;
   margin-bottom: 16px;
+  position: relative;
 }
 
 .form-label {
@@ -594,6 +595,20 @@
   background: #f9fafb;
   color: #6b7280;
   cursor: not-allowed;
+}
+
+/* Unit suffix for meter modal */
+.form-input.has-suffix {
+  padding-right: 48px;
+}
+
+.unit-suffix {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  color: #6b7280;
+  font-size: 13px;
+  pointer-events: none;
 }
 
 textarea.form-input {

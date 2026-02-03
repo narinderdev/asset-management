@@ -26,6 +26,7 @@ export interface ScheduleWorkOrderRequest {
   assignedTeamId?: number;
   plannedStartDateTime?: string;
   plannedEndDateTime?: string;
+  totalDaysRequired?: number;
   planner?: string;
   preCheckNotes?: string;
   plannedMaterials?: PlannedMaterialPayload[];
@@ -287,6 +288,22 @@ export class WorkOrderService {
   private readonly workOrderTypesUrl = `${environment.apiUrl}/api/work-order-types`;
 
   constructor(private http: HttpClient) {}
+
+  getTechnicianAvailability(
+    technicianId: number,
+    payload: { fromDate: string; toDate: string; slotMinutes: number }
+  ): Observable<any> {
+    const headers = new HttpHeaders({ 'ngrok-skip-browser-warning': 'true' });
+    return this.http.post<any>(`${this.apiUrl}/availability/technician/${technicianId}`, payload, { headers });
+  }
+
+  getTeamAvailability(
+    teamId: number,
+    payload: { fromDate: string; toDate: string; slotMinutes: number }
+  ): Observable<any> {
+    const headers = new HttpHeaders({ 'ngrok-skip-browser-warning': 'true' });
+    return this.http.post<any>(`${this.apiUrl}/availability/team/${teamId}`, payload, { headers });
+  }
 
   fetchWorkOrders(page: number, size: number): Observable<WorkOrdersApiResponse> {
     const params = new HttpParams()
