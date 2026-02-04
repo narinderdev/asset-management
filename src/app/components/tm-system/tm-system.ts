@@ -115,6 +115,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
   leavesLoaded = false;
   holidaysLoading = false;
   holidaysLoaded = false;
+  private pendingLoads = 0;
   leaveRows: Array<{ id: string; technician: string; type: string; from: string; to: string; reason: string; status: string }> = [];
   holidayRows: Array<{ id: string; name: string; date: string; type: string; notes: string }> = [];
 
@@ -199,6 +200,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
       return;
     }
     this.leavesLoading = true;
+    this.pendingLoads++;
     this.leaveRows = [];
     this.technicianService.fetchLeaves(0, 100).pipe(
       take(1),
@@ -206,6 +208,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
         this.zone.run(() => {
           this.leavesLoading = false;
           this.leavesLoaded = true;
+          this.pendingLoads = Math.max(0, this.pendingLoads - 1);
           this.cdr.detectChanges();
         });
       })
@@ -608,6 +611,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
       return;
     }
     this.holidaysLoading = true;
+    this.pendingLoads++;
     this.holidayRows = [];
     this.technicianService.fetchHolidays(0, 100).pipe(
       take(1),
@@ -615,6 +619,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
         this.zone.run(() => {
           this.holidaysLoading = false;
           this.holidaysLoaded = true;
+          this.pendingLoads = Math.max(0, this.pendingLoads - 1);
           this.cdr.detectChanges();
         });
       })
@@ -715,15 +720,25 @@ export class TmSystemComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard']);
   }
 
+  /**
+   * Keep the loader scoped to the active tab so a stale flag in another tab
+   * never leaves the overlay stuck on screen.
+   */
   get isLoading(): boolean {
-    return (
-      this.dashboardLoading ||
-      this.techniciansLoading ||
-      this.teamsLoading ||
-      this.workOrdersLoading ||
-      this.leavesLoading ||
-      this.holidaysLoading
-    );
+    switch (this.activeTab) {
+      case 'dashboard':
+        return this.dashboardLoading;
+      case 'technicians':
+        return this.techniciansLoading;
+      case 'teams':
+        return this.teamsLoading;
+      case 'work-orders':
+        return this.workOrdersLoading;
+      case 'leaves':
+        return this.leavesLoading || this.holidaysLoading || this.pendingLoads > 0;
+      default:
+        return false;
+    }
   }
 }
 
