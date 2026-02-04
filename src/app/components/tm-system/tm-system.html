@@ -43,6 +43,7 @@
     </aside>
 
     <main class="tm-main">
+      <app-loader [visible]="isLoading"></app-loader>
       <div class="tm-main-header">
         <h1>{{ activeLabel }}</h1>
       </div>
@@ -86,15 +87,6 @@
         </ng-container>
 
         <ng-container *ngSwitchCase="'technicians'">
-          <section class="card search-card">
-            <div class="input-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="7" />
-                <line x1="16.65" y1="16.65" x2="21" y2="21" />
-              </svg>
-            </div>
-            <input type="text" placeholder="Search technician..." />
-          </section>
           <section class="card table-card">
             <div class="table-wrapper">
               <table>
@@ -151,15 +143,6 @@
         </ng-container>
 
         <ng-container *ngSwitchCase="'teams'">
-          <section class="card search-card">
-            <div class="input-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="7" />
-                <line x1="16.65" y1="16.65" x2="21" y2="21" />
-              </svg>
-            </div>
-            <input type="text" placeholder="Search teams..." />
-          </section>
           <section class="card table-card">
             <div class="table-wrapper">
               <table>
@@ -203,15 +186,6 @@
         </ng-container>
 
         <ng-container *ngSwitchCase="'work-orders'">
-          <section class="card search-card">
-            <div class="input-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="7" />
-                <line x1="16.65" y1="16.65" x2="21" y2="21" />
-              </svg>
-            </div>
-            <input type="text" placeholder="Search work orders..." />
-          </section>
           <section class="card table-card">
             <div class="table-wrapper">
               <table>
@@ -286,16 +260,22 @@
               <button type="button" [class.active]="leavesView === 'holidays'" (click)="setLeavesView('holidays')">Holidays</button>
             </div>
 
-            <div class="lh-search">
-              <div class="search-card inline">
-                <div class="input-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="7" />
-                    <line x1="16.65" y1="16.65" x2="21" y2="21" />
-                  </svg>
-                </div>
-                <input type="text" [placeholder]="leavesView === 'leaves' ? 'Search leaves...' : 'Search holidays...'" />
-              </div>
+            <div class="lh-actions">
+              <button
+                class="btn-add"
+                type="button"
+                *ngIf="leavesView === 'leaves'"
+              >
+                + Add Leave
+              </button>
+              <button
+                class="btn-add"
+                type="button"
+                *ngIf="leavesView === 'holidays'"
+                (click)="openHolidayModal()"
+              >
+                + Add Holiday
+              </button>
             </div>
 
             <div class="table-wrapper">
@@ -372,6 +352,45 @@
               </div>
             </div>
           </section>
+
+          <!-- Holiday Modal -->
+          <div class="modal-backdrop" *ngIf="showHolidayModal" (click)="closeHolidayModal()">
+            <div class="modal-dialog small" (click)="$event.stopPropagation()">
+              <div class="modal-header">
+                <h3>Add Holiday</h3>
+              </div>
+              <form (ngSubmit)="submitHoliday()" novalidate>
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label class="form-label">Holiday Name</label>
+                    <input class="form-input" type="text" [(ngModel)]="holidayForm.holidayName" name="holidayName" required />
+                  </div>
+                  <div class="form-group half">
+                    <label class="form-label">Holiday Type</label>
+                    <select class="form-input" [(ngModel)]="holidayForm.holidayType" name="holidayType" required>
+                      <option value="NATIONAL">National</option>
+                      <option value="COMPANY">Company</option>
+                    </select>
+                  </div>
+                  <div class="form-group half">
+                    <label class="form-label">Holiday Date</label>
+                    <input class="form-input" type="date" [(ngModel)]="holidayForm.holidayDate" name="holidayDate" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-input" rows="3" [(ngModel)]="holidayForm.notes" name="holidayNotes"></textarea>
+                  </div>
+                  <div class="modal-error" *ngIf="holidayError">{{ holidayError }}</div>
+                </div>
+                <div class="modal-footer">
+                  <button class="btn-secondary" type="button" (click)="closeHolidayModal()" [disabled]="holidaySubmitting">Cancel</button>
+                  <button class="btn-primary" type="submit" [disabled]="holidaySubmitting">
+                    {{ holidaySubmitting ? 'Saving...' : 'Save Holiday' }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </ng-container>
 
         <section class="placeholder" *ngSwitchDefault>

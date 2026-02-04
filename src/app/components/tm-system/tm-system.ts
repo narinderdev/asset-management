@@ -2,10 +2,12 @@ import { Component, OnDestroy, OnInit, ChangeDetectorRef, NgZone } from '@angula
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { finalize, Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil, take } from 'rxjs';
 import { TechnicianService, ApiTechnician } from '../../services/technician.service';
 import { WorkOrderService } from '../../services/work-order.service';
 import { DashboardService, TechnicianDashboardData } from '../../services/dashboard.service';
+import { FormsModule } from '@angular/forms';
+import { Loader } from '../loader/loader';
 
 interface Activity {
   technician: string;
@@ -31,7 +33,7 @@ type TabId = 'dashboard' | 'technicians' | 'teams' | 'work-orders' | 'leaves' | 
 @Component({
   selector: 'app-tm-system',
   standalone: true,
-  imports: [CommonModule, RouterModule, HttpClientModule],
+  imports: [CommonModule, RouterModule, HttpClientModule, FormsModule, Loader],
   templateUrl: './tm-system.html',
   styleUrls: ['./tm-system.css']
 })
@@ -72,8 +74,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
     { id: 'technicians', label: 'Technician List', icon: 'tec.svg' },
     { id: 'teams', label: 'Teams', icon: 'streamline_hierarchy-10.svg' },
     { id: 'work-orders', label: 'Work Orders', icon: 'fluent-mdl2_work-flow.svg' },
-    { id: 'leaves', label: 'Leaves & Holidays', icon: 'proicons_document.svg' },
-    { id: 'settings', label: 'Settings', icon: 'carbon_user-role.svg' }
+    { id: 'leaves', label: 'Leaves & Holidays', icon: 'proicons_document.svg' }
   ];
 
   metrics: MetricCard[] = [];
@@ -110,27 +111,22 @@ export class TmSystemComponent implements OnInit, OnDestroy {
   }> = [];
 
   leavesView: 'leaves' | 'holidays' = 'leaves';
+  leavesLoading = false;
+  leavesLoaded = false;
+  holidaysLoading = false;
+  holidaysLoaded = false;
+  leaveRows: Array<{ id: string; technician: string; type: string; from: string; to: string; reason: string; status: string }> = [];
+  holidayRows: Array<{ id: string; name: string; date: string; type: string; notes: string }> = [];
 
-  leaveRows = [
-    { id: 'LV001', technician: 'Mike Davis', type: 'Sick Leave', from: '2026-02-10', to: '2026-02-12', reason: 'Medical checkup and recovery', status: 'Approved' },
-    { id: 'LV002', technician: 'Sarah Johnson', type: 'Vacation', from: '2026-03-01', to: '2026-03-07', reason: 'Family trip', status: 'Pending' },
-    { id: 'LV003', technician: 'Robert Garcia', type: 'Personal', from: '2026-02-15', to: '2026-02-16', reason: 'Personal matters', status: 'Approved' },
-    { id: 'LV004', technician: 'Emma Wilson', type: 'Sick Leave', from: '2026-02-20', to: '2026-02-21', reason: 'Flu symptoms', status: 'Pending' },
-    { id: 'LV005', technician: 'David Brown', type: 'Vacation', from: '2026-04-10', to: '2026-04-15', reason: 'Holiday vacation', status: 'Approved' },
-    { id: 'LV006', technician: 'Lisa Anderson', type: 'Personal', from: '2026-02-25', to: '2026-02-25', reason: 'Family event', status: 'Rejected' }
-  ];
-
-  holidayRows = [
-    { id: 'HD001', name: "New Year's Day", date: '2026-01-01', type: 'National', notes: 'Public holiday' },
-    { id: 'HD002', name: 'Martin Luther King Jr. Day', date: '2026-01-19', type: 'National', notes: 'Federal holiday' },
-    { id: 'HD003', name: 'Presidents’ Day', date: '2026-02-16', type: 'National', notes: 'Federal holiday' },
-    { id: 'HD004', name: 'Company Anniversary', date: '2026-03-15', type: 'Company', notes: 'Company celebration day' },
-    { id: 'HD005', name: 'Memorial Day', date: '2026-05-25', type: 'National', notes: 'Federal holiday' },
-    { id: 'HD006', name: 'Independence Day', date: '2026-07-04', type: 'National', notes: 'Public holiday' },
-    { id: 'HD007', name: 'Labor Day', date: '2026-09-07', type: 'National', notes: 'Federal holiday' },
-    { id: 'HD008', name: 'Thanksgiving', date: '2026-11-26', type: 'National', notes: 'Federal holiday' },
-    { id: 'HD009', name: 'Christmas Day', date: '2026-12-25', type: 'National', notes: 'Public holiday' }
-  ];
+  showHolidayModal = false;
+  holidaySubmitting = false;
+  holidayError?: string;
+  holidayForm: { holidayName: string; holidayType: string; holidayDate: string; notes: string } = {
+    holidayName: '',
+    holidayType: 'NATIONAL',
+    holidayDate: '',
+    notes: ''
+  };
 
   constructor(
     private route: ActivatedRoute,
@@ -190,7 +186,52 @@ export class TmSystemComponent implements OnInit, OnDestroy {
       this.loadTeams();
     } else if (tab === 'work-orders') {
       this.loadWorkOrders();
+    } else if (tab === 'leaves') {
+      this.holidaysLoaded = false;
+      this.leavesLoaded = false;
+      this.loadHolidays();
+      this.loadLeaves();
     }
+  }
+
+  private loadLeaves(): void {
+    if (this.leavesLoading || this.leavesLoaded) {
+      return;
+    }
+    this.leavesLoading = true;
+    this.leaveRows = [];
+    this.technicianService.fetchLeaves(0, 100).pipe(
+      take(1),
+      finalize(() => {
+        this.zone.run(() => {
+          this.leavesLoading = false;
+          this.leavesLoaded = true;
+          this.cdr.detectChanges();
+        });
+      })
+    ).subscribe({
+      next: (res: any) => {
+        this.zone.run(() => {
+          const list = res?.data?.leaves ?? res?.data?.content ?? [];
+          this.leaveRows = (list as any[]).map((l) => ({
+            id: l.id?.toString() ?? l.leaveId ?? '—',
+            technician: l.technicianName ?? l.technician ?? '—',
+            type: l.leaveType ?? l.type ?? '—',
+            from: l.fromDate ?? l.startDate ?? '—',
+            to: l.toDate ?? l.endDate ?? '—',
+            reason: l.reason ?? '',
+            status: (l.status ?? '').toString().replace(/_/g, ' ')
+          }));
+          this.cdr.detectChanges();
+        });
+      },
+      error: () => {
+        this.zone.run(() => {
+          this.leavesLoaded = true;
+          this.cdr.detectChanges();
+        });
+      }
+    });
   }
 
   private loadDashboard(): void {
@@ -516,6 +557,13 @@ export class TmSystemComponent implements OnInit, OnDestroy {
 
   setLeavesView(view: 'leaves' | 'holidays'): void {
     this.leavesView = view;
+    if (view === 'holidays') {
+      this.holidaysLoaded = false;
+      this.loadHolidays();
+    } else {
+      this.leavesLoaded = false;
+      this.loadLeaves();
+    }
     this.cdr.detectChanges();
   }
 
@@ -555,6 +603,44 @@ export class TmSystemComponent implements OnInit, OnDestroy {
     this.loadWorkOrders();
   }
 
+  private loadHolidays(): void {
+    if (this.holidaysLoading || this.holidaysLoaded) {
+      return;
+    }
+    this.holidaysLoading = true;
+    this.holidayRows = [];
+    this.technicianService.fetchHolidays(0, 100).pipe(
+      take(1),
+      finalize(() => {
+        this.zone.run(() => {
+          this.holidaysLoading = false;
+          this.holidaysLoaded = true;
+          this.cdr.detectChanges();
+        });
+      })
+    ).subscribe({
+      next: (res: any) => {
+        this.zone.run(() => {
+          const list = res?.data?.holidays ?? [];
+          this.holidayRows = (list as any[]).map((h) => ({
+            id: h.id?.toString() ?? h.holidayId ?? '—',
+            name: h.holidayName ?? '—',
+            date: h.holidayDate ?? '—',
+            type: (h.holidayType ?? '').toString().replace(/_/g, ' ').toUpperCase(),
+            notes: h.notes ?? ''
+          }));
+          this.cdr.detectChanges();
+        });
+      },
+      error: () => {
+        this.zone.run(() => {
+          this.holidaysLoaded = true;
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  }
+
   openTechnicianAvailability(dbId?: number): void {
     if (!dbId) {
       return;
@@ -562,8 +648,82 @@ export class TmSystemComponent implements OnInit, OnDestroy {
     this.router.navigate(['/tm-system', 'technicians', dbId, 'availability']);
   }
 
+  openHolidayModal(): void {
+    this.holidayError = undefined;
+    this.holidaySubmitting = false;
+    this.holidayForm = { holidayName: '', holidayType: 'NATIONAL', holidayDate: '', notes: '' };
+    this.showHolidayModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeHolidayModal(): void {
+    this.showHolidayModal = false;
+    this.holidaySubmitting = false;
+    this.holidayError = undefined;
+    this.cdr.detectChanges();
+  }
+
+  submitHoliday(): void {
+    if (!this.holidayForm.holidayName || !this.holidayForm.holidayDate || !this.holidayForm.holidayType) {
+      this.holidayError = 'Please complete all required fields.';
+      this.cdr.detectChanges();
+      return;
+    }
+    let saved = false;
+    this.holidaySubmitting = true;
+    this.holidayError = undefined;
+    this.technicianService.createHoliday(this.holidayForm).pipe(
+      take(1),
+      finalize(() => {
+        this.zone.run(() => {
+          this.holidaySubmitting = false;
+          if (saved) {
+            this.closeHolidayModal();
+          }
+          this.cdr.detectChanges();
+        });
+      })
+    ).subscribe({
+      next: (res: any) => {
+        this.zone.run(() => {
+          const newHoliday = res?.data ?? res ?? {};
+          const row = {
+            id: newHoliday.id ?? newHoliday.holidayId ?? `HD${this.holidayRows.length + 1}`.padStart(6, '0'),
+            name: newHoliday.holidayName ?? 'New Holiday',
+            date: newHoliday.holidayDate ?? this.holidayForm.holidayDate,
+            type: (newHoliday.holidayType || this.holidayForm.holidayType || 'National')
+              .toString()
+              .replace(/_/g, ' ')
+              .replace(/\b\w/g, (c: string) => c.toUpperCase()),
+            notes: newHoliday.notes ?? this.holidayForm.notes
+          };
+          this.holidayRows = [row, ...this.holidayRows];
+          saved = true;
+        });
+      },
+      error: () => {
+        this.zone.run(() => {
+          this.holidayError = 'Failed to save holiday. Please try again.';
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  }
+
   exitTm(): void {
     // Navigate back to the main dashboard (outside TM module)
     this.router.navigate(['/dashboard']);
   }
+
+  get isLoading(): boolean {
+    return (
+      this.dashboardLoading ||
+      this.techniciansLoading ||
+      this.teamsLoading ||
+      this.workOrdersLoading ||
+      this.leavesLoading ||
+      this.holidaysLoading
+    );
+  }
 }
+

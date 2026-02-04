@@ -667,12 +667,130 @@ td:nth-child(7) {
   box-shadow: 0 6px 18px rgba(59, 130, 246, 0.25);
 }
 
-.lh-search {
+.lh-card .table-wrapper {
   padding: 0 4px;
 }
 
-.lh-card .table-wrapper {
-  padding: 0 4px;
+.lh-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 12px 4px;
+}
+
+.lh-actions .btn-add {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.lh-actions .btn-add:hover {
+  background: #1d4ed8;
+}
+
+.lh-actions .btn-add:active {
+  transform: translateY(1px);
+}
+
+/* Holiday Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 16px;
+}
+
+.modal-dialog {
+  background: #fff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+  overflow: hidden;
+}
+
+.modal-dialog.small {
+  max-width: 520px;
+}
+
+.modal-header {
+  padding: 18px 22px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #e0f2fe, #eff6ff);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.modal-body {
+  padding: 18px 22px 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 16px;
+}
+
+.modal-body .form-group {
+  grid-column: span 2;
+}
+
+.modal-body .form-group.half {
+  grid-column: span 1;
+}
+
+.modal-error {
+  color: #b91c1c;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.modal-body .form-input,
+.modal-body textarea,
+.modal-body select {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.modal-body .form-input:focus,
+.modal-body textarea:focus,
+.modal-body select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+  outline: none;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 14px 22px 18px;
+  border-top: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+
+.modal-footer .btn-primary {
+  min-width: 120px;
 }
 
 .active-page {

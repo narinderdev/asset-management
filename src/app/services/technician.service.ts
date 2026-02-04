@@ -243,4 +243,27 @@ export class TechnicianService {
     const params = new HttpParams().set('days', days.toString());
     return this.http.get(`${this.apiUrl}/${technicianId}/availability/monthly`, { headers, params });
   }
+
+  createHoliday(payload: { holidayName: string; holidayType: string; holidayDate: string; notes?: string }): Observable<any> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.post(`${environment.apiUrl}/api/holidays`, payload, { headers });
+  }
+
+  fetchHolidays(page = 0, size = 50, startDate?: string, endDate?: string): Observable<any> {
+    const headers = new HttpHeaders({ 'ngrok-skip-browser-warning': 'true' });
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
+    return this.http.get(`${environment.apiUrl}/api/holidays`, { headers, params });
+  }
+
+  fetchLeaves(page = 0, size = 50, startDate?: string, endDate?: string): Observable<any> {
+    const headers = new HttpHeaders({ 'ngrok-skip-browser-warning': 'true' });
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
+    return this.http.get(`${environment.apiUrl}/api/technicians/leaves`, { headers, params });
+  }
 }
