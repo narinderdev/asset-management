@@ -135,6 +135,7 @@ export const routes: Routes = [
   { path: 'failure-codes/create', component: CreateFailureCodeComponent, canActivate: [AuthGuard] },
   { path: 'tm-system', pathMatch: 'full', redirectTo: 'tm-system/dashboard' },
   { path: 'tm-system/:tab', component: TmSystemComponent, canActivate: [AuthGuard] },
+  { path: 'tm-system/technicians/:id/availability', loadComponent: () => import('./components/technician-availability/technician-availability').then(m => m.TechnicianAvailabilityComponent), canActivate: [AuthGuard] },
   { path: 'roles-permissions', component: RolesComponent, canActivate: [AuthGuard] },
   { path: 'users', component: UsersComponent, canActivate: [AuthGuard] }
 ];

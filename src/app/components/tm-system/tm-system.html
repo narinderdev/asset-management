@@ -33,6 +33,12 @@
           </li>
         </ul>
       </nav>
+      <div class="tm-sidebar-footer">
+        <button type="button" class="tm-back-btn" (click)="exitTm()">
+          <span class="arrow">←</span>
+          <span>Exit TM</span>
+        </button>
+      </div>
 
     </aside>
 
@@ -123,8 +129,8 @@
                     </td>
                     <td>{{ row.workingDays }}</td>
                     <td class="actions">
-                      <button class="icon-btn ghost" aria-label="View">
-                        <img src="/assets/icons/Vector.svg" alt="View" />
+                      <button class="icon-btn ghost" aria-label="View availability" (click)="openTechnicianAvailability(row.dbId)">
+                        <img src="/assets/icons/Vector.svg" alt="View availability" />
                       </button>
                       <button class="icon-btn ghost" aria-label="Edit">
                         <img src="/assets/icons/edit.svg" alt="Edit" />

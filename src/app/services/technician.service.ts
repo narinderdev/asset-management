@@ -235,4 +235,12 @@ export class TechnicianService {
 
     return this.http.post<TechnicianTeamResponse>(this.teamsUrl, payload, { headers });
   }
+
+  fetchTechnicianMonthlyAvailability(technicianId: number | string, days = 31): Observable<any> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    const params = new HttpParams().set('days', days.toString());
+    return this.http.get(`${this.apiUrl}/${technicianId}/availability/monthly`, { headers, params });
+  }
 }

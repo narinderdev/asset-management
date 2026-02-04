@@ -5,8 +5,8 @@ import { environment } from '../../environments/environment';
 
 export interface ApproveWorkOrderRequest {
   approvedBy: string;
-  estimatedLaborHours: number;
-  estimatedMaterialCost: number;
+  estimatedLaborHours?: number;
+  estimatedMaterialCost?: number;
   approvalNotes?: string;
   laborGlAccount?: string;
   laborUtilityAccount?: string;

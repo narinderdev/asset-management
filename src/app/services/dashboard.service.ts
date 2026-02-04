@@ -10,6 +10,40 @@ export interface DashboardApiResponse {
   data?: DashboardData;
 }
 
+export interface TechnicianDashboardResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: TechnicianDashboardData;
+}
+
+export interface TechnicianDashboardData {
+  totalTechnicians?: number;
+  total_technicians?: number;
+  availableToday?: number;
+  available_today?: number;
+  onLeave?: number;
+  on_leave?: number;
+  workOrders?: number;
+  work_orders?: number;
+  recentActivities?: TechnicianActivity[];
+  recent_activities?: TechnicianActivity[];
+}
+
+export interface TechnicianActivity {
+  technician?: string;
+  technicianName?: string;
+  name?: string;
+  activity?: string;
+  action?: string;
+  title?: string;
+  time?: string;
+  timeAgo?: string;
+  timestamp?: string;
+  status?: string;
+  state?: string;
+}
+
 export interface DashboardData {
   maintenance_cost_summary?: MaintenanceCostSummary;
   metadata?: DashboardMetadata;
@@ -94,5 +128,12 @@ export class DashboardService {
       'ngrok-skip-browser-warning': 'true'
     });
     return this.http.get<DashboardApiResponse>(this.apiUrl, { headers });
+  }
+
+  fetchTechnicianDashboard(): Observable<TechnicianDashboardResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.get<TechnicianDashboardResponse>(`${this.apiUrl}/technicians`, { headers });
   }
 }

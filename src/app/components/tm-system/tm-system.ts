@@ -1,10 +1,11 @@
 import { Component, OnDestroy, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { ActivatedRoute, ParamMap, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { TechnicianService, ApiTechnician } from '../../services/technician.service';
 import { WorkOrderService } from '../../services/work-order.service';
+import { DashboardService, TechnicianDashboardData } from '../../services/dashboard.service';
 
 interface Activity {
   technician: string;
@@ -50,6 +51,10 @@ export class TmSystemComponent implements OnInit, OnDestroy {
   showSearch = false;
   searchPlaceholder = '';
 
+  dashboardLoaded = false;
+  dashboardLoading = false;
+  dashboardError?: string;
+
   techPage = 0;
   techSize = 10;
   techTotal = 0;
@@ -71,24 +76,13 @@ export class TmSystemComponent implements OnInit, OnDestroy {
     { id: 'settings', label: 'Settings', icon: 'carbon_user-role.svg' }
   ];
 
-  readonly metrics: MetricCard[] = [
-    { label: 'Total Technicians', value: 48, accent: 'blue' },
-    { label: 'Available Today', value: 32, accent: 'green' },
-    // { label: 'Working Today', value: 28, accent: 'orange' },
-    { label: 'On Leave', value: 8, accent: 'amber' },
-    { label: 'Work Orders', value: 156, accent: 'purple' }
-  ];
+  metrics: MetricCard[] = [];
 
-  readonly activities: Activity[] = [
-    { technician: 'John Smith', activity: 'Completed Work Order #1234', time: '10 mins ago', status: 'Completed' },
-    { technician: 'Sarah Johnson', activity: 'Started Work Order #1235', time: '25 mins ago', status: 'Working' },
-    { technician: 'Mike Davis', activity: 'Applied for leave', time: '1 hour ago', status: 'Pending' },
-    { technician: 'Emma Wilson', activity: 'Updated availability', time: '2 hours ago', status: 'Updated' },
-    { technician: 'David Brown', activity: 'Joined Team Alpha', time: '3 hours ago', status: 'Joined' }
-  ];
+  activities: Activity[] = [];
 
   technicianRows: Array<{
     id: string;
+    dbId?: number;
     name: string;
     phone: string;
     email: string;
@@ -143,6 +137,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
     private router: Router,
     private technicianService: TechnicianService,
     private workOrderService: WorkOrderService,
+    private dashboardService: DashboardService,
     private cdr: ChangeDetectorRef,
     private zone: NgZone
   ) {}
@@ -187,13 +182,75 @@ export class TmSystemComponent implements OnInit, OnDestroy {
   }
 
   private loadTabData(tab: TabId): void {
-    if (tab === 'technicians') {
+    if (tab === 'dashboard') {
+      this.loadDashboard();
+    } else if (tab === 'technicians') {
       this.loadTechnicians();
     } else if (tab === 'teams') {
       this.loadTeams();
     } else if (tab === 'work-orders') {
       this.loadWorkOrders();
     }
+  }
+
+  private loadDashboard(): void {
+    if (this.dashboardLoaded || this.dashboardLoading) {
+      return;
+    }
+    this.dashboardLoading = true;
+    this.dashboardError = undefined;
+    this.dashboardService
+      .fetchTechnicianDashboard()
+      .pipe(
+        finalize(() => {
+          this.zone.run(() => {
+            this.dashboardLoading = false;
+            this.dashboardLoaded = true;
+            this.cdr.detectChanges();
+          });
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.zone.run(() => {
+            const data: TechnicianDashboardData = response.data ?? {};
+            const totalTechnicians = data.totalTechnicians ?? data.total_technicians ?? 0;
+            const availableToday = data.availableToday ?? data.available_today ?? 0;
+            const onLeave = data.onLeave ?? data.on_leave ?? 0;
+            const workOrders = data.workOrders ?? data.work_orders ?? 0;
+
+            this.metrics = [
+              { label: 'Total Technicians', value: totalTechnicians, accent: 'blue' },
+              { label: 'Available Today', value: availableToday, accent: 'green' },
+              { label: 'On Leave', value: onLeave, accent: 'amber' },
+              { label: 'Work Orders', value: workOrders, accent: 'purple' }
+            ];
+
+            const activitySource = data.recentActivities ?? data.recent_activities ?? [];
+            this.activities = (activitySource ?? []).map((item) => ({
+              technician: item.technician ?? (item as any).technicianName ?? (item as any).name ?? '—',
+              activity: item.activity ?? (item as any).action ?? (item as any).title ?? '—',
+              time: this.formatRelativeTime(item.time ?? (item as any).timeAgo ?? item.timestamp),
+              status: this.normalizeActivityStatus(item.status ?? (item as any).state ?? 'Updated')
+            }));
+
+            this.cdr.detectChanges();
+          });
+        },
+        error: () => {
+          this.zone.run(() => {
+            this.dashboardError = 'Unable to load dashboard data.';
+            this.metrics = [
+              { label: 'Total Technicians', value: 0, accent: 'blue' },
+              { label: 'Available Today', value: 0, accent: 'green' },
+              { label: 'On Leave', value: 0, accent: 'amber' },
+              { label: 'Work Orders', value: 0, accent: 'purple' }
+            ];
+            this.activities = [];
+            this.cdr.detectChanges();
+          });
+        }
+      });
   }
 
   private loadTechnicians(): void {
@@ -215,6 +272,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
             const list = response.data?.technicians ?? [];
             this.technicianRows = list.map((tech) => ({
               id: tech.technicianId ?? (tech.id ? `TEC${tech.id}` : '—'),
+              dbId: tech.id,
               name: this.buildName(tech),
               phone: tech.phoneNumber ?? '—',
               email: tech.email ?? '—',
@@ -405,6 +463,46 @@ export class TmSystemComponent implements OnInit, OnDestroy {
     return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
   }
 
+  private formatRelativeTime(value?: string | null): string {
+    if (!value) {
+      return '—';
+    }
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      const diffMs = Date.now() - parsed.getTime();
+      const minutes = Math.floor(diffMs / 60000);
+      if (minutes < 1) return 'Just now';
+      if (minutes < 60) return `${minutes} min${minutes === 1 ? '' : 's'} ago`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+      const days = Math.floor(hours / 24);
+      return `${days} day${days === 1 ? '' : 's'} ago`;
+    }
+    return value;
+  }
+
+  private normalizeActivityStatus(value?: string): Activity['status'] {
+    const normalized = (value ?? '').trim().toLowerCase();
+    switch (normalized) {
+      case 'completed':
+      case 'complete':
+        return 'Completed';
+      case 'working':
+      case 'in_progress':
+      case 'in progress':
+        return 'Working';
+      case 'pending':
+        return 'Pending';
+      case 'updated':
+      case 'update':
+        return 'Updated';
+      case 'joined':
+        return 'Joined';
+      default:
+        return 'Updated';
+    }
+  }
+
   private formatWorkShift(value?: string | null): string {
     if (!value) {
       return '—';
@@ -455,5 +553,17 @@ export class TmSystemComponent implements OnInit, OnDestroy {
     this.woPage = next;
     this.workOrdersLoaded = false;
     this.loadWorkOrders();
+  }
+
+  openTechnicianAvailability(dbId?: number): void {
+    if (!dbId) {
+      return;
+    }
+    this.router.navigate(['/tm-system', 'technicians', dbId, 'availability']);
+  }
+
+  exitTm(): void {
+    // Navigate back to the main dashboard (outside TM module)
+    this.router.navigate(['/dashboard']);
   }
 }

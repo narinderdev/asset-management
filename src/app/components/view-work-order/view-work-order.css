@@ -582,6 +582,10 @@
   grid-template-columns: 2fr 1fr auto;
 }
 
+.material-add-form.secondary-row {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
 .btn-add {
   background-color: #2563eb;
   color: #ffffff;

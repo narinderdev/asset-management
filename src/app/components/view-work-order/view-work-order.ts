@@ -908,12 +908,23 @@ export class ViewWorkOrderComponent implements OnInit {
       this.prefillMaterialUsed = { inventoryItemId: undefined, quantityUsed: undefined, notes: '' };
     }
     this.newMaterialUsed = { inventoryItemId: undefined, quantityUsed: undefined, notes: '' };
+    this.newLabor = {
+      technicianId: this.workOrder?.assignedTechnicianId,
+      laborHours: undefined,
+      hourlyRate: undefined,
+      laborDate: '',
+      notes: ''
+    };
     this.cdr.detectChanges();
     this.showCompleteModal = true;
   }
 
   addLaborEntry(): void {
-    if (!this.newLabor.laborHours && this.newLabor.laborHours !== 0) {
+    if (!this.newLabor.technicianId) {
+      this.completeError = 'Select a technician for the labor entry.';
+      return;
+    }
+    if (this.newLabor.laborHours === undefined || this.newLabor.laborHours === null) {
       this.completeError = 'Labor hours are required to add a labor entry.';
       return;
     }
