@@ -8,6 +8,7 @@ import { WorkOrderService } from '../../services/work-order.service';
 import { DashboardService, TechnicianDashboardData } from '../../services/dashboard.service';
 import { FormsModule } from '@angular/forms';
 import { Loader } from '../loader/loader';
+import { DeleteModalComponent } from '../delete-modal/delete-modal';
 
 interface Activity {
   technician: string;
@@ -33,7 +34,7 @@ type TabId = 'dashboard' | 'technicians' | 'teams' | 'work-orders' | 'leaves' | 
 @Component({
   selector: 'app-tm-system',
   standalone: true,
-  imports: [CommonModule, RouterModule, HttpClientModule, FormsModule, Loader],
+  imports: [CommonModule, RouterModule, HttpClientModule, FormsModule, Loader, DeleteModalComponent],
   templateUrl: './tm-system.html',
   styleUrls: ['./tm-system.css']
 })
@@ -41,6 +42,8 @@ export class TmSystemComponent implements OnInit, OnDestroy {
   activeTab: TabId = 'dashboard';
   private readonly destroy$ = new Subject<void>();
   readonly iconPath = '/assets/icons/';
+
+  mobileMenuOpen = false;
 
   techniciansLoading = false;
   teamsLoading = false;
@@ -102,6 +105,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
 
   workOrderRows: Array<{
     id: string;
+    dbId?: number | string;
     name: string;
     description: string;
     assigned: string;
@@ -122,6 +126,11 @@ export class TmSystemComponent implements OnInit, OnDestroy {
   showHolidayModal = false;
   holidaySubmitting = false;
   holidayError?: string;
+  editingHolidayId?: number | string;
+  holidayPrefillLoading = false;
+  showHolidayDeleteModal = false;
+  deletingHolidayId?: number | string;
+  holidayDeleting = false;
   holidayForm: { holidayName: string; holidayType: string; holidayDate: string; notes: string } = {
     holidayName: '',
     holidayType: 'NATIONAL',
@@ -157,9 +166,11 @@ export class TmSystemComponent implements OnInit, OnDestroy {
 
   selectTab(id: TabId) {
     if (id === this.activeTab) {
+      this.mobileMenuOpen = false;
       return;
     }
     this.router.navigate(['/tm-system', id]);
+    this.mobileMenuOpen = false;
     this.loadTabData(id);
   }
 
@@ -245,15 +256,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
     this.dashboardError = undefined;
     this.dashboardService
       .fetchTechnicianDashboard()
-      .pipe(
-        finalize(() => {
-          this.zone.run(() => {
-            this.dashboardLoading = false;
-            this.dashboardLoaded = true;
-            this.cdr.detectChanges();
-          });
-        })
-      )
+      .pipe(take(1))
       .subscribe({
         next: (response) => {
           this.zone.run(() => {
@@ -278,6 +281,8 @@ export class TmSystemComponent implements OnInit, OnDestroy {
               status: this.normalizeActivityStatus(item.status ?? (item as any).state ?? 'Updated')
             }));
 
+            this.dashboardLoading = false;
+            this.dashboardLoaded = true;
             this.cdr.detectChanges();
           });
         },
@@ -291,6 +296,8 @@ export class TmSystemComponent implements OnInit, OnDestroy {
               { label: 'Work Orders', value: 0, accent: 'purple' }
             ];
             this.activities = [];
+            this.dashboardLoading = false;
+            this.dashboardLoaded = true;
             this.cdr.detectChanges();
           });
         }
@@ -302,19 +309,23 @@ export class TmSystemComponent implements OnInit, OnDestroy {
       return;
     }
     this.techniciansLoading = true;
+    this.techniciansLoaded = false;
     this.technicianService
       .fetchTechnicians(this.techPage, this.techSize)
-      .pipe(finalize(() => {
-        this.zone.run(() => {
-          this.techniciansLoading = false;
-          this.cdr.detectChanges();
-        });
-      }))
+      .pipe(
+        take(1),
+        finalize(() => {
+          this.zone.run(() => {
+            this.techniciansLoading = false;
+            this.cdr.detectChanges();
+          });
+        })
+      )
       .subscribe({
         next: (response) => {
           this.zone.run(() => {
-            const list = response.data?.technicians ?? [];
-            this.technicianRows = list.map((tech) => ({
+            const list: any[] = (response as any)?.data?.technicians ?? (response as any)?.data?.content ?? [];
+            this.technicianRows = list.map((tech: any) => ({
               id: tech.technicianId ?? (tech.id ? `TEC${tech.id}` : '—'),
               dbId: tech.id,
               name: this.buildName(tech),
@@ -332,6 +343,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
               this.techPage = response.data.page;
             }
             this.techniciansLoaded = true;
+            this.techniciansLoading = false;
             this.cdr.detectChanges();
           });
         },
@@ -339,6 +351,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
           this.zone.run(() => {
             this.technicianRows = [];
             this.techniciansLoaded = true;
+            this.techniciansLoading = false;
             this.cdr.detectChanges();
           });
         }
@@ -350,14 +363,18 @@ export class TmSystemComponent implements OnInit, OnDestroy {
       return;
     }
     this.teamsLoading = true;
+    this.teamsLoaded = false;
     this.technicianService
       .fetchTechnicianTeams(this.teamPage, this.teamSize)
-      .pipe(finalize(() => {
-        this.zone.run(() => {
-          this.teamsLoading = false;
-          this.cdr.detectChanges();
-        });
-      }))
+      .pipe(
+        take(1),
+        finalize(() => {
+          this.zone.run(() => {
+            this.teamsLoading = false;
+            this.cdr.detectChanges();
+          });
+        })
+      )
       .subscribe({
         next: (response) => {
           this.zone.run(() => {
@@ -377,6 +394,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
               this.teamPage = response.data.page;
             }
             this.teamsLoaded = true;
+            this.teamsLoading = false;
             this.cdr.detectChanges();
           });
         },
@@ -384,6 +402,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
           this.zone.run(() => {
             this.teamRows = [];
             this.teamsLoaded = true;
+            this.teamsLoading = false;
             this.cdr.detectChanges();
           });
         }
@@ -417,20 +436,25 @@ export class TmSystemComponent implements OnInit, OnDestroy {
       return;
     }
     this.workOrdersLoading = true;
+    this.workOrdersLoaded = false;
     this.workOrderService
       .fetchWorkOrders(this.woPage, this.woSize)
-      .pipe(finalize(() => {
-        this.zone.run(() => {
-          this.workOrdersLoading = false;
-          this.cdr.detectChanges();
-        });
-      }))
+      .pipe(
+        take(1),
+        finalize(() => {
+          this.zone.run(() => {
+            this.workOrdersLoading = false;
+            this.cdr.detectChanges();
+          });
+        })
+      )
       .subscribe({
         next: (response) => {
           this.zone.run(() => {
             const orders = (response as any)?.data?.workOrders ?? [];
             this.workOrderRows = orders.map((order: any) => ({
               id: order.workOrderId ?? (order.id ? `WO${order.id}` : '—'),
+              dbId: order.id ?? order.workOrderId,
               name: order.woTitle ?? 'Work Order',
               description: order.descriptionScope ?? order.notes ?? '—',
               assigned: order.assignedTechnicianName ?? order.assignedTechnician ?? 'Unassigned',
@@ -448,6 +472,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
               this.woPage = page;
             }
             this.workOrdersLoaded = true;
+            this.workOrdersLoading = false;
             this.cdr.detectChanges();
           });
         },
@@ -455,6 +480,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
           this.zone.run(() => {
             this.workOrderRows = [];
             this.workOrdersLoaded = true;
+            this.workOrdersLoading = false;
             this.cdr.detectChanges();
           });
         }
@@ -653,7 +679,16 @@ export class TmSystemComponent implements OnInit, OnDestroy {
     this.router.navigate(['/tm-system', 'technicians', dbId, 'availability']);
   }
 
+  openWorkOrder(dbId?: number | string): void {
+    if (dbId === undefined || dbId === null) {
+      return;
+    }
+    this.router.navigate(['/tm-system', 'work-orders', dbId]);
+  }
+
   openHolidayModal(): void {
+    this.editingHolidayId = undefined;
+    this.holidayPrefillLoading = false;
     this.holidayError = undefined;
     this.holidaySubmitting = false;
     this.holidayForm = { holidayName: '', holidayType: 'NATIONAL', holidayDate: '', notes: '' };
@@ -661,11 +696,92 @@ export class TmSystemComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
+  editHoliday(id?: string): void {
+    if (!id) {
+      return;
+    }
+    this.holidayPrefillLoading = true;
+    this.holidayError = undefined;
+    this.showHolidayModal = true;
+    this.cdr.detectChanges();
+    this.technicianService.fetchHolidayById(id).pipe(take(1)).subscribe({
+      next: (res) => {
+        this.zone.run(() => {
+          const h = res?.data ?? res ?? {};
+          this.editingHolidayId = h.id ?? id;
+          this.holidayForm = {
+            holidayName: h.holidayName ?? '',
+            holidayType: h.holidayType ?? 'NATIONAL',
+            holidayDate: h.holidayDate ?? '',
+            notes: h.notes ?? ''
+          };
+          this.holidayPrefillLoading = false;
+          this.cdr.detectChanges();
+        });
+      },
+      error: () => {
+        this.zone.run(() => {
+          this.holidayPrefillLoading = false;
+          this.holidayError = 'Unable to load holiday details.';
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  }
+
+  openHolidayDetail(id?: string): void {
+    if (!id) return;
+    this.router.navigate(['/tm-system', 'holidays', id]);
+  }
+
   closeHolidayModal(): void {
     this.showHolidayModal = false;
     this.holidaySubmitting = false;
     this.holidayError = undefined;
+    this.editingHolidayId = undefined;
+    this.holidayPrefillLoading = false;
     this.cdr.detectChanges();
+  }
+
+  openHolidayDelete(id?: string): void {
+    if (!id) return;
+    this.deletingHolidayId = id;
+    this.showHolidayDeleteModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeHolidayDelete(): void {
+    this.showHolidayDeleteModal = false;
+    this.deletingHolidayId = undefined;
+    this.holidayDeleting = false;
+    this.cdr.detectChanges();
+  }
+
+  confirmHolidayDelete(): void {
+    if (!this.deletingHolidayId) return;
+    this.holidayDeleting = true;
+    this.technicianService.deleteHoliday(this.deletingHolidayId).pipe(
+      take(1),
+      finalize(() => {
+        this.zone.run(() => {
+          this.holidayDeleting = false;
+          this.cdr.detectChanges();
+        });
+      })
+    ).subscribe({
+      next: () => {
+        this.zone.run(() => {
+          this.holidayRows = this.holidayRows.filter((h) => h.id != this.deletingHolidayId);
+          this.closeHolidayDelete();
+        });
+      },
+      error: () => {
+        this.zone.run(() => {
+          this.holidayError = 'Failed to delete holiday.';
+          this.cdr.detectChanges();
+        });
+      }
+    });
   }
 
   submitHoliday(): void {
@@ -677,7 +793,11 @@ export class TmSystemComponent implements OnInit, OnDestroy {
     let saved = false;
     this.holidaySubmitting = true;
     this.holidayError = undefined;
-    this.technicianService.createHoliday(this.holidayForm).pipe(
+    const request$ = this.editingHolidayId
+      ? this.technicianService.updateHoliday(this.editingHolidayId, this.holidayForm)
+      : this.technicianService.createHoliday(this.holidayForm);
+
+    request$.pipe(
       take(1),
       finalize(() => {
         this.zone.run(() => {
@@ -693,8 +813,8 @@ export class TmSystemComponent implements OnInit, OnDestroy {
         this.zone.run(() => {
           const newHoliday = res?.data ?? res ?? {};
           const row = {
-            id: newHoliday.id ?? newHoliday.holidayId ?? `HD${this.holidayRows.length + 1}`.padStart(6, '0'),
-            name: newHoliday.holidayName ?? 'New Holiday',
+            id: newHoliday.id ?? newHoliday.holidayId ?? this.editingHolidayId ?? `HD${this.holidayRows.length + 1}`.padStart(6, '0'),
+            name: newHoliday.holidayName ?? this.holidayForm.holidayName ?? 'Holiday',
             date: newHoliday.holidayDate ?? this.holidayForm.holidayDate,
             type: (newHoliday.holidayType || this.holidayForm.holidayType || 'National')
               .toString()
@@ -702,7 +822,11 @@ export class TmSystemComponent implements OnInit, OnDestroy {
               .replace(/\b\w/g, (c: string) => c.toUpperCase()),
             notes: newHoliday.notes ?? this.holidayForm.notes
           };
-          this.holidayRows = [row, ...this.holidayRows];
+          if (this.editingHolidayId) {
+            this.holidayRows = this.holidayRows.map((h) => (h.id == this.editingHolidayId ? row : h));
+          } else {
+            this.holidayRows = [row, ...this.holidayRows];
+          }
           saved = true;
         });
       },
@@ -718,6 +842,10 @@ export class TmSystemComponent implements OnInit, OnDestroy {
   exitTm(): void {
     // Navigate back to the main dashboard (outside TM module)
     this.router.navigate(['/dashboard']);
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
   }
 
   /**

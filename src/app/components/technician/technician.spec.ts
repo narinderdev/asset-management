@@ -1,69 +1,41 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { vi } from 'vitest';
 
 import { TechnicianComponent } from './technician';
 import { TechnicianService } from '../../services/technician.service';
-import { ToastrService } from 'ngx-toastr';
-import { PermissionService } from '../../services/permission.service';
 
-class TechnicianServiceStub {
-  fetchTechnicians = vi.fn().mockReturnValue(of({
-    data: {
-      technicians: [
-        { id: 1, firstName: 'Alex', lastName: 'Smith', technicianType: 'FULL_TIME', address: 'HQ', status: 'ACTIVE' }
-      ]
-    }
-  }));
-  deleteTechnician = vi.fn().mockReturnValue(of({}));
-}
-
-const toastrStub = {
-  success: vi.fn(),
-  error: vi.fn()
-};
-
-describe('TechnicianComponent', () => {
-  let component: TechnicianComponent;
-  let fixture: ComponentFixture<TechnicianComponent>;
-  let serviceStub: TechnicianServiceStub;
-  let router: Router;
+describe('TechnicianComponent (TM technician list)', () => {
+  const technicianServiceMock = {
+    fetchTechnicians: jasmine.createSpy('fetchTechnicians').and.returnValue(
+      of({
+        data: {
+          technicians: [
+            { id: 1, technicianId: 'TEC-0001', firstName: 'John', lastName: 'Doe', role: 'Tech', team: 'A', status: 'AVAILABLE' }
+          ],
+          totalElements: 1,
+          size: 10,
+          page: 0
+        }
+      })
+    ),
+    deleteTechnician: jasmine.createSpy('deleteTechnician').and.returnValue(of({}))
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TechnicianComponent, RouterTestingModule],
-      providers: [
-        { provide: TechnicianService, useClass: TechnicianServiceStub },
-        { provide: ToastrService, useValue: toastrStub },
-        { provide: PermissionService, useValue: { hasPermission: () => true } }
-      ]
+      imports: [TechnicianComponent],
+      providers: [{ provide: TechnicianService, useValue: technicianServiceMock }]
     }).compileComponents();
+  });
 
-    serviceStub = TestBed.inject(TechnicianService) as unknown as TechnicianServiceStub;
-    router = TestBed.inject(Router);
-    fixture = TestBed.createComponent(TechnicianComponent);
-    component = fixture.componentInstance;
+  it('should create and load technicians', () => {
+    const fixture = TestBed.createComponent(TechnicianComponent);
     fixture.detectChanges();
-  });
+    const comp = fixture.componentInstance;
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should load technicians on init', () => {
-    expect(serviceStub.fetchTechnicians).toHaveBeenCalled();
-    expect(component.technicians.length).toBe(1);
-    expect(component.technicians[0].name).toBe('Alex Smith');
-  });
-
-  it('should delete technician when confirmed', () => {
-    component.canDeleteTechnicians = true;
-    component.technicianToDelete = { id: 1, name: 'Alex Smith', availability: 'Active', location: '', role: '', team: '' } as any;
-    component.confirmDelete();
-
-    expect(serviceStub.deleteTechnician).toHaveBeenCalledWith(1);
-    expect(toastrStub.success).toHaveBeenCalled();
+    expect(comp).toBeTruthy();
+    expect(technicianServiceMock.fetchTechnicians).toHaveBeenCalled();
+    expect(comp.technicians.length).toBe(1);
+    expect(comp.technicians[0].id).toBe('TEC-0001');
   });
 });

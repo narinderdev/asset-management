@@ -2,6 +2,7 @@
   padding: 24px 32px;
   background: #f9fafb;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .page-header {
@@ -9,6 +10,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .page-header h1 {
@@ -22,6 +25,7 @@
   display: flex;
   gap: 16px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .icon-btn {
@@ -57,6 +61,7 @@
   display: flex;
   gap: 16px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .legend-item {
@@ -112,7 +117,10 @@
   padding: 32px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   position: relative;
-  min-height: 600px;
+  min-height: 400px;
+  max-height: 75vh;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 .error-message {
@@ -157,8 +165,9 @@
 
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(110px, 1fr));
   gap: 12px;
+  min-width: 780px; /* keep 7 columns without shrinking entire page */
 }
 
 .weekday-header {
@@ -170,14 +179,14 @@
 }
 
 .calendar-day {
-  aspect-ratio: 2;
+  aspect-ratio: 1 / 1.1;
   border-radius: 12px;
   padding: 12px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   border: 2px solid;
-  min-height: 100px;
+  min-height: 90px;
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
 }
@@ -296,4 +305,84 @@
   right: 24px;
   left: auto;
   bottom: auto;
+}
+
+/* Mobile tweaks */
+@media (max-width: 768px) {
+  .availability-page {
+    padding: 14px 16px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .calendar-container {
+    padding: 18px;
+    min-height: 360px;
+    max-height: 70vh;
+  }
+
+  .calendar-header {
+    gap: 18px;
+    margin-bottom: 18px;
+  }
+
+  .month-title {
+    font-size: 18px;
+    min-width: 140px;
+  }
+
+  .calendar-grid {
+    min-width: 660px;
+    gap: 10px;
+  }
+
+  .calendar-day {
+    padding: 10px;
+    min-height: 80px;
+  }
+
+  /* Back button should sit in flow on mobile */
+  .back-btn-fixed {
+    position: static;
+    width: 100%;
+    margin: 8px 0 10px 0;
+    display: inline-flex;
+    justify-content: center;
+    box-shadow: 0 3px 8px rgba(59, 130, 246, 0.25);
+  }
+
+  .back-btn-fixed.top-right {
+    top: auto;
+    right: auto;
+    left: auto;
+    bottom: auto;
+  }
+}
+
+@media (max-width: 540px) {
+  .availability-page {
+    padding: 12px 10px;
+  }
+
+  .calendar-container {
+    padding: 14px;
+    max-height: 65vh;
+  }
+
+  .calendar-grid {
+    min-width: 620px;
+    gap: 8px;
+  }
+
+  .legend {
+    flex-wrap: wrap;
+  }
+
+  .view-toggle {
+    width: 100%;
+  }
 }

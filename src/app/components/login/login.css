@@ -9,10 +9,21 @@
 .login-card {
   width: 450px;
   background: #ffffff;
-  padding: 40px 36px;
+  padding: 32px 32px 40px;
   border-radius: 12px;
   box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
   text-align: center;
+}
+
+.logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.auth-logo {
+  height: 48px;
+  width: auto;
 }
 
 .title {

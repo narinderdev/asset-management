@@ -259,6 +259,21 @@ export class TechnicianService {
     return this.http.get(`${environment.apiUrl}/api/holidays`, { headers, params });
   }
 
+  fetchHolidayById(id: number | string): Observable<any> {
+    const headers = new HttpHeaders({ 'ngrok-skip-browser-warning': 'true' });
+    return this.http.get(`${environment.apiUrl}/api/holidays/${id}`, { headers });
+  }
+
+  updateHoliday(id: number | string, payload: { holidayName: string; holidayType: string; holidayDate: string; notes?: string }): Observable<any> {
+    const headers = new HttpHeaders({ 'ngrok-skip-browser-warning': 'true' });
+    return this.http.patch(`${environment.apiUrl}/api/holidays/${id}`, payload, { headers });
+  }
+
+  deleteHoliday(id: number | string): Observable<void> {
+    const headers = new HttpHeaders({ 'ngrok-skip-browser-warning': 'true' });
+    return this.http.delete<void>(`${environment.apiUrl}/api/holidays/${id}`, { headers });
+  }
+
   fetchLeaves(page = 0, size = 50, startDate?: string, endDate?: string): Observable<any> {
     const headers = new HttpHeaders({ 'ngrok-skip-browser-warning': 'true' });
     let params = new HttpParams().set('page', page).set('size', size);
