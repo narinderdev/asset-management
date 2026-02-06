@@ -1,0 +1,18 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:4200",
+      "localStorage": [
+        {
+          "name": "authToken",
+          "value": "playwright-token"
+        },
+        {
+          "name": "userPermissions",
+          "value": "{\"modules\":{\"WORK_ORDER\":[\"VIEW\",\"CREATE\",\"UPDATE\",\"DELETE\"],\"INVENTORY\":[\"VIEW\",\"CREATE\",\"UPDATE\",\"DELETE\"],\"WAREHOUSE\":[\"VIEW\",\"CREATE\",\"UPDATE\",\"DELETE\"],\"PROCUREMENT\":[\"VIEW\",\"CREATE\",\"UPDATE\",\"DELETE\"],\"VENDOR\":[\"VIEW\",\"CREATE\",\"UPDATE\",\"DELETE\"],\"SERVICE_REQUEST\":[\"VIEW\",\"CREATE\",\"UPDATE\",\"DELETE\"],\"TECHNICIAN\":[\"VIEW\",\"CREATE\",\"UPDATE\",\"DELETE\"],\"TECHNICIAN_TEAM\":[\"VIEW\",\"CREATE\",\"UPDATE\",\"DELETE\"],\"ROLES\":[\"VIEW\",\"CREATE\",\"UPDATE\",\"DELETE\"],\"USERS\":[\"VIEW\",\"CREATE\",\"UPDATE\",\"DELETE\"],\"TM_SYSTEM\":[\"VIEW\",\"CREATE\",\"UPDATE\",\"DELETE\"]}}"
+        }
+      ]
+    }
+  ]
+}

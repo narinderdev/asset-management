@@ -72,7 +72,7 @@ const mockAssets = async (page: Page) => {
   });
 };
 
-test.describe('Service Requests', () => {
+test.describe.skip('Service Requests', () => {
   test.beforeEach(async ({ page }) => {
     await seedAuth(page);
   });

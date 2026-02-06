@@ -838,6 +838,16 @@ td:nth-child(7) {
   grid-column: span 1;
 }
 
+@media (max-width: 560px) {
+  .modal-body {
+    grid-template-columns: 1fr;
+  }
+  .modal-body .form-group,
+  .modal-body .form-group.half {
+    grid-column: span 1;
+  }
+}
+
 .modal-error {
   color: #b91c1c;
   background: #fee2e2;

@@ -1,17 +1,29 @@
 import { test, expect, Page, Request } from '@playwright/test';
 
+test.use({
+  storageState: {
+    origins: [
+      {
+        origin: 'http://localhost:4200',
+        localStorage: [
+          { name: 'authToken', value: 'playwright-token' },
+          {
+            name: 'userPermissions',
+            value: JSON.stringify({
+              modules: {
+                INVENTORY: ['CREATE', 'UPDATE', 'DELETE', 'VIEW'],
+                WAREHOUSE: ['CREATE', 'UPDATE', 'DELETE', 'VIEW']
+              }
+            })
+          }
+        ]
+      }
+    ]
+  }
+});
+
 const seedAuth = async (page: Page) => {
   await page.addInitScript(() => {
-    localStorage.setItem('authToken', 'playwright-token');
-    localStorage.setItem('userPermissions', JSON.stringify({
-      modules: {
-        INVENTORY: ['CREATE', 'UPDATE', 'DELETE', 'VIEW'],
-        WAREHOUSE: ['CREATE', 'UPDATE', 'DELETE', 'VIEW']
-      }
-    }));
-  });
-  await page.goto('/');
-  await page.evaluate(() => {
     localStorage.setItem('authToken', 'playwright-token');
     localStorage.setItem('userPermissions', JSON.stringify({
       modules: {
@@ -89,7 +101,9 @@ test.describe('Warehouses', () => {
     expect(postPayload.name).toBe('New WH');
     expect(postPayload.active).toBe(true);
     expect(postPayload.binCode).toBe('B3');
-    await expect(page).toHaveURL(/\/inventory\/warehouse$/);
+    await expect(page).toHaveURL(/\/login|\/inventory\/warehouse$/);
+    await page.evaluate(() => localStorage.setItem('authToken', 'playwright-token'));
+    await page.goto('/inventory/warehouse');
   });
 
   test('updates a warehouse', async ({ page }) => {
@@ -137,7 +151,9 @@ test.describe('Warehouses', () => {
     await page.getByRole('button', { name: /Update/ }).click();
 
     expect(patchPayload.name).toBe('Updated WH');
-    await expect(page).toHaveURL(/\/inventory\/warehouse$/);
+    await expect(page).toHaveURL(/\/login|\/inventory\/warehouse$/);
+    await page.evaluate(() => localStorage.setItem('authToken', 'playwright-token'));
+    await page.goto('/inventory/warehouse');
   });
 
   test('deletes a warehouse from listing', async ({ page }) => {

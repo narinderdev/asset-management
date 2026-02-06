@@ -92,6 +92,13 @@
   </nav>
 
   <div class="sidebar-footer">
+    <div class="mini-user" *ngIf="!isCollapsed">
+      <div class="mini-avatar">{{ userName?.charAt(0) || 'U' }}</div>
+      <span class="mini-name">{{ userName }}</span>
+    </div>
+    <div class="mini-user collapsed-avatar" *ngIf="isCollapsed">
+      <div class="mini-avatar">{{ userName?.charAt(0) || 'U' }}</div>
+    </div>
     <button class="signout-btn" (click)="signOut()" aria-label="Sign out">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M14 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8" stroke-linecap="round" stroke-linejoin="round" />

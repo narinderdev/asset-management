@@ -1,7 +1,9 @@
 import { defineConfig } from '@playwright/test';
+import path from 'path';
 
 export default defineConfig({
   testDir: './playwright',
+  globalSetup: path.join(__dirname, 'playwright/global-setup.ts'),
   projects: [
     {
       name: 'chromium',
@@ -10,6 +12,7 @@ export default defineConfig({
   ],
   use: {
     baseURL: 'http://localhost:4200',
+    storageState: path.join(__dirname, 'playwright/.auth/admin.json'),
     trace: 'on',
     headless: process.env.HEADLESS === 'false' ? false : true,
     launchOptions: {

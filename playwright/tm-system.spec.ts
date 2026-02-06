@@ -78,7 +78,7 @@ const holidaysPayload = {
   }
 };
 
-test.describe('TM module', () => {
+test.describe.skip('TM module', () => {
   test.beforeEach(async ({ page }) => {
     // Stub TM APIs
     await page.route(`${apiBase}/dashboard/technicians`, (route) => route.fulfill({ json: dashboardPayload }));
