@@ -264,6 +264,33 @@ export class TechnicianService {
     return this.http.get(`${environment.apiUrl}/api/holidays/${id}`, { headers });
   }
 
+  fetchTechnicianLeaves(technicianId: number | string): Observable<any> {
+    const headers = new HttpHeaders({ 'ngrok-skip-browser-warning': 'true' });
+    return this.http.get(`${environment.apiUrl}/api/technicians/${technicianId}/leaves`, { headers });
+  }
+
+  createLeave(
+    technicianId: number | string,
+    payload: { startDate: string; endDate: string; reason: string; leaveType?: string }
+  ): Observable<any> {
+    const headers = new HttpHeaders({ 'ngrok-skip-browser-warning': 'true' });
+    return this.http.post(`${environment.apiUrl}/api/technicians/${technicianId}/leaves`, payload, { headers });
+  }
+
+  updateLeave(
+    technicianId: number | string,
+    leaveId: number | string,
+    payload: { startDate: string; endDate: string; reason: string; leaveType?: string }
+  ): Observable<any> {
+    const headers = new HttpHeaders({ 'ngrok-skip-browser-warning': 'true' });
+    return this.http.patch(`${environment.apiUrl}/api/technicians/${technicianId}/leaves/${leaveId}`, payload, { headers });
+  }
+
+  deleteLeave(technicianId: number | string, leaveId: number | string): Observable<void> {
+    const headers = new HttpHeaders({ 'ngrok-skip-browser-warning': 'true' });
+    return this.http.delete<void>(`${environment.apiUrl}/api/technicians/${technicianId}/leaves/${leaveId}`, { headers });
+  }
+
   updateHoliday(id: number | string, payload: { holidayName: string; holidayType: string; holidayDate: string; notes?: string }): Observable<any> {
     const headers = new HttpHeaders({ 'ngrok-skip-browser-warning': 'true' });
     return this.http.patch(`${environment.apiUrl}/api/holidays/${id}`, payload, { headers });

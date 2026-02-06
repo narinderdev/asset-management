@@ -1,11 +1,12 @@
 <div class="sidebar" [class.collapsed]="isCollapsed" [class.mobile-open]="mobileOpen">
   <!-- User Profile -->
-  <div class="user-profile">
-    <div class="user-info">
-      <div class="user-avatar">
-        <img [src]="getIconPath('profile.svg')" alt="User" class="user-icon">
-      </div>
-      <span class="user-name" *ngIf="!isCollapsed">{{ userName }}</span>
+  <div class="user-profile brand-row">
+    <div class="brand">
+      <img
+        [src]="isCollapsed ? '/assets/icons/fav-icon.svg' : '/assets/icons/logo1.svg'"
+        alt="Brand Logo"
+        class="brand-logo"
+      />
     </div>
     <button class="toggle-btn" (click)="toggleSidebar()" *ngIf="!isCollapsed">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

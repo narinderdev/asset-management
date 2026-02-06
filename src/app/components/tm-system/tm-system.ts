@@ -120,7 +120,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
   holidaysLoading = false;
   holidaysLoaded = false;
   private pendingLoads = 0;
-  leaveRows: Array<{ id: string; technician: string; type: string; from: string; to: string; reason: string; status: string }> = [];
+  leaveRows: Array<{ id: string; technician: string; from: string; to: string; reason: string; technicianId?: string | number }> = [];
   holidayRows: Array<{ id: string; name: string; date: string; type: string; notes: string }> = [];
 
   showHolidayModal = false;
@@ -137,6 +137,25 @@ export class TmSystemComponent implements OnInit, OnDestroy {
     holidayDate: '',
     notes: ''
   };
+
+  // Leave modal state
+  showLeaveModal = false;
+  leaveSubmitting = false;
+  leaveError?: string;
+  leaveTechLoading = false;
+  leaveTechnicians: Array<{ id: number | string; name: string }> = [];
+  leaveForm: { technicianId: number | string | undefined; startDate: string; endDate: string; reason: string } = {
+    technicianId: undefined,
+    startDate: '',
+    endDate: '',
+    reason: ''
+  };
+  editingLeaveId?: string | number;
+  leavePrefillLoading = false;
+  showLeaveDeleteModal = false;
+  deletingLeaveId?: string | number;
+  deletingLeaveTechId?: string | number;
+  leaveDeleting = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -230,11 +249,10 @@ export class TmSystemComponent implements OnInit, OnDestroy {
           this.leaveRows = (list as any[]).map((l) => ({
             id: l.id?.toString() ?? l.leaveId ?? '—',
             technician: l.technicianName ?? l.technician ?? '—',
-            type: l.leaveType ?? l.type ?? '—',
             from: l.fromDate ?? l.startDate ?? '—',
             to: l.toDate ?? l.endDate ?? '—',
             reason: l.reason ?? '',
-            status: (l.status ?? '').toString().replace(/_/g, ' ')
+            technicianId: l.technicianId ?? l.technician_id ?? l.technicianID ?? l.userId
           }));
           this.cdr.detectChanges();
         });
@@ -632,6 +650,105 @@ export class TmSystemComponent implements OnInit, OnDestroy {
     this.loadWorkOrders();
   }
 
+  editLeave(row: { id: string; technician: string; from: string; to: string; reason: string; technicianId?: string | number }): void {
+    this.leaveError = undefined;
+    this.editingLeaveId = row.id;
+    this.leavePrefillLoading = true;
+    this.showLeaveModal = true;
+    this.cdr.detectChanges(); // ensure modal renders before async fill
+    this.loadLeaveTechnicians();
+
+    const techId = row.technicianId;
+    if (!techId) {
+      this.leavePrefillLoading = false;
+      this.leaveError = 'Technician id missing for this leave.';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.technicianService.fetchTechnicianLeaves(techId).pipe(
+      take(1),
+      finalize(() => {
+        this.zone.run(() => {
+          this.leavePrefillLoading = false;
+          this.cdr.detectChanges();
+        });
+      })
+    ).subscribe({
+      next: (res: any) => {
+        this.zone.run(() => {
+          const list = res?.data?.leaves ?? res?.data?.content ?? res?.data ?? res ?? [];
+          const match = (list as any[]).find((l) => (l.id ?? l.leaveId)?.toString() === row.id.toString());
+          const leave = match ?? row;
+          this.leaveForm = {
+            technicianId: techId,
+            startDate: leave.fromDate ?? leave.startDate ?? row.from ?? '',
+            endDate: leave.toDate ?? leave.endDate ?? row.to ?? '',
+            reason: leave.reason ?? row.reason ?? ''
+          };
+          this.cdr.detectChanges();
+        });
+      },
+      error: (err) => {
+        this.zone.run(() => {
+          this.leaveError = err?.error?.message ?? 'Failed to load leave.';
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  }
+
+  openLeaveDelete(row: { id: string; technicianId?: string | number }): void {
+    if (!row.technicianId) {
+      return;
+    }
+    this.deletingLeaveId = row.id;
+    this.deletingLeaveTechId = row.technicianId;
+    this.showLeaveDeleteModal = true;
+    this.leaveError = undefined;
+    this.cdr.detectChanges();
+  }
+
+  closeLeaveDelete(): void {
+    this.showLeaveDeleteModal = false;
+    this.deletingLeaveId = undefined;
+    this.deletingLeaveTechId = undefined;
+    this.leaveDeleting = false;
+    this.cdr.detectChanges();
+  }
+
+  confirmLeaveDelete(): void {
+    if (!this.deletingLeaveId || !this.deletingLeaveTechId) return;
+    this.leaveDeleting = true;
+    let deleteSuccess = false;
+    this.technicianService.deleteLeave(this.deletingLeaveTechId, this.deletingLeaveId).pipe(
+      take(1),
+      finalize(() => {
+        this.zone.run(() => {
+          this.leaveDeleting = false;
+          if (deleteSuccess) {
+            this.closeLeaveDelete();
+          }
+          this.cdr.detectChanges();
+        });
+      })
+    ).subscribe({
+      next: () => {
+        this.zone.run(() => {
+          deleteSuccess = true;
+          this.leaveRows = this.leaveRows.filter((r) => r.id != this.deletingLeaveId);
+          this.cdr.detectChanges();
+        });
+      },
+      error: (err) => {
+        this.zone.run(() => {
+          this.leaveError = err?.error?.message ?? 'Failed to delete leave.';
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  }
+
   private loadHolidays(): void {
     if (this.holidaysLoading || this.holidaysLoaded) {
       return;
@@ -666,6 +783,124 @@ export class TmSystemComponent implements OnInit, OnDestroy {
       error: () => {
         this.zone.run(() => {
           this.holidaysLoaded = true;
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  }
+
+  private loadLeaveTechnicians(): void {
+    if (this.leaveTechLoading || this.leaveTechnicians.length) {
+      return;
+    }
+    this.leaveTechLoading = true;
+    this.technicianService.fetchTechnicians(0, 100).pipe(
+      take(1),
+      finalize(() => {
+        this.zone.run(() => {
+          this.leaveTechLoading = false;
+          this.cdr.detectChanges();
+        });
+      })
+    ).subscribe({
+      next: (res: any) => {
+        this.zone.run(() => {
+          const list = res?.data?.technicians ?? res?.data?.content ?? [];
+          this.leaveTechnicians = (list as ApiTechnician[]).map((t) => ({
+            id: (t as any).id ?? (t as any).technicianId ?? (t as any).dbId ?? (t as any).userId ?? (t as any).employeeId ?? '',
+            name: this.buildTechnicianName(t)
+          })).filter(t => t.id !== '');
+          this.cdr.detectChanges();
+        });
+      },
+      error: () => {
+        this.zone.run(() => {
+          this.leaveTechnicians = [];
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  }
+
+  private buildTechnicianName(t: ApiTechnician | any): string {
+    const combined = t.fullName ?? `${t.firstName ?? ''} ${t.lastName ?? ''}`.trim();
+    if (combined && combined.trim().length) {
+      return combined.trim();
+    }
+    const fallback = (t as any).name || (t as any).email;
+    return fallback && fallback.toString().trim().length ? fallback : 'Technician';
+  }
+
+  openLeaveModal(): void {
+    this.leaveError = undefined;
+    this.leaveSubmitting = false;
+    this.leaveForm = { technicianId: undefined, startDate: '', endDate: '', reason: '' };
+    this.editingLeaveId = undefined;
+    this.leavePrefillLoading = false;
+    this.loadLeaveTechnicians();
+    this.showLeaveModal = true;
+  }
+
+  closeLeaveModal(): void {
+    this.showLeaveModal = false;
+    this.leaveError = undefined;
+    this.leaveSubmitting = false;
+    this.editingLeaveId = undefined;
+    this.leavePrefillLoading = false;
+    this.cdr.detectChanges();
+  }
+
+  submitLeave(): void {
+    if (!this.leaveForm.technicianId || !this.leaveForm.startDate || !this.leaveForm.endDate || !this.leaveForm.reason) {
+      this.leaveError = 'Please fill in technician, start date, end date and reason.';
+      return;
+    }
+    this.leaveSubmitting = true;
+    this.leaveError = undefined;
+    const payload = {
+      startDate: this.leaveForm.startDate,
+      endDate: this.leaveForm.endDate,
+      reason: this.leaveForm.reason
+    };
+
+    const request$ = this.editingLeaveId
+      ? this.technicianService.updateLeave(this.leaveForm.technicianId, this.editingLeaveId, payload)
+      : this.technicianService.createLeave(this.leaveForm.technicianId, payload);
+
+    request$.pipe(
+      take(1),
+      finalize(() => {
+        this.zone.run(() => {
+          this.leaveSubmitting = false;
+          this.cdr.detectChanges();
+        });
+      })
+    ).subscribe({
+      next: (res: any) => {
+        this.zone.run(() => {
+          this.closeLeaveModal();
+          const leave = res?.data ?? res ?? {};
+          const row = {
+            id: leave.id?.toString() ?? leave.leaveId ?? this.editingLeaveId ?? `L${this.leaveRows.length + 1}`.padStart(4, '0'),
+            technician: leave.technicianName ?? this.leaveTechnicians.find(t => t.id == this.leaveForm.technicianId)?.name ?? '—',
+            from: leave.fromDate ?? leave.startDate ?? this.leaveForm.startDate,
+            to: leave.toDate ?? leave.endDate ?? this.leaveForm.endDate,
+            reason: leave.reason ?? this.leaveForm.reason,
+            technicianId: leave.technicianId ?? this.leaveForm.technicianId
+          };
+          if (this.editingLeaveId) {
+            this.leaveRows = this.leaveRows.map((r) => (r.id == this.editingLeaveId ? row : r));
+          } else {
+            this.leaveRows = [row, ...this.leaveRows];
+          }
+          this.leavesLoaded = false;
+          this.loadLeaves();
+          this.cdr.detectChanges();
+        });
+      },
+      error: (err) => {
+        this.zone.run(() => {
+          this.leaveError = err?.error?.message ?? 'Failed to create leave.';
           this.cdr.detectChanges();
         });
       }
