@@ -45,7 +45,7 @@ async function mockUserApis(page: Page) {
   });
 }
 
-test.describe.skip('Users CRUD (invite/list with mocked API)', () => {
+test.describe('Users CRUD (invite/list with mocked API)', () => {
   test.beforeEach(async ({ page }) => {
     await seedAuth(page, { INVITE_USER: ['CREATE', 'ACCESS'], MANAGE_USERS: ['INVITE'], ROLES: ['VIEW'] });
     await mockUserApis(page);

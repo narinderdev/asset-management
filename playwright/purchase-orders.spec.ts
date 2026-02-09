@@ -104,7 +104,7 @@ const mockVendorsAndInventory = async (page: Page) => {
   });
 };
 
-test.describe.skip('Purchase Orders', () => {
+test.describe('Purchase Orders', () => {
   test.beforeEach(async ({ page }) => {
     await seedAuth(page);
   });

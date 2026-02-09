@@ -88,7 +88,7 @@ const mockInventoryItems = async (page: Page) => {
   });
 };
 
-test.describe.skip('Material Requisition', () => {
+test.describe('Material Requisition', () => {
   test.beforeEach(async ({ page }) => {
     await seedAuth(page);
   });

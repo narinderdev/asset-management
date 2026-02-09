@@ -141,7 +141,7 @@ async function setStatus(page: Page, value: 'ACTIVE' | 'INACTIVE' | 'ON_LEAVE') 
   );
 }
 
-test.describe.skip('Technicians CRUD', () => {
+test.describe('Technicians CRUD', () => {
   test.beforeEach(async ({ page }) => {
     await seedAuth(page);
   });

@@ -123,6 +123,10 @@ async function mockTmApis(page: Page) {
 
 test.describe('Leaves & Holidays CRUD', () => {
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('authToken', 'playwright-token');
+      localStorage.setItem('userPermissions', JSON.stringify({ modules: { TM_SYSTEM: ['VIEW'] } }));
+    });
     await mockTmApis(page);
   });
 

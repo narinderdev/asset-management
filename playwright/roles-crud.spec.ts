@@ -51,7 +51,7 @@ async function mockRolesApis(page: Page) {
   });
 }
 
-test.describe.skip('Roles CRUD (UI + mocked API)', () => {
+test.describe('Roles CRUD (UI + mocked API)', () => {
   test.beforeEach(async ({ page }) => {
     await seedAuth(page, { ROLES: ['VIEW', 'CREATE'] });
     await mockRolesApis(page);

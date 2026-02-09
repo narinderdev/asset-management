@@ -123,7 +123,7 @@ const mockTechniciansTeamsInventory = async (page: Page) => {
   });
 };
 
-test.describe.skip('Emergency Maintenance', () => {
+test.describe('Emergency Maintenance', () => {
   test.beforeEach(async ({ page }) => {
     await seedAuth(page);
   });

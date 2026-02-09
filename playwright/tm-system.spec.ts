@@ -78,8 +78,12 @@ const holidaysPayload = {
   }
 };
 
-test.describe.skip('TM module', () => {
+test.describe('TM module', () => {
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('authToken', 'playwright-token');
+      localStorage.setItem('userPermissions', JSON.stringify({ modules: { TM_SYSTEM: ['VIEW'], WORK_ORDER: ['VIEW'], HOLIDAYS: ['VIEW'], TECHNICIAN: ['VIEW'], TECHNICIAN_TEAM: ['VIEW'] } }));
+    });
     // Stub TM APIs
     await page.route(`${apiBase}/dashboard/technicians`, (route) => route.fulfill({ json: dashboardPayload }));
     await page.route(`${apiBase}/technicians`, (route) => route.fulfill({ json: techniciansPayload }));
