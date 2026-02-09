@@ -77,7 +77,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
     { id: 'technicians', label: 'Technician List', icon: 'tec.svg' },
     { id: 'teams', label: 'Teams', icon: 'streamline_hierarchy-10.svg' },
     { id: 'work-orders', label: 'Work Orders', icon: 'fluent-mdl2_work-flow.svg' },
-    { id: 'leaves', label: 'Leaves & Holidays', icon: 'proicons_document.svg' }
+    { id: 'leaves', label: 'PTO & Holidays', icon: 'proicons_document.svg' }
   ];
 
   metrics: MetricCard[] = [];
@@ -98,6 +98,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
   teamRows: Array<{
     id: string;
     name: string;
+    availability: string;
     leader: string;
     total: number;
     activeWos: number | string;
@@ -400,6 +401,7 @@ export class TmSystemComponent implements OnInit, OnDestroy {
             this.teamRows = teams.map((team) => ({
               id: team.id ? `TEAM${team.id}` : team.teamName ?? '—',
               name: team.teamName ?? '—',
+              availability: (team as any).availability ?? (team as any).status ?? '—',
               leader: team.teamLeaderName ?? '—',
               total: team.technicians?.length ?? 0,
               activeWos: '—'
@@ -1104,4 +1106,3 @@ export class TmSystemComponent implements OnInit, OnDestroy {
     }
   }
 }
-

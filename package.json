@@ -8,7 +8,7 @@
     "test": "ng test",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
-    "e2e:demo": "set SLOWMO=250&& set HEADLESS=false&& playwright test --project=chromium --trace=on",
+    "e2e:demo": "set HEADLESS=false&& playwright test --project=chromium --trace=on",
     "e2e:report": "playwright show-report"
   },
   "prettier": {

@@ -16,7 +16,7 @@
       <div class="form-grid">
         <label class="field">
           <span>Asset <span class="required-star">*</span></span>
-          <select name="assetId" [(ngModel)]="workOrder.assetId" required>
+          <select name="assetId" [(ngModel)]="workOrder.assetId" (ngModelChange)="onAssetChange($event)" required>
             <option [ngValue]="null" disabled hidden>Select Asset</option>
             <option *ngFor="let asset of assetOptions" [ngValue]="asset.id">{{ asset.label }}</option>
           </select>
@@ -29,6 +29,7 @@
             name="location"
             [(ngModel)]="workOrder.location"
             placeholder="Enter location"
+            [disabled]="!!workOrder.assetId"
           />
         </label>
         <label class="field">

@@ -27,10 +27,10 @@
           <input type="text" name="requestId" [(ngModel)]="request.requestId"
             [disabled]="isEditMode || autoGenerateRequestId" />
         </label>
-        <label class="field">
+        <!-- <label class="field">
           <span>Request Date</span>
           <input type="date" name="requestDate" [(ngModel)]="request.requestDate" />
-        </label>
+        </label> -->
         <label class="field">
           <span>Requester Name *</span>
           <input type="text" name="requesterName" [(ngModel)]="request.requesterName" placeholder="Select User" />
@@ -82,12 +82,68 @@
             placeholder="Detailed description of the problem" />
         </label>
         <label class="field">
-          <span>Preferred Date</span>
-          <input type="date" name="preferredDate" [(ngModel)]="request.preferredDate" />
+          <span>Total Days Required to Complete</span>
+          <input type="number" name="totalDaysRequired" min="1" step="1"
+            [(ngModel)]="request.totalDaysRequired"
+            (ngModelChange)="onTotalDaysChange()"
+            placeholder="Enter total days" />
+        </label>
+        <label class="field assignment-field">
+          <span>Assignment</span>
+          <div class="assignment-options">
+            <label class="radio-option">
+              <input type="radio" name="assignmentMode" value="TECHNICIAN"
+                [(ngModel)]="request.assignmentMode"
+                (ngModelChange)="onAssignmentModeChange('TECHNICIAN')" />
+              <span>Technician</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="assignmentMode" value="TEAM"
+                [(ngModel)]="request.assignmentMode"
+                (ngModelChange)="onAssignmentModeChange('TEAM')" />
+              <span>Team</span>
+            </label>
+          </div>
         </label>
         <label class="field">
-          <span>Preferred Time</span>
-          <input type="time" name="preferredTime" [(ngModel)]="request.preferredTime" />
+          <span>{{ request.assignmentMode === 'TEAM' ? 'Team' : 'Technician' }}</span>
+          <select
+            *ngIf="request.assignmentMode === 'TECHNICIAN'"
+            [(ngModel)]="request.preferredTechnicianId"
+            name="preferredTechnicianId"
+            (ngModelChange)="onTechnicianChange($event)">
+            <option [ngValue]="undefined" disabled hidden>Select technician</option>
+            <option *ngFor="let tech of technicianOptions" [ngValue]="getTechnicianId(tech)">
+              {{ getTechnicianName(tech) }}
+            </option>
+          </select>
+          <select
+            *ngIf="request.assignmentMode === 'TEAM'"
+            [(ngModel)]="request.preferredTeamId"
+            name="preferredTeamId"
+            (ngModelChange)="onTeamChange($event)">
+            <option [ngValue]="undefined" disabled hidden>Select team</option>
+            <option *ngFor="let team of teamOptions" [ngValue]="team.id">
+              {{ team.teamName || ('Team #' + team.id) }}
+            </option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Scheduled Time</span>
+          <select class="form-input"
+            [(ngModel)]="selectedAvailabilityIndex"
+            name="selectedAvailabilityIndex"
+            (ngModelChange)="onAvailabilitySelected($event)"
+            [disabled]="availabilityLoading || !availabilityOptions.length">
+            <option [ngValue]="undefined" disabled hidden>Select availability</option>
+            <option *ngFor="let slot of availabilityOptions; index as i" [ngValue]="i">
+              {{ slot.label }}
+            </option>
+          </select>
+          <div class="helper-text" *ngIf="availabilityLoading">Loading availability...</div>
+          <div class="helper-text" *ngIf="!availabilityLoading && !availabilityOptions.length">
+            Choose a technician or team and set total days to load options.
+          </div>
         </label>
         <!-- <label class="field">
           <span>Status</span>

@@ -44,7 +44,8 @@ export class CreateWorkOrderComponent implements OnInit {
 
   isSubmitting = false;
 
-  assetOptions: Array<{ id: number; label: string }> = [];
+  assetOptions: Array<{ id: number; label: string; locationText?: string }> = [];
+  private assetOptionMap: Record<number, { id: number; label: string; locationText?: string }> = {};
   priorityOptions = [
     { label: 'Low', value: 'LOW' },
     { label: 'Medium', value: 'MEDIUM' },
@@ -98,8 +99,13 @@ export class CreateWorkOrderComponent implements OnInit {
           .filter((asset) => asset.id && (asset.assetName || asset.assetId))
           .map((asset) => ({
             id: asset.id as number,
-            label: (asset.assetName || asset.assetId || `Asset #${asset.id}`) as string
+            label: (asset.assetName || asset.assetId || `Asset #${asset.id}`) as string,
+            locationText: this.extractLocation(asset.location)
           }));
+        this.assetOptionMap = this.assetOptions.reduce((acc, cur) => {
+          acc[cur.id] = cur;
+          return acc;
+        }, {} as Record<number, { id: number; label: string; locationText?: string }>);
         this.cdr.detectChanges();
       },
       error: (error) => {
@@ -152,6 +158,19 @@ export class CreateWorkOrderComponent implements OnInit {
           this.toastr.error('Unable to create work order. Please try again.');
         }
       });
+  }
+
+  onAssetChange(assetId: number | null): void {
+    if (!assetId) {
+      this.workOrder.location = '';
+      this.cdr.detectChanges();
+      return;
+    }
+    const match = this.assetOptionMap[assetId];
+    if (match?.locationText) {
+      this.workOrder.location = match.locationText;
+      this.cdr.detectChanges();
+    }
   }
 
   private updateWorkOrder(payload: CreateWorkOrderRequest, id: string): void {
@@ -253,5 +272,11 @@ export class CreateWorkOrderComponent implements OnInit {
       this.workOrder.utilityAccount = match.defaultUtilityAccount ?? '';
       this.cdr.detectChanges();
     }
+  }
+
+  private extractLocation(raw: any): string {
+    if (!raw) return '';
+    if (typeof raw === 'string') return raw;
+    return raw.location ?? raw.primaryLocation ?? raw.functionalLocation ?? raw.site ?? '';
   }
 }

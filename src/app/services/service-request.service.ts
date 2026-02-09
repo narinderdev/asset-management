@@ -45,6 +45,9 @@ interface ApiServiceRequestDetail extends ApiServiceRequest {
   attachmentUrl?: string;
   location?: string;
   preferredDate?: string;
+  preferredDateTime?: string;
+  preferredTechnicianId?: number;
+  preferredTeamId?: number;
   preferredTime?: string;
   problemDescription?: string;
   requesterContact?: string;
@@ -62,11 +65,11 @@ export interface ServiceRequestCreatePayload {
   priority?: string;
   shortTitle: string;
   problemDescription: string;
-  preferredDate?: string;
-  preferredTime?: string;
+  preferredDateTime?: string;
+  preferredTechnicianId?: number;
+  preferredTeamId?: number;
   safetyRisk?: boolean;
   attachmentUrl?: string;
-  status?: string;
 }
 
 export interface ServiceRequestDetailResponse {

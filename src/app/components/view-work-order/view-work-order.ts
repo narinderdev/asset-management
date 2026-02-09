@@ -44,8 +44,8 @@ export class ViewWorkOrderComponent implements OnInit {
   approveError?: string;
   approveForm: ApproveWorkOrderRequest = {
     approvedBy: '',
-    estimatedLaborHours: 0,
-    estimatedMaterialCost: 0,
+    estimatedLaborHours: undefined,
+    estimatedMaterialCost: undefined,
     approvalNotes: '',
     laborGlAccount: '',
     laborUtilityAccount: '',
@@ -67,6 +67,9 @@ export class ViewWorkOrderComponent implements OnInit {
   availabilitySlots: any = null;
   availabilityOptions: Array<{ label: string; start: string; end: string }> = [];
   selectedAvailabilityIndex?: number;
+  selectedWindowStart?: string;
+  selectedWindowEnd?: string;
+  plannedWindowLogs: string[] = [];
   availabilityLoading = false;
   availabilityError?: string;
   plannedMaterials: PlannedMaterialPayload[] = [];
@@ -120,6 +123,28 @@ export class ViewWorkOrderComponent implements OnInit {
   showCloseModal = false;
   closeNotes = '';
   showInProgressConfirm = false;
+  showInvoiceModal = false;
+  isGeneratingInvoice = false;
+  invoiceForm: {
+    companyName: string;
+    companyAddress: string;
+    contactName: string;
+    contactNumber: string;
+    invoiceDate: string;
+    dueDate: string;
+    currencySymbol: string;
+    technicianRates: Array<{ technicianId?: number; technicianName?: string; laborHours?: number; hourlyRate?: number }>;
+  } = {
+    companyName: '',
+    companyAddress: '',
+    contactName: '',
+    contactNumber: '',
+    invoiceDate: new Date().toISOString().slice(0, 10),
+    dueDate: new Date().toISOString().slice(0, 10),
+    currencySymbol: '$',
+    technicianRates: [{ technicianId: undefined, hourlyRate: undefined }]
+  };
+  invoiceError?: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -309,6 +334,7 @@ export class ViewWorkOrderComponent implements OnInit {
     this.selectedAvailabilityIndex = undefined;
     this.availabilityLoading = false;
     this.availabilityError = undefined;
+    this.plannedWindowLogs = [];
   }
 
   openInProgressConfirm(): void {
@@ -354,6 +380,7 @@ export class ViewWorkOrderComponent implements OnInit {
     if (!payload) {
       return;
     }
+    this.plannedWindowLogs = [];
     this.availabilityLoading = true;
     this.availabilityError = undefined;
     const request$ =
@@ -412,18 +439,34 @@ export class ViewWorkOrderComponent implements OnInit {
     };
   }
 
+  onAvailabilitySelected(value: number | string | null | undefined): void {
+    console.log('Planned window change event:', {
+      raw: value,
+      option: this.availabilityOptions?.[Number(value)],
+      options: this.availabilityOptions
+    });
+    this.selectAvailability(value);
+  }
+
   selectAvailability(index: number | string | null | undefined): void {
     const idx = index === null || index === undefined ? NaN : Number(index);
     if (Number.isNaN(idx) || idx < 0 || idx >= this.availabilityOptions.length) {
       this.selectedAvailabilityIndex = undefined;
       this.scheduleForm.plannedStartDateTime = '';
       this.scheduleForm.plannedEndDateTime = '';
+      this.selectedWindowStart = undefined;
+      this.selectedWindowEnd = undefined;
+      const stamp = new Date().toLocaleString('en-US', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      this.plannedWindowLogs = [`${stamp}: Selection cleared`];
       return;
     }
     this.selectedAvailabilityIndex = idx;
     const opt = this.availabilityOptions[idx];
     this.scheduleForm.plannedStartDateTime = opt.start;
     this.scheduleForm.plannedEndDateTime = opt.end;
+    this.selectedWindowStart = opt.start;
+    this.selectedWindowEnd = opt.end;
+    this.setPlannedWindowLog(opt.label, opt.start, opt.end);
   }
 
   private formatRangeLabel(startIso: string, endIso: string, name?: string): string {
@@ -434,6 +477,19 @@ export class ViewWorkOrderComponent implements OnInit {
     };
     const label = `${fmt(startIso)} - ${fmt(endIso)}`;
     return name ? `${label}` : label;
+  }
+
+  private setPlannedWindowLog(label: string, startIso: string, endIso: string): void {
+    const prettyStart = this.toFriendlyDateTime(startIso);
+    const prettyEnd = this.toFriendlyDateTime(endIso);
+    const stamp = new Date().toLocaleString('en-US', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    this.plannedWindowLogs = [`${stamp}: Selected ${label} (${prettyStart} → ${prettyEnd})`];
+  }
+
+  private toFriendlyDateTime(iso: string): string {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    return d.toLocaleString('en-US', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
   }
 
   confirmInProgress(): void {
@@ -504,15 +560,28 @@ export class ViewWorkOrderComponent implements OnInit {
 
     // Force sync start/end with currently selected availability option
     if (
-      this.selectedAvailabilityIndex !== undefined &&
-      this.selectedAvailabilityIndex !== null &&
-      this.selectedAvailabilityIndex >= 0 &&
-      this.selectedAvailabilityIndex < this.availabilityOptions.length
+      this.selectedAvailabilityIndex === undefined ||
+      this.selectedAvailabilityIndex === null ||
+      this.selectedAvailabilityIndex < 0 ||
+      this.selectedAvailabilityIndex >= this.availabilityOptions.length
     ) {
-      const opt = this.availabilityOptions[this.selectedAvailabilityIndex];
-      this.scheduleForm.plannedStartDateTime = opt.start;
-      this.scheduleForm.plannedEndDateTime = opt.end;
+      this.scheduleError = 'Please select a planned window.';
+      this.cdr.detectChanges();
+      return;
     }
+
+    const opt = this.availabilityOptions[this.selectedAvailabilityIndex];
+    this.scheduleForm.plannedStartDateTime = opt.start;
+    this.scheduleForm.plannedEndDateTime = opt.end;
+
+    // Debug: log payload just before submit
+    console.log('Scheduling payload (with planned window):', {
+      start: this.scheduleForm.plannedStartDateTime,
+      end: this.scheduleForm.plannedEndDateTime,
+      materials: this.plannedMaterials,
+      technicianId: isTeam ? undefined : this.selectedTechnicianId,
+      teamId: isTeam ? this.selectedTeamId : undefined
+    });
 
     const payload: ScheduleWorkOrderRequest = {
       ...this.scheduleForm,
@@ -967,6 +1036,98 @@ export class ViewWorkOrderComponent implements OnInit {
     this.isClosing = false;
     this.closeError = undefined;
     this.closeNotes = '';
+  }
+
+  openInvoiceModal(): void {
+    this.invoiceError = undefined;
+    // prefill from labor entries if present
+    const laborEntries = (this.workOrder as any)?.laborEntries ?? [];
+    if (Array.isArray(laborEntries) && laborEntries.length) {
+      this.invoiceForm.technicianRates = laborEntries.map((entry: any) => ({
+        technicianId: entry.technicianId ?? entry.id,
+        technicianName: entry.technicianName ?? entry.technician ?? `Tech #${entry.technicianId ?? ''}`,
+        laborHours: entry.laborHours ?? entry.hours ?? 0,
+        hourlyRate: entry.hourlyRate ?? entry.rate ?? 0
+      }));
+    } else if (this.workOrder?.assignedTechnicianId) {
+      this.invoiceForm.technicianRates = [{
+        technicianId: this.workOrder.assignedTechnicianId,
+        technicianName: this.workOrder.assignedTechnicianName ?? `Tech #${this.workOrder.assignedTechnicianId}`,
+        laborHours: 0,
+        hourlyRate: 0
+      }];
+    } else {
+      this.invoiceForm.technicianRates = [{ technicianId: undefined, technicianName: '', laborHours: 0, hourlyRate: undefined }];
+    }
+    this.showInvoiceModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeInvoiceModal(): void {
+    this.showInvoiceModal = false;
+    this.isGeneratingInvoice = false;
+    this.invoiceError = undefined;
+    this.cdr.detectChanges();
+  }
+
+  addInvoiceTechRate(): void {
+    // unused now that we bind to labor entries
+  }
+
+  removeInvoiceTechRate(index: number): void {
+    // disabled
+  }
+
+  submitInvoice(): void {
+    if (!this.workOrder?.id) {
+      this.invoiceError = 'Missing work order id.';
+      return;
+    }
+    const f = this.invoiceForm;
+    if (!f.companyName || !f.companyAddress || !f.contactName || !f.contactNumber || !f.invoiceDate || !f.dueDate || !f.currencySymbol) {
+      this.invoiceError = 'Please fill all required fields.';
+      return;
+    }
+    const rates = f.technicianRates.filter(r => r.technicianId && r.hourlyRate !== undefined);
+    if (!rates.length) {
+      this.invoiceError = 'Add at least one technician rate.';
+      return;
+    }
+    this.isGeneratingInvoice = true;
+    this.invoiceError = undefined;
+    const payload = {
+      companyName: f.companyName,
+      companyAddress: f.companyAddress,
+      contactName: f.contactName,
+      contactNumber: f.contactNumber,
+      invoiceDate: f.invoiceDate,
+      dueDate: f.dueDate,
+      currencySymbol: f.currencySymbol,
+      technicianRates: rates.map(r => ({ technicianId: r.technicianId!, hourlyRate: Number(r.hourlyRate) }))
+    };
+    this.workOrderService.createInvoice(this.workOrder.id, payload).pipe(
+      finalize(() => {
+        this.isGeneratingInvoice = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (blob: Blob) => {
+        const filename = `invoice-${this.workOrder?.workOrderId ?? this.workOrder?.id ?? 'workorder'}.pdf`;
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.click();
+        window.URL.revokeObjectURL(url);
+        this.closeInvoiceModal();
+        this.toastr.success('Invoice generated and download started.');
+      },
+      error: () => {
+        this.invoiceError = 'Failed to generate invoice.';
+        this.isGeneratingInvoice = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   onBeforePhotoSelected(event: Event): void {

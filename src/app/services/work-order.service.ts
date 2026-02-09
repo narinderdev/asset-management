@@ -96,6 +96,22 @@ export interface CloseWorkOrderRequest {
   supervisorNotes?: string;
 }
 
+export interface InvoiceTechnicianRate {
+  technicianId: number;
+  hourlyRate: number;
+}
+
+export interface CreateInvoiceRequest {
+  companyName: string;
+  companyAddress: string;
+  contactName: string;
+  contactNumber: string;
+  invoiceDate: string;
+  dueDate: string;
+  currencySymbol: string;
+  technicianRates: InvoiceTechnicianRate[];
+}
+
 export interface CreateWorkOrderRequest {
   assetId?: number | null;
   location?: string;
@@ -453,6 +469,16 @@ export class WorkOrderService {
       'ngrok-skip-browser-warning': 'true'
     });
     return this.http.post<WorkOrderDetailResponse>(`${this.apiUrl}/${id}/close`, payload, { headers });
+  }
+
+  createInvoice(id: number | string, payload: CreateInvoiceRequest): Observable<Blob> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.post(`${this.apiUrl}/${id}/invoice`, payload, {
+      headers,
+      responseType: 'blob'
+    });
   }
 
   pauseWorkOrder(id: number | string): Observable<WorkOrderDetailResponse> {

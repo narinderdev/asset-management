@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TechnicianService } from '../../services/technician.service';
 import { finalize, Subject, takeUntil } from 'rxjs';
 
-type AvailabilityStatus = 'Available' | 'Working' | 'Leave' | 'Holiday' | string;
+type AvailabilityStatus = 'Available' | 'Working' | 'Leave' | 'PTO' | 'Holiday' | string;
 
 interface AvailabilityDay {
   date: string;
@@ -40,7 +40,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy {
   readonly legend = [
     { status: 'Available', class: 'available', dot: 'available' },
     { status: 'Working', class: 'working', dot: 'working' },
-    { status: 'Leave', class: 'leave', dot: 'leave' },
+    { status: 'PTO', class: 'leave', dot: 'leave' },
     { status: 'Holiday', class: 'holiday', dot: 'holiday' }
   ];
 
@@ -200,7 +200,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy {
     const normalized = (status ?? '').toLowerCase();
     if (normalized.includes('available')) return 'available';
     if (normalized.includes('work')) return 'working';
-    if (normalized.includes('leave')) return 'leave';
+    if (normalized.includes('leave') || normalized.includes('pto')) return 'leave';
     if (normalized.includes('holiday')) return 'holiday';
     return 'unknown';
   }
@@ -209,7 +209,7 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy {
     const normalized = (status ?? '').toLowerCase();
     if (normalized.includes('available')) return 'Available';
     if (normalized.includes('work')) return 'Working';
-    if (normalized.includes('leave')) return 'Leave';
+    if (normalized.includes('leave') || normalized.includes('pto')) return 'PTO';
     if (normalized.includes('holiday')) return 'Holiday';
     return status || 'Available';
   }

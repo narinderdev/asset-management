@@ -17,7 +17,7 @@ import { Loader } from '../loader/loader';
   styleUrls: ['./technician-teams.css']
 })
 export class TechnicianTeamsComponent implements OnInit {
-  teams: TechnicianTeam[] = [];
+  teams: Array<TechnicianTeam & { availability?: string }> = [];
   loading = false;
   hasLoaded = false;
   loadingRows = Array.from({ length: 5 });

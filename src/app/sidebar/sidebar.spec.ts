@@ -52,9 +52,9 @@ describe('SidebarComponent', () => {
     const comp = new SidebarComponent(router, permissions as unknown as PermissionService, auth as unknown as AuthService);
 
     const items = comp.menuItems;
-    // dashboard (no module) + assets + work orders
-    expect(items.length).toBe(3);
-    expect(items.map(i => i.label)).toEqual(['Dashboard', 'Assets', 'Work Orders']);
+    // dashboard (no module) + assets + work orders + TM System (no module)
+    expect(items.length).toBe(4);
+    expect(items.map(i => i.label)).toEqual(['Dashboard', 'Assets', 'Work Orders', 'TM System']);
   });
 
   it('opens and closes logout modal', () => {

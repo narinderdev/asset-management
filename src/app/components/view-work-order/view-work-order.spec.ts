@@ -3,9 +3,12 @@ import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
+import { ToastrService } from 'ngx-toastr';
 
 import { ViewWorkOrderComponent } from './view-work-order';
 import { WorkOrderService } from '../../services/work-order.service';
+import { TechnicianService } from '../../services/technician.service';
+import { InventoryService } from '../../services/inventory.service';
 
 class WorkOrderServiceStub {
   fetchWorkOrderById = vi.fn().mockReturnValue(of({
@@ -22,6 +25,9 @@ describe('ViewWorkOrderComponent', () => {
       imports: [ViewWorkOrderComponent, RouterTestingModule],
       providers: [
         { provide: WorkOrderService, useClass: WorkOrderServiceStub },
+        { provide: TechnicianService, useValue: { fetchTechnicians: vi.fn() } },
+        { provide: InventoryService, useValue: { fetchInventory: vi.fn() } },
+        { provide: ToastrService, useValue: { success: vi.fn(), error: vi.fn() } },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: '1' }) } } }
       ]
     }).compileComponents();

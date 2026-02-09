@@ -153,6 +153,7 @@
                   <tr>
                     <th>Team ID</th>
                     <th>Team Name</th>
+                    <th>Availability</th>
                     <th>Team Leader</th>
                     <th>Total Technicians</th>
                     <th>Active Work Orders</th>
@@ -162,6 +163,7 @@
                   <tr *ngFor="let row of teamRows">
                     <td class="linkish">{{ row.id }}</td>
                     <td>{{ row.name }}</td>
+                    <td>{{ row.availability }}</td>
                     <td>{{ row.leader }}</td>
                     <td><span class="badge badge-blue">{{ row.total }}</span></td>
                     <td><span class="badge badge-purple">{{ row.activeWos }}</span></td>
@@ -247,7 +249,7 @@
         <ng-container *ngSwitchCase="'leaves'">
           <section class="lh-card">
             <div class="lh-tabs">
-              <button type="button" [class.active]="leavesView === 'leaves'" (click)="setLeavesView('leaves')">Leaves</button>
+              <button type="button" [class.active]="leavesView === 'leaves'" (click)="setLeavesView('leaves')">PTO</button>
               <button type="button" [class.active]="leavesView === 'holidays'" (click)="setLeavesView('holidays')">Holidays</button>
             </div>
 
@@ -258,7 +260,7 @@
                 *ngIf="leavesView === 'leaves'"
                 (click)="openLeaveModal()"
               >
-                + Add Leave
+                + Add PTO
               </button>
               <button
                 class="btn-add"
@@ -274,7 +276,7 @@
               <table *ngIf="leavesView === 'leaves'">
                 <thead>
                   <tr>
-                    <th>Leave ID</th>
+                    <th>PTO ID</th>
                     <th>Technician</th>
                     <th>From Date</th>
                     <th>To Date</th>
@@ -367,7 +369,7 @@
           <div class="modal-backdrop" *ngIf="showLeaveModal" (click)="closeLeaveModal()">
             <div class="modal-dialog small" (click)="$event.stopPropagation()">
               <div class="modal-header">
-                <h3>{{ editingLeaveId ? 'Edit Leave' : 'Add Leave' }}</h3>
+                <h3>{{ editingLeaveId ? 'Edit PTO' : 'Add PTO' }}</h3>
               </div>
               <form (ngSubmit)="submitLeave()" novalidate>
                 <div class="modal-body">
@@ -424,7 +426,7 @@
                 <div class="modal-footer">
                   <button class="btn-secondary" type="button" (click)="closeLeaveModal()" [disabled]="leaveSubmitting">Cancel</button>
                   <button class="btn-primary" type="submit" [disabled]="leaveSubmitting || leaveTechLoading">
-                    {{ leaveSubmitting ? 'Saving...' : (editingLeaveId ? 'Update Leave' : 'Save Leave') }}
+                    {{ leaveSubmitting ? 'Saving...' : (editingLeaveId ? 'Update PTO' : 'Save PTO') }}
                   </button>
                 </div>
               </form>

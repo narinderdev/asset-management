@@ -16,11 +16,10 @@
         <thead>
           <tr>
             <th>Team Name</th>
-            <th>Status</th>
-            <th>Active From</th>
-            <th>Active Till</th>
+            <th>Availability</th>
             <th>Team Leader</th>
             <th>Technicians</th>
+            <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -30,24 +29,23 @@
               <td><span class="skeleton skeleton-text medium"></span></td>
               <td><span class="skeleton skeleton-text short"></span></td>
               <td><span class="skeleton skeleton-text short"></span></td>
-              <td><span class="skeleton skeleton-text short"></span></td>
               <td><span class="skeleton skeleton-text medium"></span></td>
               <td><span class="skeleton skeleton-text tiny"></span></td>
+              <td><span class="skeleton skeleton-text short"></span></td>
               <td><span class="skeleton skeleton-text tiny"></span></td>
             </tr>
           </ng-container>
 
           <ng-template #loadedTeams>
             <tr *ngIf="showEmptyState">
-              <td colspan="7" class="empty-row">No technician team to display.</td>
+              <td colspan="6" class="empty-row">No technician team to display.</td>
             </tr>
             <tr *ngFor="let team of teams">
               <td>{{ team.teamName ?? 'Unnamed Team' }}</td>
-              <td>{{ team.status ?? '-' }}</td>
-              <td>{{ team.startDate ?? '-' }}</td>
-              <td>{{ team.endDate ?? '-' }}</td>
+              <td>{{ team.availability ?? team.status ?? '-' }}</td>
               <td>{{ team.teamLeaderName ?? '-' }}</td>
               <td>{{ team.technicians?.length ?? 0 }}</td>
+              <td>{{ team.status ?? '-' }}</td>
               <td class="actions-cell">
                 <button class="action-icon" aria-label="View team" (click)="viewTeam(team)">
                   <img src="assets/icons/Vector.svg" alt="View" />

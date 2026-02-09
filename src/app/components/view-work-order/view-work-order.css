@@ -563,6 +563,12 @@
   margin-bottom: 12px;
 }
 
+.rates-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .section-title {
   font-size: 13px;
   font-weight: 600;
@@ -571,11 +577,21 @@
   letter-spacing: 0.05em;
 }
 
+.section-subtitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
 .material-add-form {
   display: grid;
   grid-template-columns: 2fr 1fr auto;
   gap: 8px;
   margin-bottom: 12px;
+}
+
+.material-add-form.rate-grid {
+  grid-template-columns: 2fr 1fr;
 }
 
 .material-add-form.triple {
@@ -931,6 +947,35 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 12px;
+}
+
+.selection-log {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.selection-log-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.selection-log-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.selection-log-list li {
+  font-size: 13px;
+  color: #4b5563;
 }
 
 /* Print Styles */

@@ -84,6 +84,14 @@
             
             <ng-container *ngIf="workOrder?.status?.toUpperCase() === 'COMPLETED'">
               <button
+                class="btn-primary"
+                type="button"
+                [disabled]="isGeneratingInvoice"
+                (click)="openInvoiceModal()"
+              >
+                {{ isGeneratingInvoice ? 'Generating...' : 'Generate Invoice' }}
+              </button>
+              <button
                 class="btn-close"
                 type="button"
                 [disabled]="isClosing"
@@ -324,11 +332,23 @@
         </div>
         <div class="form-group">
           <label class="form-label">Estimated Labor Hours</label>
-          <input type="number" name="estimatedLaborHours" min="0" step="0.1" [(ngModel)]="approveForm.estimatedLaborHours" required class="form-input" />
+          <input
+            type="number"
+            name="estimatedLaborHours"
+            min="0"
+            step="0.1"
+            [(ngModel)]="approveForm.estimatedLaborHours"
+            class="form-input" />
         </div>
           <div class="form-group">
             <label class="form-label">Estimated Material Cost</label>
-            <input type="number" name="estimatedMaterialCost" min="0" step="0.01" [(ngModel)]="approveForm.estimatedMaterialCost" required class="form-input" />
+            <input
+              type="number"
+              name="estimatedMaterialCost"
+              min="0"
+              step="0.01"
+              [(ngModel)]="approveForm.estimatedMaterialCost"
+              class="form-input" />
           </div>
           <div class="form-grid two-col">
             <div class="form-group">
@@ -475,12 +495,14 @@
           <select
             class="form-input"
             [(ngModel)]="selectedAvailabilityIndex"
-            (ngModelChange)="selectAvailability($event)">
+            name="selectedAvailabilityIndex"
+            (ngModelChange)="onAvailabilitySelected($event)">
             <option [ngValue]="undefined" disabled hidden>Select availability</option>
             <option *ngFor="let slot of availabilityOptions; index as i" [ngValue]="i">
               {{ slot.label }}
             </option>
           </select>
+          
         </div>
         <div class="form-group">
           <label class="form-label">Planner</label>
@@ -635,11 +657,6 @@
             <span class="section-title">Materials Used</span>
           </div>
           <div class="material-add-form triple">
-            <input type="text" class="form-input" [value]="getInventoryName(prefillMaterialUsed.inventoryItemId)" disabled />
-            <input type="number" class="form-input" [value]="prefillMaterialUsed.quantityUsed || 0" disabled />
-            <span></span>
-          </div>
-          <div class="material-add-form triple">
             <select name="inventoryItemUsed" [(ngModel)]="newMaterialUsed.inventoryItemId" class="form-input">
               <option [ngValue]="undefined" disabled hidden>Select inventory</option>
               <option *ngFor="let item of inventoryOptions" [ngValue]="item.id">{{ item.name }}</option>
@@ -649,7 +666,7 @@
           </div>
           <div class="materials-list" *ngIf="completeForm.materialsUsed?.length">
             <div class="material-item" *ngFor="let mat of completeForm.materialsUsed; let i = index">
-              <span>{{ mat.inventoryItemId ?? '--' }}</span>
+              <span>{{ getInventoryName(mat.inventoryItemId) || mat.inventoryItemId || '--' }}</span>
               <span>{{ mat.quantityUsed ?? '--' }}</span>
               <button type="button" class="btn-remove" (click)="removeMaterialUsed(i)" aria-label="Remove">
                 <svg viewBox="0 0 24 24" width="18" height="18"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M9 6l.89-2.67A1 1 0 0 1 10.83 3h2.34a1 1 0 0 1 .94.66L15 6m-7 0v13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6m-8 0h10" /><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M10 11v5m4-5v5" /></svg>
@@ -686,6 +703,71 @@
         <button type="button" class="btn-secondary" (click)="closeCloseModal()" [disabled]="isClosing">Cancel</button>
         <button type="button" class="btn-primary" (click)="closeWorkOrder()" [disabled]="isClosing">
           {{ isClosing ? 'Closing...' : 'Yes, close' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invoice Modal -->
+  <div class="modal-backdrop" *ngIf="showInvoiceModal" (click)="closeInvoiceModal()">
+    <div class="modal-dialog large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Generate Invoice</h3>
+      </div>
+      <form class="modal-body" (ngSubmit)="submitInvoice()">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Company Name</label>
+            <input class="form-input" type="text" name="companyName" [(ngModel)]="invoiceForm.companyName" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Company Address</label>
+            <input class="form-input" type="text" name="companyAddress" [(ngModel)]="invoiceForm.companyAddress" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Contact Name</label>
+            <input class="form-input" type="text" name="contactName" [(ngModel)]="invoiceForm.contactName" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contact Number</label>
+            <input class="form-input" type="text" name="contactNumber" [(ngModel)]="invoiceForm.contactNumber" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Invoice Date</label>
+            <input class="form-input" type="date" name="invoiceDate" [(ngModel)]="invoiceForm.invoiceDate" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Due Date</label>
+            <input class="form-input" type="date" name="dueDate" [(ngModel)]="invoiceForm.dueDate" required />
+          </div>
+        </div>
+        <!-- <div class="form-group">
+          <label class="form-label">Currency Symbol</label>
+          <input class="form-input" type="text" name="currencySymbol" [(ngModel)]="invoiceForm.currencySymbol" required />
+        </div> -->
+
+        <div class="materials-section">
+          <div class="section-header rates-header">
+            <span class="section-title">Technician Rates</span>
+            <span class="section-subtitle">Hourly Rate</span>
+          </div>
+          <div class="material-add-form rate-grid" *ngFor="let rate of invoiceForm.technicianRates; let i = index">
+            <input class="form-input" type="text" [value]="rate.technicianName" disabled />
+            <input class="form-input" type="number" min="0" step="0.01" placeholder="Hourly rate"
+              [(ngModel)]="rate.hourlyRate" [name]="'invoiceRate'+i" />
+          </div>
+        </div>
+
+        <div class="modal-error" *ngIf="invoiceError">{{ invoiceError }}</div>
+      </form>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closeInvoiceModal()" [disabled]="isGeneratingInvoice">Cancel</button>
+        <button type="button" class="btn-primary" (click)="submitInvoice()" [disabled]="isGeneratingInvoice">
+          {{ isGeneratingInvoice ? 'Generating...' : 'Generate' }}
         </button>
       </div>
     </div>

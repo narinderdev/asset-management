@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { BehaviorSubject, of } from 'rxjs';
-import { convertToParamMap } from '@angular/router';
+import { convertToParamMap, NavigationEnd } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { vi } from 'vitest';
 
 import { TmSystemComponent } from './tm-system';
 import { TechnicianService } from '../../services/technician.service';
@@ -12,18 +14,18 @@ describe('TmSystemComponent (dashboard)', () => {
   const paramMap$ = new BehaviorSubject(convertToParamMap({ tab: 'dashboard' }));
 
   const technicianServiceMock = {
-    fetchTechnicians: jasmine.createSpy('fetchTechnicians').and.returnValue(of({ data: { technicians: [] } })),
-    fetchTechnicianTeams: jasmine.createSpy('fetchTechnicianTeams').and.returnValue(of({ data: { teams: [] } })),
-    fetchLeaves: jasmine.createSpy('fetchLeaves').and.returnValue(of({ data: { leaves: [] } })),
-    fetchHolidays: jasmine.createSpy('fetchHolidays').and.returnValue(of({ data: { holidays: [] } }))
+    fetchTechnicians: vi.fn().mockReturnValue(of({ data: { technicians: [] } })),
+    fetchTechnicianTeams: vi.fn().mockReturnValue(of({ data: { teams: [] } })),
+    fetchLeaves: vi.fn().mockReturnValue(of({ data: { leaves: [] } })),
+    fetchHolidays: vi.fn().mockReturnValue(of({ data: { holidays: [] } }))
   };
 
   const workOrderServiceMock = {
-    fetchWorkOrders: jasmine.createSpy('fetchWorkOrders').and.returnValue(of({ data: { workOrders: [] } }))
+    fetchWorkOrders: vi.fn().mockReturnValue(of({ data: { workOrders: [] } }))
   };
 
   const dashboardServiceMock = {
-    fetchTechnicianDashboard: jasmine.createSpy('fetchTechnicianDashboard').and.returnValue(
+    fetchTechnicianDashboard: vi.fn().mockReturnValue(
       of({
         data: {
           totalTechnicians: 3,
@@ -37,12 +39,14 @@ describe('TmSystemComponent (dashboard)', () => {
   };
 
   const routerMock = {
-    navigate: jasmine.createSpy('navigate')
+    navigate: vi.fn(),
+    events: of(new NavigationEnd(1, '/tm-system', '/tm-system')),
+    url: '/tm-system'
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TmSystemComponent],
+      imports: [TmSystemComponent, RouterTestingModule],
       providers: [
         { provide: TechnicianService, useValue: technicianServiceMock },
         { provide: WorkOrderService, useValue: workOrderServiceMock },

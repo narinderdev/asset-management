@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { BehaviorSubject, of } from 'rxjs';
-import { convertToParamMap } from '@angular/router';
+import { convertToParamMap, NavigationEnd } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { vi } from 'vitest';
 
 import { TmSystemComponent } from './tm-system';
 import { TechnicianService } from '../../services/technician.service';
@@ -10,8 +12,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 describe('TmSystemComponent (TM data tabs)', () => {
   const technicianServiceMock = {
-    fetchTechnicians: jasmine.createSpy('fetchTechnicians').and.returnValue(of({ data: { technicians: [] } })),
-    fetchTechnicianTeams: jasmine.createSpy('fetchTechnicianTeams').and.returnValue(
+    fetchTechnicians: vi.fn().mockReturnValue(of({ data: { technicians: [] } })),
+    fetchTechnicianTeams: vi.fn().mockReturnValue(
       of({
         data: {
           teams: [
@@ -23,8 +25,8 @@ describe('TmSystemComponent (TM data tabs)', () => {
         }
       })
     ),
-    fetchLeaves: jasmine.createSpy('fetchLeaves').and.returnValue(of({ data: { leaves: [] } })),
-    fetchHolidays: jasmine.createSpy('fetchHolidays').and.returnValue(
+    fetchLeaves: vi.fn().mockReturnValue(of({ data: { leaves: [] } })),
+    fetchHolidays: vi.fn().mockReturnValue(
       of({
         data: {
           holidays: [
@@ -36,7 +38,7 @@ describe('TmSystemComponent (TM data tabs)', () => {
   };
 
   const workOrderServiceMock = {
-    fetchWorkOrders: jasmine.createSpy('fetchWorkOrders').and.returnValue(
+    fetchWorkOrders: vi.fn().mockReturnValue(
       of({
         data: {
           workOrders: [
@@ -51,10 +53,14 @@ describe('TmSystemComponent (TM data tabs)', () => {
   };
 
   const dashboardServiceMock = {
-    fetchTechnicianDashboard: jasmine.createSpy('fetchTechnicianDashboard').and.returnValue(of({ data: {} }))
+    fetchTechnicianDashboard: vi.fn().mockReturnValue(of({ data: {} }))
   };
 
-  const routerMock = { navigate: jasmine.createSpy('navigate') };
+  const routerMock = {
+    navigate: vi.fn(),
+    events: of(new NavigationEnd(1, '/tm-system', '/tm-system')),
+    url: '/tm-system'
+  };
 
   function createComponentWithTab(tab: string) {
     const paramMap$ = new BehaviorSubject(convertToParamMap({ tab }));
@@ -66,7 +72,7 @@ describe('TmSystemComponent (TM data tabs)', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TmSystemComponent],
+      imports: [TmSystemComponent, RouterTestingModule],
       providers: [
         { provide: TechnicianService, useValue: technicianServiceMock },
         { provide: WorkOrderService, useValue: workOrderServiceMock },

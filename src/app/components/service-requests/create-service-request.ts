@@ -11,6 +11,8 @@ import {
 } from '../../services/service-request.service';
 import { AssetsService } from '../../services/assets.service';
 import { ToastrService } from 'ngx-toastr';
+import { TechnicianService, ApiTechnician, TechnicianTeam } from '../../services/technician.service';
+import { WorkOrderService } from '../../services/work-order.service';
 
 @Component({
   selector: 'app-create-service-request',
@@ -29,16 +31,25 @@ export class CreateServiceRequestComponent implements OnInit {
     department: '',
     asset: '',
     location: '',
-      maintenanceType: '',
-      priority: '',
+    maintenanceType: '',
+    priority: '',
     shortTitle: '',
     problemDescription: '',
     preferredDate: this.dateToday,
     preferredTime: '',
-    status: '',
+    preferredDateTime: '',
     safetyRisk: false,
-    attachmentUrl: ''
+    attachmentUrl: '',
+    assignmentMode: 'TECHNICIAN' as 'TECHNICIAN' | 'TEAM',
+    preferredTechnicianId: undefined as number | undefined,
+    preferredTeamId: undefined as number | undefined,
+    totalDaysRequired: 1,
+    plannedStartDateTime: '',
+    plannedEndDateTime: ''
   };
+  availabilityOptions: Array<{ label: string; start: string; end: string }> = [];
+  availabilityLoading = false;
+  selectedAvailabilityIndex?: number;
   autoGenerateRequestId = false;
 
   departmentOptions = ['Production', 'Engineering', 'Facilities'];
@@ -68,18 +79,23 @@ export class CreateServiceRequestComponent implements OnInit {
   editRequestId?: string;
   isLoadingDetails = false;
   hasLoadedDetails = false;
+  technicianOptions: ApiTechnician[] = [];
+  teamOptions: TechnicianTeam[] = [];
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private serviceRequestService: ServiceRequestService,
     private assetsService: AssetsService,
+    private technicianService: TechnicianService,
+    private workOrderService: WorkOrderService,
     private cdr: ChangeDetectorRef,
     private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
     this.loadAssetOptions();
+    this.loadTechniciansAndTeams();
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.hasLoadedDetails = true;
@@ -99,6 +115,40 @@ export class CreateServiceRequestComponent implements OnInit {
   onAutoGenerateRequestIdChange(): void {
     if (this.autoGenerateRequestId) {
       this.request.requestId = '';
+    }
+  }
+
+  onAssignmentModeChange(mode: 'TECHNICIAN' | 'TEAM'): void {
+    this.request.assignmentMode = mode;
+    this.request.preferredTechnicianId = undefined;
+    this.request.preferredTeamId = undefined;
+    this.selectedAvailabilityIndex = undefined;
+    this.availabilityOptions = [];
+    this.request.plannedStartDateTime = '';
+    this.request.plannedEndDateTime = '';
+  }
+
+  onTechnicianChange(id: number | string | undefined): void {
+    const parsed = id === undefined || id === null ? undefined : Number(id);
+    this.request.preferredTechnicianId = Number.isNaN(parsed) ? undefined : parsed;
+    if (this.request.assignmentMode === 'TECHNICIAN' && this.request.preferredTechnicianId) {
+      this.fetchAvailability('TECHNICIAN', this.request.preferredTechnicianId);
+    }
+  }
+
+  onTeamChange(id: number | string | undefined): void {
+    const parsed = id === undefined || id === null ? undefined : Number(id);
+    this.request.preferredTeamId = Number.isNaN(parsed) ? undefined : parsed;
+    if (this.request.assignmentMode === 'TEAM' && this.request.preferredTeamId) {
+      this.fetchAvailability('TEAM', this.request.preferredTeamId);
+    }
+  }
+
+  onTotalDaysChange(): void {
+    if (this.request.assignmentMode === 'TECHNICIAN' && this.request.preferredTechnicianId) {
+      this.fetchAvailability('TECHNICIAN', this.request.preferredTechnicianId);
+    } else if (this.request.assignmentMode === 'TEAM' && this.request.preferredTeamId) {
+      this.fetchAvailability('TEAM', this.request.preferredTeamId);
     }
   }
 
@@ -170,6 +220,14 @@ export class CreateServiceRequestComponent implements OnInit {
   }
 
   private buildPayload(): ServiceRequestCreatePayload {
+    // Prefer slot-selected value; otherwise combine preferred date/time
+    let preferredDateTime: string | undefined = this.request.preferredDateTime;
+    if (!preferredDateTime && this.request.preferredDate) {
+      const datePart = this.request.preferredDate;
+      const timePart = this.request.preferredTime || '00:00';
+      preferredDateTime = new Date(`${datePart}T${timePart}`).toISOString();
+    }
+
     const payload: ServiceRequestCreatePayload = {
       requesterName: this.request.requesterName,
       requesterContact: this.request.requesterContact,
@@ -179,11 +237,11 @@ export class CreateServiceRequestComponent implements OnInit {
       priority: this.request.priority.toUpperCase(),
       shortTitle: this.request.shortTitle,
       problemDescription: this.request.problemDescription,
-      preferredDate: this.request.preferredDate,
-      preferredTime: this.request.preferredTime,
+      preferredDateTime,
+      preferredTechnicianId: this.request.assignmentMode === 'TECHNICIAN' ? this.request.preferredTechnicianId : undefined,
+      preferredTeamId: this.request.assignmentMode === 'TEAM' ? this.request.preferredTeamId : undefined,
       safetyRisk: this.request.safetyRisk,
-      attachmentUrl: this.request.attachmentUrl,
-      status: this.request.status
+      attachmentUrl: this.request.attachmentUrl
     };
 
     if (!this.autoGenerateRequestId && this.request.requestId) {
@@ -216,11 +274,14 @@ export class CreateServiceRequestComponent implements OnInit {
       priority: detail.priority ?? '',
       shortTitle: detail.shortTitle ?? '',
       problemDescription: detail.problemDescription ?? detail.description ?? '',
-      preferredDate: detail.preferredDate ?? this.dateToday,
-      preferredTime: detail.preferredTime ?? '',
-      status: detail.status ?? '',
+      preferredDate: (detail as any).preferredDate ?? detail.preferredDateTime?.split('T')?.[0] ?? this.dateToday,
+      preferredTime: (detail as any).preferredTime ?? detail.preferredDateTime?.split('T')?.[1]?.slice(0, 5) ?? '',
+      preferredDateTime: (detail as any).preferredDateTime ?? '',
       safetyRisk: detail.safetyRisk ?? false,
-      attachmentUrl: detail.attachmentUrl ?? ''
+      attachmentUrl: detail.attachmentUrl ?? '',
+      assignmentMode: (detail as any).preferredTeamId ? 'TEAM' : 'TECHNICIAN',
+      preferredTechnicianId: (detail as any).preferredTechnicianId,
+      preferredTeamId: (detail as any).preferredTeamId
     };
   }
 
@@ -278,5 +339,143 @@ export class CreateServiceRequestComponent implements OnInit {
         this.request.department = match.department;
       }
     }
+  }
+
+  private loadTechniciansAndTeams(): void {
+    this.technicianService.fetchTechnicians(0, 100).subscribe({
+      next: res => {
+        const list = (res as any)?.data?.technicians ?? (res as any)?.data?.content ?? [];
+        this.technicianOptions = (list as ApiTechnician[]).filter(t => t);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.technicianOptions = [];
+        this.cdr.detectChanges();
+      }
+    });
+
+    this.technicianService.fetchTechnicianTeams(0, 100).subscribe({
+      next: res => {
+        this.teamOptions = res?.data?.teams ?? [];
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.teamOptions = [];
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+
+  getTechnicianId(tech: any): number | string | undefined {
+    return tech?.id ?? tech?.technicianId ?? tech?.employeeId ?? tech?.userId;
+  }
+
+  getTechnicianName(tech: any): string {
+    const full = tech?.fullName;
+    if (full) return full;
+    const first = tech?.firstName ?? '';
+    const last = tech?.lastName ?? '';
+    const combined = `${first} ${last}`.trim();
+    if (combined.length) return combined;
+    if (tech?.name) return String(tech.name);
+    return tech?.email ?? tech?.id ?? 'Technician';
+  }
+
+  private fetchAvailability(kind: 'TECHNICIAN' | 'TEAM', id: number): void {
+    const payload = this.buildAvailabilityPayload();
+    if (!payload) return;
+    this.availabilityLoading = true;
+    const request$ =
+      kind === 'TECHNICIAN'
+        ? this.workOrderService.getTechnicianAvailability(id, payload)
+        : this.workOrderService.getTeamAvailability(id, payload);
+
+    request$.pipe(finalize(() => (this.availabilityLoading = false))).subscribe({
+      next: (res: any) => {
+        const slots: Array<{ start?: string; end?: string; technicianName?: string; teamName?: string }> = res?.data ?? res ?? [];
+        this.availabilityOptions = slots
+          .filter(s => s.start && s.end)
+          .map((s) => ({
+            label: this.formatRangeLabel(s.start!, s.end!, s.technicianName || s.teamName),
+            start: s.start!,
+            end: s.end!
+          }));
+        if (this.availabilityOptions.length) {
+          this.selectAvailability(0);
+        } else {
+          this.selectedAvailabilityIndex = undefined;
+          this.request.plannedStartDateTime = '';
+          this.request.plannedEndDateTime = '';
+          this.request.preferredDateTime = '';
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.availabilityOptions = [];
+        this.selectedAvailabilityIndex = undefined;
+        this.request.plannedStartDateTime = '';
+        this.request.plannedEndDateTime = '';
+        this.request.preferredDateTime = '';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onAvailabilitySelected(idx: number | string | null | undefined): void {
+    this.selectAvailability(idx);
+  }
+
+  private selectAvailability(index: number | string | null | undefined): void {
+    const idx = index === null || index === undefined ? NaN : Number(index);
+    if (Number.isNaN(idx) || idx < 0 || idx >= this.availabilityOptions.length) {
+      this.selectedAvailabilityIndex = undefined;
+      this.request.plannedStartDateTime = '';
+      this.request.plannedEndDateTime = '';
+      this.request.preferredDateTime = '';
+      return;
+    }
+    this.selectedAvailabilityIndex = idx;
+    const opt = this.availabilityOptions[idx];
+    this.request.plannedStartDateTime = opt.start;
+    this.request.plannedEndDateTime = opt.end;
+    this.request.preferredDateTime = opt.start;
+    // sync split date/time fields for UI
+    const d = new Date(opt.start);
+    if (!Number.isNaN(d.getTime())) {
+      const pad = (n: number) => String(n).padStart(2, '0');
+      this.request.preferredDate = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      this.request.preferredTime = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+  }
+
+  private buildAvailabilityPayload():
+    | {
+        fromDate: string;
+        toDate: string;
+        slotMinutes: number;
+      }
+    | null {
+    const days = this.request.totalDaysRequired ?? 1;
+    const slotMinutes = Math.max(1, days) * 1440;
+    const today = new Date();
+    const toDateObj = new Date(today);
+    toDateObj.setMonth(toDateObj.getMonth() + 1);
+    const fmt = (d: Date) => d.toISOString().slice(0, 10);
+    return {
+      fromDate: fmt(today),
+      toDate: fmt(toDateObj),
+      slotMinutes
+    };
+  }
+
+  private formatRangeLabel(startIso: string, endIso: string, name?: string): string {
+    const fmt = (iso: string) => {
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return iso;
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+    const label = `${fmt(startIso)} - ${fmt(endIso)}`;
+    return name ? label : label;
   }
 }
