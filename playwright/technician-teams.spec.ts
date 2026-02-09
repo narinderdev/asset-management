@@ -130,7 +130,7 @@ test.describe('Technician Teams CRUD', () => {
 
     await page.goto('/technicians/teams');
 
-    await expect(page.getByText('No technician teams to display.')).toBeVisible();
+    await expect(page.getByText('No technician team to display.')).toBeVisible();
   });
 
   test('views a team detail', async ({ page }) => {

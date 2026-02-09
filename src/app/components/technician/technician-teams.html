@@ -39,7 +39,7 @@
 
           <ng-template #loadedTeams>
             <tr *ngIf="showEmptyState">
-              <td colspan="7" class="empty-row">No technician teams to display.</td>
+              <td colspan="7" class="empty-row">No technician team to display.</td>
             </tr>
             <tr *ngFor="let team of teams">
               <td>{{ team.teamName ?? 'Unnamed Team' }}</td>

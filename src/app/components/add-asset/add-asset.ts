@@ -65,6 +65,7 @@ export class AddAssetComponent implements OnInit {
     assetName: '',
     shortDescription: '',
     assetCategory: '',
+    assetTypeId: null as number | null,
     assetType: '',
     status: '',
     criticality: '',
@@ -150,13 +151,13 @@ export class AddAssetComponent implements OnInit {
   get cooldownLabel(): string {
     switch (this.threshold.meterType) {
       case 'RUN_HOURS':
-        return 'Cooldown Hours';
+        return 'Cool down Hours';
       case 'CYCLES':
-        return 'Cooldown Cycles';
+        return 'Cool down Cycles';
       case 'MILEAGE':
-        return 'Cooldown Mileage';
+        return 'Cool down Mileage';
       default:
-        return 'Cooldown';
+        return 'Cool down';
     }
   }
 
@@ -360,6 +361,7 @@ export class AddAssetComponent implements OnInit {
     this.assetMaster.assetName = asset.assetName;
     this.assetMaster.assetCategory = asset.category;
     this.assetMaster.assetType = asset.type;
+    this.assetMaster.assetTypeId = null;
     this.assetMaster.status = asset.status;
     this.assetMaster.shortDescription = asset.assetName;
     // Add these lines if your Asset interface has these fields
@@ -449,6 +451,7 @@ export class AddAssetComponent implements OnInit {
     this.assetMaster.assetName = detail.assetName ?? '';
     this.assetMaster.assetCategory = detail.assetCategory ?? '';
     this.assetMaster.assetType = detail.assetType ?? '';
+    this.assetMaster.assetTypeId = detail.assetTypeId ?? null;
     this.assetMaster.shortDescription = detail.shortDescription ?? '';
     this.assetMaster.status = detail.status ?? '';
     this.assetMaster.criticality = this.normalizeCriticality(detail.criticality);
@@ -878,6 +881,7 @@ export class AddAssetComponent implements OnInit {
       shortDescription: this.assetMaster.shortDescription || undefined,
       assetCategory: this.assetMaster.assetCategory,
       assetType: this.assetMaster.assetType || undefined,
+      assetTypeId: this.assetMaster.assetTypeId ?? undefined,
       status: this.toApiStatus(this.assetMaster.status),
       criticality: this.toApiCriticality(this.assetMaster.criticality),
       ownership: this.assetMaster.ownership || undefined,
@@ -953,6 +957,7 @@ export class AddAssetComponent implements OnInit {
         shortDescription: this.assetMaster.shortDescription || undefined,
         assetCategory: this.assetMaster.assetCategory,
         assetType: this.assetMaster.assetType || undefined,
+        assetTypeId: this.assetMaster.assetTypeId ?? undefined,
         status: this.toApiStatus(this.assetMaster.status),
         criticality: this.toApiCriticality(this.assetMaster.criticality),
         ownership: this.assetMaster.ownership || undefined,
@@ -1465,8 +1470,11 @@ export class AddAssetComponent implements OnInit {
       (type) => type.name === value || type.code === value
     );
     if (!selected) {
+      this.assetMaster.assetTypeId = null;
       return;
     }
+
+    this.assetMaster.assetTypeId = selected.id ?? null;
 
     if (selected.assetCategory) {
       this.assetMaster.assetCategory = selected.assetCategory;

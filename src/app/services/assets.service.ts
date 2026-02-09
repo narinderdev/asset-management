@@ -65,6 +65,7 @@ interface ApiAsset {
   assetId?: string;
   assetName?: string;
   assetType?: string;
+  assetTypeId?: number;
   assetCategory?: string;
   status?: string;
   location?: AssetLocationDetails;
@@ -117,6 +118,7 @@ export interface AssetDetailResponse {
     assetName?: string;
     assetCategory?: string;
     assetType?: string;
+    assetTypeId?: number;
     status?: string;
     criticality?: string;
     ownership?: string;
@@ -209,6 +211,7 @@ export interface AssetCreatePayload {
   shortDescription?: string;
   assetCategory: string;
   assetType?: string;
+  assetTypeId?: number;
   parentAssetId?: number | null;
   status: string;
   criticality?: string;
@@ -279,6 +282,7 @@ export interface AssetUpdatePayload {
     shortDescription?: string;
     assetCategory: string;
     assetType?: string;
+    assetTypeId?: number;
     parentAssetId?: number | null;
     status?: string;
     criticality?: string;
@@ -317,6 +321,7 @@ export interface AssetCreateResponse {
     id?: number;
     assetId?: string;
     assetName?: string;
+    assetTypeId?: number;
   };
 }
 

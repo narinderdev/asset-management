@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { Asset } from '../../models/assets.models';
-import { AssetsService } from '../../services/assets.service';
+import { AssetLocationDetails, AssetsService } from '../../services/assets.service';
 import { finalize } from 'rxjs/operators';
 import { DeleteModalComponent } from '../delete-modal/delete-modal';
 import { ToastrService } from 'ngx-toastr';
@@ -27,9 +27,7 @@ interface ApiAssetDto {
   assetType?: string;
   assetCategory?: string;
   status?: string;
-  location?: string | {
-    primaryLocation?: string;
-  };
+  location?: string | AssetLocationDetails;
   warrantyLifecycle?: {
     lastMaintenanceDate?: string;
     warrantyEnd?: string;
@@ -180,10 +178,19 @@ export class AssetsComponent implements OnInit {
     }
   }
 
-  private getApiLocation(location?: string | { primaryLocation?: string }): string {
+  private getApiLocation(location?: string | AssetLocationDetails): string {
     if (!location) return '';
     if (typeof location === 'string') return location;
-    return location.primaryLocation ?? '';
+
+    const candidates = [
+      location.primaryLocation,
+      location.location,
+      location.functionalLocation,
+      location.department,
+      location.costCenter
+    ];
+
+    return candidates.find(Boolean) ?? '';
   }
 
   applyFilters(): void {
