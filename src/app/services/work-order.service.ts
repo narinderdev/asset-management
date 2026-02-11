@@ -24,9 +24,12 @@ export interface PlannedMaterialPayload {
 export interface ScheduleWorkOrderRequest {
   assignedTechnicianId?: number;
   assignedTeamId?: number;
-  plannedStartDateTime?: string;
-  plannedEndDateTime?: string;
+  plannedStartDate?: string;
+  plannedStartTime?: string;
+  plannedEndDate?: string;
+  plannedEndTime?: string;
   totalDaysRequired?: number;
+  totalHoursRequired?: number;
   planner?: string;
   preCheckNotes?: string;
   plannedMaterials?: PlannedMaterialPayload[];

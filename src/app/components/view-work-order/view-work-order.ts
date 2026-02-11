@@ -57,18 +57,24 @@ export class ViewWorkOrderComponent implements OnInit {
   isScheduling = false;
   scheduleForm: ScheduleWorkOrderRequest = {
     assignedTechnicianId: undefined,
-    plannedStartDateTime: '',
-    plannedEndDateTime: '',
+    plannedStartDate: '',
+    plannedStartTime: '',
+    plannedEndDate: '',
+    plannedEndTime: '',
     totalDaysRequired: undefined,
+    totalHoursRequired: undefined,
     planner: '',
     preCheckNotes: '',
     plannedMaterials: []
   };
   availabilitySlots: any = null;
   availabilityOptions: Array<{ label: string; start: string; end: string }> = [];
+  availabilityDateOptions: Array<{ label: string; value: string; end?: string }> = [];
   selectedAvailabilityIndex?: number;
   selectedWindowStart?: string;
   selectedWindowEnd?: string;
+  selectedDate?: string;
+  selectedDateEnd?: string;
   plannedWindowLogs: string[] = [];
   availabilityLoading = false;
   availabilityError?: string;
@@ -289,6 +295,12 @@ export class ViewWorkOrderComponent implements OnInit {
       .join(' ');
   }
 
+  private formatDateOnly(iso: string): string {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
   private getNowInputValue(): string {
     const now = new Date();
     const pad = (num: number) => num.toString().padStart(2, '0');
@@ -331,7 +343,10 @@ export class ViewWorkOrderComponent implements OnInit {
     this.scheduleError = undefined;
     this.availabilitySlots = null;
     this.availabilityOptions = [];
+    this.availabilityDateOptions = [];
     this.selectedAvailabilityIndex = undefined;
+    this.selectedDate = undefined;
+    this.selectedDateEnd = undefined;
     this.availabilityLoading = false;
     this.availabilityError = undefined;
     this.plannedWindowLogs = [];
@@ -352,6 +367,7 @@ export class ViewWorkOrderComponent implements OnInit {
     this.selectedTechnicianId = parsedId;
     if (this.assignmentMode === 'TECHNICIAN' && parsedId) {
       this.fetchAvailabilityForSelection('TECHNICIAN', parsedId);
+      this.fetchTimeSlots();
     }
   }
 
@@ -360,6 +376,7 @@ export class ViewWorkOrderComponent implements OnInit {
     this.selectedTeamId = parsedId;
     if (this.assignmentMode === 'TEAM' && parsedId) {
       this.fetchAvailabilityForSelection('TEAM', parsedId);
+      this.fetchTimeSlots();
     }
   }
 
@@ -369,6 +386,11 @@ export class ViewWorkOrderComponent implements OnInit {
     } else if (this.assignmentMode === 'TEAM' && this.selectedTeamId) {
       this.fetchAvailabilityForSelection('TEAM', this.selectedTeamId);
     }
+    this.fetchTimeSlots();
+  }
+
+  onTotalHoursChange(): void {
+    this.fetchTimeSlots();
   }
 
   compareById = (a: any, b: any): boolean => {
@@ -393,19 +415,37 @@ export class ViewWorkOrderComponent implements OnInit {
       .subscribe({
         next: res => {
           this.availabilitySlots = res?.data ?? res;
-          const slots: Array<{ start?: string; end?: string; technicianName?: string; teamName?: string }> =
+          const slots: Array<{ start?: string; end?: string; technicianName?: string; teamName?: string; startDate?: string; endDate?: string }> =
             this.availabilitySlots ?? [];
-          this.availabilityOptions = slots
-            .filter(s => s.start && s.end)
-            .map((s, idx) => ({
-              label: this.formatRangeLabel(s.start!, s.end!, s.technicianName || s.teamName),
-              start: s.start!,
-              end: s.end!
-            }));
-          if (this.availabilityOptions.length) {
-            this.selectAvailability(0);
+          this.availabilityOptions = [];
+          this.availabilityDateOptions = [];
+
+          const hasDateRanges = slots.some(s => s.startDate && s.endDate && !s.start);
+          if (hasDateRanges) {
+            this.availabilityDateOptions = slots
+              .filter(s => s.startDate)
+              .map(s => ({
+                value: s.startDate!,
+                end: s.endDate || s.startDate!,
+                label: `${this.formatDateOnly(s.startDate!)} - ${this.formatDateOnly(s.endDate || s.startDate!)}`
+              }));
+            if (this.availabilityDateOptions.length) {
+              this.selectedDate = this.availabilityDateOptions[0].value;
+              this.selectedDateEnd = this.availabilityDateOptions[0].end;
+            }
           } else {
-            this.selectedAvailabilityIndex = undefined;
+            this.availabilityOptions = slots
+              .filter(s => s.start && s.end)
+              .map((s, idx) => ({
+                label: this.formatRangeLabel(s.start!, s.end!, s.technicianName || s.teamName),
+                start: s.start!,
+                end: s.end!
+              }));
+            if (this.availabilityOptions.length) {
+              this.selectAvailability(0);
+            } else {
+              this.selectedAvailabilityIndex = undefined;
+            }
           }
         },
         error: err => {
@@ -418,25 +458,86 @@ export class ViewWorkOrderComponent implements OnInit {
 
   private buildAvailabilityPayload():
     | {
-        fromDate: string;
-        toDate: string;
-        slotMinutes: number;
+        startDate: string;
+        endDate: string;
+        daysRequired: number;
+        hoursRequired: number;
+        technicianId?: number;
+        teamId?: number;
       }
     | null {
-    const days = this.scheduleForm.totalDaysRequired ?? 1;
-    const slotMinutes = 1440 * days;
-
+    const hours = Math.max(1, this.scheduleForm.totalHoursRequired ?? 1);
+    const days = Math.max(1, this.scheduleForm.totalDaysRequired ?? 1);
     const today = new Date();
-    const toDateObj = new Date(today);
-    toDateObj.setMonth(toDateObj.getMonth() + 1);
-
+    const end = new Date(today);
+    end.setMonth(end.getMonth() + 1);
     const fmt = (d: Date) => d.toISOString().slice(0, 10);
+    const startDate = fmt(today);
+    const endDate = fmt(end);
 
-    return {
-      fromDate: fmt(today),
-      toDate: fmt(toDateObj),
-      slotMinutes
+    const payload: {
+      startDate: string;
+      endDate: string;
+      daysRequired: number;
+      hoursRequired: number;
+      technicianId?: number;
+      teamId?: number;
+    } = {
+      startDate,
+      endDate,
+      daysRequired: days,
+      hoursRequired: Number(hours)
     };
+
+    if (this.assignmentMode === 'TECHNICIAN') {
+      if (this.selectedTechnicianId) payload.technicianId = Number(this.selectedTechnicianId);
+    } else if (this.assignmentMode === 'TEAM') {
+      if (this.selectedTeamId) payload.teamId = Number(this.selectedTeamId);
+    }
+
+    return payload;
+  }
+
+  private buildTimeSlotsPayload():
+    | {
+        startDate: string;
+        endDate: string;
+        daysRequired: number;
+        hoursRequired: number;
+        teamId?: number;
+        technicianId?: number;
+      }
+    | null {
+    const hours = Math.max(1, this.scheduleForm.totalHoursRequired ?? 1);
+    if (!this.selectedDate) return null;
+    const fmtDate = (d: string | Date) => {
+      const dateObj = typeof d === 'string' ? new Date(d) : d;
+      return dateObj.toISOString().slice(0, 10);
+    };
+    const startDate = fmtDate(this.selectedDate);
+    const endDate = fmtDate(this.selectedDateEnd || this.selectedDate);
+    const days = 1; // static per requirement
+    const payload: {
+      startDate: string;
+      endDate: string;
+      daysRequired: number;
+      hoursRequired: number;
+      teamId?: number;
+      technicianId?: number;
+    } = {
+      startDate,
+      endDate,
+      daysRequired: days,
+      hoursRequired: Number(hours)
+    };
+    if (this.assignmentMode === 'TECHNICIAN') {
+      if (!this.selectedTechnicianId) return null;
+      payload.technicianId = Number(this.selectedTechnicianId);
+    } else {
+      if (!this.selectedTeamId) return null;
+      payload.teamId = Number(this.selectedTeamId);
+    }
+    return payload;
   }
 
   onAvailabilitySelected(value: number | string | null | undefined): void {
@@ -448,12 +549,21 @@ export class ViewWorkOrderComponent implements OnInit {
     this.selectAvailability(value);
   }
 
+  onScheduledDateChange(value: string | undefined): void {
+    this.selectedDate = value || undefined;
+    const match = this.availabilityDateOptions.find(o => o.value === this.selectedDate);
+    this.selectedDateEnd = match?.end;
+    this.fetchTimeSlots();
+  }
+
   selectAvailability(index: number | string | null | undefined): void {
     const idx = index === null || index === undefined ? NaN : Number(index);
     if (Number.isNaN(idx) || idx < 0 || idx >= this.availabilityOptions.length) {
       this.selectedAvailabilityIndex = undefined;
-      this.scheduleForm.plannedStartDateTime = '';
-      this.scheduleForm.plannedEndDateTime = '';
+      this.scheduleForm.plannedStartDate = '';
+      this.scheduleForm.plannedStartTime = '';
+      this.scheduleForm.plannedEndDate = '';
+      this.scheduleForm.plannedEndTime = '';
       this.selectedWindowStart = undefined;
       this.selectedWindowEnd = undefined;
       const stamp = new Date().toLocaleString('en-US', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
@@ -462,20 +572,54 @@ export class ViewWorkOrderComponent implements OnInit {
     }
     this.selectedAvailabilityIndex = idx;
     const opt = this.availabilityOptions[idx];
-    this.scheduleForm.plannedStartDateTime = opt.start;
-    this.scheduleForm.plannedEndDateTime = opt.end;
+    this.applyPlannedWindow(opt.start, opt.end);
     this.selectedWindowStart = opt.start;
     this.selectedWindowEnd = opt.end;
     this.setPlannedWindowLog(opt.label, opt.start, opt.end);
   }
 
+  private fetchTimeSlots(): void {
+    const payload = this.buildTimeSlotsPayload();
+    if (!payload) return;
+    this.availabilityLoading = true;
+    this.workOrderService.getAvailabilityTimeSlots(payload)
+      .pipe(finalize(() => (this.availabilityLoading = false)))
+      .subscribe({
+        next: (res: any) => {
+          const slots: Array<{ start?: string; end?: string }> = res?.data ?? res ?? [];
+          this.availabilityOptions = slots
+            .filter(s => s.start && s.end)
+            .map((s) => ({
+              label: this.formatRangeLabel(s.start!, s.end!),
+              start: s.start!,
+              end: s.end!
+            }));
+          if (this.availabilityOptions.length) {
+            this.selectAvailability(0);
+          } else {
+            this.selectedAvailabilityIndex = undefined;
+            this.scheduleForm.plannedStartDate = '';
+            this.scheduleForm.plannedEndDate = '';
+          }
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.availabilityOptions = [];
+          this.selectedAvailabilityIndex = undefined;
+          this.scheduleForm.plannedStartDate = '';
+          this.scheduleForm.plannedEndDate = '';
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
   private formatRangeLabel(startIso: string, endIso: string, name?: string): string {
-    const fmt = (iso: string) => {
+    const fmtTime = (iso: string) => {
       const d = new Date(iso);
       if (Number.isNaN(d.getTime())) return iso;
-      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     };
-    const label = `${fmt(startIso)} - ${fmt(endIso)}`;
+    const label = `${fmtTime(startIso)} - ${fmtTime(endIso)}`;
     return name ? `${label}` : label;
   }
 
@@ -490,6 +634,22 @@ export class ViewWorkOrderComponent implements OnInit {
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return iso;
     return d.toLocaleString('en-US', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  private applyPlannedWindow(startIso: string, endIso: string): void {
+    const start = new Date(startIso);
+    const end = new Date(endIso);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const fmtDate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const fmtTime = (d: Date) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    if (!Number.isNaN(start.getTime())) {
+      this.scheduleForm.plannedStartDate = fmtDate(start);
+      this.scheduleForm.plannedStartTime = fmtTime(start);
+    }
+    if (!Number.isNaN(end.getTime())) {
+      this.scheduleForm.plannedEndDate = fmtDate(end);
+      this.scheduleForm.plannedEndTime = fmtTime(end);
+    }
   }
 
   confirmInProgress(): void {
@@ -571,13 +731,14 @@ export class ViewWorkOrderComponent implements OnInit {
     }
 
     const opt = this.availabilityOptions[this.selectedAvailabilityIndex];
-    this.scheduleForm.plannedStartDateTime = opt.start;
-    this.scheduleForm.plannedEndDateTime = opt.end;
+    this.applyPlannedWindow(opt.start, opt.end);
 
     // Debug: log payload just before submit
     console.log('Scheduling payload (with planned window):', {
-      start: this.scheduleForm.plannedStartDateTime,
-      end: this.scheduleForm.plannedEndDateTime,
+      startDate: this.scheduleForm.plannedStartDate,
+      startTime: this.scheduleForm.plannedStartTime,
+      endDate: this.scheduleForm.plannedEndDate,
+      endTime: this.scheduleForm.plannedEndTime,
       materials: this.plannedMaterials,
       technicianId: isTeam ? undefined : this.selectedTechnicianId,
       teamId: isTeam ? this.selectedTeamId : undefined

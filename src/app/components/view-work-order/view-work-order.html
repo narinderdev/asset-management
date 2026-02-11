@@ -439,19 +439,6 @@
       </div>
       <form (ngSubmit)="submitSchedule()" class="modal-body">
         <div class="form-group">
-          <label class="form-label">Total Days Required to Complete</label>
-          <input
-            type="number"
-            name="totalDaysRequired"
-            class="form-input"
-            min="0"
-            step="1"
-            placeholder="Enter total days"
-            [(ngModel)]="scheduleForm.totalDaysRequired"
-            (ngModelChange)="onTotalDaysChange()"
-          />
-        </div>
-        <div class="form-group">
           <label class="form-label">Assignment</label>
           <div class="radio-group">
             <label class="radio-option">
@@ -491,7 +478,44 @@
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Planned Window</label>
+          <label class="form-label">Total Days Required to Complete</label>
+          <input
+            type="number"
+            name="totalDaysRequired"
+            class="form-input"
+            min="0"
+            step="1"
+            placeholder="Enter total days"
+            [(ngModel)]="scheduleForm.totalDaysRequired"
+            (ngModelChange)="onTotalDaysChange()"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Scheduled Date</label>
+          <select
+            class="form-input"
+            name="scheduledDate"
+            [(ngModel)]="selectedDate"
+            (ngModelChange)="onScheduledDateChange($event)"
+            [disabled]="availabilityLoading || !availabilityDateOptions.length">
+            <option [ngValue]="undefined" disabled hidden>Select date</option>
+            <option *ngFor="let d of availabilityDateOptions" [ngValue]="d.value">{{ d.label }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hours Required Per Day</label>
+          <input
+            type="number"
+            name="totalHoursRequired"
+            class="form-input"
+            min="1"
+            step="1"
+            placeholder="Enter total hours"
+            [(ngModel)]="scheduleForm.totalHoursRequired"
+            (ngModelChange)="onTotalHoursChange()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Scheduled Time</label>
           <select
             class="form-input"
             [(ngModel)]="selectedAvailabilityIndex"
