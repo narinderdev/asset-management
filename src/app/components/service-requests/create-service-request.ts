@@ -49,9 +49,10 @@ export class CreateServiceRequestComponent implements OnInit {
     plannedEndDateTime: ''
   };
   availabilityOptions: Array<{ label: string; start: string; end: string }> = [];
-  availabilityDateOptions: Array<{ label: string; value: string }> = [];
+  availabilityDateOptions: Array<{ label: string; value: string; end?: string }> = [];
   availabilityLoading = false;
   selectedAvailabilityIndex?: number;
+  selectedDateEnd?: string;
   autoGenerateRequestId = false;
 
   departmentOptions = ['Production', 'Engineering', 'Facilities'];
@@ -127,6 +128,7 @@ export class CreateServiceRequestComponent implements OnInit {
     this.selectedAvailabilityIndex = undefined;
     this.availabilityOptions = [];
     this.availabilityDateOptions = [];
+    this.selectedDateEnd = undefined;
     this.request.plannedStartDateTime = '';
     this.request.plannedEndDateTime = '';
   }
@@ -278,13 +280,24 @@ export class CreateServiceRequestComponent implements OnInit {
   }
 
   private buildPayload(): ServiceRequestCreatePayload {
-    // Prefer slot-selected value; otherwise combine preferred date/time
-    let preferredDateTime: string | undefined = this.request.preferredDateTime;
-    if (!preferredDateTime && this.request.preferredDate) {
-      const datePart = this.request.preferredDate;
-      const timePart = this.request.preferredTime || '00:00';
-      preferredDateTime = new Date(`${datePart}T${timePart}`).toISOString();
-    }
+    const partsFromIsoString = (iso?: string): { date?: string; time?: string } => {
+      if (!iso) return {};
+      const [date, timeWithZone] = iso.split('T');
+      if (!date) return {};
+      const time = (timeWithZone || '').slice(0, 5);
+      return { date, time: time || undefined };
+    };
+
+    const startParts = partsFromIsoString(this.request.plannedStartDateTime || this.request.preferredDateTime);
+    const endParts = partsFromIsoString(this.request.plannedEndDateTime);
+
+    const fallbackDate = this.request.preferredDate || this.dateToday;
+    const fallbackTime = this.request.preferredTime || '00:00';
+
+    const startDate = this.request.preferredDate || startParts.date || fallbackDate;
+    const endDate = this.selectedDateEnd || endParts.date || startDate;
+    const startTime = startParts.time ?? fallbackTime;
+    const endTime = endParts.time ?? startTime ?? fallbackTime;
 
     const payload: ServiceRequestCreatePayload = {
       requesterName: this.request.requesterName,
@@ -295,7 +308,10 @@ export class CreateServiceRequestComponent implements OnInit {
       priority: this.request.priority.toUpperCase(),
       shortTitle: this.request.shortTitle,
       problemDescription: this.request.problemDescription,
-      preferredDateTime,
+      preferredStartDate: startDate,
+      preferredStartTime: startTime,
+      preferredEndDate: endDate,
+      preferredEndTime: endTime,
       preferredTechnicianId: this.request.assignmentMode === 'TECHNICIAN' ? this.request.preferredTechnicianId : undefined,
       preferredTeamId: this.request.assignmentMode === 'TEAM' ? this.request.preferredTeamId : undefined,
       safetyRisk: this.request.safetyRisk,
@@ -462,10 +478,12 @@ export class CreateServiceRequestComponent implements OnInit {
             .filter(s => s.startDate)
             .map(s => ({
               value: s.startDate,
+              end: s.endDate || s.startDate,
               label: `${this.formatDateOnly(s.startDate)} - ${this.formatDateOnly(s.endDate || s.startDate)}`
             }));
           if (this.availabilityDateOptions.length) {
             this.request.preferredDate = this.availabilityDateOptions[0].value;
+            this.selectedDateEnd = this.availabilityDateOptions[0].end;
           }
         } else {
           this.availabilityOptions = slots
@@ -507,6 +525,9 @@ export class CreateServiceRequestComponent implements OnInit {
     this.request.plannedStartDateTime = '';
     this.request.plannedEndDateTime = '';
     this.selectedAvailabilityIndex = undefined;
+    const match = this.availabilityDateOptions.find(o => o.value === this.request.preferredDate);
+    this.selectedDateEnd = match?.end;
+    this.fetchTimeSlots();
   }
 
   private selectAvailability(index: number | string | null | undefined): void {
@@ -523,13 +544,6 @@ export class CreateServiceRequestComponent implements OnInit {
     this.request.plannedStartDateTime = opt.start;
     this.request.plannedEndDateTime = opt.end;
     this.request.preferredDateTime = opt.start;
-    // sync split date/time fields for UI
-    const d = new Date(opt.start);
-    if (!Number.isNaN(d.getTime())) {
-      const pad = (n: number) => String(n).padStart(2, '0');
-      this.request.preferredDate = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-      this.request.preferredTime = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    }
   }
 
   private buildAvailabilityPayload():
@@ -586,11 +600,13 @@ export class CreateServiceRequestComponent implements OnInit {
     | null {
     const hours = this.request.totalHoursRequired;
     if (hours === undefined || hours === null || Number(hours) < 1) return null;
-    const today = new Date();
-    const fmtDate = (d: Date) => d.toISOString().slice(0, 10);
-    const selectedDate = this.request.preferredDate ? new Date(this.request.preferredDate) : today;
-    const startDate = fmtDate(selectedDate);
-    const endDate = fmtDate(selectedDate);
+    if (!this.request.preferredDate) return null;
+    const fmtDate = (d: string | Date) => {
+      const dateObj = typeof d === 'string' ? new Date(d) : d;
+      return dateObj.toISOString().slice(0, 10);
+    };
+    const startDate = fmtDate(this.request.preferredDate);
+    const endDate = fmtDate(this.selectedDateEnd || this.request.preferredDate);
     const days = Math.max(1, this.request.totalDaysRequired ?? 1);
     const payload: {
       startDate: string;

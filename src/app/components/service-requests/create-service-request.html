@@ -129,13 +129,6 @@
             placeholder="Enter total days" />
         </label>
         <label class="field">
-          <span> Hours Required Per Day</span>
-          <input type="number" name="totalHoursRequired" min="1" step="1"
-            [(ngModel)]="request.totalHoursRequired"
-            (ngModelChange)="onTotalHoursChange($event)"
-            placeholder="Enter total hours" />
-        </label>
-        <label class="field">
           <span>Scheduled Date</span>
           <select
             name="preferredDate"
@@ -145,6 +138,13 @@
             <option [ngValue]="undefined" disabled hidden>Select date</option>
             <option *ngFor="let d of availabilityDateOptions" [ngValue]="d.value">{{ d.label }}</option>
           </select>
+        </label>
+        <label class="field">
+          <span> Hours Required Per Day</span>
+          <input type="number" name="totalHoursRequired" min="1" step="1"
+            [(ngModel)]="request.totalHoursRequired"
+            (ngModelChange)="onTotalHoursChange($event)"
+            placeholder="Enter total hours" />
         </label>
         <label class="field">
           <span>Scheduled Time</span>

@@ -65,7 +65,10 @@ export interface ServiceRequestCreatePayload {
   priority?: string;
   shortTitle: string;
   problemDescription: string;
-  preferredDateTime?: string;
+  preferredStartDate?: string;
+  preferredStartTime?: string;
+  preferredEndDate?: string;
+  preferredEndTime?: string;
   preferredTechnicianId?: number;
   preferredTeamId?: number;
   safetyRisk?: boolean;
