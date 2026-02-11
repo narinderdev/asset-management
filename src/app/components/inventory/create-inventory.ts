@@ -95,6 +95,31 @@ export class CreateInventoryComponent implements OnInit {
     }
   }
 
+  formatCost(): void {
+    const raw = this.inventoryItem.costPerUnit;
+    if (raw === null || raw === undefined || raw === '') {
+      return;
+    }
+    const numeric = Number(String(raw).replace(/[^0-9.]/g, ''));
+    if (!Number.isFinite(numeric)) {
+      this.inventoryItem.costPerUnit = '';
+      return;
+    }
+    this.inventoryItem.costPerUnit = numeric.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  unformatCost(): void {
+    const raw = this.inventoryItem.costPerUnit;
+    if (raw === null || raw === undefined || raw === '') {
+      return;
+    }
+    const numeric = Number(String(raw).replace(/[^0-9.]/g, ''));
+    this.inventoryItem.costPerUnit = Number.isFinite(numeric) ? numeric : '';
+  }
+
   private loadVendorOptions(): void {
     this.vendorService.fetchVendors(0, 50).subscribe({
       next: response => {
@@ -255,12 +280,12 @@ export class CreateInventoryComponent implements OnInit {
       glAccountString: '',
       expenseCode: '',
       manufacturerPartNumber: '',
-      stockLevel: 0,
-      reorderPoint: 0,
-      reorderQuantity: 1,
-      costPerUnit: 0,
-      minStockLevel: 0,
-      maxStockLevel: 0,
+      stockLevel: '',
+      reorderPoint: '',
+      reorderQuantity: '',
+      costPerUnit: '',
+      minStockLevel: '',
+      maxStockLevel: '',
       primaryVendorDbId: null as number | null,
       warehouseId: null as number | null,
       active: true

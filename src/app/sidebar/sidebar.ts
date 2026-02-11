@@ -133,6 +133,17 @@ export class SidebarComponent implements OnInit {
       ]
     },
     {
+      icon: 'proicons_document.svg',
+      activeIcon: 'proicons_document (1).svg',
+      label: 'Reports',
+      route: '/reports',
+      hasSubmenu: true,
+      submenu: [
+        { label: 'Asset Report', route: '/reports/assets' },
+        { label: 'Work Order Report', route: '/reports/work-orders' }
+      ]
+    },
+    {
       icon: 'carbon_user-role.svg',
       activeIcon: 'carbon_user-role.svg',
       label: 'Security',

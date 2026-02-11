@@ -34,7 +34,7 @@ interface AssetsApiResponse {
   };
 }
 
-interface AssetTypesApiResponse {
+export interface AssetTypesApiResponse {
   statusCode?: number;
   status?: string;
   message?: string;
@@ -86,6 +86,26 @@ export interface AssetLocationDetails {
   costCenter?: string;
   assignedOwner?: string;
   maintenanceTeam?: string;
+}
+
+export interface AssetReportPage {
+  totalElements?: number;
+  totalPages?: number;
+  size?: number;
+  number?: number;
+  first?: boolean;
+  last?: boolean;
+  numberOfElements?: number;
+  content?: ApiAsset[];
+}
+
+export interface WorkOrderReportPage {
+  workOrders?: any[];
+  page?: number;
+  size?: number;
+  totalElements?: number;
+  totalPages?: number;
+  last?: boolean;
 }
 
 export interface AssetLocationOrgPayload {
@@ -350,6 +370,49 @@ export class AssetsService {
 
     return this.http.get<AssetTypesApiResponse>(`${environment.apiUrl}/api/asset-types`, {
       headers
+    });
+  }
+
+  fetchAssetReports(params: {
+    page: number;
+    size: number;
+    status?: string;
+    warrantyExpiryDays?: string | number;
+    criticality?: string;
+    assetTypeId?: string | number;
+  }): Observable<{ data?: AssetReportPage }> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    let httpParams = new HttpParams()
+      .set('page', String(params.page))
+      .set('size', String(params.size));
+    if (params.status) httpParams = httpParams.set('status', params.status);
+    if (params.warrantyExpiryDays !== undefined && params.warrantyExpiryDays !== '') {
+      httpParams = httpParams.set('warrantyExpiryDays', String(params.warrantyExpiryDays));
+    }
+    if (params.criticality) httpParams = httpParams.set('criticality', params.criticality);
+    if (params.assetTypeId) httpParams = httpParams.set('assetTypeId', String(params.assetTypeId));
+
+    return this.http.get<{ data?: AssetReportPage }>(`${environment.apiUrl}/api/reports/assets`, {
+      headers,
+      params: httpParams
+    });
+  }
+
+  fetchWorkOrderReports(params: { page: number; size: number; status?: string }): Observable<{ data?: WorkOrderReportPage }> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    let httpParams = new HttpParams()
+      .set('page', String(params.page))
+      .set('size', String(params.size));
+    if (params.status) {
+      httpParams = httpParams.set('status', params.status);
+    }
+    return this.http.get<{ data?: WorkOrderReportPage }>(`${environment.apiUrl}/api/reports/work-orders`, {
+      headers,
+      params: httpParams
     });
   }
 

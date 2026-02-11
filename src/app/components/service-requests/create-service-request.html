@@ -40,10 +40,7 @@
           <input type="text" name="requesterContact" [(ngModel)]="request.requesterContact"
             placeholder="Email or Phone" />
         </label>
-        <label class="field">
-          <span>Department</span>
-          <input type="text" name="department" [(ngModel)]="request.department" placeholder="Enter department" />
-        </label>
+       
         <label class="field">
           <span>Asset</span>
           <select name="asset" [(ngModel)]="request.asset" (ngModelChange)="onAssetChange($event)" [disabled]="!assetOptions.length">
@@ -56,6 +53,10 @@
         <label class="field">
           <span>Location</span>
           <input type="text" name="location" [(ngModel)]="request.location" placeholder="Enter location" [disabled]="true" />
+        </label>
+         <label class="field">
+          <span>Department</span>
+          <input type="text" name="department" [(ngModel)]="request.department" placeholder="Enter department" />
         </label>
         <label class="field">
           <span>Maintenance Type</span>
@@ -72,7 +73,7 @@
           </select>
         </label>
         <label class="field">
-          <span>Short Title *</span>
+          <span>Title *</span>
           <input type="text" name="shortTitle" [(ngModel)]="request.shortTitle"
             placeholder="Brief description of the issue" />
         </label>

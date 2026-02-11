@@ -374,7 +374,15 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
     }
     const selected = this.assetOptions.find(a => a.id === this.template.assetId);
     if (selected?.location) {
-      this.template.location = selected.location;
+      const loc = selected.location as any;
+      this.template.location =
+        typeof loc === 'string'
+          ? loc
+          : loc?.location ??
+            loc?.locationName ??
+            loc?.primaryLocation ??
+            loc?.functionalLocation ??
+            '';
       this.locationLocked = true;
     } else {
       this.locationLocked = false;

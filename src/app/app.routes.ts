@@ -58,6 +58,8 @@ import { WorkOrderTypesComponent } from './components/work-order-types/work-orde
 import { CreateWorkOrderTypeComponent } from './components/work-order-types/create-work-order-type';
 import { ViewWorkOrderTypeComponent } from './components/work-order-types/view-work-order-type';
 import { TmSystemComponent } from './components/tm-system/tm-system';
+import { AssetReportComponent } from './components/reports/asset-report';
+import { WorkOrderReportComponent } from './components/reports/work-order-report';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -115,6 +117,9 @@ export const routes: Routes = [
   { path: 'inventory/create', component: CreateInventoryComponent, canActivate: [AuthGuard] },
   { path: 'inventory/edit/:id', component: CreateInventoryComponent, canActivate: [AuthGuard] },
   { path: 'inventory/view/:id', component: ViewInventoryComponent, canActivate: [AuthGuard] },
+  { path: 'reports', pathMatch: 'full', redirectTo: 'reports/assets' },
+  { path: 'reports/assets', component: AssetReportComponent, canActivate: [AuthGuard] },
+  { path: 'reports/work-orders', component: WorkOrderReportComponent, canActivate: [AuthGuard] },
   { path: 'vendor-management', component: VendorManagementComponent, canActivate: [AuthGuard] },
   { path: 'vendor-management/create', component: CreateVendorComponent, canActivate: [AuthGuard] },
   { path: 'vendor-management/edit/:id', component: CreateVendorComponent, canActivate: [AuthGuard] },

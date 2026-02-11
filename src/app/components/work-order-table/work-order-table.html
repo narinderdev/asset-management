@@ -14,7 +14,7 @@
             <th>Title</th>
             <th>WO Number</th>
             <th>Asset</th>
-            <th>Technician</th>
+            <th>Technician / Team</th>
             <th>Due Date</th>
             <th>Priority</th>
             <th>Status</th>
@@ -43,7 +43,12 @@
             <td>{{ order.title }}</td>
             <td>{{ order.workOrderNumber || '--' }}</td>
             <td>{{ order.asset }}</td>
-            <td>{{ order.technician }}</td>
+            <td>
+              <span class="pill" *ngIf="order.technicianBadge">
+                <span class="dot"></span>{{ order.technicianBadge }}
+              </span>
+              {{ order.technician }}
+            </td>
             <td>{{ order.formattedDueDate }}</td>
             <td>
               <span class="priority-badge" 

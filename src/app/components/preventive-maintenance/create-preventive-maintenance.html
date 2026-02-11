@@ -61,16 +61,16 @@
           </select>
         </label>
 
-        <label class="field">
-          <span>Location</span>
-          <input
-            type="text"
-            name="location"
-            [(ngModel)]="template.location"
-            placeholder="e.g., Building 1 - Floor 2"
-            [disabled]="locationLocked"
-          />
-        </label>
+          <label class="field">
+            <span>Location</span>
+            <input
+              type="text"
+              name="location"
+              [(ngModel)]="template.location"
+              placeholder="e.g., Building 1 - Floor 2"
+              [disabled]="true"
+            />
+          </label>
         <label class="field">
           <span>Start Date</span>
           <input type="date" name="startDate" [(ngModel)]="template.startDate" placeholder="dd-mm-yyyy" />

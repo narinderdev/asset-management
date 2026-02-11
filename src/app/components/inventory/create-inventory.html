@@ -86,7 +86,17 @@
 
           <label class="field">
             <span>Unit Cost</span>
-            <input type="number" name="costPerUnit" [(ngModel)]="inventoryItem.costPerUnit" step="0.01" min="0" />
+            <div class="currency-input">
+              <span class="prefix">$</span>
+              <input
+                type="text"
+                name="costPerUnit"
+                [(ngModel)]="inventoryItem.costPerUnit"
+                placeholder="0.00"
+                (focus)="unformatCost()"
+                (blur)="formatCost()"
+              />
+            </div>
           </label>
           <label class="field">
             <span>Min Stock Level</span>

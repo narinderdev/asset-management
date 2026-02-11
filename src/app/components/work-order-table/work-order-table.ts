@@ -17,10 +17,13 @@ interface WorkOrder {
   title: string;
   asset: string;
   technician: string;
+  technicianBadge?: string;
   dueDate?: string | null;
   formattedDueDate: string;
   priority: 'High' | 'Medium' | 'Low';
   status: string;
+  assignedTeamName?: string;
+  assignedTechnicianName?: string;
 }
 
 interface ApiWorkOrder {
@@ -31,6 +34,7 @@ interface ApiWorkOrder {
   assetName?: string;
   assignedTechnician?: string;
   assignedTechnicianName?: string;
+  assignedTeamName?: string;
   woTitle?: string;
   priority?: string;
   status?: string;
@@ -174,13 +178,18 @@ export class WorkOrderTable implements OnInit, OnChanges {
 
   private toWorkOrder(order: ApiWorkOrder): WorkOrder {
     const dueDate = order.plannedEndDateTime ?? order.targetCompletionDate ?? null;
+    const teamName = order.assignedTeamName;
+    const techName = order.assignedTechnicianName ?? order.assignedTechnician;
     return {
       id: order.workOrderId ?? `WO-${order.id ?? '0000'}`,
       apiId: order.id,
       workOrderNumber: order.workOrderNumber ?? order.workorderNumber ?? '',
       title: order.woTitle ?? 'Work Order',
       asset: order.assetName ?? 'Unassigned Asset',
-      technician: order.assignedTechnicianName ?? order.assignedTechnician ?? 'Unassigned',
+      technician: teamName ?? techName ?? 'Unassigned',
+      technicianBadge: teamName ? 'Team' : techName ? 'Technician' : '',
+      assignedTeamName: teamName,
+      assignedTechnicianName: techName,
       dueDate,
       formattedDueDate: this.formatDate(dueDate ?? undefined),
       priority: this.normalizePriority(order.priority),
@@ -374,7 +383,8 @@ export class WorkOrderTable implements OnInit, OnChanges {
     this.workOrders = orders.map((order) => ({
       ...order,
       workOrderNumber: (order as any).workOrderNumber ?? (order as any).workorderNumber ?? order.workOrderNumber ?? '',
-      technician: order.technician || 'Unassigned',
+      technician: order.technician || order.assignedTechnicianName || order.assignedTeamName || 'Unassigned',
+      technicianBadge: order.assignedTeamName ? 'Team' : order.assignedTechnicianName ? 'Technician' : '',
       formattedDueDate: order.formattedDueDate ?? this.formatDate(order.dueDate ?? undefined),
       priority: this.normalizePriority(order.priority),
       status: this.normalizeStatus(order.status),

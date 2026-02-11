@@ -175,6 +175,31 @@
   font-family: inherit;
 }
 
+.currency-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: #fff;
+}
+
+.currency-input .prefix {
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.currency-input input {
+  border: none;
+  padding: 4px 0;
+  width: 100%;
+}
+
+.currency-input input:focus {
+  outline: none;
+}
+
 .field select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23666666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");

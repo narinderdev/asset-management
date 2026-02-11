@@ -72,6 +72,10 @@ export class LoginComponent {
           const isSuccess = statusCode === 200 || statusCode === 201;
           const token = (response as any)?.data?.token || (response as any)?.token;
           const user = (response as any)?.data?.user;
+          const passwordExpiryDays =
+            (response as any)?.data?.passwordExpiryDate ??
+            (response as any)?.data?.user?.passwordExpiryDate ??
+            null;
           const technicianId = (response as any)?.data?.technician?.id
             ?? (response as any)?.data?.user?.technician?.id
             ?? (response as any)?.data?.technicianId
@@ -91,6 +95,9 @@ export class LoginComponent {
               }
             }
             this.toastr.success(message);
+            if (passwordExpiryDays !== null && passwordExpiryDays !== undefined) {
+              this.toastr.warning(`Password will expire in ${passwordExpiryDays} days`);
+            }
             this.router.navigate(['dashboard']);
           } else {
             this.toastr.error(message);

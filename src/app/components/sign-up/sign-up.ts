@@ -37,7 +37,7 @@ export class SignUpComponent {
           '',
           [
             Validators.required,
-            Validators.pattern(/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+            Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/)
           ]
         ],
         confirmPassword: ['', Validators.required]
