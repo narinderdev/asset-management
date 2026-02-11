@@ -18,7 +18,7 @@
       <div class="form-grid">
         <label class="field">
           <span>Asset <span class="required-star">*</span></span>
-          <select name="assetId" [(ngModel)]="form.assetId" required>
+          <select name="assetId" [(ngModel)]="form.assetId" (ngModelChange)="onAssetChange($event)" required>
             <option [ngValue]="null">Select Asset</option>
             <option *ngFor="let asset of assetOptions" [ngValue]="asset.id">
               {{ asset.label }}
@@ -28,7 +28,13 @@
 
         <label class="field">
           <span>Location</span>
-          <input type="text" name="location" [(ngModel)]="form.location" placeholder="e.g., Building 1 - Floor 2" />
+          <input
+            type="text"
+            name="location"
+            [(ngModel)]="form.location"
+            placeholder="e.g., Building 1 - Floor 2"
+            [disabled]="true"
+          />
         </label>
 
         <label class="field">
@@ -56,11 +62,23 @@
         <div class="section-title">Assignment</div>
         <div class="assignment-toggle">
           <label>
-            <input type="radio" name="assignmentMode" value="TECHNICIAN" [(ngModel)]="form.assignmentMode" />
+            <input
+              type="radio"
+              name="assignmentMode"
+              value="TECHNICIAN"
+              [(ngModel)]="form.assignmentMode"
+              (change)="onAssignmentModeChange('TECHNICIAN')"
+            />
             Technician
           </label>
           <label>
-            <input type="radio" name="assignmentMode" value="TEAM" [(ngModel)]="form.assignmentMode" />
+            <input
+              type="radio"
+              name="assignmentMode"
+              value="TEAM"
+              [(ngModel)]="form.assignmentMode"
+              (change)="onAssignmentModeChange('TEAM')"
+            />
             Team
           </label>
         </div>
@@ -68,7 +86,7 @@
         <div class="assignment-grid">
           <label class="field" *ngIf="form.assignmentMode === 'TECHNICIAN'">
             <span>Select technician</span>
-            <select name="assignedTechnicianId" [(ngModel)]="form.assignedTechnicianId">
+            <select name="assignedTechnicianId" [(ngModel)]="form.assignedTechnicianId" (ngModelChange)="onTechnicianChange($event)">
               <option [ngValue]="null">Select technician</option>
               <option *ngFor="let tech of technicianOptions" [ngValue]="tech.id">{{ tech.name }}</option>
             </select>
@@ -76,20 +94,63 @@
 
           <label class="field" *ngIf="form.assignmentMode === 'TEAM'">
             <span>Select team</span>
-            <select name="assignedTeamId" [(ngModel)]="form.assignedTeamId">
+            <select name="assignedTeamId" [(ngModel)]="form.assignedTeamId" (ngModelChange)="onTeamChange($event)">
               <option [ngValue]="null">Select team</option>
               <option *ngFor="let team of teamOptions" [ngValue]="team.id">{{ team.name }}</option>
             </select>
           </label>
 
           <label class="field">
-            <span>Planned Start DateTime</span>
-            <input type="datetime-local" name="plannedStartDateTime" [(ngModel)]="form.plannedStartDateTime" />
+            <span>Total Days Required to Complete</span>
+            <input
+              type="number"
+              name="totalDaysRequired"
+              min="1"
+              step="1"
+              [(ngModel)]="form.totalDaysRequired"
+              (ngModelChange)="onTotalDaysChange($event)"
+              placeholder="Enter total days"
+            />
           </label>
 
           <label class="field">
-            <span>Planned End DateTime</span>
-            <input type="datetime-local" name="plannedEndDateTime" [(ngModel)]="form.plannedEndDateTime" />
+            <span>Scheduled Date</span>
+            <select
+              name="preferredDate"
+              [(ngModel)]="form.preferredDate"
+              (ngModelChange)="onPreferredDateChange()"
+              [disabled]="availabilityLoading || !availabilityDateOptions.length">
+              <option [ngValue]="undefined" disabled hidden>Select date</option>
+              <option *ngFor="let d of availabilityDateOptions" [ngValue]="d.value">{{ d.label }}</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span> Hours Required Per Day</span>
+            <input
+              type="number"
+              name="totalHoursRequired"
+              min="1"
+              step="1"
+              [(ngModel)]="form.totalHoursRequired"
+              (ngModelChange)="onTotalHoursChange($event)"
+              placeholder="Enter total hours"
+            />
+          </label>
+
+          <label class="field">
+            <span>Scheduled Time</span>
+            <select
+              class="form-input"
+              [(ngModel)]="selectedAvailabilityIndex"
+              name="selectedAvailabilityIndex"
+              (ngModelChange)="onAvailabilitySelected($event)"
+              [disabled]="availabilityLoading || !availabilityOptions.length">
+              <option [ngValue]="undefined" disabled hidden>Select availability</option>
+              <option *ngFor="let slot of availabilityOptions; index as i" [ngValue]="i">
+                {{ slot.label }}
+              </option>
+            </select>
           </label>
 
           <label class="field">

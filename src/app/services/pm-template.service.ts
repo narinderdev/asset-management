@@ -240,8 +240,12 @@ export interface CreateEmergencyMaintenancePayload {
   sendNotification: boolean;
   assignedTechnicianId?: number;
   assignedTeamId?: number;
-  plannedStartDateTime?: string;
-  plannedEndDateTime?: string;
+  totalDaysRequired?: number;
+  totalHoursRequired?: number;
+  plannedStartDate?: string;
+  plannedStartTime?: string;
+  plannedEndDate?: string;
+  plannedEndTime?: string;
   planner?: string;
   preCheckNotes?: string;
   plannedMaterials?: Array<{
