@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { WorkOrderService, WorkOrderType } from '../../services/work-order.service';
 import { Loader } from '../loader/loader';
 import { Router, RouterModule } from '@angular/router';
+import { finalize } from 'rxjs/operators';
+import { DeleteModalComponent } from '../delete-modal/delete-modal';
 
 @Component({
   selector: 'app-work-order-types',
   standalone: true,
-  imports: [CommonModule, RouterModule, Loader],
+  imports: [CommonModule, RouterModule, Loader, DeleteModalComponent],
   templateUrl: './work-order-types.html',
   styleUrls: ['./work-order-types.css']
 })
@@ -15,6 +17,9 @@ export class WorkOrderTypesComponent implements OnInit {
   types: WorkOrderType[] = [];
   isLoading = false;
   errorMessage?: string;
+  showDeleteModal = false;
+  deleting = false;
+  deleteTarget?: WorkOrderType;
 
   page = 0;
   size = 10;
@@ -82,5 +87,48 @@ export class WorkOrderTypesComponent implements OnInit {
   viewType(type: WorkOrderType): void {
     if (!type?.id) return;
     this.router.navigate(['/work-orders/types/view', type.id]);
+  }
+
+  editType(type: WorkOrderType): void {
+    if (!type?.id) return;
+    this.router.navigate(['/work-orders/types/edit', type.id]);
+  }
+
+  deleteType(type: WorkOrderType): void {
+    if (!type?.id) return;
+    this.deleteTarget = type;
+    this.showDeleteModal = true;
+    this.cdr.detectChanges();
+  }
+
+  confirmDelete(): void {
+    if (!this.deleteTarget?.id) {
+      this.closeDeleteModal();
+      return;
+    }
+    this.deleting = true;
+    this.workOrderService.deleteWorkOrderType(this.deleteTarget.id).pipe(
+      finalize(() => {
+        this.deleting = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: () => {
+        this.types = this.types.filter(t => t.id !== this.deleteTarget?.id);
+        this.total = Math.max(0, this.total - 1);
+        this.closeDeleteModal();
+      },
+      error: () => {
+        this.errorMessage = 'Unable to delete work order type.';
+        this.closeDeleteModal();
+      }
+    });
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.deleting = false;
+    this.deleteTarget = undefined;
+    this.cdr.detectChanges();
   }
 }

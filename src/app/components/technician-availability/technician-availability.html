@@ -9,6 +9,14 @@
         <span class="dot" [ngClass]="item.dot"></span> {{ item.status }}
       </span>
     </div>
+    <div class="window-legend">
+      <span class="legend-item">
+        <span class="window-chip busy legend-chip">Busy window</span>
+      </span>
+      <span class="legend-item">
+        <span class="window-chip free legend-chip">Free window</span>
+      </span>
+    </div>
   </div>
 
   <div class="calendar-container">
@@ -24,11 +32,19 @@
 
         <div *ngFor="let day of calendarDays" 
              class="calendar-day" 
-             [ngClass]="day.isEmpty ? 'empty' : statusClass(day.status)">
+         [ngClass]="day.isEmpty ? 'empty' : statusClass(day.status)">
           <ng-container *ngIf="!day.isEmpty">
             <div class="day-number">{{ day.dayNumber }}</div>
             <div class="day-status" *ngIf="day.status">
               {{ day.status }}
+            </div>
+            <div class="window-group" *ngIf="shouldShowWindows(day)">
+              <div class="window-chip busy" *ngFor="let slot of day.busyWindows">
+                {{ formatWindow(slot) }}
+              </div>
+              <div class="window-chip free" *ngFor="let slot of day.freeWindows">
+                {{ formatWindow(slot) }}
+              </div>
             </div>
           </ng-container>
         </div>

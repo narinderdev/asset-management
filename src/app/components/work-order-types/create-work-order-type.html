@@ -2,10 +2,12 @@
   <div class="create-card">
     <div class="create-header">
       <button class="back-btn" type="button" (click)="onCancel()" aria-label="Back">&#8592;</button>
-      <h2>Create Work Order Type</h2>
+      <h2>{{ isEdit ? 'Edit Work Order Type' : 'Create Work Order Type' }}</h2>
     </div>
 
-    <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
+    <app-loader [visible]="isLoading"></app-loader>
+
+    <form *ngIf="!isLoading" [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
       <label class="field">
         <span>Type</span>
         <input type="text" formControlName="workOrderType" placeholder="e.g., PREVENTIVE" />
@@ -59,7 +61,7 @@
       <div class="form-actions">
         <button type="button" class="secondary-btn" (click)="onCancel()">Cancel</button>
         <button type="submit" class="primary-btn" [disabled]="isSubmitting">
-          {{ isSubmitting ? 'Creating...' : 'Create Work Order Type' }}
+          {{ isSubmitting ? (isEdit ? 'Updating...' : 'Creating...') : (isEdit ? 'Update Work Order Type' : 'Create Work Order Type') }}
         </button>
       </div>
     </form>

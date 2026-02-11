@@ -82,6 +82,7 @@ export const routes: Routes = [
   { path: 'work-orders/edit/:id', component: CreateWorkOrderComponent, canActivate: [AuthGuard] },
   { path: 'work-orders/view/:id', component: ViewWorkOrderComponent, canActivate: [AuthGuard] },
   { path: 'work-orders/types/create', component: CreateWorkOrderTypeComponent, canActivate: [AuthGuard] },
+  { path: 'work-orders/types/edit/:id', component: CreateWorkOrderTypeComponent, canActivate: [AuthGuard] },
   { path: 'work-orders/types/view/:id', component: ViewWorkOrderTypeComponent, canActivate: [AuthGuard] },
   { path: 'work-orders/types', component: WorkOrderTypesComponent, canActivate: [AuthGuard] },
   { path: 'work-orders', component: WorkOrderManagementComponent, canActivate: [AuthGuard] },

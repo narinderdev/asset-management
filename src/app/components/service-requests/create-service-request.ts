@@ -44,10 +44,12 @@ export class CreateServiceRequestComponent implements OnInit {
     preferredTechnicianId: undefined as number | undefined,
     preferredTeamId: undefined as number | undefined,
     totalDaysRequired: 1,
+    totalHoursRequired: undefined as number | undefined,
     plannedStartDateTime: '',
     plannedEndDateTime: ''
   };
   availabilityOptions: Array<{ label: string; start: string; end: string }> = [];
+  availabilityDateOptions: Array<{ label: string; value: string }> = [];
   availabilityLoading = false;
   selectedAvailabilityIndex?: number;
   autoGenerateRequestId = false;
@@ -124,6 +126,7 @@ export class CreateServiceRequestComponent implements OnInit {
     this.request.preferredTeamId = undefined;
     this.selectedAvailabilityIndex = undefined;
     this.availabilityOptions = [];
+    this.availabilityDateOptions = [];
     this.request.plannedStartDateTime = '';
     this.request.plannedEndDateTime = '';
   }
@@ -131,25 +134,80 @@ export class CreateServiceRequestComponent implements OnInit {
   onTechnicianChange(id: number | string | undefined): void {
     const parsed = id === undefined || id === null ? undefined : Number(id);
     this.request.preferredTechnicianId = Number.isNaN(parsed) ? undefined : parsed;
-    if (this.request.assignmentMode === 'TECHNICIAN' && this.request.preferredTechnicianId) {
-      this.fetchAvailability('TECHNICIAN', this.request.preferredTechnicianId);
-    }
+    this.fetchAvailability();
+    this.fetchTimeSlots();
   }
 
   onTeamChange(id: number | string | undefined): void {
     const parsed = id === undefined || id === null ? undefined : Number(id);
     this.request.preferredTeamId = Number.isNaN(parsed) ? undefined : parsed;
-    if (this.request.assignmentMode === 'TEAM' && this.request.preferredTeamId) {
-      this.fetchAvailability('TEAM', this.request.preferredTeamId);
-    }
+    this.fetchAvailability();
+    this.fetchTimeSlots();
   }
 
-  onTotalDaysChange(): void {
-    if (this.request.assignmentMode === 'TECHNICIAN' && this.request.preferredTechnicianId) {
-      this.fetchAvailability('TECHNICIAN', this.request.preferredTechnicianId);
-    } else if (this.request.assignmentMode === 'TEAM' && this.request.preferredTeamId) {
-      this.fetchAvailability('TEAM', this.request.preferredTeamId);
+  onTotalDaysChange(value?: number | string): void {
+    if (value !== undefined) {
+      if (value === '' || value === null) {
+        this.request.totalDaysRequired = undefined as any;
+      } else {
+        const parsed = Number(value);
+        this.request.totalDaysRequired = Number.isNaN(parsed) ? this.request.totalDaysRequired : parsed;
+      }
     }
+    this.onDurationChange();
+  }
+
+  onTotalHoursChange(value?: number | string): void {
+    if (value !== undefined) {
+      if (value === '' || value === null) {
+        this.request.totalHoursRequired = undefined as any;
+      } else {
+        const parsed = Number(value);
+        this.request.totalHoursRequired = Number.isNaN(parsed) ? this.request.totalHoursRequired ?? undefined : parsed;
+      }
+    }
+    this.fetchTimeSlots();
+  }
+
+  private onDurationChange(): void {
+    this.fetchAvailability();
+  }
+
+  private fetchTimeSlots(): void {
+    const payload = this.buildTimeSlotsPayload();
+    if (!payload) return;
+    this.availabilityLoading = true;
+    this.workOrderService.getAvailabilityTimeSlots(payload)
+      .pipe(finalize(() => (this.availabilityLoading = false)))
+      .subscribe({
+        next: (res: any) => {
+          const slots: Array<{ start?: string; end?: string }> = res?.data ?? res ?? [];
+          this.availabilityOptions = slots
+            .filter(s => s.start && s.end)
+            .map(s => ({
+              label: this.formatRangeLabel(s.start!, s.end!),
+              start: s.start!,
+              end: s.end!
+            }));
+          if (this.availabilityOptions.length) {
+            this.selectAvailability(0);
+          } else {
+            this.selectedAvailabilityIndex = undefined;
+            this.request.plannedStartDateTime = '';
+            this.request.plannedEndDateTime = '';
+            this.request.preferredDateTime = '';
+          }
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.availabilityOptions = [];
+          this.selectedAvailabilityIndex = undefined;
+          this.request.plannedStartDateTime = '';
+          this.request.plannedEndDateTime = '';
+          this.request.preferredDateTime = '';
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   private loadRequest(id: string): void {
@@ -279,6 +337,8 @@ export class CreateServiceRequestComponent implements OnInit {
       preferredDateTime: (detail as any).preferredDateTime ?? '',
       safetyRisk: detail.safetyRisk ?? false,
       attachmentUrl: detail.attachmentUrl ?? '',
+      totalDaysRequired: (detail as any).totalDaysRequired ?? this.request.totalDaysRequired,
+      totalHoursRequired: (detail as any).totalHoursRequired ?? undefined,
       assignmentMode: (detail as any).preferredTeamId ? 'TEAM' : 'TECHNICIAN',
       preferredTechnicianId: (detail as any).preferredTechnicianId,
       preferredTeamId: (detail as any).preferredTeamId
@@ -382,37 +442,53 @@ export class CreateServiceRequestComponent implements OnInit {
     return tech?.email ?? tech?.id ?? 'Technician';
   }
 
-  private fetchAvailability(kind: 'TECHNICIAN' | 'TEAM', id: number): void {
+  private fetchAvailability(): void {
     const payload = this.buildAvailabilityPayload();
     if (!payload) return;
     this.availabilityLoading = true;
-    const request$ =
-      kind === 'TECHNICIAN'
-        ? this.workOrderService.getTechnicianAvailability(id, payload)
-        : this.workOrderService.getTeamAvailability(id, payload);
+    const request$ = this.request.assignmentMode === 'TECHNICIAN'
+      ? this.workOrderService.getTechnicianAvailability(payload.technicianId!, payload)
+      : this.workOrderService.getTeamAvailability(payload.teamId!, payload);
 
     request$.pipe(finalize(() => (this.availabilityLoading = false))).subscribe({
       next: (res: any) => {
-        const slots: Array<{ start?: string; end?: string; technicianName?: string; teamName?: string }> = res?.data ?? res ?? [];
-        this.availabilityOptions = slots
-          .filter(s => s.start && s.end)
-          .map((s) => ({
-            label: this.formatRangeLabel(s.start!, s.end!, s.technicianName || s.teamName),
-            start: s.start!,
-            end: s.end!
-          }));
-        if (this.availabilityOptions.length) {
-          this.selectAvailability(0);
+        const slots: Array<any> = res?.data ?? res ?? [];
+        this.availabilityOptions = [];
+        this.availabilityDateOptions = [];
+
+        const hasDateRanges = slots.some(s => s?.startDate && s?.endDate && !s?.start);
+        if (hasDateRanges) {
+          this.availabilityDateOptions = slots
+            .filter(s => s.startDate)
+            .map(s => ({
+              value: s.startDate,
+              label: `${this.formatDateOnly(s.startDate)} - ${this.formatDateOnly(s.endDate || s.startDate)}`
+            }));
+          if (this.availabilityDateOptions.length) {
+            this.request.preferredDate = this.availabilityDateOptions[0].value;
+          }
         } else {
-          this.selectedAvailabilityIndex = undefined;
-          this.request.plannedStartDateTime = '';
-          this.request.plannedEndDateTime = '';
-          this.request.preferredDateTime = '';
+          this.availabilityOptions = slots
+            .filter(s => s.start && s.end)
+            .map((s) => ({
+              label: this.formatRangeLabel(s.start!, s.end!),
+              start: s.start!,
+              end: s.end!
+            }));
+          if (this.availabilityOptions.length) {
+            this.selectAvailability(0);
+          } else {
+            this.selectedAvailabilityIndex = undefined;
+            this.request.plannedStartDateTime = '';
+            this.request.plannedEndDateTime = '';
+            this.request.preferredDateTime = '';
+          }
         }
         this.cdr.detectChanges();
       },
       error: () => {
         this.availabilityOptions = [];
+        this.availabilityDateOptions = [];
         this.selectedAvailabilityIndex = undefined;
         this.request.plannedStartDateTime = '';
         this.request.plannedEndDateTime = '';
@@ -424,6 +500,13 @@ export class CreateServiceRequestComponent implements OnInit {
 
   onAvailabilitySelected(idx: number | string | null | undefined): void {
     this.selectAvailability(idx);
+  }
+
+  onPreferredDateChange(): void {
+    this.request.preferredDateTime = '';
+    this.request.plannedStartDateTime = '';
+    this.request.plannedEndDateTime = '';
+    this.selectedAvailabilityIndex = undefined;
   }
 
   private selectAvailability(index: number | string | null | undefined): void {
@@ -451,31 +534,104 @@ export class CreateServiceRequestComponent implements OnInit {
 
   private buildAvailabilityPayload():
     | {
-        fromDate: string;
-        toDate: string;
-        slotMinutes: number;
+        startDate: string;
+        endDate: string;
+        daysRequired: number;
+        hoursRequired: number;
+        teamId?: number;
+        technicianId?: number;
       }
     | null {
-    const days = this.request.totalDaysRequired ?? 1;
-    const slotMinutes = Math.max(1, days) * 1440;
     const today = new Date();
-    const toDateObj = new Date(today);
-    toDateObj.setMonth(toDateObj.getMonth() + 1);
+    const end = new Date(today);
+    end.setMonth(end.getMonth() + 1);
     const fmt = (d: Date) => d.toISOString().slice(0, 10);
-    return {
-      fromDate: fmt(today),
-      toDate: fmt(toDateObj),
-      slotMinutes
+    const days = Math.max(1, this.request.totalDaysRequired ?? 1); // user input
+    const payload: {
+      startDate: string;
+      endDate: string;
+      daysRequired: number;
+      hoursRequired: number;
+      teamId?: number;
+      technicianId?: number;
+    } = {
+      startDate: fmt(today),
+      endDate: fmt(end),
+      daysRequired: days,
+      hoursRequired: 1 // static per requirement
     };
+
+    if (this.request.assignmentMode === 'TECHNICIAN') {
+      const techId = this.request.preferredTechnicianId;
+      if (!techId) return null;
+      payload.technicianId = Number(techId);
+    } else {
+      const teamId = this.request.preferredTeamId;
+      if (!teamId) return null;
+      payload.teamId = Number(teamId);
+    }
+
+    return payload;
+  }
+
+  private buildTimeSlotsPayload():
+    | {
+        startDate: string;
+        endDate: string;
+        daysRequired: number;
+        hoursRequired: number;
+        teamId?: number;
+        technicianId?: number;
+      }
+    | null {
+    const hours = this.request.totalHoursRequired;
+    if (hours === undefined || hours === null || Number(hours) < 1) return null;
+    const today = new Date();
+    const fmtDate = (d: Date) => d.toISOString().slice(0, 10);
+    const selectedDate = this.request.preferredDate ? new Date(this.request.preferredDate) : today;
+    const startDate = fmtDate(selectedDate);
+    const endDate = fmtDate(selectedDate);
+    const days = Math.max(1, this.request.totalDaysRequired ?? 1);
+    const payload: {
+      startDate: string;
+      endDate: string;
+      daysRequired: number;
+      hoursRequired: number;
+      teamId?: number;
+      technicianId?: number;
+    } = {
+      startDate,
+      endDate,
+      daysRequired: days,
+      hoursRequired: Number(hours)
+    };
+
+    if (this.request.assignmentMode === 'TECHNICIAN') {
+      const techId = this.request.preferredTechnicianId;
+      if (!techId) return null;
+      payload.technicianId = Number(techId);
+    } else {
+      const teamId = this.request.preferredTeamId;
+      if (!teamId) return null;
+      payload.teamId = Number(teamId);
+    }
+
+    return payload;
   }
 
   private formatRangeLabel(startIso: string, endIso: string, name?: string): string {
-    const fmt = (iso: string) => {
+    const fmtTime = (iso: string) => {
       const d = new Date(iso);
       if (Number.isNaN(d.getTime())) return iso;
-      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     };
-    const label = `${fmt(startIso)} - ${fmt(endIso)}`;
-    return name ? label : label;
+    const label = `${fmtTime(startIso)} - ${fmtTime(endIso)}`;
+    return label;
+  }
+
+  private formatDateOnly(iso: string): string {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 }

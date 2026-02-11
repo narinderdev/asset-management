@@ -50,10 +50,26 @@
                 [class.disabled]="!t.id">
                   <img src="assets/icons/Vector.svg" alt="View work order" class="view-icon" />
               </a>
+              <button
+                type="button"
+                class="icon-btn"
+                title="Edit"
+                (click)="editType(t)"
+                [disabled]="!t.id">
+                <img src="assets/icons/edit.svg" alt="Edit work order type" class="action-icon" />
+              </button>
+              <button
+                type="button"
+                class="icon-btn danger"
+                title="Delete"
+                (click)="deleteType(t)"
+                [disabled]="!t.id || deleting">
+                <img src="assets/icons/delete.svg" alt="Delete work order type" class="action-icon" />
+              </button>
             </td>
           </tr>
           <tr *ngIf="!types.length && !isLoading">
-            <td colspan="9" class="empty-row">{{ errorMessage || 'No work order types found.' }}</td>
+            <td colspan="10" class="empty-row">{{ errorMessage || 'No work order types found.' }}</td>
           </tr>
         </tbody>
       </table>
@@ -68,4 +84,13 @@
       <button class="pager-btn" (click)="nextPage()" [disabled]="page >= totalPages - 1 || isLoading">Next</button>
     </div>
   </div>
+
+  <app-delete-modal
+    [isOpen]="showDeleteModal"
+    title="Delete Work Order Type"
+    message="Delete this work order type? This cannot be undone."
+    [deleting]="deleting"
+    (cancel)="closeDeleteModal()"
+    (confirm)="confirmDelete()">
+  </app-delete-modal>
 </div>

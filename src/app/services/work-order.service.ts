@@ -305,9 +305,23 @@ export class WorkOrderService {
 
   constructor(private http: HttpClient) {}
 
+  getAvailabilityTimeSlots(payload: {
+    startDate: string;
+    endDate: string;
+    daysRequired: number;
+    hoursRequired: number;
+    teamId?: number;
+    technicianId?: number;
+  }): Observable<any> {
+    const headers = new HttpHeaders({ 'ngrok-skip-browser-warning': 'true' });
+    return this.http.post<any>(`${this.apiUrl}/availability/time-slots`, payload, { headers });
+  }
+
   getTechnicianAvailability(
     technicianId: number,
-    payload: { fromDate: string; toDate: string; slotMinutes: number }
+    payload:
+      | { startDate: string; endDate: string; daysRequired: number; hoursRequired: number }
+      | { fromDate: string; toDate: string; slotMinutes: number }
   ): Observable<any> {
     const headers = new HttpHeaders({ 'ngrok-skip-browser-warning': 'true' });
     return this.http.post<any>(`${this.apiUrl}/availability/technician/${technicianId}`, payload, { headers });
@@ -315,7 +329,9 @@ export class WorkOrderService {
 
   getTeamAvailability(
     teamId: number,
-    payload: { fromDate: string; toDate: string; slotMinutes: number }
+    payload:
+      | { startDate: string; endDate: string; daysRequired: number; hoursRequired: number }
+      | { fromDate: string; toDate: string; slotMinutes: number }
   ): Observable<any> {
     const headers = new HttpHeaders({ 'ngrok-skip-browser-warning': 'true' });
     return this.http.post<any>(`${this.apiUrl}/availability/team/${teamId}`, payload, { headers });
@@ -348,6 +364,20 @@ export class WorkOrderService {
       'ngrok-skip-browser-warning': 'true'
     });
     return this.http.post<WorkOrderTypeResponse>(this.workOrderTypesUrl, payload, { headers });
+  }
+
+  updateWorkOrderType(id: number | string, payload: WorkOrderType): Observable<WorkOrderTypeResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.patch<WorkOrderTypeResponse>(`${this.workOrderTypesUrl}/${id}`, payload, { headers });
+  }
+
+  deleteWorkOrderType(id: number | string): Observable<void> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.delete<void>(`${this.workOrderTypesUrl}/${id}`, { headers });
   }
 
   fetchWorkOrderTypeById(id: number | string): Observable<WorkOrderTypeDetailResponse> {

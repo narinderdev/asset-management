@@ -77,7 +77,7 @@
 .actions-cell {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .icon-btn {
@@ -99,15 +99,28 @@
   background: #f3f4f6;
 }
 
+.icon-btn.danger:hover {
+  background: #fef2f2;
+}
+
 .icon-btn.disabled {
   pointer-events: none;
   opacity: 0.5;
 }
+.icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .actions-col {
-  width: 90px;
+  width: 140px;
 }
 
 .view-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.action-icon {
   width: 16px;
   height: 16px;
 }

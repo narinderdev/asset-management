@@ -59,8 +59,9 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
   isEditMode = false;
   editTemplateId?: number;
 
-  assetOptions: Array<{ id: number; label: string }> = [];
+  assetOptions: Array<{ id: number; label: string; location?: string }> = [];
   assetTypeOptions: Array<{ id: number; label: string }> = [];
+  locationLocked = false;
 
   scheduleTypeOptions: SelectOption[] = [
     { label: 'Time Based', value: 'TIME_BASED' },
@@ -212,11 +213,17 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
           .filter(asset => asset.id !== undefined)
           .map(asset => ({
             id: asset.id as number,
-            label: asset.assetName ?? asset.assetId ?? `Asset ${asset.id}`
+            label: asset.assetName ?? asset.assetId ?? `Asset ${asset.id}`,
+            location: (asset as any)?.location
+              ?? (asset as any)?.assetLocation
+              ?? (asset as any)?.site
+              ?? (asset as any)?.locationName
           }));
+        this.syncLocationFromAsset();
       },
       error: () => {
         this.assetOptions = [];
+        this.locationLocked = false;
       }
     });
   }
@@ -348,8 +355,29 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
   onApplyTargetChange(): void {
     if (this.isApplyToAssetType()) {
       this.template.assetId = null;
+      this.locationLocked = false;
     } else {
       this.template.assetTypeId = null;
+      this.syncLocationFromAsset();
+    }
+    this.cdr.detectChanges();
+  }
+
+  onAssetChange(): void {
+    this.syncLocationFromAsset();
+  }
+
+  private syncLocationFromAsset(): void {
+    if (!this.isApplyToAsset() || !this.template.assetId) {
+      this.locationLocked = false;
+      return;
+    }
+    const selected = this.assetOptions.find(a => a.id === this.template.assetId);
+    if (selected?.location) {
+      this.template.location = selected.location;
+      this.locationLocked = true;
+    } else {
+      this.locationLocked = false;
     }
     this.cdr.detectChanges();
   }

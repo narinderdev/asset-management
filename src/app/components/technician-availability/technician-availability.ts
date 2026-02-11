@@ -6,9 +6,16 @@ import { finalize, Subject, takeUntil } from 'rxjs';
 
 type AvailabilityStatus = 'Available' | 'Working' | 'Leave' | 'PTO' | 'Holiday' | string;
 
+interface WindowSlot {
+  start: string;
+  end: string;
+}
+
 interface AvailabilityDay {
   date: string;
   status: AvailabilityStatus;
+  busyWindows: WindowSlot[];
+  freeWindows: WindowSlot[];
 }
 
 interface CalendarDay {
@@ -16,6 +23,8 @@ interface CalendarDay {
   dayNumber: number;
   status: AvailabilityStatus;
   isEmpty: boolean;
+  busyWindows: WindowSlot[];
+  freeWindows: WindowSlot[];
 }
 
 @Component({
@@ -91,11 +100,17 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy {
             const data = response?.data ?? response;
             const records: any[] = Array.isArray(data) ? data : data?.availability ?? [];
             this.technicianName = data?.technicianName ?? data?.technician ?? '';
+            const normalizeWindows = (windows?: any[]): WindowSlot[] =>
+              (windows ?? [])
+                .filter(w => w?.start && w?.end)
+                .map(w => ({ start: w.start, end: w.end }));
             this.days = records
               .filter((r) => r?.date || r?.day)
               .map((r) => ({
                 date: r.date ?? r.day,
-                status: this.normalizeStatus(r.status ?? r.state ?? r.availabilityStatus)
+                status: this.normalizeStatus(r.status ?? r.state ?? r.availabilityStatus),
+                busyWindows: normalizeWindows(r.busyWindows ?? r.busywindows ?? r.busy ?? []),
+                freeWindows: normalizeWindows(r.freeWindows ?? r.freewindows ?? r.availableWindows ?? r.free ?? [])
               }));
             
             // Set current month based on first date in response
@@ -128,10 +143,10 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy {
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
     
-    // Create a map of date strings to statuses for quick lookup
-    const statusMap = new Map<string, AvailabilityStatus>();
+    // Create a map of date strings to availability for quick lookup
+    const dayMap = new Map<string, AvailabilityDay>();
     this.days.forEach(item => {
-      statusMap.set(item.date, item.status);
+      dayMap.set(item.date, item);
     });
     
     this.calendarDays = [];
@@ -142,7 +157,9 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy {
         date: new Date(),
         dayNumber: 0,
         status: '',
-        isEmpty: true
+        isEmpty: true,
+        busyWindows: [],
+        freeWindows: []
       });
     }
     
@@ -150,13 +167,16 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy {
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(year, month, day);
       const dateString = this.formatDateForAPI(currentDate);
-      const status = statusMap.get(dateString) || '';
+      const dayData = dayMap.get(dateString);
+      const status = dayData?.status || '';
       
       this.calendarDays.push({
         date: currentDate,
         dayNumber: day,
         status: status,
-        isEmpty: false
+        isEmpty: false,
+        busyWindows: dayData?.busyWindows ?? [],
+        freeWindows: dayData?.freeWindows ?? []
       });
     }
   }
@@ -166,6 +186,30 @@ export class TechnicianAvailabilityComponent implements OnInit, OnDestroy {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  formatTimeLabel(time: string): string {
+    if (!time) return '';
+    const [hourStr, minuteStr] = time.split(':');
+    const hour24 = Number(hourStr ?? '0');
+    const minute = Number(minuteStr ?? '0');
+    if (Number.isNaN(hour24)) return time;
+    const suffix = hour24 >= 12 ? 'pm' : 'am';
+    const hour12 = ((hour24 + 11) % 12) + 1;
+    const paddedMinute = minute.toString().padStart(2, '0');
+    return `${hour12}:${paddedMinute}${suffix}`;
+  }
+
+  formatWindow(slot: WindowSlot): string {
+    if (!slot?.start || !slot?.end) return '';
+    return `${this.formatTimeLabel(slot.start)} - ${this.formatTimeLabel(slot.end)}`;
+  }
+
+  shouldShowWindows(day: CalendarDay): boolean {
+    if (!day || day.isEmpty) return false;
+    const status = (day.status || '').toLowerCase();
+    if (status.includes('pto') || status.includes('holiday')) return false;
+    return (day.busyWindows?.length ?? 0) > 0 || (day.freeWindows?.length ?? 0) > 0;
   }
 
   getMonthYear(): string {

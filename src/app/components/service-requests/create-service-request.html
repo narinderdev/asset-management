@@ -81,13 +81,6 @@
           <input type="text" name="problemDescription" [(ngModel)]="request.problemDescription"
             placeholder="Detailed description of the problem" />
         </label>
-        <label class="field">
-          <span>Total Days Required to Complete</span>
-          <input type="number" name="totalDaysRequired" min="1" step="1"
-            [(ngModel)]="request.totalDaysRequired"
-            (ngModelChange)="onTotalDaysChange()"
-            placeholder="Enter total days" />
-        </label>
         <label class="field assignment-field">
           <span>Assignment</span>
           <div class="assignment-options">
@@ -129,6 +122,31 @@
           </select>
         </label>
         <label class="field">
+          <span>Total Days Required to Complete</span>
+          <input type="number" name="totalDaysRequired" min="1" step="1"
+            [(ngModel)]="request.totalDaysRequired"
+            (ngModelChange)="onTotalDaysChange($event)"
+            placeholder="Enter total days" />
+        </label>
+        <label class="field">
+          <span> Hours Required Per Day</span>
+          <input type="number" name="totalHoursRequired" min="1" step="1"
+            [(ngModel)]="request.totalHoursRequired"
+            (ngModelChange)="onTotalHoursChange($event)"
+            placeholder="Enter total hours" />
+        </label>
+        <label class="field">
+          <span>Scheduled Date</span>
+          <select
+            name="preferredDate"
+            [(ngModel)]="request.preferredDate"
+            (ngModelChange)="onPreferredDateChange()"
+            [disabled]="availabilityLoading || !availabilityDateOptions.length">
+            <option [ngValue]="undefined" disabled hidden>Select date</option>
+            <option *ngFor="let d of availabilityDateOptions" [ngValue]="d.value">{{ d.label }}</option>
+          </select>
+        </label>
+        <label class="field">
           <span>Scheduled Time</span>
           <select class="form-input"
             [(ngModel)]="selectedAvailabilityIndex"
@@ -140,10 +158,6 @@
               {{ slot.label }}
             </option>
           </select>
-          <div class="helper-text" *ngIf="availabilityLoading">Loading availability...</div>
-          <div class="helper-text" *ngIf="!availabilityLoading && !availabilityOptions.length">
-            Choose a technician or team and set total days to load options.
-          </div>
         </label>
         <!-- <label class="field">
           <span>Status</span>
