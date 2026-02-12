@@ -61,6 +61,7 @@ import { ViewWorkOrderTypeComponent } from './components/work-order-types/view-w
 import { TmSystemComponent } from './components/tm-system/tm-system';
 import { AssetReportComponent } from './components/reports/asset-report';
 import { WorkOrderReportComponent } from './components/reports/work-order-report';
+import { MfaComponent } from './components/mfa/mfa';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -148,5 +149,6 @@ export const routes: Routes = [
   { path: 'tm-system/technicians/:id/availability', loadComponent: () => import('./components/technician-availability/technician-availability').then(m => m.TechnicianAvailabilityComponent), canActivate: [AuthGuard] },
   { path: 'roles-permissions', component: RolesComponent, canActivate: [AuthGuard] },
   { path: 'roles/view/:id', component: ViewRoleComponent, canActivate: [AuthGuard] },
+  { path: 'security/mfa', component: MfaComponent, canActivate: [AuthGuard] },
   { path: 'users', component: UsersComponent, canActivate: [AuthGuard] }
 ];

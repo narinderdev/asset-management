@@ -72,6 +72,7 @@ export class LoginComponent {
           const isSuccess = statusCode === 200 || statusCode === 201;
           const token = (response as any)?.data?.token || (response as any)?.token;
           const user = (response as any)?.data?.user;
+          const mfaEnabled = (response as any)?.data?.user?.mfaEnabled ?? (response as any)?.data?.mfaEnabled ?? false;
           const passwordExpiryDays =
             (response as any)?.data?.passwordExpiryDate ??
             (response as any)?.data?.user?.passwordExpiryDate ??
@@ -85,6 +86,7 @@ export class LoginComponent {
           if (isSuccess) {
             if (this.isBrowser && token) {
               localStorage.setItem('authToken', token);
+              localStorage.setItem('mfaEnabled', String(!!mfaEnabled));
               if (technicianId !== undefined && technicianId !== null) {
                 localStorage.setItem('technicianId', String(technicianId));
               } else {

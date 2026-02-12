@@ -27,6 +27,21 @@ export interface ApiResponse<T = unknown> {
   data?: T;
 }
 
+export interface VerifyAccountPayload {
+  email: string;
+  otp: string;
+}
+
+export interface MfaSetupResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: {
+    secret?: string;
+    qrCodeImage?: string;
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -49,5 +64,47 @@ export class AuthService {
       ...(token ? { Authorization: `Bearer ${token}` } : {})
     });
     return this.http.post<ApiResponse>(`${this.apiUrl}/logout`, {}, { headers });
+  }
+
+  verifyAccount(payload: VerifyAccountPayload): Observable<ApiResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.post<ApiResponse>(`${this.apiUrl}/verify-account`, payload, { headers });
+  }
+
+  getMfaSetup(): Observable<MfaSetupResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true',
+      ...(this.getAuthHeader() ? { Authorization: this.getAuthHeader() } : {})
+    });
+    return this.http.get<MfaSetupResponse>(`${environment.apiUrl}/api/mfa/setup`, { headers });
+  }
+
+  verifyMfaSetup(code: string): Observable<ApiResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true',
+      ...(this.getAuthHeader() ? { Authorization: this.getAuthHeader() } : {})
+    });
+    return this.http.post<ApiResponse>(`${environment.apiUrl}/api/mfa/verify-setup`, { code }, { headers });
+  }
+
+  disableMfa(code: string): Observable<ApiResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true',
+      ...(this.getAuthHeader() ? { Authorization: this.getAuthHeader() } : {})
+    });
+    return this.http.post<ApiResponse>(`${environment.apiUrl}/api/mfa/disable`, { code }, { headers });
+  }
+
+  private getAuthHeader(): string {
+    if (typeof localStorage === 'undefined') return '';
+    const token =
+      localStorage.getItem('authToken') ||
+      localStorage.getItem('authtoken') ||
+      localStorage.getItem('token') ||
+      '';
+    if (!token) return '';
+    return token.startsWith('Bearer ') ? token : `Bearer ${token}`;
   }
 }

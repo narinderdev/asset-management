@@ -9,7 +9,9 @@ import { PmTemplateService } from '../../services/pm-template.service';
 import { ToastrService } from 'ngx-toastr';
 import { Loader } from '../loader/loader';
 
-type AssetDetail = NonNullable<AssetDetailResponse['data']>;
+type AssetDetail = NonNullable<AssetDetailResponse['data']> & {
+  assetTypeCode?: string | null;
+};
 type AssetLocationDetails = Exclude<AssetDetail['location'], string>;
 
 @Component({
@@ -170,7 +172,14 @@ export class ViewAssetComponent implements OnInit {
     if (!location || typeof location === 'string') {
       return undefined;
     }
-    return location;
+    return {
+      primaryLocation: (location as any).location ?? location.primaryLocation,
+      functionalLocation: location.functionalLocation,
+      department: location.department,
+      costCenter: location.costCenter,
+      assignedOwner: location.assignedOwner,
+      maintenanceTeam: location.maintenanceTeam
+    } as AssetLocationDetails;
   }
 
   openMeterModal(): void {

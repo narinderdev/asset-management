@@ -94,6 +94,18 @@
                 </div>
               </div>
               <div class="field-group">
+                <div class="field-label">Type Code</div>
+                <div class="field-value" [ngClass]="{ empty: !asset.assetTypeCode }">
+                  {{ formatField(asset.assetTypeCode) }}
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Type ID</div>
+                <div class="field-value" [ngClass]="{ empty: !asset.assetTypeId }">
+                  {{ formatField(asset.assetTypeId) }}
+                </div>
+              </div>
+              <div class="field-group">
                 <div class="field-label">Ownership</div>
                 <div class="field-value">{{ formatField(asset.ownership) }}</div>
               </div>
@@ -101,6 +113,42 @@
                 <div class="field-label">Asset Tag</div>
                 <div class="field-value" [ngClass]="{ empty: !asset.assetTag }">
                   {{ formatField(asset.assetTag) }}
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Parent Asset</div>
+                <div class="field-value" [ngClass]="{ empty: !asset.parentAssetId }">
+                  {{ formatField(asset.parentAssetId) }}
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Functional Class</div>
+                <div class="field-value" [ngClass]="{ empty: !asset.functionalClass }">
+                  {{ formatField(asset.functionalClass) }}
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Retirement Unit</div>
+                <div class="field-value" [ngClass]="{ empty: !asset.retirementUnit }">
+                  {{ formatField(asset.retirementUnit) }}
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Utility Account</div>
+                <div class="field-value" [ngClass]="{ empty: !asset.utilityAccount }">
+                  {{ formatField(asset.utilityAccount) }}
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Property Group</div>
+                <div class="field-value" [ngClass]="{ empty: !asset.propertyGroup }">
+                  {{ formatField(asset.propertyGroup) }}
+                </div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Serial Number</div>
+                <div class="field-value" [ngClass]="{ empty: !asset.serialNumber }">
+                  {{ formatField(asset.serialNumber) }}
                 </div>
               </div>
               <div class="field-group full-width">
@@ -122,8 +170,8 @@
             <div class="field-grid field-grid-2">
               <div class="field-group">
                 <div class="field-label">Primary Location</div>
-                <div class="field-value" [ngClass]="{ empty: !locationDetails?.primaryLocation }">
-                  {{ formatField(locationDetails?.primaryLocation) }}
+                <div class="field-value" [ngClass]="{ empty: !(locationDetails?.location || locationDetails?.primaryLocation) }">
+                  {{ formatField(locationDetails?.location || locationDetails?.primaryLocation) }}
                 </div>
               </div>
               <div class="field-group">
@@ -221,6 +269,26 @@
               <div class="spec-row">
                 <div class="spec-label">Invoice #</div>
                 <div class="spec-value">{{ formatField(asset.financialDetails?.poInvoiceNumber) }}</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Depreciation Method</div>
+                <div class="spec-value">{{ formatEnum(asset.financialDetails?.depreciationMethod) }}</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Depreciation Start</div>
+                <div class="spec-value">{{ formatDate(asset.financialDetails?.depreciationStartDate) }}</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Salvage Value</div>
+                <div class="spec-value">{{ formatMoney(asset.financialDetails?.salvageValue) }}</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Accumulated Depreciation</div>
+                <div class="spec-value">{{ formatMoney(asset.financialDetails?.accumulatedDepreciation) }}</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Useful Life (Years)</div>
+                <div class="spec-value">{{ formatField(asset.financialDetails?.usefulLifeYears) }}</div>
               </div>
               <div class="spec-row">
                 <div class="spec-label">Book Value</div>
@@ -339,6 +407,10 @@
               <div class="field-group">
                 <div class="field-label">Planned Replacement</div>
                 <div class="field-value">{{ formatDate(asset.warrantyLifecycle?.plannedReplacementDate) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Service Contract</div>
+                <div class="field-value">{{ formatField(asset.warrantyLifecycle?.serviceContract) }}</div>
               </div>
             </div>
           </div>

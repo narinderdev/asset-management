@@ -139,6 +139,7 @@ export interface AssetDetailResponse {
     assetCategory?: string;
     assetType?: string;
     assetTypeId?: number;
+    assetTypeCode?: string;
     status?: string;
     criticality?: string;
     ownership?: string;
@@ -232,6 +233,7 @@ export interface AssetCreatePayload {
   assetCategory: string;
   assetType?: string;
   assetTypeId?: number;
+  assetTypeCode?: string;
   parentAssetId?: number | null;
   status: string;
   criticality?: string;
@@ -303,6 +305,7 @@ export interface AssetUpdatePayload {
     assetCategory: string;
     assetType?: string;
     assetTypeId?: number;
+    assetTypeCode?: string;
     parentAssetId?: number | null;
     status?: string;
     criticality?: string;

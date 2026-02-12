@@ -152,7 +152,8 @@ export class SidebarComponent implements OnInit {
       hasSubmenu: true,
       submenu: [
         { label: 'Roles', route: '/roles-permissions' },
-        { label: 'Users', route: '/users' }
+        { label: 'Users', route: '/users' },
+        { label: 'MFA', route: '/security/mfa' }
       ]
     },
     {
@@ -286,6 +287,7 @@ export class SidebarComponent implements OnInit {
     localStorage.removeItem('authToken');
     localStorage.removeItem('signupUserId');
     localStorage.removeItem('signupEmail');
+    localStorage.removeItem('mfaEnabled');
     this.permissions.clear();
     this.showLogoutModal = false;
     this.router.navigate(['/login']);
