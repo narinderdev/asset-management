@@ -226,13 +226,14 @@ interface ApiMaterialUsage {
   notes?: string;
 }
 
-interface ApiWorkOrderDetail extends ApiWorkOrder {
+export interface ApiWorkOrderDetail extends ApiWorkOrder {
   linkedServiceRequestDbId?: number;
   linkedServiceRequestId?: string;
   assetDbId?: number;
   location?: string;
   workType?: string;
   workRequestTypeCode?: string;
+  workRequestTypeDescription?: string;
   descriptionScope?: string;
   planner?: string;
   assignedTechnicianId?: number;
@@ -249,9 +250,12 @@ interface ApiWorkOrderDetail extends ApiWorkOrder {
   estimatedMaterialCost?: number;
   estimatedTotalCost?: number;
   actualLaborHours?: number;
+  actualWorkingHours?: number;
   actualLaborCost?: number;
   actualMaterialCost?: number;
   actualTotalCost?: number;
+  approvalNotes?: string;
+  precheckNotes?: string;
   completionNotes?: string;
   failureCause?: string;
   remedyAction?: string;

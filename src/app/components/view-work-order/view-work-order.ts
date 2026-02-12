@@ -24,7 +24,12 @@ import { InventoryService } from '../../services/inventory.service';
 import { NgZone } from '@angular/core';
 import { Loader } from '../loader/loader';
 
-type WorkOrderDetail = NonNullable<WorkOrderDetailResponse['data']>;
+type WorkOrderDetail = NonNullable<WorkOrderDetailResponse['data']> & {
+  workRequestTypeDescription?: string;
+  actualWorkingHours?: number;
+  approvalNotes?: string;
+  precheckNotes?: string;
+};
 
 @Component({
   standalone: true,
@@ -282,6 +287,23 @@ export class ViewWorkOrderComponent implements OnInit {
       return '--';
     }
     return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+
+  formatDateTime(value?: string): string {
+    if (!value) {
+      return '--';
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return '--';
+    }
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   }
 
   formatEnum(value?: string): string {

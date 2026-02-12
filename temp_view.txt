@@ -1,4 +1,4 @@
-﻿<div class="view-workorder-page">
+<div class="view-workorder-page">
   <!-- Header -->
   <div class="header">
     <button class="back-button" type="button" aria-label="Back to work orders" (click)="goBack()">
@@ -192,52 +192,6 @@
               <div class="field-label">Source</div>
               <div class="field-value">{{ workOrder.source ?? 'N/A' }}</div>
             </div>
-            <div class="field-group">
-              <div class="field-label">Work Request Type</div>
-              <div class="field-value">
-                {{ workOrder.workRequestTypeDescription || workOrder.workRequestTypeCode || 'N/A' }}
-              </div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Planner</div>
-              <div class="field-value">{{ workOrder.planner || 'N/A' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Assigned Technician</div>
-              <div class="field-value">{{ workOrder.assignedTechnicianName || 'N/A' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Planned Start</div>
-              <div class="field-value">{{ formatDateTime(workOrder.plannedStartDateTime) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Planned End</div>
-              <div class="field-value">{{ formatDateTime(workOrder.plannedEndDateTime) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Actual Start</div>
-              <div class="field-value">{{ formatDateTime(workOrder.actualStartDateTime) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Actual End</div>
-              <div class="field-value">{{ formatDateTime(workOrder.actualEndDateTime) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Estimated Labor Hours</div>
-              <div class="field-value">{{ workOrder.estimatedLaborHours ?? '--' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Estimated Material Cost</div>
-              <div class="field-value">{{ formatCurrency(workOrder.estimatedMaterialCost) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Actual Labor Hours</div>
-              <div class="field-value">{{ workOrder.actualLaborHours ?? '--' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Actual Working Hours</div>
-              <div class="field-value">{{ workOrder.actualWorkingHours ?? '--' }}</div>
-            </div>
           </div>
         </div>
       </div>
@@ -279,22 +233,6 @@
                 {{ workOrder.warrantyLifecycle?.warrantyProvider || 'N/A' }}
               </div>
             </div>
-            <div class="field-group">
-              <div class="field-label">Commissioning Date</div>
-              <div class="field-value">{{ formatDate(workOrder.warrantyLifecycle?.commissioningDate) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Last Maintenance</div>
-              <div class="field-value">{{ formatDate(workOrder.warrantyLifecycle?.lastMaintenanceDate) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Next Planned Maintenance</div>
-              <div class="field-value">{{ formatDate(workOrder.warrantyLifecycle?.nextPlannedMaintenance) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Planned Replacement</div>
-              <div class="field-value">{{ formatDate(workOrder.warrantyLifecycle?.plannedReplacementDate) }}</div>
-            </div>
           </div>
         </div>
       </div>
@@ -313,14 +251,6 @@
             <div class="field-group">
               <div class="field-label">Target Completion</div>
               <div class="field-value">{{ formatDate(workOrder.targetCompletionDate) }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Approval Notes</div>
-              <div class="field-value" [ngClass]="{'empty': !workOrder.approvalNotes}">{{ workOrder.approvalNotes || 'N/A' }}</div>
-            </div>
-            <div class="field-group">
-              <div class="field-label">Precheck Notes</div>
-              <div class="field-value" [ngClass]="{'empty': !workOrder.precheckNotes}">{{ workOrder.precheckNotes || 'N/A' }}</div>
             </div>
             <div class="field-group span-2">
               <div class="field-label">Before Photo</div>
@@ -887,6 +817,7 @@
   </div>
 
 </div>
+
 
 
 
