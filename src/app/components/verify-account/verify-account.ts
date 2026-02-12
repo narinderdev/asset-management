@@ -160,9 +160,6 @@ export class VerifyAccountComponent implements OnInit {
 
           if (isSuccess) {
             this.toastr.success(message);
-            if (this.isBrowser) {
-              localStorage.setItem('mfaEnabled', 'true');
-            }
             const mfaEnabledFlag = this.isBrowser ? localStorage.getItem('mfaEnabled') === 'true' : false;
             if (mfaEnabledFlag) {
               this.router.navigate(['/verify-authenticator']);

@@ -34,14 +34,6 @@ export class VerifyAuthenticatorComponent implements OnInit {
   }
 
   ngOnInit() {
-    // ensure we have mfa token, otherwise go back to login
-    if (this.isBrowser) {
-      const mfaToken = localStorage.getItem('mfa_token');
-      if (!mfaToken) {
-        this.toastr.error('Missing MFA token. Please login again.');
-        this.router.navigate(['/login']);
-      }
-    }
   }
 
   trackByIndex(index: number): number {
@@ -133,13 +125,7 @@ export class VerifyAuthenticatorComponent implements OnInit {
       return;
     }
 
-    const mfaToken = this.isBrowser ? localStorage.getItem('mfa_token') : null;
-    if (!mfaToken) {
-      this.errorMessage = 'Missing MFA token. Please login again.';
-      this.toastr.error(this.errorMessage);
-      this.router.navigate(['/login']);
-      return;
-    }
+    const mfaToken = this.isBrowser ? localStorage.getItem('mfa_token') || '' : '';
 
     this.loading = true;
     this.cdr.detectChanges();
@@ -160,9 +146,6 @@ export class VerifyAuthenticatorComponent implements OnInit {
 
           if (isSuccess) {
             this.toastr.success(message);
-            if (this.isBrowser) {
-              localStorage.setItem('mfaEnabled', 'true');
-            }
             this.router.navigate(['/dashboard']);
           } else {
             this.errorMessage = message;
