@@ -59,7 +59,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private updateRouteState(url: string) {
     const path = url.split('?')[0];
     const normalized = path.startsWith('/') ? path : `/${path}`;
-    const authRoutes = ['/login', '/sign-up', '/verify-otp', '/set-password'];
+    const authRoutes = ['/login', '/sign-up', '/verify-otp', '/verify-account', '/verify-authenticator', '/set-password'];
     this.isLoginRoute = authRoutes.includes(normalized);
     this.isStandaloneRoute = normalized.startsWith('/tm-system');
     if (this.isLoginRoute || this.isStandaloneRoute) {

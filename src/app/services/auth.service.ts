@@ -97,6 +97,29 @@ export class AuthService {
     return this.http.post<ApiResponse>(`${environment.apiUrl}/api/mfa/disable`, { code }, { headers });
   }
 
+  sendEmailMfaCode(): Observable<ApiResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true',
+      ...(this.getAuthHeader() ? { Authorization: this.getAuthHeader() } : {})
+    });
+    return this.http.post<ApiResponse>(`${this.apiUrl}/mfa/email/send`, {}, { headers });
+  }
+
+  verifyEmailMfaCode(code: string): Observable<ApiResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true',
+      ...(this.getAuthHeader() ? { Authorization: this.getAuthHeader() } : {})
+    });
+    return this.http.post<ApiResponse>(`${this.apiUrl}/mfa/email/verify`, { code }, { headers });
+  }
+
+  verifyLoginMfa(code: string, mfaToken: string): Observable<ApiResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.post<ApiResponse>(`${this.apiUrl}/login/mfa`, { code, mfa_token: mfaToken }, { headers });
+  }
+
   private getAuthHeader(): string {
     if (typeof localStorage === 'undefined') return '';
     const token =

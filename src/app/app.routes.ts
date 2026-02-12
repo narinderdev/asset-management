@@ -62,12 +62,16 @@ import { TmSystemComponent } from './components/tm-system/tm-system';
 import { AssetReportComponent } from './components/reports/asset-report';
 import { WorkOrderReportComponent } from './components/reports/work-order-report';
 import { MfaComponent } from './components/mfa/mfa';
+import { VerifyAccountComponent } from './components/verify-account/verify-account';
+import { VerifyAuthenticatorComponent } from './components/verify-authenticator/verify-authenticator';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
   { path: 'login', component: LoginComponent },
   { path: 'sign-up', component: SignUpComponent },
   { path: 'verify-otp', component: VerifyOtpComponent },
+  { path: 'verify-account', component: VerifyAccountComponent },
+  { path: 'verify-authenticator', component: VerifyAuthenticatorComponent },
   { path: 'set-password', component: SetPasswordComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'assets/add-asset', component: AddAssetComponent, canActivate: [AuthGuard] },

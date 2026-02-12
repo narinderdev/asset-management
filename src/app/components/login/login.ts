@@ -58,19 +58,12 @@ export class LoginComponent {
     this.form.patchValue({ email, password });
 
     this.loading = true;
-    this.authService
-      .login({ email, password })
-      .pipe(
-        finalize(() => {
-          this.loading = false;
-          this.cdr.detectChanges();
-        })
-      )
-      .subscribe({
+    this.authService.login({ email, password }).subscribe({
         next: (response: any) => {
           const statusCode = response?.statusCode;
           const isSuccess = statusCode === 200 || statusCode === 201;
           const token = (response as any)?.data?.token || (response as any)?.token;
+          const mfaToken = (response as any)?.data?.mfa_token ?? (response as any)?.mfa_token ?? null;
           const user = (response as any)?.data?.user;
           const mfaEnabled = (response as any)?.data?.user?.mfaEnabled ?? (response as any)?.data?.mfaEnabled ?? false;
           const passwordExpiryDays =
@@ -86,7 +79,13 @@ export class LoginComponent {
           if (isSuccess) {
             if (this.isBrowser && token) {
               localStorage.setItem('authToken', token);
+              if (mfaToken) {
+                localStorage.setItem('mfa_token', mfaToken);
+              } else {
+                localStorage.removeItem('mfa_token');
+              }
               localStorage.setItem('mfaEnabled', String(!!mfaEnabled));
+              localStorage.setItem('loginEmail', email);
               if (technicianId !== undefined && technicianId !== null) {
                 localStorage.setItem('technicianId', String(technicianId));
               } else {
@@ -96,18 +95,50 @@ export class LoginComponent {
                 this.permissionService.setFromUser(user);
               }
             }
-            this.toastr.success(message);
             if (passwordExpiryDays !== null && passwordExpiryDays !== undefined) {
               this.toastr.warning(`Password will expire in ${passwordExpiryDays} days`);
             }
-            this.router.navigate(['dashboard']);
+            // Trigger email MFA flow before allowing dashboard access
+            this.loading = true;
+            this.authService
+              .sendEmailMfaCode()
+              .pipe(
+                finalize(() => {
+                  this.loading = false;
+                  this.cdr.detectChanges();
+                })
+              )
+              .subscribe({
+                next: res => {
+                  const sendOk =
+                    (res?.statusCode ?? 0) === 200 ||
+                    (res?.statusCode ?? 0) === 201 ||
+                    (res?.statusCode ?? 0) === 0;
+                  if (sendOk) {
+                    this.toastr.success(res?.message || 'Verification code sent to your email.');
+                    this.router.navigate(['/verify-account'], {
+                      queryParams: { email }
+                    });
+                  } else {
+                    this.toastr.error(res?.message || 'Could not send verification code.');
+                  }
+                },
+                error: err => {
+                  const errMsg = err?.error?.message || 'Could not send verification code.';
+                  this.toastr.error(errMsg);
+                }
+              });
           } else {
             this.toastr.error(message);
+            this.loading = false;
+            this.cdr.detectChanges();
           }
         },
         error: (err: any) => {
           const message = err?.error?.message || 'Login failed. Please try again.';
           this.toastr.error(message);
+          this.loading = false;
+          this.cdr.detectChanges();
         }
       });
   }
