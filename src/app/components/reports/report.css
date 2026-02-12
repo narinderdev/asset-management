@@ -4,6 +4,7 @@ section.report-page {
   gap: 16px;
   padding: 16px;
   color: #1f2933;
+  min-height: 88vh;
 }
 
 .report-header {
@@ -114,7 +115,8 @@ section.report-page {
 }
 
 .pager {
-  margin-top: 12px;
+  margin-top: auto;
+  padding-top: 12px;
   display: flex;
   gap: 12px;
   align-items: center;

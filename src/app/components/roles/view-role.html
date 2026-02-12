@@ -1,0 +1,62 @@
+<div class="role-view-wrapper">
+  <div class="header-row">
+    <button class="back-btn circle" type="button" (click)="goBack()" aria-label="Back to roles">
+      <span aria-hidden="true">←</span>
+    </button>
+    <h1>{{ role?.name || 'Role Details' }}</h1>
+  </div>
+
+  <app-loader [visible]="isLoading"></app-loader>
+
+  <ng-container *ngIf="!isLoading && role">
+    <div class="summary-card">
+      <div class="summary-item">
+        <div class="label">Role</div>
+        <div class="value">{{ role?.name }}</div>
+        <div class="sub">{{ role?.description || '—' }}</div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Total Permissions</div>
+        <div class="value number">{{ totalPermissions }}</div>
+      </div>
+      <div class="summary-item">
+        <div class="label">Accessible Tabs</div>
+        <div class="value number">{{ accessibleTabs.length }}</div>
+      </div>
+    </div>
+
+    <div class="access-card">
+      <div class="card-title">Accessible Tabs</div>
+      <div class="chip-row" *ngIf="accessibleTabs.length; else noTabs">
+        <span class="chip" *ngFor="let tab of accessibleTabs">{{ tab }}</span>
+      </div>
+      <ng-template #noTabs>
+        <div class="empty-text">No accessible tabs</div>
+      </ng-template>
+    </div>
+
+    <div class="perm-card">
+      <div class="card-title">Permissions by Module</div>
+      <table class="perm-table">
+        <thead>
+          <tr>
+            <th>Module</th>
+            <th>View</th>
+            <th>Create</th>
+            <th>Update</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of permissionRows">
+            <td>{{ row.moduleLabel }}</td>
+            <td><span class="check" [class.on]="row.view">✓</span></td>
+            <td><span class="check" [class.on]="row.create">✓</span></td>
+            <td><span class="check" [class.on]="row.update">✓</span></td>
+            <td><span class="check" [class.on]="row.delete">✓</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+</div>

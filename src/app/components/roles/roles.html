@@ -14,6 +14,7 @@
             <th>Role Name</th>
             <th>Description</th>
             <th>Status</th>
+            <th class="actions-col">Actions</th>
           </tr>
         </thead>
 
@@ -33,6 +34,14 @@
                 >
                   {{ r.active === false ? 'Inactive' : 'Active' }}
                 </span>
+              </td>
+              <td class="actions-cell">
+                <button class="action-icon" type="button" aria-label="View role" (click)="viewRole(r)">
+                  <img src="/assets/icons/Vector.svg" alt="View role" />
+                </button>
+                <button class="action-icon" type="button" aria-label="Edit role" (click)="editRole(r)">
+                  <img src="/assets/icons/edit.svg" alt="Edit role" />
+                </button>
               </td>
             </tr>
           </ng-container>
@@ -81,7 +90,7 @@
   <div class="modal-card">
     <div class="modal-header">
       <div>
-        <h3>Add Role</h3>
+        <h3>{{ isEditMode ? 'Edit Role' : 'Add Role' }}</h3>
         <p class="modal-subtitle" *ngIf="getSelectedCount() > 0">
           {{ getSelectedCount() }} permission(s) selected
         </p>
@@ -188,7 +197,7 @@
         <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
         <button type="submit" class="btn-primary" [disabled]="isSaving">
           <app-spinner *ngIf="isSaving"></app-spinner>
-          <span *ngIf="!isSaving">Create Role</span>
+          <span *ngIf="!isSaving">{{ isEditMode ? 'Save Changes' : 'Create Role' }}</span>
         </button>
       </div>
     </form>

@@ -6,6 +6,7 @@ import { Loader } from '../loader/loader';
 import { RoleService, CreateRolePayload } from '../../services/role.service';
 import { finalize } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
 
 interface PermissionRow {
   label: string;
@@ -26,6 +27,8 @@ export class RolesComponent implements OnInit {
   isLoading = false;
   isSaving = false;
   submitted = false;
+  isEditMode = false;
+  editingRoleId?: string | number;
 
   /** prevents empty message flash before API returns */
   hasLoaded = false;
@@ -43,7 +46,8 @@ export class RolesComponent implements OnInit {
     private fb: FormBuilder,
     private roleService: RoleService,
     private cdr: ChangeDetectorRef,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private router: Router
   ) {
     this.addRoleForm = this.fb.group({
       name: [''],
@@ -72,7 +76,49 @@ export class RolesComponent implements OnInit {
   }
 
   openModal() {
+    this.isEditMode = false;
+    this.editingRoleId = undefined;
+    this.addRoleForm.reset({
+      name: '',
+      description: '',
+      permissions: [],
+      technicianRole: false
+    });
+    this.assignAllChecked = false;
     this.isModalOpen = true;
+  }
+
+  openEdit(role: any) {
+    const roleId = role?.id ?? role?.roleId ?? role?.role_id ?? role?.code ?? role?.name;
+    if (!roleId) {
+      this.toastr.warning('Role id missing');
+      return;
+    }
+    this.isEditMode = true;
+    this.editingRoleId = roleId;
+    this.isModalOpen = true;
+    this.isSaving = false;
+    this.submitted = false;
+    this.cdr.detectChanges();
+
+    this.roleService.getRoleById(roleId).subscribe({
+      next: res => {
+        const data: any = res?.data || {};
+        const permissionCodes: string[] = data.permissionCodes || data.permissions || [];
+        this.addRoleForm.setValue({
+          name: data.name || '',
+          description: data.description || '',
+          permissions: Array.isArray(permissionCodes) ? permissionCodes : [],
+          technicianRole: !!data.technicianRole
+        });
+        this.assignAllChecked = this.isAllSelected();
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.toastr.error('Unable to load role details');
+        this.closeModal();
+      }
+    });
   }
 
   private fetchRoles() {
@@ -193,8 +239,11 @@ export class RolesComponent implements OnInit {
 
     this.isSaving = true;
 
-    this.roleService
-      .createRoles(payload)
+    const request$ = this.isEditMode && this.editingRoleId
+      ? this.roleService.updateRole(this.editingRoleId, payload)
+      : this.roleService.createRoles(payload);
+
+    request$
       .pipe(
         finalize(() => {
           this.isSaving = false;
@@ -203,13 +252,13 @@ export class RolesComponent implements OnInit {
       )
       .subscribe({
         next: res => {
-          this.toastr.success(res?.message || 'Role created successfully');
+          this.toastr.success(res?.message || (this.isEditMode ? 'Role updated successfully' : 'Role created successfully'));
           this.isModalOpen = false;
           this.fetchRoles();
           this.cdr.detectChanges();
         },
         error: err => {
-          const msg = err?.error?.message || err?.message || 'Failed to create role';
+          const msg = err?.error?.message || err?.message || 'Failed to save role';
           this.toastr.error(msg);
         }
       });
@@ -272,7 +321,18 @@ export class RolesComponent implements OnInit {
     return !!row.permissions.view && deps.some(code => current.includes(code as string));
   }
 
-  viewRole(_: any) {}
+  viewRole(role: any) {
+    const roleId = role?.id ?? role?.roleId ?? role?.role_id ?? role?.code ?? role?.name;
+    if (!roleId) {
+      this.toastr.warning('Role id missing');
+      return;
+    }
+    this.router.navigate(['/roles/view', roleId]);
+  }
+
+  editRole(role: any) {
+    this.openEdit(role);
+  }
 
   /** keeps table rows stable */
   trackByRole(_: number, role: any): any {

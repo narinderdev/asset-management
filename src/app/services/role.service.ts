@@ -65,4 +65,12 @@ export class RoleService {
   createRoles(payload: CreateRolePayload): Observable<ApiResponse<Role>> {
     return this.http.post<ApiResponse<Role>>(this.apiUrl, payload, { headers: this.headers });
   }
+
+  getRoleById(id: number | string): Observable<ApiResponse<Role>> {
+    return this.http.get<ApiResponse<Role>>(`${this.apiUrl}/${id}`, { headers: this.headers });
+  }
+
+  updateRole(id: number | string, payload: Partial<CreateRolePayload>): Observable<ApiResponse<Role>> {
+    return this.http.patch<ApiResponse<Role>>(`${this.apiUrl}/${id}`, payload, { headers: this.headers });
+  }
 }

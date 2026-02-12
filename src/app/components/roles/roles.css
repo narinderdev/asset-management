@@ -61,6 +61,38 @@
   }
 }
 
+.actions-col {
+  width: 120px;
+}
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-icon img {
+  width: 16px;
+  height: 16px;
+}
+
+.action-icon {
+  border: none;
+  background: transparent;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.action-icon:hover {
+  background: #f3f4f6;
+}
+
 /* Permissions panel (deprecated block) */
 .permissions-field {
   padding: 12px 12px 0;

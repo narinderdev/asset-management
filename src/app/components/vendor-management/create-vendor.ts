@@ -97,7 +97,7 @@ export class CreateVendorComponent implements OnInit {
     }
 
     if (!form.valid) {
-      this.errorMessage = 'Please provide a valid email address.';
+      this.errorMessage = 'Please fix the highlighted fields (email or phone).';
       return;
     }
 

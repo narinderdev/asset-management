@@ -76,7 +76,7 @@
     </div>
   </div>
 
-  <div class="pagination" *ngIf="total > size">
+  <div class="pagination" *ngIf="total > 0">
     <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ total }}</span>
     <div class="pager-actions">
       <button class="pager-btn" (click)="previousPage()" [disabled]="page === 0 || isLoading">Previous</button>

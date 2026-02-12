@@ -61,7 +61,7 @@ export class CreatePurchaseOrderComponent implements OnInit {
     }
   ];
 
-  itemOptions: { id: number; name: string; code?: string; uom?: string }[] = [];
+  itemOptions: { id: number; name: string; code?: string; uom?: string; cost?: number }[] = [];
   vendorOptions: { id: number; name: string }[] = [];
   warehouseOptions: { id: number; name: string }[] = [];
   workOrderOptions: { id: number; name: string }[] = [];
@@ -116,6 +116,8 @@ export class CreatePurchaseOrderComponent implements OnInit {
       if (found.uom) {
         this.lineItems[index].uom = found.uom;
       }
+      this.lineItems[index].unitPrice = Number(found.cost ?? 0);
+      this.cdr.detectChanges();
     }
   }
 
@@ -171,7 +173,8 @@ export class CreatePurchaseOrderComponent implements OnInit {
           id: item.id ?? 0,
           name: item.itemName ?? item.itemId ?? 'Unnamed item',
           code: item.itemId,
-          uom: item.unitOfMeasure
+          uom: item.unitOfMeasure,
+          cost: item.costPerUnit
         }));
         this.isLoadingItems = false;
       },

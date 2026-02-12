@@ -445,3 +445,25 @@ body {
   background: #93c5fd;
   cursor: not-allowed;
 }
+
+/* Roles layout adjustments to pin pagination at bottom */
+.roles-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.roles-wrapper .table-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.roles-wrapper .pagination {
+  margin-top: auto;
+  padding-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}

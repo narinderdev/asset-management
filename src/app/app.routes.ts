@@ -37,6 +37,7 @@ import { ViewTechnicianTeamComponent } from './components/technician/view-techni
 import { LoginComponent } from './components/login/login';
 import { SignUpComponent } from './components/sign-up/sign-up';
 import { RolesComponent } from './components/roles/roles';
+import { ViewRoleComponent } from './components/roles/view-role';
 import { ViewProcurementComponent } from './components/procurement/view-procurement';
 import { VerifyOtpComponent } from './components/verify-otp/verify-otp';
 import { AuthGuard } from './guards/auth.guard';
@@ -146,5 +147,6 @@ export const routes: Routes = [
   { path: 'tm-system/:tab', component: TmSystemComponent, canActivate: [AuthGuard] },
   { path: 'tm-system/technicians/:id/availability', loadComponent: () => import('./components/technician-availability/technician-availability').then(m => m.TechnicianAvailabilityComponent), canActivate: [AuthGuard] },
   { path: 'roles-permissions', component: RolesComponent, canActivate: [AuthGuard] },
+  { path: 'roles/view/:id', component: ViewRoleComponent, canActivate: [AuthGuard] },
   { path: 'users', component: UsersComponent, canActivate: [AuthGuard] }
 ];

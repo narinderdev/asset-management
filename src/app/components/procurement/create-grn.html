@@ -27,7 +27,6 @@
         </div>
       <div class="line-items-header">
         <div>Inventory name</div>
-        <div>PO Line ID</div>
         <div>Ordered Qty</div>
         <div>Received Qty</div>
         <div>Return Qty</div>
@@ -42,9 +41,6 @@
               {{ option.name }}
             </option>
           </select>
-        </div>
-        <div class="line-field">
-          <input type="number" name="poLineId-{{ i }}" [(ngModel)]="line.poLineId" min="0" />
         </div>
         <div class="line-field">
           <input type="number" name="orderedQty-{{ i }}" [(ngModel)]="line.orderedQty" min="0" />
