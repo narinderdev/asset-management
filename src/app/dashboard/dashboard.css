@@ -29,19 +29,32 @@
   margin: 0;
 }
 
-.refresh-btn {
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+}
+
+.password-expired-note {
+  font-size: 13px;
+  font-weight: 600;
+  color: #b91c1c;
+}
+
+.change-password-btn {
+  border: 1px solid #dc2626;
+  background: #dc2626;
   border-radius: 8px;
   padding: 8px 12px;
   font-weight: 600;
   cursor: pointer;
-  color: #374151;
+  color: #ffffff;
 }
 
-.refresh-btn:hover {
-  border-color: #2563eb;
-  color: #2563eb;
+.change-password-btn:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
 }
 
 .stats-grid {

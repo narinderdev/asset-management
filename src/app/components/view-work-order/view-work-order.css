@@ -403,6 +403,50 @@
   font-weight: 500;
 }
 
+.check-logs-table-wrap {
+  overflow-x: auto;
+}
+
+.check-logs-table {
+  min-width: 620px;
+  table-layout: fixed;
+}
+
+.check-logs-table th,
+.check-logs-table td {
+  padding: 10px 12px;
+  font-size: 14px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.check-logs-table th {
+  font-weight: 600;
+  color: #111827;
+}
+
+.check-logs-table td {
+  color: #374151;
+}
+
+.check-logs-table td:first-child {
+  width: auto;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.labor-rates-table th:last-child,
+.labor-rates-table td:last-child {
+  width: 220px;
+}
+
+.hourly-rate-input {
+  min-width: 140px;
+}
+
 /* Modal Styles */
 .modal-backdrop {
   position: fixed;

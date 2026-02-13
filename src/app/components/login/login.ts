@@ -66,10 +66,16 @@ export class LoginComponent {
           const mfaToken = (response as any)?.data?.mfa_token ?? (response as any)?.mfa_token ?? null;
           const user = (response as any)?.data?.user;
           const mfaEnabled = (response as any)?.data?.user?.mfaEnabled ?? (response as any)?.data?.mfaEnabled ?? false;
-          const passwordExpiryDays =
-            (response as any)?.data?.passwordExpiryDate ??
-            (response as any)?.data?.user?.passwordExpiryDate ??
+          const daysUntilPasswordExpiry =
+            (response as any)?.data?.daysUntilPasswordExpiry ??
+            (response as any)?.data?.user?.daysUntilPasswordExpiry ??
+            (response as any)?.daysUntilPasswordExpiry ??
             null;
+          const passwordExpired =
+            (response as any)?.data?.passwordExpired ??
+            (response as any)?.data?.user?.passwordExpired ??
+            (response as any)?.passwordExpired ??
+            false;
           const technicianId = (response as any)?.data?.technician?.id
             ?? (response as any)?.data?.user?.technician?.id
             ?? (response as any)?.data?.technicianId
@@ -77,8 +83,8 @@ export class LoginComponent {
           const message = response?.message || (isSuccess ? 'Login successful' : 'Invalid credentials');
 
           if (isSuccess) {
-            if (this.isBrowser && token) {
-              localStorage.setItem('authToken', token);
+            if (this.isBrowser) {
+              // Store auth-independent login flags for downstream screens.
               if (mfaToken) {
                 localStorage.setItem('mfa_token', mfaToken);
               } else {
@@ -86,17 +92,25 @@ export class LoginComponent {
               }
               localStorage.setItem('mfaEnabled', String(!!mfaEnabled));
               localStorage.setItem('loginEmail', email);
+              localStorage.setItem('passwordExpired', String(!!passwordExpired));
+              if (daysUntilPasswordExpiry !== null && daysUntilPasswordExpiry !== undefined) {
+                localStorage.setItem('daysUntilPasswordExpiry', String(daysUntilPasswordExpiry));
+              } else {
+                localStorage.removeItem('daysUntilPasswordExpiry');
+              }
               if (technicianId !== undefined && technicianId !== null) {
                 localStorage.setItem('technicianId', String(technicianId));
               } else {
                 localStorage.removeItem('technicianId');
               }
+
+              // Token may or may not be present depending on MFA flow.
+              if (token) {
+                localStorage.setItem('authToken', token);
+              }
               if (user) {
                 this.permissionService.setFromUser(user);
               }
-            }
-            if (passwordExpiryDays !== null && passwordExpiryDays !== undefined) {
-              this.toastr.warning(`Password will expire in ${passwordExpiryDays} days`);
             }
             // Trigger email MFA flow before allowing dashboard access
             this.loading = true;

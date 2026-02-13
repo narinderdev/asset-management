@@ -64,6 +64,7 @@ import { WorkOrderReportComponent } from './components/reports/work-order-report
 import { MfaComponent } from './components/mfa/mfa';
 import { VerifyAccountComponent } from './components/verify-account/verify-account';
 import { VerifyAuthenticatorComponent } from './components/verify-authenticator/verify-authenticator';
+import { ChangePasswordComponent } from './components/change-password/change-password';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -73,6 +74,7 @@ export const routes: Routes = [
   { path: 'verify-account', component: VerifyAccountComponent },
   { path: 'verify-authenticator', component: VerifyAuthenticatorComponent },
   { path: 'set-password', component: SetPasswordComponent },
+  { path: 'change-password', component: ChangePasswordComponent, canActivate: [AuthGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'assets/add-asset', component: AddAssetComponent, canActivate: [AuthGuard] },
   { path: 'assets/add-asset/:tab', component: AddAssetComponent, canActivate: [AuthGuard] },

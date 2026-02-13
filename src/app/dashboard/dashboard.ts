@@ -1,5 +1,5 @@
-import { Component, computed, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, computed, effect, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { StatCard } from '../components/stat-card/stat-card';
 import { WorkOrderChart, WorkOrderStatus } from '../components/work-order-chart/work-order-chart';
 import { CostChart, CostChartPoint } from '../components/cost-chart/cost-chart';
@@ -7,6 +7,7 @@ import { WorkOrderTable } from '../components/work-order-table/work-order-table'
 import { ServiceRequestTable } from '../components/service-request-table/service-request-table';
 import { MetricDisplay, DashboardRecentWorkOrder, DashboardRecentServiceRequest, useDashboardData } from './use-dashboard-data';
 import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
 
 interface DashboardStatCard {
   title: string;
@@ -51,6 +52,8 @@ interface DashboardTableServiceRequest {
 export class DashboardComponent {
   readonly state = useDashboardData();
   private lastErrorShown: string | null = null;
+  passwordExpired = false;
+  daysUntilPasswordExpiry?: number;
 
   readonly statCards = computed<DashboardStatCard[]>(() => {
     const data = this.state.data();
@@ -106,7 +109,21 @@ export class DashboardComponent {
   readonly isLoading = computed<boolean>(() => this.state.loading());
   readonly error = computed<string | null>(() => this.state.error());
 
-  constructor(private toastr: ToastrService) {
+  constructor(
+    private toastr: ToastrService,
+    private router: Router,
+    @Inject(PLATFORM_ID) platformId: object
+  ) {
+    if (isPlatformBrowser(platformId)) {
+      const rawExpired = localStorage.getItem('passwordExpired');
+      const days = localStorage.getItem('daysUntilPasswordExpiry');
+      this.daysUntilPasswordExpiry = days !== null ? Number(days) : undefined;
+      this.passwordExpired =
+        rawExpired === 'true' ||
+        rawExpired === '1' ||
+        this.daysUntilPasswordExpiry === 0;
+    }
+
     effect(() => {
       const errorMessage = this.error();
       if (errorMessage && errorMessage !== this.lastErrorShown) {
@@ -120,6 +137,21 @@ export class DashboardComponent {
 
   refetch(): void {
     this.state.refetch();
+  }
+
+  goToChangePassword(): void {
+    this.router.navigate(['/change-password']);
+  }
+
+  get hasPasswordNotice(): boolean {
+    return this.passwordExpired || this.daysUntilPasswordExpiry !== undefined;
+  }
+
+  get passwordNoticeText(): string {
+    if (this.passwordExpired || this.daysUntilPasswordExpiry === 0) {
+      return 'Password expired. Please change your password.';
+    }
+    return `Password will expire in ${this.daysUntilPasswordExpiry} days.`;
   }
 
   private buildStatCard(

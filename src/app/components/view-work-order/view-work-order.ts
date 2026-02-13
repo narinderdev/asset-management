@@ -128,6 +128,7 @@ export class ViewWorkOrderComponent implements OnInit {
     laborEntries: [],
     materialsUsed: []
   };
+  completionLaborRows: Array<{ technicianId?: number; technicianName: string; laborHours?: number; hourlyRate?: number; laborDate?: string }> = [];
   newLabor: CompleteLaborEntry = { technicianId: undefined, laborHours: undefined, hourlyRate: undefined, laborDate: '', notes: '' };
   newMaterialUsed: CompleteMaterialUsed = { inventoryItemId: undefined, quantityUsed: undefined, notes: '' };
   prefillMaterialUsed: CompleteMaterialUsed = { inventoryItemId: undefined, quantityUsed: undefined, notes: '' };
@@ -1141,14 +1142,14 @@ export class ViewWorkOrderComponent implements OnInit {
     this.completeError = undefined;
     this.loadTechniciansAndTeams();
     this.loadInventory();
-    const prefilledLabor: CompleteLaborEntry | undefined =
-      this.workOrder?.assignedTechnicianName || this.workOrder?.estimatedLaborHours
-        ? {
-            technicianId: this.workOrder.assignedTechnicianId,
-            laborHours: this.workOrder.estimatedLaborHours
-          }
-        : undefined;
-    this.completeForm.laborEntries = prefilledLabor ? [prefilledLabor] : [];
+    this.completionLaborRows = this.buildCompletionLaborRows();
+    this.completeForm.laborEntries = this.completionLaborRows.map((row) => ({
+      technicianId: row.technicianId,
+      laborHours: row.laborHours,
+      hourlyRate: row.hourlyRate,
+      laborDate: row.laborDate || '',
+      notes: ''
+    }));
     const firstPlanned = this.workOrder?.plannedMaterials?.[0];
     if (firstPlanned?.inventoryItemId) {
       this.prefillMaterialUsed = {
@@ -1169,6 +1170,89 @@ export class ViewWorkOrderComponent implements OnInit {
     };
     this.cdr.detectChanges();
     this.showCompleteModal = true;
+  }
+
+  private buildCompletionLaborRows(): Array<{ technicianId?: number; technicianName: string; laborHours?: number; hourlyRate?: number; laborDate?: string }> {
+    const rows = new Map<string, { technicianId?: number; technicianName: string; laborHours: number; hourlyRate?: number }>();
+    const apiLaborEntries = this.workOrder?.laborEntries ?? [];
+
+    if (apiLaborEntries.length) {
+      // Bind directly from workOrder.laborEntries (one row per API item).
+      return apiLaborEntries.map((entry) => ({
+        technicianId: entry.technicianId,
+        technicianName: entry.technicianName || this.getTechnicianName(entry.technicianId) || 'N/A',
+        laborHours: entry.laborHours,
+        hourlyRate: entry.hourlyRate ?? undefined,
+        laborDate: entry.laborDate ?? ''
+      }));
+    }
+
+    const checkLogs = this.workOrder?.checkLogs ?? [];
+    checkLogs.forEach((raw, idx) => {
+      const log = raw as Record<string, unknown>;
+      const technicianId = typeof log['technicianId'] === 'number' ? log['technicianId'] : undefined;
+      const technicianName =
+        typeof log['technicianName'] === 'string' && log['technicianName'].trim()
+          ? log['technicianName']
+          : (this.getTechnicianName(technicianId) || `Technician ${idx + 1}`);
+      const key = technicianId !== undefined ? `id:${technicianId}` : `name:${technicianName}`;
+      const existing = rows.get(key);
+      const nextHours = (existing?.laborHours ?? 0) + this.getHoursFromCheckLog(log);
+
+      rows.set(key, {
+        technicianId,
+        technicianName,
+        laborHours: nextHours,
+        hourlyRate: existing?.hourlyRate
+      });
+    });
+
+    if (!rows.size && (this.workOrder?.assignedTechnicianId || this.workOrder?.assignedTechnicianName)) {
+      rows.set(`id:${this.workOrder.assignedTechnicianId ?? 'na'}`, {
+        technicianId: this.workOrder.assignedTechnicianId,
+        technicianName: this.workOrder.assignedTechnicianName || 'N/A',
+        laborHours: this.workOrder.estimatedLaborHours ?? 0,
+        hourlyRate: undefined
+      });
+    }
+
+    return Array.from(rows.values()).map((row) => ({
+      technicianId: row.technicianId,
+      technicianName: row.technicianName,
+      laborHours: Number(row.laborHours.toFixed(2)),
+      hourlyRate: row.hourlyRate,
+      laborDate: ''
+    }));
+  }
+
+  private getHoursFromCheckLog(log: Record<string, unknown>): number {
+    const checkIn = this.asValidDate(log['checkInAt']);
+    const checkOut = this.asValidDate(log['checkOutAt']);
+    if (!checkIn || !checkOut || checkOut <= checkIn) {
+      return 0;
+    }
+
+    let totalMs = checkOut.getTime() - checkIn.getTime();
+    const pauses = Array.isArray(log['pauses']) ? (log['pauses'] as Array<Record<string, unknown>>) : [];
+
+    pauses.forEach((pause) => {
+      const pauseAt = this.asValidDate(pause['pauseAt']);
+      const resumeAt = this.asValidDate(pause['resumeAt']);
+      if (!pauseAt || !resumeAt || resumeAt <= pauseAt) {
+        return;
+      }
+      totalMs -= (resumeAt.getTime() - pauseAt.getTime());
+    });
+
+    return totalMs > 0 ? totalMs / 3600000 : 0;
+  }
+
+  private asValidDate(value: unknown): Date | undefined {
+    if (!value || typeof value !== 'string') {
+      return undefined;
+    }
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? undefined : parsed;
   }
 
   addLaborEntry(): void {
@@ -1338,6 +1422,14 @@ export class ViewWorkOrderComponent implements OnInit {
       this.completeError = 'Missing work order id.';
       return;
     }
+
+    this.completeForm.laborEntries = this.completionLaborRows.map((row) => ({
+      technicianId: row.technicianId,
+      laborHours: row.laborHours,
+      hourlyRate: row.hourlyRate,
+      laborDate: row.laborDate || '',
+      notes: ''
+    }));
 
     // default actual end to now if missing
     const payload: CompleteWorkOrderRequest = {

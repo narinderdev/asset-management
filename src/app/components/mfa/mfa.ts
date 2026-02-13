@@ -280,6 +280,9 @@ export class MfaComponent implements OnInit {
             this.disableOtpDigits = Array(6).fill('');
             this.clearDisableInputs();
             this.showDisableForm = false;
+            if (typeof window !== 'undefined') {
+              setTimeout(() => window.location.reload(), 300);
+            }
           } else {
             this.disableError = res?.message || 'Invalid code. Please try again.';
           }

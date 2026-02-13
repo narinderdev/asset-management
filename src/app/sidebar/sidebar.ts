@@ -288,6 +288,8 @@ export class SidebarComponent implements OnInit {
     localStorage.removeItem('signupUserId');
     localStorage.removeItem('signupEmail');
     localStorage.removeItem('mfaEnabled');
+    localStorage.removeItem('passwordExpired');
+    localStorage.removeItem('daysUntilPasswordExpiry');
     this.permissions.clear();
     this.showLogoutModal = false;
     this.router.navigate(['/login']);

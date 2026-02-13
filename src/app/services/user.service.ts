@@ -22,6 +22,11 @@ export interface SetPasswordPayload {
   password: string;
 }
 
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export interface UserListItem {
   id?: number;
   name?: string;
@@ -50,6 +55,12 @@ export class UserService {
 
   setPassword(payload: SetPasswordPayload): Observable<ApiResponse> {
     return this.http.post<ApiResponse>(`${this.apiUrl}/set-password`, payload, {
+      headers: this.headers
+    });
+  }
+
+  changePassword(payload: ChangePasswordPayload): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(`${this.apiUrl}/change-password`, payload, {
       headers: this.headers
     });
   }

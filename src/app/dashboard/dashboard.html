@@ -4,7 +4,12 @@
       <div>
         <h1>Maintenance Dashboard</h1>
       </div>
-      <button class="refresh-btn" type="button" (click)="refetch()">Refresh</button>
+      <div class="header-actions">
+        <ng-container *ngIf="hasPasswordNotice">
+          <span class="password-expired-note">{{ passwordNoticeText }}</span>
+          <button class="change-password-btn" type="button" (click)="goToChangePassword()">Change Password</button>
+        </ng-container>
+      </div>
     </div>
 
     <div class="stats-grid">

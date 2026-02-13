@@ -145,6 +145,29 @@ export class VerifyAuthenticatorComponent implements OnInit {
           const message = response?.message || (isSuccess ? 'Verification successful.' : 'Invalid code.');
 
           if (isSuccess) {
+            const token = (response as any)?.data?.token ?? (response as any)?.token;
+            const daysUntilPasswordExpiry =
+              (response as any)?.data?.daysUntilPasswordExpiry ??
+              (response as any)?.data?.user?.daysUntilPasswordExpiry ??
+              (response as any)?.daysUntilPasswordExpiry ??
+              null;
+            const passwordExpired =
+              (response as any)?.data?.passwordExpired ??
+              (response as any)?.data?.user?.passwordExpired ??
+              (response as any)?.passwordExpired ??
+              false;
+
+            if (this.isBrowser) {
+              if (token) {
+                localStorage.setItem('authToken', token);
+              }
+              localStorage.setItem('passwordExpired', String(!!passwordExpired));
+              if (daysUntilPasswordExpiry !== null && daysUntilPasswordExpiry !== undefined) {
+                localStorage.setItem('daysUntilPasswordExpiry', String(daysUntilPasswordExpiry));
+              } else {
+                localStorage.removeItem('daysUntilPasswordExpiry');
+              }
+            }
             this.toastr.success(message);
             this.router.navigate(['/dashboard']);
           } else {

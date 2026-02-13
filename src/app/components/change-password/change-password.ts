@@ -1,0 +1,107 @@
+import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectorRef } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
+import { finalize } from 'rxjs';
+
+import { UserService } from '../../services/user.service';
+import { SpinnerComponent } from '../spinner/spinner';
+
+@Component({
+  selector: 'app-change-password',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, SpinnerComponent],
+  templateUrl: './change-password.html',
+  styleUrls: ['./change-password.css']
+})
+export class ChangePasswordComponent {
+  form: FormGroup;
+  submitted = false;
+  loading = false;
+  errorMessage = '';
+  currentPasswordVisible = false;
+  newPasswordVisible = false;
+  confirmPasswordVisible = false;
+
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private userService: UserService,
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
+  ) {
+    this.form = this.fb.group(
+      {
+        currentPassword: ['', Validators.required],
+        newPassword: ['', [Validators.required, Validators.minLength(8)]],
+        confirmPassword: ['', Validators.required]
+      },
+      {
+        validators: [this.passwordMatchValidator]
+      }
+    );
+  }
+
+  passwordMatchValidator(group: FormGroup) {
+    const pass = group.get('newPassword')?.value;
+    const confirm = group.get('confirmPassword')?.value;
+    return pass === confirm ? null : { mismatch: true };
+  }
+
+  togglePasswordVisibility(field: 'currentPassword' | 'newPassword' | 'confirmPassword') {
+    if (field === 'currentPassword') {
+      this.currentPasswordVisible = !this.currentPasswordVisible;
+      return;
+    }
+    if (field === 'newPassword') {
+      this.newPasswordVisible = !this.newPasswordVisible;
+      return;
+    }
+    this.confirmPasswordVisible = !this.confirmPasswordVisible;
+  }
+
+  submit() {
+    this.submitted = true;
+    this.errorMessage = '';
+
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.loading = true;
+    this.userService
+      .changePassword({
+        currentPassword: this.form.value.currentPassword,
+        newPassword: this.form.value.newPassword
+      })
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          const statusCode = response?.statusCode ?? 0;
+          const isSuccess = statusCode === 200 || statusCode === 201 || statusCode === 0;
+          if (!isSuccess) {
+            this.errorMessage = response?.message || 'Failed to change password. Please try again.';
+            this.toastr.error(this.errorMessage);
+            return;
+          }
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('passwordExpired', 'false');
+            localStorage.removeItem('daysUntilPasswordExpiry');
+          }
+          this.toastr.success(response?.message || 'Password changed successfully.');
+          this.router.navigate(['/dashboard']);
+        },
+        error: (error) => {
+          this.errorMessage = error?.error?.message || 'Failed to change password. Please try again.';
+          this.toastr.error(this.errorMessage);
+        }
+      });
+  }
+}
