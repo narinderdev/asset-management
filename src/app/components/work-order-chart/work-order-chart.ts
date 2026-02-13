@@ -19,10 +19,7 @@ export class WorkOrderChart {
   @Input() statuses: WorkOrderStatus[] = [];
   @Input() loading = false;
 
-  readonly radius = 70;
-  readonly circumference = 2 * Math.PI * this.radius;
-
-  get total(): number {
+  private get total(): number {
     const totalValue = this.statuses.reduce(
       (sum, status) => sum + (Number.isFinite(status.value) ? Number(status.value) : 0),
       0
@@ -30,22 +27,36 @@ export class WorkOrderChart {
     return totalValue > 0 ? totalValue : 1;
   }
 
-  dashArray(value: number): string {
-    const safeValue = Number.isFinite(value) ? value : 0;
-    const length = (safeValue / this.total) * this.circumference;
-    const gap = Math.max(this.circumference - length, 0);
-    return `${length} ${gap}`;
-  }
+  donutGradient(): string {
+    if (!this.statuses.length) {
+      return '#eef2f7';
+    }
 
-  dashOffset(index: number): string {
-    const priorValue = this.statuses
-      .slice(0, index)
-      .reduce(
-        (sum, status) => sum + (Number.isFinite(status.value) ? Number(status.value) : 0),
-        0
-      );
-    const offset = (priorValue / this.total) * this.circumference;
-    return `${-offset}`;
+    let cursor = 0;
+    const slices: string[] = [];
+    const seamOverlap = 0.2;
+
+    this.statuses.forEach((status, index) => {
+      const value = Number.isFinite(status.value) ? Number(status.value) : 0;
+      if (value <= 0) {
+        return;
+      }
+
+      const start = cursor;
+      let end = start + (value / this.total) * 360;
+      if (index < this.statuses.length - 1) {
+        end = Math.min(end + seamOverlap, 360);
+      }
+
+      slices.push(`${status.color} ${start}deg ${end}deg`);
+      cursor = start + (value / this.total) * 360;
+    });
+
+    if (!slices.length) {
+      return '#eef2f7';
+    }
+
+    return `conic-gradient(from -90deg, ${slices.join(', ')})`;
   }
 
   trackByStatus = (_: number, status: WorkOrderStatus): string => status.key ?? status.label;

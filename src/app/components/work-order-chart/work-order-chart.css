@@ -15,6 +15,7 @@
 .chart-container {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 48px;
   justify-content: center;
   margin-bottom: 50px;
@@ -29,20 +30,27 @@
 .donut {
   width: 100%;
   height: 100%;
+  border-radius: 50%;
+  position: relative;
+  animation: donutReveal 0.7s ease-out forwards;
 }
 
-.donut-segment {
-  stroke-dasharray: var(--dasharray, 440);
-  stroke-dashoffset: 440;
-  transform-origin: 100px 100px;
-  transform: rotate(-90deg);
-  animation: reveal 1.2s ease-out forwards;
-  transition: stroke-dasharray 0.3s ease, stroke-dashoffset 0.3s ease;
+.donut::after {
+  content: '';
+  position: absolute;
+  inset: 25px;
+  background: #ffffff;
+  border-radius: 50%;
 }
 
-@keyframes reveal {
+@keyframes donutReveal {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
   to {
-    stroke-dashoffset: var(--dashoffset-final, 0);
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
@@ -51,6 +59,7 @@
   flex-direction: column;
   gap: 18px;
   flex: 1;
+  min-width: 220px;
   max-width: 220px;
 }
 

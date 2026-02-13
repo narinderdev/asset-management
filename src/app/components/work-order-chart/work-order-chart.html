@@ -5,21 +5,7 @@
   <div class="chart-container">
     <div class="donut-chart">
       <ng-container *ngIf="!loading && statuses.length; else donutFallback">
-        <svg viewBox="0 0 200 200" class="donut">
-          <ng-container *ngFor="let status of statuses; let i = index; trackBy: trackByStatus">
-            <circle
-              cx="100"
-              cy="100"
-              r="70"
-              fill="none"
-              [attr.stroke]="status.color"
-              stroke-width="25"
-              class="donut-segment"
-              [style.--dasharray]="dashArray(status.value)"
-              [style.--dashoffset-final]="dashOffset(i)"
-            ></circle>
-          </ng-container>
-        </svg>
+        <div class="donut" [style.background]="donutGradient()"></div>
       </ng-container>
     </div>
     
