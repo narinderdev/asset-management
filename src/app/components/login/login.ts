@@ -20,6 +20,7 @@ export class LoginComponent {
 
   loading = false;
   passwordVisible = false;
+  passwordFocused = false;
   private isBrowser = false;
 
   constructor(
@@ -40,6 +41,42 @@ export class LoginComponent {
 
   togglePasswordVisibility() {
     this.passwordVisible = !this.passwordVisible;
+  }
+
+  onPasswordFocus() {
+    this.passwordFocused = true;
+  }
+
+  onPasswordBlur() {
+    this.passwordFocused = false;
+  }
+
+  get showPasswordChecklist(): boolean {
+    return this.passwordFocused;
+  }
+
+  get passwordValue(): string {
+    return String(this.form.get('password')?.value ?? '');
+  }
+
+  hasMinLength(password: string): boolean {
+    return password.length >= 12;
+  }
+
+  hasLowerCase(password: string): boolean {
+    return /[a-z]/.test(password);
+  }
+
+  hasUpperCase(password: string): boolean {
+    return /[A-Z]/.test(password);
+  }
+
+  hasNumeric(password: string): boolean {
+    return /\d/.test(password);
+  }
+
+  hasSpecial(password: string): boolean {
+    return /[$@#%\^&*?\-+=]/.test(password);
   }
 
   submit() {

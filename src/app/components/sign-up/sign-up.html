@@ -75,7 +75,7 @@
       </small>
     </div>
 
-    <div class="form-group">
+    <div class="form-group password-group">
       <label>Password</label>
       <div class="input-wrapper">
         <span class="input-icon-left" aria-hidden="true">
@@ -89,6 +89,7 @@
           name="password"
           formControlName="password"
           placeholder="Create a password"
+          (focus)="onPasswordFocus()"
           (blur)="onPasswordBlur()"
         />
         <button
@@ -133,9 +134,26 @@
           </ng-template>
         </button>
       </div>
-        <small class="error" *ngIf="form.get('password')?.touched && form.get('password')?.invalid">
-          Password must be at least 12 characters and include upper, lower, and symbol.
-        </small>
+      <div class="password-checklist-popover" *ngIf="showPasswordChecklist">
+        <ul class="password-checklist">
+          <li [class.met]="hasMinLength(passwordValue)">
+            <span class="check-icon">&#10003;</span>
+            <span>Minimum 12 characters</span>
+          </li>
+          <li [class.met]="hasUpperCase(passwordValue)">
+            <span class="check-icon">&#10003;</span>
+            <span>Uppercase letters</span>
+          </li>
+          <li [class.met]="hasLowerCase(passwordValue)">
+            <span class="check-icon">&#10003;</span>
+            <span>Lowercase letters</span>
+          </li>
+          <li [class.met]="hasSpecial(passwordValue)">
+            <span class="check-icon">&#10003;</span>
+            <span>Special characters</span>
+          </li>
+        </ul>
+      </div>
     </div>
 
     <div class="form-group">
@@ -219,3 +237,4 @@
     </p>
   </form>
 </div>
+

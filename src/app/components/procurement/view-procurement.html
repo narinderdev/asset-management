@@ -22,10 +22,6 @@
             'badge-warning': !isApproved && !isRejected,
             'badge-danger': isRejected
           }">{{ formatStatus(mrDetail?.status || mrState?.status) }}</span>
-          
-          <span class="badge badge-info" *ngIf="isConvertedToPo">
-            Converted to PO
-          </span>
         </div>
 
         <div class="action-buttons">

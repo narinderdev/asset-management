@@ -44,7 +44,7 @@
     </div>
 
     <!-- PASSWORD -->
-    <div class="form-group">
+    <div class="form-group password-group">
       <label>Password</label>
       <div class="input-wrapper">
         <input
@@ -52,6 +52,8 @@
           name="password"
           formControlName="password"
           placeholder="Enter your password"
+          (focus)="onPasswordFocus()"
+          (blur)="onPasswordBlur()"
         />
         <span class="input-icon icon-button" (click)="togglePasswordVisibility()" aria-label="Toggle password visibility">
           <ng-container *ngIf="passwordVisible; else hiddenIcon">
@@ -86,6 +88,27 @@
       <small class="error" *ngIf="form.get('password')?.touched && form.get('password')?.invalid">
         Password is required.
       </small>
+
+      <div class="password-checklist-popover" *ngIf="showPasswordChecklist">
+        <ul class="password-checklist">
+          <li [class.met]="hasMinLength(passwordValue)">
+            <span class="check-icon">✓</span>
+            <span>Minimum 12 characters</span>
+          </li>
+          <li [class.met]="hasUpperCase(passwordValue)">
+            <span class="check-icon">✓</span>
+            <span>Uppercase letters</span>
+          </li>
+          <li [class.met]="hasLowerCase(passwordValue)">
+            <span class="check-icon">✓</span>
+            <span>Lowercase letters</span>
+          </li>
+          <li [class.met]="hasSpecial(passwordValue)">
+            <span class="check-icon">✓</span>
+            <span>Special characters</span>
+          </li>
+        </ul>
+      </div>
 
       <a class="forgot-password" href="#">Forgot Password?</a>
     </div>

@@ -23,6 +23,7 @@ export class ChangePasswordComponent {
   currentPasswordVisible = false;
   newPasswordVisible = false;
   confirmPasswordVisible = false;
+  newPasswordFocused = false;
 
   constructor(
     private fb: FormBuilder,
@@ -34,7 +35,10 @@ export class ChangePasswordComponent {
     this.form = this.fb.group(
       {
         currentPassword: ['', Validators.required],
-        newPassword: ['', [Validators.required, Validators.minLength(8)]],
+        newPassword: [
+          '',
+          [Validators.required, Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[$@#%\^&*?\-+=])[A-Za-z\d$@#%\^&*?\-+=]{12,}$/)]
+        ],
         confirmPassword: ['', Validators.required]
       },
       {
@@ -59,6 +63,38 @@ export class ChangePasswordComponent {
       return;
     }
     this.confirmPasswordVisible = !this.confirmPasswordVisible;
+  }
+
+  get newPasswordValue(): string {
+    return String(this.form.get('newPassword')?.value ?? '');
+  }
+
+  get showPasswordChecklist(): boolean {
+    return this.newPasswordFocused;
+  }
+
+  hasMinLength(password: string): boolean {
+    return password.length >= 12;
+  }
+
+  hasLowerCase(password: string): boolean {
+    return /[a-z]/.test(password);
+  }
+
+  hasUpperCase(password: string): boolean {
+    return /[A-Z]/.test(password);
+  }
+
+  hasSpecial(password: string): boolean {
+    return /[$@#%\^&*?\-+=]/.test(password);
+  }
+
+  onNewPasswordFocus() {
+    this.newPasswordFocused = true;
+  }
+
+  onNewPasswordBlur() {
+    this.newPasswordFocused = false;
   }
 
   submit() {

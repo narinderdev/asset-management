@@ -22,6 +22,7 @@ export class SetPasswordComponent implements OnInit {
   errorMessage = '';
   passwordVisible = false;
   confirmPasswordVisible = false;
+  passwordFocused = false;
 
   constructor(
     private fb: FormBuilder,
@@ -32,7 +33,10 @@ export class SetPasswordComponent implements OnInit {
   ) {
     this.form = this.fb.group(
       {
-        password: ['', [Validators.required, Validators.minLength(8)]],
+        password: [
+          '',
+          [Validators.required, Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*[$@#%\^&*?\-+=])[A-Za-z\d$@#%\^&*?\-+=]{12,}$/)]
+        ],
         confirmPassword: ['', Validators.required]
       },
       {
@@ -62,6 +66,38 @@ export class SetPasswordComponent implements OnInit {
     } else {
       this.confirmPasswordVisible = !this.confirmPasswordVisible;
     }
+  }
+
+  get passwordValue(): string {
+    return String(this.form.get('password')?.value ?? '');
+  }
+
+  get showPasswordChecklist(): boolean {
+    return this.passwordFocused;
+  }
+
+  hasMinLength(password: string): boolean {
+    return password.length >= 12;
+  }
+
+  hasLowerCase(password: string): boolean {
+    return /[a-z]/.test(password);
+  }
+
+  hasUpperCase(password: string): boolean {
+    return /[A-Z]/.test(password);
+  }
+
+  hasSpecial(password: string): boolean {
+    return /[$@#%\^&*?\-+=]/.test(password);
+  }
+
+  onPasswordFocus() {
+    this.passwordFocused = true;
+  }
+
+  onPasswordBlur() {
+    this.passwordFocused = false;
   }
 
   submit() {

@@ -65,13 +65,13 @@ export class SidebarComponent implements OnInit {
     {
       icon: 'fluent-mdl2_work-flow.svg',
       activeIcon: 'fluent-mdl2_work-flow (1).svg',
-      label: 'Work Orders',
+      label: 'Work Order',
       route: '/work-orders',
       module: 'WORK_ORDER',
       hasSubmenu: true,
       submenu: [
         { label: 'Work Order Types', route: '/work-orders/types' },
-        { label: 'Work Orders', route: '/work-orders' }
+        { label: 'Work Order', route: '/work-orders' }
         
       ]
     },
@@ -255,11 +255,13 @@ export class SidebarComponent implements OnInit {
   }
 
   isMenuItemActive(item: MenuItem): boolean {
-    const subActive = item.submenu?.some(sub => this.activeRoute === sub.route || this.activeRoute.startsWith(`${sub.route}/`));
+    if (item.hasSubmenu) {
+      return false;
+    }
+
     return (
       this.activeRoute === item.route ||
-      this.activeRoute.startsWith(`${item.route}/`) ||
-      !!subActive
+      this.activeRoute.startsWith(`${item.route}/`)
     );
   }
 

@@ -10,8 +10,8 @@
         <h1>{{ workOrder.woTitle || 'Work Order Details' }}</h1>
         <div class="workorder-meta">
           <span class="workorder-id">{{ workOrder.workOrderId ?? 'N/A' }}</span>
-          <span *ngIf="workOrder.workType">·</span>
-          <span *ngIf="workOrder.workType">·</span>
+          <span *ngIf="workOrder.workType">ï¿½</span>
+          <span *ngIf="workOrder.workType">ï¿½</span>
         </div>
       </div>
 
@@ -284,7 +284,7 @@
         <div class="card-body">
           <div class="field-grid field-grid-2">
             <div class="field-group">
-              <div class="field-label">Created At</div>
+              <div class="field-label">Create Date</div>
               <div class="field-value">{{ formatDate(workOrder.createdAt) }}</div>
             </div>
             <div class="field-group">

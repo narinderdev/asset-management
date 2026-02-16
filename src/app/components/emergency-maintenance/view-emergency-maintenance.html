@@ -66,11 +66,11 @@
                 <div class="field-value" [ngClass]="{'empty': !incident.reporter}">{{ incident.reporter || 'N/A' }}</div>
               </div>
               <div class="field-group">
-                <div class="field-label">Created At</div>
+                <div class="field-label">Create Date</div>
                 <div class="field-value">{{ formatDateTime(incident.createdAt) }}</div>
               </div>
               <div class="field-group">
-                <div class="field-label">Updated At</div>
+                <div class="field-label">Updated Date</div>
                 <div class="field-value">{{ formatDateTime(incident.updatedAt) }}</div>
               </div>
             </div>
