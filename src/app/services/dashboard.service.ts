@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -15,6 +15,58 @@ export interface TechnicianDashboardResponse {
   status?: string;
   message?: string;
   data?: TechnicianDashboardData;
+}
+
+export interface SecurityDashboardResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: SecurityDashboardData;
+}
+
+export interface SecurityDashboardData {
+  thisWeek?: SecurityDashboardPeriodData;
+  thisMonth?: SecurityDashboardPeriodData;
+  thisYear?: SecurityDashboardPeriodData;
+}
+
+export interface SecurityDashboardPeriodData {
+  period?: string;
+  kpiSummary?: {
+    newUsersAdded?: number;
+    usersRemovedOrDisabled?: number;
+    newRolesAdded?: number;
+    roleChanges?: number;
+    permissionChanges?: number;
+  };
+  recentUserActivity?: Array<{
+    actionType?: string;
+    targetUserName?: string;
+    performedBy?: string;
+    dateTime?: string;
+    details?: string;
+    status?: string;
+  }>;
+  rolePermissionChanges?: Array<{
+    actionType?: string;
+    roleName?: string;
+    roleId?: number;
+    performedBy?: string;
+    dateTime?: string;
+    addedPermissions?: string[];
+    removedPermissions?: string[];
+    details?: string;
+  }>;
+  securityLog?: Array<{
+    eventType?: string;
+    category?: string;
+    targetType?: string;
+    performedBy?: string;
+    dateTime?: string;
+    result?: string;
+    targetName?: string;
+    details?: string;
+  }>;
 }
 
 export interface TechnicianDashboardData {
@@ -120,6 +172,7 @@ export interface RecentServiceRequest {
 })
 export class DashboardService {
   private readonly apiUrl = `${environment.apiUrl}/api/dashboard`;
+  private readonly securityDashboardUrl = `${environment.apiUrl}/api/security-dashboard`;
 
   constructor(private http: HttpClient) {}
 
@@ -135,5 +188,15 @@ export class DashboardService {
       'ngrok-skip-browser-warning': 'true'
     });
     return this.http.get<TechnicianDashboardResponse>(`${this.apiUrl}/technicians`, { headers });
+  }
+
+  fetchSecurityDashboard(period: string = 'THIS_WEEK', limit: number = 20): Observable<SecurityDashboardResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    const params = new HttpParams()
+      .set('period', period)
+      .set('limit', String(limit));
+    return this.http.get<SecurityDashboardResponse>(this.securityDashboardUrl, { headers, params });
   }
 }

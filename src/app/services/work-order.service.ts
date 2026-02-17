@@ -117,6 +117,10 @@ export interface CreateInvoiceRequest {
 
 export interface CreateWorkOrderRequest {
   assetId?: number | null;
+  assetName?: string;
+  assetSerialNumber?: string;
+  assetModelNumber?: string;
+  assetManufactureDate?: string;
   location?: string;
   workType: string;
   priority: string;
@@ -168,6 +172,11 @@ export interface WorkOrderType {
   laborUtilityAccount?: string;
   inventoryGlAccount?: string;
   inventoryUtilityAccount?: string;
+  createAsset?: boolean;
+  propertyUnit?: string;
+  propertyGroup?: string;
+  retirementUnit?: string;
+  functionalClass?: string;
   active?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -230,6 +239,9 @@ export interface ApiWorkOrderDetail extends ApiWorkOrder {
   linkedServiceRequestDbId?: number;
   linkedServiceRequestId?: string;
   assetDbId?: number;
+  assetSerialNumber?: string;
+  assetModelNumber?: string;
+  assetManufactureDate?: string;
   location?: string;
   workType?: string;
   workRequestTypeCode?: string;
@@ -546,3 +558,4 @@ export class WorkOrderService {
     return this.http.post<WorkOrderDetailResponse>(`${this.apiUrl}/${id}/team/resume`, {}, { headers });
   }
 }
+

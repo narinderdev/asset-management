@@ -41,7 +41,12 @@ export class SidebarComponent implements OnInit {
       icon: 'radix-icons_dashboard.svg',
       activeIcon: 'radix-icons_dashboard (1).svg',
       label: 'Dashboard',
-      route: '/dashboard'
+      route: '/dashboard',
+      hasSubmenu: true,
+      submenu: [
+        { label: 'Maintenance Dashboard', route: '/dashboard' },
+        { label: 'Security Dashboard', route: '/dashboard/security' }
+      ]
     },
     {
       icon: 'fluent_web-asset-24-regular.svg',
@@ -174,12 +179,14 @@ export class SidebarComponent implements OnInit {
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe(event => {
         this.activeRoute = event.urlAfterRedirects || event.url;
+        this.syncExpandedMenuForRoute();
       });
   }
 
   ngOnInit(): void {
     const name = this.permissions.getCurrentUserName();
     this.userName = name || 'User';
+    this.syncExpandedMenuForRoute();
   }
 
   toggleSidebar() {
@@ -302,5 +309,16 @@ export class SidebarComponent implements OnInit {
     if (this.mobileOpen) {
       this.mobileClose.emit();
     }
+  }
+
+  private syncExpandedMenuForRoute(): void {
+    const match = this.menuItems.find(
+      item =>
+        item.hasSubmenu &&
+        item.submenu?.some(
+          sub => this.activeRoute === sub.route || this.activeRoute.startsWith(`${sub.route}/`)
+        )
+    );
+    this.expandedMenuLabel = match?.label;
   }
 }

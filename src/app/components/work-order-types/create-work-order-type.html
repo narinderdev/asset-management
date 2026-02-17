@@ -8,6 +8,33 @@
     <app-loader [visible]="isLoading"></app-loader>
 
     <form *ngIf="!isLoading" [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
+      <label class="field checkbox-field full-width">
+        <input type="checkbox" formControlName="createAsset" />
+        <span>Create asset</span>
+      </label>
+
+      <ng-container *ngIf="createAssetEnabled">
+        <label class="field">
+          <span>Property Unit</span>
+          <input type="text" formControlName="propertyUnit" placeholder="Property Unit" />
+        </label>
+
+        <label class="field">
+          <span>Property Group</span>
+          <input type="text" formControlName="propertyGroup" placeholder="Property Group" />
+        </label>
+
+        <label class="field">
+          <span>Retirement Unit</span>
+          <input type="text" formControlName="retirementUnit" placeholder="Retirement Unit" />
+        </label>
+
+        <label class="field">
+          <span>Functional Class</span>
+          <input type="text" formControlName="functionalClass" placeholder="Functional Class" />
+        </label>
+      </ng-container>
+
       <label class="field">
         <span>Type</span>
         <input type="text" formControlName="workOrderType" placeholder="e.g., PREVENTIVE" />

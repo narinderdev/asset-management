@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
 
@@ -24,14 +24,22 @@ export class ChangePasswordComponent {
   newPasswordVisible = false;
   confirmPasswordVisible = false;
   newPasswordFocused = false;
+  email = '';
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private userService: UserService,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef
   ) {
+    const emailFromQuery = String(this.route.snapshot.queryParamMap.get('email') ?? '').trim().toLowerCase();
+    const emailFromStorage = typeof localStorage !== 'undefined'
+      ? String(localStorage.getItem('loginEmail') ?? '').trim().toLowerCase()
+      : '';
+    this.email = emailFromQuery || emailFromStorage;
+
     this.form = this.fb.group(
       {
         currentPassword: ['', Validators.required],
@@ -106,11 +114,18 @@ export class ChangePasswordComponent {
       return;
     }
 
+    if (!this.email) {
+      this.errorMessage = 'Email is required to change password. Please login again.';
+      this.toastr.error(this.errorMessage);
+      return;
+    }
+
     this.loading = true;
     this.userService
       .changePassword({
         currentPassword: this.form.value.currentPassword,
-        newPassword: this.form.value.newPassword
+        newPassword: this.form.value.newPassword,
+        email: this.email
       })
       .pipe(
         finalize(() => {
@@ -130,6 +145,7 @@ export class ChangePasswordComponent {
           if (typeof localStorage !== 'undefined') {
             localStorage.setItem('passwordExpired', 'false');
             localStorage.removeItem('daysUntilPasswordExpiry');
+            localStorage.removeItem('passwordChangeToken');
           }
           this.toastr.success(response?.message || 'Password changed successfully.');
           this.router.navigate(['/dashboard']);

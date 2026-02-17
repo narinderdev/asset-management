@@ -24,12 +24,14 @@ export class AuthTokenInterceptor implements HttpInterceptor {
     const url = (req.url || '').toLowerCase();
     const isAuthEndpoint =
       url.includes('/auth/signup/verify') || url.endsWith('/auth') || url.includes('/auth/signup');
+    const isChangePasswordEndpoint = url.includes('/users/change-password');
 
     if (isAuthEndpoint) {
       return next.handle(req);
     }
 
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('authToken')
+      || (isChangePasswordEndpoint ? localStorage.getItem('passwordChangeToken') : null);
     if (!token) {
       return next.handle(req);
     }
@@ -44,6 +46,7 @@ export class AuthTokenInterceptor implements HttpInterceptor {
       catchError((error: HttpErrorResponse) => {
         if (this.isBrowser && error?.status === 403) {
           localStorage.removeItem('authToken');
+          localStorage.removeItem('passwordChangeToken');
           this.router.navigate(['/login']);
         }
         return throwError(() => error);

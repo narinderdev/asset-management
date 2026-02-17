@@ -28,6 +28,10 @@ export class CreateWorkOrderComponent implements OnInit {
 
   workOrder = {
     assetId: null as number | null,
+    assetName: '',
+    assetSerialNumber: '',
+    assetModelNumber: '',
+    assetManufactureDate: '',
     location: '',
     workType: '',
     priority: '',
@@ -59,6 +63,7 @@ export class CreateWorkOrderComponent implements OnInit {
     { label: 'Emergency', value: 'EMERGENCY' }
   ];
   workOrderTypeOptions: Array<WorkOrderType & { label: string }> = [];
+  selectedWorkOrderTypeCreateAsset = false;
 
   constructor(
     private router: Router,
@@ -121,8 +126,13 @@ export class CreateWorkOrderComponent implements OnInit {
   }
 
   onCreate(): void {
+    const useAssetName = this.selectedWorkOrderTypeCreateAsset;
     const payload: CreateWorkOrderRequest = {
-      assetId: this.workOrder.assetId ?? undefined,
+      assetId: useAssetName ? undefined : (this.workOrder.assetId ?? undefined),
+      assetName: useAssetName ? (this.workOrder.assetName.trim() || undefined) : undefined,
+      assetSerialNumber: useAssetName ? (this.workOrder.assetSerialNumber.trim() || undefined) : undefined,
+      assetModelNumber: useAssetName ? (this.workOrder.assetModelNumber.trim() || undefined) : undefined,
+      assetManufactureDate: useAssetName ? (this.workOrder.assetManufactureDate || undefined) : undefined,
       location: this.workOrder.location || undefined,
       workType: this.workOrder.workType,
       priority: this.workOrder.priority,
@@ -161,6 +171,9 @@ export class CreateWorkOrderComponent implements OnInit {
   }
 
   onAssetChange(assetId: number | null): void {
+    if (this.selectedWorkOrderTypeCreateAsset) {
+      return;
+    }
     if (!assetId) {
       this.workOrder.location = '';
       this.cdr.detectChanges();
@@ -216,6 +229,10 @@ export class CreateWorkOrderComponent implements OnInit {
     const assetId = detail.assetDbId ?? (detail.assetId ? Number(detail.assetId) : null);
     this.workOrder = {
       assetId: assetId && !Number.isNaN(assetId) ? assetId : null,
+      assetName: detail.assetName ?? '',
+      assetSerialNumber: detail.assetSerialNumber ?? '',
+      assetModelNumber: detail.assetModelNumber ?? '',
+      assetManufactureDate: (detail.assetManufactureDate ?? '').slice(0, 10),
       location: detail.location ?? '',
       workType: (detail.workType ?? '').toUpperCase(),
       priority: (detail.priority ?? '').toUpperCase(),
@@ -249,10 +266,14 @@ export class CreateWorkOrderComponent implements OnInit {
             laborUtilityAccount: item.laborUtilityAccount,
             inventoryGlAccount: item.inventoryGlAccount,
             inventoryUtilityAccount: item.inventoryUtilityAccount,
+            createAsset: item.createAsset,
             active: item.active,
             createdAt: item.createdAt,
             updatedAt: item.updatedAt
           }));
+        if (this.workOrder.workOrderTypeId) {
+          this.onWorkOrderTypeChange(this.workOrder.workOrderTypeId);
+        }
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -264,12 +285,23 @@ export class CreateWorkOrderComponent implements OnInit {
 
   onWorkOrderTypeChange(selectedId: number | null): void {
     if (!selectedId) {
+      this.selectedWorkOrderTypeCreateAsset = false;
       return;
     }
     const match = this.workOrderTypeOptions.find((opt) => opt.id === selectedId);
     if (match) {
+      this.selectedWorkOrderTypeCreateAsset = !!match.createAsset;
       this.workOrder.glAccount = match.defaultGlAccount ?? '';
       this.workOrder.utilityAccount = match.defaultUtilityAccount ?? '';
+      if (this.selectedWorkOrderTypeCreateAsset) {
+        this.workOrder.assetId = null;
+        this.workOrder.location = '';
+      } else {
+        this.workOrder.assetName = '';
+        this.workOrder.assetSerialNumber = '';
+        this.workOrder.assetModelNumber = '';
+        this.workOrder.assetManufactureDate = '';
+      }
       this.cdr.detectChanges();
     }
   }

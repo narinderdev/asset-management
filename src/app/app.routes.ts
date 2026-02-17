@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard';
+import { SecurityDashboardComponent } from './dashboard/security-dashboard';
 import { AssetsComponent } from './components/assets/assets';
 import { AddAssetComponent } from './components/add-asset/add-asset';
 import { AssetTypesComponent } from './components/asset-types/asset-types';
@@ -76,6 +77,7 @@ export const routes: Routes = [
   { path: 'set-password', component: SetPasswordComponent },
   { path: 'change-password', component: ChangePasswordComponent, canActivate: [AuthGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'dashboard/security', component: SecurityDashboardComponent, canActivate: [AuthGuard] },
   { path: 'assets/add-asset', component: AddAssetComponent, canActivate: [AuthGuard] },
   { path: 'assets/add-asset/:tab', component: AddAssetComponent, canActivate: [AuthGuard] },
   { path: 'assets/types/create', component: CreateAssetTypeComponent, canActivate: [AuthGuard] },

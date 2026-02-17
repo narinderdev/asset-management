@@ -46,6 +46,11 @@ export class CreateWorkOrderTypeComponent implements OnInit {
 
   private createForm() {
     return this.fb.group({
+      createAsset: [false],
+      propertyUnit: [''],
+      propertyGroup: [''],
+      retirementUnit: [''],
+      functionalClass: [''],
       workOrderType: ['', Validators.required],
       costTreatment: ['CAPEX', Validators.required],
       defaultGlAccount: [''],
@@ -70,6 +75,11 @@ export class CreateWorkOrderTypeComponent implements OnInit {
         const payload = res?.data;
         if (payload) {
           this.form.patchValue({
+            createAsset: payload.createAsset ?? false,
+            propertyUnit: payload.propertyUnit ?? '',
+            propertyGroup: payload.propertyGroup ?? '',
+            retirementUnit: payload.retirementUnit ?? '',
+            functionalClass: payload.functionalClass ?? '',
             workOrderType: payload.workOrderType ?? '',
             costTreatment: payload.costTreatment ?? 'CAPEX',
             defaultGlAccount: payload.defaultGlAccount ?? '',
@@ -97,14 +107,22 @@ export class CreateWorkOrderTypeComponent implements OnInit {
     this.router.navigate(['/work-orders/types']);
   }
 
+  get createAssetEnabled(): boolean {
+    return !!this.form.get('createAsset')?.value;
+  }
+
   submit(): void {
     if (this.form.invalid || this.isSubmitting) {
       this.form.markAllAsTouched();
       return;
     }
-    const payload: WorkOrderType = {
-      ...(this.form.value as WorkOrderType)
-    };
+    const payload: WorkOrderType = { ...(this.form.value as WorkOrderType) };
+    if (!payload.createAsset) {
+      delete payload.propertyUnit;
+      delete payload.propertyGroup;
+      delete payload.retirementUnit;
+      delete payload.functionalClass;
+    }
 
     this.isSubmitting = true;
     const request$ = this.isEdit && this.currentId

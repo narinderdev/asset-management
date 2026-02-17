@@ -25,6 +25,7 @@ export interface SetPasswordPayload {
 export interface ChangePasswordPayload {
   currentPassword: string;
   newPassword: string;
+  email: string;
 }
 
 export interface UserListItem {

@@ -20,7 +20,7 @@ export class LoginComponent {
 
   loading = false;
   passwordVisible = false;
-  passwordFocused = false;
+  showChangePasswordButton = false;
   private isBrowser = false;
 
   constructor(
@@ -43,46 +43,39 @@ export class LoginComponent {
     this.passwordVisible = !this.passwordVisible;
   }
 
-  onPasswordFocus() {
-    this.passwordFocused = true;
+  private extractTokenFromErrorPayload(err: any): string | null {
+    const candidates = [
+      err?.error?.data?.token,
+      err?.error?.token,
+      err?.error?.data?.accessToken,
+      err?.error?.accessToken,
+      err?.error?.data?.jwt,
+      err?.error?.jwt
+    ];
+
+    for (const candidate of candidates) {
+      if (candidate && typeof candidate === 'string') {
+        return candidate.replace(/^Bearer\s+/i, '').trim();
+      }
+    }
+
+    return null;
   }
 
-  onPasswordBlur() {
-    this.passwordFocused = false;
-  }
-
-  get showPasswordChecklist(): boolean {
-    return this.passwordFocused;
-  }
-
-  get passwordValue(): string {
-    return String(this.form.get('password')?.value ?? '');
-  }
-
-  hasMinLength(password: string): boolean {
-    return password.length >= 12;
-  }
-
-  hasLowerCase(password: string): boolean {
-    return /[a-z]/.test(password);
-  }
-
-  hasUpperCase(password: string): boolean {
-    return /[A-Z]/.test(password);
-  }
-
-  hasNumeric(password: string): boolean {
-    return /\d/.test(password);
-  }
-
-  hasSpecial(password: string): boolean {
-    return /[$@#%\^&*?\-+=]/.test(password);
+  goToChangePassword() {
+    const email = String(this.form.get('email')?.value ?? '').trim().toLowerCase()
+      || (this.isBrowser ? String(localStorage.getItem('loginEmail') ?? '').trim().toLowerCase() : '');
+    this.router.navigate(['/change-password'], {
+      queryParams: email ? { email } : undefined
+    });
   }
 
   submit() {
     if (this.loading) {
       return;
     }
+
+    this.showChangePasswordButton = false;
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -130,6 +123,7 @@ export class LoginComponent {
               localStorage.setItem('mfaEnabled', String(!!mfaEnabled));
               localStorage.setItem('loginEmail', email);
               localStorage.setItem('passwordExpired', String(!!passwordExpired));
+              localStorage.removeItem('passwordChangeToken');
               if (daysUntilPasswordExpiry !== null && daysUntilPasswordExpiry !== undefined) {
                 localStorage.setItem('daysUntilPasswordExpiry', String(daysUntilPasswordExpiry));
               } else {
@@ -187,6 +181,22 @@ export class LoginComponent {
         },
         error: (err: any) => {
           const message = err?.error?.message || 'Login failed. Please try again.';
+          const statusCode = err?.error?.statusCode ?? err?.status;
+          const normalizedMessage = String(message).trim().toLowerCase();
+          const isPasswordExpired = statusCode === 401 && normalizedMessage.includes('password expired');
+
+          if (isPasswordExpired && this.isBrowser) {
+            const passwordChangeToken = this.extractTokenFromErrorPayload(err);
+            localStorage.setItem('loginEmail', email);
+            localStorage.setItem('passwordExpired', 'true');
+            if (passwordChangeToken) {
+              localStorage.setItem('passwordChangeToken', passwordChangeToken);
+            } else {
+              localStorage.removeItem('passwordChangeToken');
+            }
+            this.showChangePasswordButton = true;
+          }
+
           this.toastr.error(message);
           this.loading = false;
           this.cdr.detectChanges();

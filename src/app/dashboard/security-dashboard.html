@@ -1,0 +1,175 @@
+<div class="security-dashboard">
+
+  <!-- ── Header ──────────────────────────────────────────── -->
+  <header class="dash-header">
+    <div class="header-left">
+      <div class="header-text">
+        <h1>Security Dashboard</h1>
+      </div>
+    </div>
+    <div class="header-badges">
+      <span class="error-text" *ngIf="errorMessage">{{ errorMessage }}</span>
+      <span class="loading-text" *ngIf="isLoading">Loading security dashboard...</span>
+    </div>
+  </header>
+
+  <!-- ── KPI Summary ──────────────────────────────────────── -->
+  <section class="section">
+    <div class="section-head">
+      <h2>KPI Summary</h2>
+    </div>
+    <div class="kpi-grid">
+      <article class="kpi-card" *ngFor="let kpi of kpis; let i = index">
+        <div class="stripe" [ngClass]="getStripeClass(i)"></div>
+        <div class="kpi-value">{{ kpi.value }}</div>
+        <div class="kpi-label">{{ kpi.label }}</div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ── Recent User Activity ─────────────────────────────── -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Recent User Activity</h2>
+    </div>
+    <div class="panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>User</th>
+              <th>Performed By</th>
+              <th>Date &amp; Time</th>
+              <th>Status</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of recentUserActivity">
+              <td>
+                <span class="chip" [ngClass]="getActionChipClass(row.action)">{{ row.action }}</span>
+              </td>
+              <td>
+                <div class="user-cell">
+                  <div class="avatar" [ngClass]="getAvatarClass(row.user)">
+                    {{ row.user | slice:0:1 | uppercase }}
+                  </div>
+                  <span>{{ row.user }}</span>
+                </div>
+              </td>
+              <td class="mono-cell">{{ row.performedBy }}</td>
+              <td class="mono-cell">{{ row.dateTime }}</td>
+              <td>
+                <span class="badge"
+                  [class.badge-success]="row.status === 'SUCCESS'"
+                  [class.badge-failed]="row.status === 'FAILED'">
+                  {{ row.status }}
+                </span>
+              </td>
+              <td class="mono-cell">{{ row.details }}</td>
+            </tr>
+            <tr *ngIf="recentUserActivity.length === 0 && !isLoading">
+              <td colspan="6" class="empty-row">No recent user activity.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Role & Permission Changes ────────────────────────── -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Role &amp; Permission Changes</h2>
+    </div>
+    <div class="panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>Role Name</th>
+              <th>Performed By</th>
+              <th>Date &amp; Time</th>
+              <th>Added Permissions</th>
+              <th>Removed Permissions</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of rolePermissionChanges">
+              <td>
+                <span class="chip" [ngClass]="getActionChipClass(row.action)">{{ row.action }}</span>
+              </td>
+              <td><strong>{{ row.roleName }}</strong></td>
+              <td class="mono-cell">{{ row.performedBy }}</td>
+              <td class="mono-cell">{{ row.dateTime }}</td>
+              <td>
+                <span class="perm-add" *ngIf="row.addedPermissions && row.addedPermissions !== '-'">+ {{ row.addedPermissions }}</span>
+                <span class="perm-none" *ngIf="!row.addedPermissions || row.addedPermissions === '-'">—</span>
+              </td>
+              <td>
+                <span class="perm-rm" *ngIf="row.removedPermissions && row.removedPermissions !== '-'">− {{ row.removedPermissions }}</span>
+                <span class="perm-none" *ngIf="!row.removedPermissions || row.removedPermissions === '-'">—</span>
+              </td>
+              <td class="mono-cell">{{ row.details }}</td>
+            </tr>
+            <tr *ngIf="rolePermissionChanges.length === 0 && !isLoading">
+              <td colspan="7" class="empty-row">No role or permission changes.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Security Log ──────────────────────────────────────── -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Security Log</h2>
+    </div>
+    <div class="panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Event Type</th>
+              <th>Category</th>
+              <th>Target Type</th>
+              <th>Target Name</th>
+              <th>Performed By</th>
+              <th>Date &amp; Time</th>
+              <th>Result</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of securityLogs">
+              <td>
+                <span class="chip" [ngClass]="getActionChipClass(row.eventType)">{{ row.eventType }}</span>
+              </td>
+              <td class="mono-cell">{{ row.category }}</td>
+              <td class="mono-cell">{{ row.targetType }}</td>
+              <td>{{ row.targetName }}</td>
+              <td class="mono-cell">{{ row.performedBy }}</td>
+              <td class="mono-cell">{{ row.dateTime }}</td>
+              <td>
+                <span class="badge"
+                  [class.badge-success]="row.result === 'SUCCESS'"
+                  [class.badge-failed]="row.result === 'FAILED'">
+                  {{ row.result }}
+                </span>
+              </td>
+              <td class="mono-cell">{{ row.details }}</td>
+            </tr>
+            <tr *ngIf="securityLogs.length === 0 && !isLoading">
+              <td colspan="8" class="empty-row">No security log entries.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</div>
