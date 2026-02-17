@@ -1,0 +1,81 @@
+<div class="inventory-reconcile-page">
+  <div class="inventory-reconcile-header">
+    <h1 class="inventory-reconcile-title">Inventory Reconcile</h1>
+    <button class="create-reconcile-btn" type="button" (click)="openCreateReconcile()">+ Add Inventory Reconcile</button>
+  </div>
+  <!-- <p class="table-status" *ngIf="errorMessage">{{ errorMessage }}</p> -->
+
+  <div class="inventory-reconcile-card table-container">
+    <table class="reconcile-table">
+      <thead>
+        <tr>
+          <th>Warehouse</th>
+          <th>Item ID</th>
+          <th>SKU</th>
+          <th>Item Name</th>
+          <th>Reconcile Date</th>
+          <th>System Qty</th>
+          <th>Physical Qty</th>
+          <th>Variance Qty</th>
+          <th>Variance Cost</th>
+          <th>Status</th>
+          <th>Entered By</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="!isLoading && hasLoaded && reconciliations.length === 0">
+          <td colspan="12" class="empty-row">No inventory reconciliations found.</td>
+        </tr>
+        <tr *ngFor="let row of reconciliations">
+          <td>{{ row.warehouseName || '--' }}</td>
+          <td>{{ row.itemId || '--' }}</td>
+          <td>{{ row.skuNumber || '--' }}</td>
+          <td>{{ row.itemName || '--' }}</td>
+          <td>{{ formatDate(row.reconcileDate) }}</td>
+          <td>{{ row.systemQuantity ?? 0 }}</td>
+          <td>{{ row.physicalQuantity ?? 0 }}</td>
+          <td>{{ row.varianceQuantity ?? 0 }}</td>
+          <td>{{ row.varianceCost ?? 0 }}</td>
+          <td>{{ row.status || '--' }}</td>
+          <td>{{ row.enteredBy || '--' }}</td>
+          <td class="actions-cell">
+            <button class="action-icon" aria-label="View" (click)="viewReconcile(row)">
+              <img src="assets/icons/Vector.svg" alt="View" />
+            </button>
+            <button class="action-icon" aria-label="Edit" (click)="editReconcile(row)">
+              <img src="assets/icons/edit.svg" alt="Edit" />
+            </button>
+            <button class="action-icon danger" aria-label="Delete" (click)="deleteReconcile(row)">
+              <img src="assets/icons/delete.svg" alt="Delete" />
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-loader [visible]="isLoading"></app-loader>
+
+  <app-delete-modal
+    [isOpen]="isDeleteModalOpen"
+    title="Delete Inventory Reconcile"
+    message="Are you sure you want to delete this inventory reconcile?"
+    [deleting]="isDeleting"
+    (cancel)="closeDeleteModal()"
+    (confirm)="confirmDeleteReconcile()"
+  ></app-delete-modal>
+
+  <div class="pagination" *ngIf="totalElements > 0">
+    <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ totalElements }}</span>
+    <div class="pager-actions">
+      <button class="pager-btn" (click)="previousPage()" [disabled]="currentPage === 0 || isLoading">
+        Previous
+      </button>
+      <span class="pager-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button class="pager-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1 || isLoading">
+        Next
+      </button>
+    </div>
+  </div>
+</div>

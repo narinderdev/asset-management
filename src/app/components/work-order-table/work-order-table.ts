@@ -10,7 +10,7 @@ import { ToastrService } from 'ngx-toastr';
 import { PermissionService } from '../../services/permission.service';
 import { Loader } from '../loader/loader';
 
-interface WorkOrder {
+export interface WorkOrder {
   id: string;
   apiId?: number;
   workOrderNumber?: string;

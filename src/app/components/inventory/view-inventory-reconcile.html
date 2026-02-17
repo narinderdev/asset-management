@@ -1,0 +1,191 @@
+<div class="view-inventory-page">
+  <div class="header">
+    <button class="back-button" type="button" aria-label="Back to inventory reconcile" (click)="back()">
+      &larr; Back to inventory reconcile
+    </button>
+
+    <div class="header-content" *ngIf="reconcileItem">
+      <div class="title-section">
+        <h1>{{ reconcileItem.itemName || 'Inventory Reconcile Details' }}</h1>
+        <div class="inventory-meta">
+          <span class="item-id">#{{ reconcileItem.id ?? '--' }}</span>
+          <span>&bull;</span>
+          <span>{{ reconcileItem.warehouseName || '--' }}</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="action-buttons" *ngIf="canTakeAction">
+          <button class="btn-approve" type="button" (click)="openActionModal('approve')" [disabled]="isSubmittingAction">
+            Approve
+          </button>
+          <button class="btn-reject" type="button" (click)="openActionModal('reject')" [disabled]="isSubmittingAction">
+            Reject
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <div class="main-content">
+    <app-loader [visible]="isLoading && !reconcileItem"></app-loader>
+
+    <ng-container *ngIf="reconcileItem">
+      <div class="details-grid">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Overview</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group">
+                <div class="field-label">Reconcile ID</div>
+                <div class="field-value highlight">{{ reconcileItem.id ?? '--' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Warehouse</div>
+                <div class="field-value">{{ reconcileItem.warehouseName || '--' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Warehouse ID</div>
+                <div class="field-value">{{ reconcileItem.warehouseId ?? '--' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Item Name</div>
+                <div class="field-value">{{ reconcileItem.itemName || '--' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Item ID</div>
+                <div class="field-value">{{ reconcileItem.itemId || '--' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">SKU</div>
+                <div class="field-value">{{ reconcileItem.skuNumber || '--' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Reconcile Date</div>
+                <div class="field-value">{{ formatDate(reconcileItem.reconcileDate) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Entered By</div>
+                <div class="field-value">{{ reconcileItem.enteredBy || '--' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Status</div>
+                <div class="field-value">{{ reconcileItem.status || '--' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Quantities & Cost</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group">
+                <div class="field-label">System Quantity</div>
+                <div class="field-value">{{ reconcileItem.systemQuantity ?? 0 }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Physical Quantity</div>
+                <div class="field-value">{{ reconcileItem.physicalQuantity ?? 0 }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Variance Quantity</div>
+                <div class="field-value">{{ reconcileItem.varianceQuantity ?? 0 }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Cost Per Unit Snapshot</div>
+                <div class="field-value">{{ reconcileItem.costPerUnitSnapshot ?? 0 }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Variance Cost</div>
+                <div class="field-value">{{ reconcileItem.varianceCost ?? 0 }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card full-width">
+          <div class="card-header">
+            <h2 class="card-title">Reason & Approval</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group full-width">
+                <div class="field-label">Reason</div>
+                <div class="field-value">{{ reconcileItem.reason || '--' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Approved By</div>
+                <div class="field-value">{{ reconcileItem.approvedBy || '--' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Approved At</div>
+                <div class="field-value">{{ formatDateTime(reconcileItem.approvedAt) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Approval Comment</div>
+                <div class="field-value">{{ reconcileItem.approvalComment || '--' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Rejected By</div>
+                <div class="field-value">{{ reconcileItem.rejectedBy || '--' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Rejected At</div>
+                <div class="field-value">{{ formatDateTime(reconcileItem.rejectedAt) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Rejection Comment</div>
+                <div class="field-value">{{ reconcileItem.rejectionComment || '--' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Created At</div>
+                <div class="field-value">{{ formatDateTime(reconcileItem.createdAt) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Updated At</div>
+                <div class="field-value">{{ formatDateTime(reconcileItem.updatedAt) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="isActionModalOpen" (click)="closeActionModal()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ actionModalTitle }}</h3>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Comment *</label>
+          <textarea
+            class="form-input"
+            rows="4"
+            [(ngModel)]="actionComment"
+            placeholder="Enter comment"
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" type="button" (click)="closeActionModal()" [disabled]="isSubmittingAction">Cancel</button>
+        <button
+          [class]="actionType === 'approve' ? 'btn-approve' : 'btn-reject'"
+          type="button"
+          (click)="submitAction()"
+          [disabled]="isSubmittingAction || !actionComment.trim()"
+        >
+          {{ actionModalButtonText }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

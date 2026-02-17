@@ -20,6 +20,9 @@ import { VendorManagementComponent } from './components/vendor-management/vendor
 import { CreateVendorComponent } from './components/vendor-management/create-vendor';
 import { ViewVendorComponent } from './components/vendor-management/view-vendor';
 import { ViewInventoryComponent } from './components/inventory/view-inventory';
+import { InventoryReconcileComponent } from './components/inventory/inventory-reconcile';
+import { CreateInventoryReconcileComponent } from './components/inventory/create-inventory-reconcile';
+import { ViewInventoryReconcileComponent } from './components/inventory/view-inventory-reconcile';
 import { ProcurementComponent } from './components/procurement/procurement';
 import { CreateProcurementComponent } from './components/procurement/create-procurement';
 import { ServiceContractComponent } from './components/service-contract/service-contract';
@@ -124,6 +127,10 @@ export const routes: Routes = [
   { path: 'inventory/warehouse/view/:id', component: ViewWarehouseComponent, canActivate: [AuthGuard] },
   { path: 'inventory/warehouse/create', component: CreateWarehouseComponent, canActivate: [AuthGuard] },
   { path: 'inventory', component: InventoryComponent, canActivate: [AuthGuard] },
+  { path: 'inventory/reconcile', component: InventoryReconcileComponent, canActivate: [AuthGuard] },
+  { path: 'inventory/reconcile/create', component: CreateInventoryReconcileComponent, canActivate: [AuthGuard] },
+  { path: 'inventory/reconcile/edit/:id', component: CreateInventoryReconcileComponent, canActivate: [AuthGuard] },
+  { path: 'inventory/reconcile/view/:id', component: ViewInventoryReconcileComponent, canActivate: [AuthGuard] },
   { path: 'inventory/create', component: CreateInventoryComponent, canActivate: [AuthGuard] },
   { path: 'inventory/edit/:id', component: CreateInventoryComponent, canActivate: [AuthGuard] },
   { path: 'inventory/view/:id', component: ViewInventoryComponent, canActivate: [AuthGuard] },

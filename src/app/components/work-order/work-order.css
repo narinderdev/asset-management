@@ -43,6 +43,17 @@
   box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
 }
 
+.new-work-order-section {
+  margin-bottom: 8px;
+}
+
+.new-work-order-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 12px 0;
+}
+
 /* Responsive Design */
 @media (max-width: 1400px) {
   .work-order-table {

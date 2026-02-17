@@ -124,10 +124,83 @@ export interface InventoryDetailResponse {
   data?: ApiInventoryDetail;
 }
 
+export interface InventoryReconciliationItem {
+  id?: number;
+  warehouseId?: number;
+  warehouseName?: string;
+  inventoryItemId?: number;
+  itemId?: string;
+  skuNumber?: string;
+  itemName?: string;
+  reconcileDate?: string;
+  enteredBy?: string;
+  systemQuantity?: number;
+  physicalQuantity?: number;
+  varianceQuantity?: number;
+  costPerUnitSnapshot?: number;
+  varianceCost?: number;
+  reason?: string;
+  status?: string;
+  approvedBy?: string;
+  approvedAt?: string;
+  approvalComment?: string;
+  rejectedBy?: string;
+  rejectedAt?: string;
+  rejectionComment?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface InventoryReconciliationListResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: {
+    totalPages?: number;
+    totalElements?: number;
+    size?: number;
+    number?: number;
+    content?: InventoryReconciliationItem[];
+    first?: boolean;
+    last?: boolean;
+    numberOfElements?: number;
+    empty?: boolean;
+  };
+}
+
+export interface InventoryReconciliationDetailResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: InventoryReconciliationItem;
+}
+
+export interface CreateInventoryReconciliationPayload {
+  warehouseId: number;
+  inventoryItemId: number;
+  reconcileDate: string;
+  enteredBy: string;
+  physicalQuantity: number;
+  reason: string;
+}
+
+export interface CreateInventoryReconciliationResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: InventoryReconciliationItem;
+}
+
+export interface InventoryReconciliationActionPayload {
+  actor: string;
+  comment: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class InventoryService {
   private readonly apiUrl = `${environment.apiUrl}/api/inventory-items`;
   private readonly warehouseUrl = `${environment.apiUrl}/api/warehouses`;
+  private readonly inventoryReconcileUrl = `${environment.apiUrl}/api/inventory/reconciliations`;
 
   constructor(private http: HttpClient) {}
 
@@ -205,5 +278,64 @@ export class InventoryService {
   fetchWarehouseById(id: number | string): Observable<CreateWarehouseResponse> {
     const headers = this.buildAuthHeaders();
     return this.http.get<CreateWarehouseResponse>(`${this.warehouseUrl}/${id}`, { headers });
+  }
+
+  fetchInventoryReconciliations(
+    page: number = 0,
+    size: number = 10,
+    sort: string = 'reconcileDate,desc'
+  ): Observable<InventoryReconciliationListResponse> {
+    const headers = this.buildAuthHeaders();
+    const params = new HttpParams()
+      .set('page', String(page))
+      .set('size', String(size))
+      .set('sort', sort)
+      // Keep both forms so Spring pageable binding works across controller configs.
+      .set('pageable.page', String(page))
+      .set('pageable.size', String(size))
+      .set('pageable.sort', sort);
+
+    return this.http.get<InventoryReconciliationListResponse>(this.inventoryReconcileUrl, { headers, params });
+  }
+
+  createInventoryReconciliation(
+    payload: CreateInventoryReconciliationPayload
+  ): Observable<CreateInventoryReconciliationResponse> {
+    const headers = this.buildAuthHeaders();
+    return this.http.post<CreateInventoryReconciliationResponse>(this.inventoryReconcileUrl, payload, { headers });
+  }
+
+  updateInventoryReconciliation(
+    id: number | string,
+    payload: CreateInventoryReconciliationPayload
+  ): Observable<CreateInventoryReconciliationResponse> {
+    const headers = this.buildAuthHeaders();
+    return this.http.put<CreateInventoryReconciliationResponse>(`${this.inventoryReconcileUrl}/${id}`, payload, { headers });
+  }
+
+  fetchInventoryReconciliationById(id: number | string): Observable<InventoryReconciliationDetailResponse> {
+    const headers = this.buildAuthHeaders();
+    return this.http.get<InventoryReconciliationDetailResponse>(`${this.inventoryReconcileUrl}/${id}`, { headers });
+  }
+
+  approveInventoryReconciliation(
+    id: number | string,
+    payload: InventoryReconciliationActionPayload
+  ): Observable<BaseApiResponse> {
+    const headers = this.buildAuthHeaders();
+    return this.http.patch<BaseApiResponse>(`${this.inventoryReconcileUrl}/${id}/approve`, payload, { headers });
+  }
+
+  rejectInventoryReconciliation(
+    id: number | string,
+    payload: InventoryReconciliationActionPayload
+  ): Observable<BaseApiResponse> {
+    const headers = this.buildAuthHeaders();
+    return this.http.patch<BaseApiResponse>(`${this.inventoryReconcileUrl}/${id}/reject`, payload, { headers });
+  }
+
+  deleteInventoryReconciliation(id: number | string): Observable<BaseApiResponse> {
+    const headers = this.buildAuthHeaders();
+    return this.http.delete<BaseApiResponse>(`${this.inventoryReconcileUrl}/${id}`, { headers });
   }
 }

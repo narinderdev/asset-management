@@ -1,0 +1,80 @@
+<div class="create-request-page">
+  <section class="create-card">
+    <header class="create-header">
+      <button type="button" class="back-btn" aria-label="Back to inventory reconcile" (click)="onCancel()">&larr;</button>
+      <h2>{{ isEditMode ? 'Edit Inventory Reconcile' : 'Add Inventory Reconcile' }}</h2>
+    </header>
+
+    <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <div class="form-wrapper">
+      <form class="request-form" (ngSubmit)="onCreate()" *ngIf="!isEditMode || hasLoadedDetails">
+        <div class="form-grid">
+          <label class="field">
+            <span>Warehouse</span>
+            <select name="warehouseId" [(ngModel)]="form.warehouseId" required>
+              <option [ngValue]="0" disabled>Select Warehouse</option>
+              <option *ngFor="let wh of warehouseOptions" [ngValue]="wh.id">
+                {{ wh.label }}
+              </option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Inventory Item</span>
+            <select name="inventoryItemId" [(ngModel)]="form.inventoryItemId" required>
+              <option [ngValue]="0" disabled>Select Item</option>
+              <option *ngFor="let item of itemOptions" [ngValue]="item.id">
+                {{ item.itemName }}
+              </option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Item ID</span>
+            <input type="text" [value]="selectedItemDetails?.itemId || '--'" readonly />
+          </label>
+
+          <label class="field">
+            <span>SKU Number</span>
+            <input type="text" [value]="selectedItemDetails?.skuNumber || '--'" readonly />
+          </label>
+
+          <label class="field">
+            <span>Stock Level</span>
+            <input type="text" [value]="selectedItemDetails?.stockLevel ?? 0" readonly />
+          </label>
+
+          <label class="field">
+            <span>Reconcile Date</span>
+            <input type="date" name="reconcileDate" [(ngModel)]="form.reconcileDate" required />
+          </label>
+
+          <label class="field">
+            <span>Entered By</span>
+            <input type="text" name="enteredBy" [(ngModel)]="form.enteredBy" placeholder="Enter user" required readonly />
+          </label>
+
+          <label class="field">
+            <span>Physical Quantity</span>
+            <input type="number" name="physicalQuantity" [(ngModel)]="form.physicalQuantity" min="0" placeholder="Enter quantity" required />
+          </label>
+
+          <label class="field">
+            <span>Reason</span>
+            <input type="text" name="reason" [(ngModel)]="form.reason" placeholder="Enter reason" required />
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn ghost" (click)="onCancel()" [disabled]="isSubmitting">Cancel</button>
+          <button type="submit" class="btn primary" [disabled]="isSubmitting || isLoading">
+            {{ isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Reconcile' : 'Create Reconcile') }}
+          </button>
+        </div>
+      </form>
+
+      <app-loader [visible]="isLoading || isSubmitting"></app-loader>
+    </div>
+  </section>
+</div>

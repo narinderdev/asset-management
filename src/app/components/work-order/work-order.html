@@ -7,5 +7,15 @@
       (click)="createWorkOrder()">+ Create Work Order</button>
   </div>
 
+  <section class="new-work-order-section" *ngIf="newlyCreatedWorkOrder">
+    <h2 class="new-work-order-title">Newly Added Work Order</h2>
+    <app-work-order-table
+      [loadLive]="false"
+      [externalWorkOrders]="[newlyCreatedWorkOrder]"
+      [showEditDelete]="false"
+      [emptyMessage]="'No new work order.'"
+    ></app-work-order-table>
+  </section>
+
   <app-work-order-table [loadLive]="true"></app-work-order-table>
 </div>

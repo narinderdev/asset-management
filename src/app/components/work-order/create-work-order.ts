@@ -8,7 +8,9 @@ import {
   WorkOrderDetailResponse,
   WorkOrderType
 } from '../../services/work-order.service';
+import type { WorkOrder } from '../work-order-table/work-order-table';
 import { AssetsService } from '../../services/assets.service';
+import { NewWorkOrderHighlightService } from '../../services/new-work-order-highlight.service';
 import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs/operators';
 
@@ -70,6 +72,7 @@ export class CreateWorkOrderComponent implements OnInit {
     private route: ActivatedRoute,
     private workOrderService: WorkOrderService,
     private assetsService: AssetsService,
+    private newWorkOrderHighlightService: NewWorkOrderHighlightService,
     private cdr: ChangeDetectorRef,
     private toastr: ToastrService
   ) {}
@@ -159,8 +162,10 @@ export class CreateWorkOrderComponent implements OnInit {
         this.cdr.detectChanges();
       }))
       .subscribe({
-        next: () => {
+        next: (response: unknown) => {
           this.toastr.success('Work order created successfully.');
+          const newlyCreatedWorkOrder = this.buildNewlyCreatedWorkOrder(response, payload);
+          this.newWorkOrderHighlightService.set(newlyCreatedWorkOrder);
           this.router.navigate(['/work-orders']);
         },
         error: (error) => {
@@ -310,5 +315,114 @@ export class CreateWorkOrderComponent implements OnInit {
     if (!raw) return '';
     if (typeof raw === 'string') return raw;
     return raw.location ?? raw.primaryLocation ?? raw.functionalLocation ?? raw.site ?? '';
+  }
+
+  private buildNewlyCreatedWorkOrder(response: unknown, payload: CreateWorkOrderRequest): WorkOrder {
+    const source = this.extractCreatedWorkOrderData(response);
+    const dueDate = this.firstString(
+      source?.['plannedEndDateTime'],
+      source?.['targetCompletionDate'],
+      payload.targetCompletionDate
+    );
+    const assignedTeamName = this.firstString(source?.['assignedTeamName']);
+    const assignedTechnicianName = this.firstString(source?.['assignedTechnicianName'], source?.['assignedTechnician']);
+    const technician = assignedTeamName || assignedTechnicianName || 'Unassigned';
+
+    return {
+      id: this.firstString(source?.['workOrderId'], source?.['woId'], source?.['idAsString']) || 'New',
+      apiId: this.toOptionalNumber(source?.['id']),
+      workOrderNumber: this.firstString(source?.['workOrderNumber'], source?.['workorderNumber']) || '',
+      title: this.firstString(source?.['woTitle'], payload.woTitle) || 'Work Order',
+      asset: this.firstString(source?.['assetName'], payload.assetName) || 'Unassigned Asset',
+      technician,
+      technicianBadge: assignedTeamName ? 'Team' : assignedTechnicianName ? 'Technician' : '',
+      assignedTeamName,
+      assignedTechnicianName,
+      dueDate,
+      formattedDueDate: this.formatDate(dueDate),
+      priority: this.normalizePriority(this.firstString(source?.['priority'], payload.priority)),
+      status: this.normalizeStatus(this.firstString(source?.['status']) || 'NEW')
+    };
+  }
+
+  private extractCreatedWorkOrderData(response: unknown): Record<string, unknown> {
+    const res = response as any;
+    if (!res) {
+      return {};
+    }
+    if (res.data && typeof res.data === 'object') {
+      return res.data as Record<string, unknown>;
+    }
+    return res as Record<string, unknown>;
+  }
+
+  private firstString(...values: unknown[]): string {
+    for (const value of values) {
+      if (typeof value === 'string' && value.trim()) {
+        return value.trim();
+      }
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        return String(value);
+      }
+    }
+    return '';
+  }
+
+  private toOptionalNumber(value: unknown): number | undefined {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return value;
+    }
+    if (typeof value === 'string' && value.trim()) {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : undefined;
+    }
+    return undefined;
+  }
+
+  private normalizePriority(value?: string): 'High' | 'Medium' | 'Low' {
+    switch ((value || '').toUpperCase()) {
+      case 'HIGH':
+      case 'CRITICAL':
+        return 'High';
+      case 'MEDIUM':
+        return 'Medium';
+      default:
+        return 'Low';
+    }
+  }
+
+  private normalizeStatus(value?: string): string {
+    const status = (value || '').toUpperCase();
+    switch (status) {
+      case 'IN_PROGRESS':
+        return 'In Progress';
+      case 'COMPLETED':
+        return 'Completed';
+      case 'SCHEDULED':
+        return 'Scheduled';
+      case 'APPROVED':
+        return 'Approved';
+      case 'NEW':
+        return 'New';
+      case 'PENDING':
+        return 'Pending';
+      case 'CLOSED':
+        return 'Closed';
+      case 'DRAFT':
+        return 'Draft';
+      default:
+        return status ? status.charAt(0) + status.slice(1).toLowerCase() : 'New';
+    }
+  }
+
+  private formatDate(value?: string): string {
+    if (!value) {
+      return '--';
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return '--';
+    }
+    return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
   }
 }

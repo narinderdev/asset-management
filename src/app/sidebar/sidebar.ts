@@ -102,7 +102,8 @@ export class SidebarComponent implements OnInit {
       hasSubmenu: true,
       submenu: [
         { label: 'Warehouse', route: '/inventory/warehouse' },
-        { label: 'Inventory', route: '/inventory' }
+        { label: 'Inventory', route: '/inventory' },
+        { label: 'Inventory Reconcile', route: '/inventory/reconcile' }
       ]
     },
     {
