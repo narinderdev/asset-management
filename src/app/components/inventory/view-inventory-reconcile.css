@@ -92,6 +92,7 @@
 
 .btn-approve,
 .btn-reject,
+.btn-post,
 .btn-secondary {
   border: none;
   padding: 8px 16px;
@@ -131,8 +132,18 @@
   background-color: #e5e7eb;
 }
 
+.btn-post {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.btn-post:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
 .btn-approve:disabled,
 .btn-reject:disabled,
+.btn-post:disabled,
 .btn-secondary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -247,6 +258,11 @@
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
+.compact-modal {
+  max-width: 600px;
+  max-height: none;
+}
+
 .modal-header {
   padding: 24px 28px 20px;
   border-bottom: 1px solid #f3f4f6;
@@ -270,6 +286,26 @@
   padding: 24px 28px;
   overflow-y: auto;
   flex: 1;
+}
+
+.compact-modal .modal-header {
+  padding: 20px 28px 14px;
+}
+
+.compact-modal .modal-body {
+  padding: 8px 28px 20px;
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+.compact-modal .modal-body p {
+  margin: 0;
+  font-size: 14px;
+  color: #374151;
+}
+
+.compact-modal .modal-footer {
+  padding: 14px 28px 20px;
 }
 
 .modal-footer {

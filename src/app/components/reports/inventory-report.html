@@ -1,0 +1,143 @@
+<section class="report-page">
+  <header class="report-header">
+    <div class="left">
+      <h1>{{ heading }}</h1>
+    </div>
+  </header>
+
+  <div class="filters">
+    <select *ngIf="isItemsView" [(ngModel)]="warehouseId" (ngModelChange)="onWarehouseChange($event)">
+      <option [ngValue]="''">All Warehouses</option>
+      <option *ngFor="let warehouse of warehouses" [ngValue]="warehouse.id">
+        {{ warehouse.name || ('Warehouse ' + warehouse.id) }}
+      </option>
+    </select>
+
+    <label *ngIf="isItemsView" class="checkbox-filter">
+      <input type="checkbox" [(ngModel)]="lowStockOnly" (ngModelChange)="onLowStockOnlyChange($event)" />
+      Low Stock Only
+    </label>
+
+    <select *ngIf="isTransactionsView" [(ngModel)]="transactionType" (change)="onTransactionFiltersChange()">
+      <option *ngFor="let txType of transactionTypeOptions" [value]="txType">
+        {{ txType ? formatEnum(txType) : 'All Transaction Types' }}
+      </option>
+    </select>
+
+    <select *ngIf="isTransactionsView" [(ngModel)]="referenceType" (change)="onTransactionFiltersChange()">
+      <option *ngFor="let refType of referenceTypeOptions" [value]="refType">
+        {{ refType ? formatEnum(refType) : 'All Reference Types' }}
+      </option>
+    </select>
+
+    <select *ngIf="isTransactionsView" [(ngModel)]="period" (change)="onTransactionFiltersChange()">
+      <option value="">All Periods</option>
+      <option value="THIS_MONTH">THIS MONTH</option>
+      <option value="THIS_YEAR">THIS YEAR</option>
+      <option value="THIS_WEEK">THIS WEEK</option>
+    </select>
+
+    <div class="spacer"></div>
+    <div class="export-wrapper">
+      <button class="export" type="button" (click)="toggleExportMenu()">
+        <span class="export-icon" aria-hidden="true">&#8681;</span> Export Report <span class="caret">&#9662;</span>
+      </button>
+      <div class="export-menu" *ngIf="exportMenuOpen">
+        <button type="button" (click)="exportAs('pdf')">&#128196; Export as PDF</button>
+        <button type="button" (click)="exportAs('excel')">&#128196; Export as Excel</button>
+      </div>
+    </div>
+  </div>
+
+  <app-loader [visible]="isLoading"></app-loader>
+
+  <app-top-n-onhand-qty-chart
+    *ngIf="!isLoading && hasLoaded && isItemsView"
+    [items]="onHandChartItems"
+    [topN]="topN"
+    [chartTitle]="'Top items by On-hand Qty'"
+  ></app-top-n-onhand-qty-chart>
+
+  <app-top-n-onhand-qty-chart
+    *ngIf="!isLoading && hasLoaded && isItemsView && top5HighStock.length"
+    [items]="highStockChartItems"
+    [topN]="topN"
+    [chartTitle]="'Top High Stock Items'"
+  ></app-top-n-onhand-qty-chart>
+
+  <app-top-n-onhand-qty-chart
+    *ngIf="!isLoading && hasLoaded && isTransactionsView && txnTotals.length"
+    [items]="transactionTotalsChartItems"
+    [topN]="txnTotals.length || topN"
+    [chartTitle]="'Net Quantity by Transaction Type'"
+    [yBeginAtZero]="false"
+    [sortByValue]="false"
+    [centerZero]="true"
+  ></app-top-n-onhand-qty-chart>
+
+  <div class="table-card">
+    <div class="table-head" *ngIf="isItemsView">
+      <div>Item ID</div>
+      <div>SKU</div>
+      <div>Item Name</div>
+      <div>Stock</div>
+      <div>Reorder Point</div>
+      <div>Warehouse</div>
+      <div>Unit Cost</div>
+    </div>
+    <div class="table-head" *ngIf="isTransactionsView">
+      <div>Date Time</div>
+      <div>Type</div>
+      <div>Item</div>
+      <div>Qty Before</div>
+      <div>Qty Change</div>
+      <div>Qty After</div>
+      <div>Reference</div>
+    </div>
+
+    <div class="table-row" *ngIf="isItemsView && !items.length && hasLoaded">
+      <div>--</div>
+      <div>--</div>
+      <div>No inventory items found.</div>
+      <div>--</div>
+      <div>--</div>
+      <div>--</div>
+      <div>--</div>
+    </div>
+    <div class="table-row" *ngFor="let row of items" [hidden]="!isItemsView">
+      <div>{{ row.itemId || '--' }}</div>
+      <div>{{ row.skuNumber || '--' }}</div>
+      <div>{{ row.itemName || '--' }}</div>
+      <div>{{ row.stockLevel ?? 0 }}</div>
+      <div>{{ row.reorderPoint ?? 0 }}</div>
+      <div>{{ row.warehouseName || '--' }}</div>
+      <div>{{ row.unitCost ?? 0 }}</div>
+    </div>
+
+    <div class="table-row" *ngIf="isTransactionsView && !transactions.length && hasLoaded">
+      <div>--</div>
+      <div>--</div>
+      <div>No inventory transactions found.</div>
+      <div>--</div>
+      <div>--</div>
+      <div>--</div>
+      <div>--</div>
+    </div>
+    <div class="table-row" *ngFor="let row of transactions" [hidden]="!isTransactionsView">
+      <div>{{ formatDateTime(row.dateTime) }}</div>
+      <div>{{ formatEnum(row.transactionType) }}</div>
+      <div>{{ row.itemName || row.itemId || '--' }}</div>
+      <div>{{ row.qtyBefore ?? 0 }}</div>
+      <div>{{ row.qtyChange ?? 0 }}</div>
+      <div>{{ row.qtyAfter ?? 0 }}</div>
+      <div>{{ formatEnum(row.referenceType) }} {{ row.referenceNumber || '' }}</div>
+    </div>
+  </div>
+
+  <div class="pager" *ngIf="!isLoading && totalElements > 0">
+    <button type="button" (click)="previousPage()" [disabled]="page === 0">Prev</button>
+    <span>Page {{ page + 1 }} of {{ totalPages || 1 }}</span>
+    <button type="button" (click)="nextPage()" [disabled]="page + 1 >= totalPages">Next</button>
+    <span class="range">Showing {{ rangeStart }} - {{ rangeEnd }} of {{ totalElements }}</span>
+  </div>
+</section>

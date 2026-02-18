@@ -196,11 +196,108 @@ export interface InventoryReconciliationActionPayload {
   comment: string;
 }
 
+export interface InventoryAuditLogItem {
+  id?: number;
+  transactionType?: string;
+  referenceType?: string;
+  referenceNumber?: string;
+  inventoryItemId?: number;
+  itemId?: string;
+  skuNumber?: string;
+  itemName?: string;
+  beforeQuantity?: number;
+  afterQuantity?: number;
+  varianceQuantity?: number;
+  performedBy?: string;
+  reason?: string;
+  createdAt?: string;
+}
+
+export interface InventoryAuditLogListResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: {
+    totalPages?: number;
+    totalElements?: number;
+    size?: number;
+    number?: number;
+    content?: InventoryAuditLogItem[];
+    first?: boolean;
+    last?: boolean;
+    numberOfElements?: number;
+    empty?: boolean;
+  };
+}
+
+export interface InventoryReportItem {
+  id?: number;
+  itemId?: string;
+  skuNumber?: string;
+  itemName?: string;
+  stockLevel?: number;
+  maxStockLevel?: number;
+  minStockLevel?: number;
+  reorderPoint?: number;
+  warehouseName?: string;
+  warehouseId?: number;
+  unitCost?: number;
+}
+
+export interface InventoryReportTopStockValueItem {
+  itemName?: string;
+  itemId?: number;
+  skuNumber?: string;
+  stockValue?: number;
+}
+
+export interface InventoryReportTransaction {
+  id?: number;
+  dateTime?: string;
+  transactionType?: string;
+  inventoryItemId?: number;
+  itemId?: string;
+  skuNumber?: string;
+  itemName?: string;
+  qtyChange?: number;
+  qtyBefore?: number;
+  qtyAfter?: number;
+  referenceType?: string;
+  referenceNumber?: string;
+  performedBy?: string;
+  reason?: string;
+  warehouseId?: number;
+  warehouseName?: string;
+}
+
+export interface InventoryReportPage<T> {
+  content?: T[];
+  totalElements?: number;
+  totalPages?: number;
+  number?: number;
+  size?: number;
+}
+
+export interface InventoryReportResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: {
+    items?: InventoryReportItem[] | InventoryReportPage<InventoryReportItem>;
+    top5HighStock?: InventoryReportItem[];
+    topStockValue?: InventoryReportTopStockValueItem[];
+    transactions?: InventoryReportTransaction[] | InventoryReportPage<InventoryReportTransaction>;
+    totalQuantityByTxnType?: Record<string, number>;
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class InventoryService {
   private readonly apiUrl = `${environment.apiUrl}/api/inventory-items`;
   private readonly warehouseUrl = `${environment.apiUrl}/api/warehouses`;
   private readonly inventoryReconcileUrl = `${environment.apiUrl}/api/inventory/reconciliations`;
+  private readonly inventoryAuditLogUrl = `${environment.apiUrl}/api/inventory/audit-logs`;
+  private readonly inventoryReportUrl = `${environment.apiUrl}/api/inventory/report`;
 
   constructor(private http: HttpClient) {}
 
@@ -334,8 +431,73 @@ export class InventoryService {
     return this.http.patch<BaseApiResponse>(`${this.inventoryReconcileUrl}/${id}/reject`, payload, { headers });
   }
 
+  postInventoryReconciliationAdjustment(id: number | string): Observable<BaseApiResponse> {
+    const headers = this.buildAuthHeaders();
+    return this.http.patch<BaseApiResponse>(`${this.inventoryReconcileUrl}/${id}/post`, {}, { headers });
+  }
+
   deleteInventoryReconciliation(id: number | string): Observable<BaseApiResponse> {
     const headers = this.buildAuthHeaders();
     return this.http.delete<BaseApiResponse>(`${this.inventoryReconcileUrl}/${id}`, { headers });
+  }
+
+  fetchInventoryAuditLogs(
+    page: number = 0,
+    size: number = 10
+  ): Observable<InventoryAuditLogListResponse> {
+    const headers = this.buildAuthHeaders();
+    const params = new HttpParams()
+      .set('page', String(page))
+      .set('size', String(size))
+      .set('pageable.page', String(page))
+      .set('pageable.size', String(size));
+
+    return this.http.get<InventoryAuditLogListResponse>(this.inventoryAuditLogUrl, { headers, params });
+  }
+
+  fetchInventoryReport(
+    filters: {
+      view?: 'ITEMS' | 'TRANSACTIONS';
+      warehouseId?: number;
+      lowStockOnly?: boolean;
+      transactionType?: string;
+      referenceType?: string;
+      period?: string;
+      topN?: number;
+      page?: number;
+      size?: number;
+    } = {}
+  ): Observable<InventoryReportResponse> {
+    const headers = this.buildAuthHeaders();
+    const view = filters.view ?? 'ITEMS';
+    const page = filters.page ?? 0;
+    const size = filters.size ?? 10;
+    let params = new HttpParams()
+      .set('view', view)
+      .set('page', String(page))
+      .set('size', String(size))
+      .set('pageable.page', String(page))
+      .set('pageable.size', String(size));
+
+    if (filters.warehouseId !== undefined && filters.warehouseId !== null) {
+      params = params.set('warehouseId', String(filters.warehouseId));
+    }
+    if (typeof filters.lowStockOnly === 'boolean') {
+      params = params.set('lowStockOnly', String(filters.lowStockOnly));
+    }
+    if (filters.transactionType) {
+      params = params.set('transactionType', filters.transactionType);
+    }
+    if (filters.referenceType) {
+      params = params.set('referenceType', filters.referenceType);
+    }
+    if (filters.period) {
+      params = params.set('period', filters.period);
+    }
+    if (filters.topN !== undefined && filters.topN !== null) {
+      params = params.set('topN', String(filters.topN));
+    }
+
+    return this.http.get<InventoryReportResponse>(this.inventoryReportUrl, { headers, params });
   }
 }

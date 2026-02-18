@@ -64,6 +64,7 @@ import { CreateWorkOrderTypeComponent } from './components/work-order-types/crea
 import { ViewWorkOrderTypeComponent } from './components/work-order-types/view-work-order-type';
 import { TmSystemComponent } from './components/tm-system/tm-system';
 import { AssetReportComponent } from './components/reports/asset-report';
+import { InventoryReportComponent } from './components/reports/inventory-report';
 import { WorkOrderReportComponent } from './components/reports/work-order-report';
 import { MfaComponent } from './components/mfa/mfa';
 import { VerifyAccountComponent } from './components/verify-account/verify-account';
@@ -128,6 +129,12 @@ export const routes: Routes = [
   { path: 'inventory/warehouse/create', component: CreateWarehouseComponent, canActivate: [AuthGuard] },
   { path: 'inventory', component: InventoryComponent, canActivate: [AuthGuard] },
   { path: 'inventory/reconcile', component: InventoryReconcileComponent, canActivate: [AuthGuard] },
+  {
+    path: 'inventory/audit-logs',
+    loadComponent: () =>
+      import('./components/inventory/inventory-audit-logs').then(m => m.InventoryAuditLogsComponent),
+    canActivate: [AuthGuard]
+  },
   { path: 'inventory/reconcile/create', component: CreateInventoryReconcileComponent, canActivate: [AuthGuard] },
   { path: 'inventory/reconcile/edit/:id', component: CreateInventoryReconcileComponent, canActivate: [AuthGuard] },
   { path: 'inventory/reconcile/view/:id', component: ViewInventoryReconcileComponent, canActivate: [AuthGuard] },
@@ -136,6 +143,18 @@ export const routes: Routes = [
   { path: 'inventory/view/:id', component: ViewInventoryComponent, canActivate: [AuthGuard] },
   { path: 'reports', pathMatch: 'full', redirectTo: 'reports/assets' },
   { path: 'reports/assets', component: AssetReportComponent, canActivate: [AuthGuard] },
+  {
+    path: 'reports/inventory',
+    component: InventoryReportComponent,
+    canActivate: [AuthGuard],
+    data: { reportView: 'ITEMS' }
+  },
+  {
+    path: 'reports/transactions',
+    component: InventoryReportComponent,
+    canActivate: [AuthGuard],
+    data: { reportView: 'TRANSACTIONS' }
+  },
   { path: 'reports/work-orders', component: WorkOrderReportComponent, canActivate: [AuthGuard] },
   { path: 'vendor-management', component: VendorManagementComponent, canActivate: [AuthGuard] },
   { path: 'vendor-management/create', component: CreateVendorComponent, canActivate: [AuthGuard] },

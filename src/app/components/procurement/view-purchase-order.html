@@ -71,8 +71,8 @@
             </div>
             <div class="field-group">
               <div class="field-label">Expected Delivery</div>
-              <div class="field-value" [ngClass]="{'empty': !po?.expectedDeliveryDate}">
-                {{ po?.expectedDeliveryDate || '—' }}
+              <div class="field-value" [ngClass]="{'empty': !po?.requiredByDate && !po?.expectedDeliveryDate}">
+                {{ po?.requiredByDate || po?.expectedDeliveryDate || '—' }}
               </div>
             </div>
             <div class="field-group">

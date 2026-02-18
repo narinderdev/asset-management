@@ -1,0 +1,9 @@
+<section class="chart-card">
+  <div class="chart-body" *ngIf="hasData; else noDataState">
+    <canvas baseChart [type]="chartType" [data]="chartData" [options]="chartOptions"></canvas>
+  </div>
+
+  <ng-template #noDataState>
+    <div class="no-data">No data</div>
+  </ng-template>
+</section>

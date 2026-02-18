@@ -103,7 +103,8 @@ export class SidebarComponent implements OnInit {
       submenu: [
         { label: 'Warehouse', route: '/inventory/warehouse' },
         { label: 'Inventory', route: '/inventory' },
-        { label: 'Inventory Reconcile', route: '/inventory/reconcile' }
+        { label: 'Inventory Reconcile', route: '/inventory/reconcile' },
+        { label: 'Inventory Audit Logs', route: '/inventory/audit-logs' }
       ]
     },
     {
@@ -146,6 +147,8 @@ export class SidebarComponent implements OnInit {
       hasSubmenu: true,
       submenu: [
         { label: 'Asset Report', route: '/reports/assets' },
+        { label: 'Inventory Report', route: '/reports/inventory' },
+        { label: 'Transaction Report', route: '/reports/transactions' },
         { label: 'Work Order Report', route: '/reports/work-orders' }
       ]
     },

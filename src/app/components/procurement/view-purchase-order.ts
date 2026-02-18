@@ -44,7 +44,15 @@ export class ViewPurchaseOrderComponent implements OnInit {
     receivedBy: '',
     receivedAt: '',
     notes: '',
-    lines: [] as { id?: number; itemId?: number; receiveNow: number; orderedQty: number; receivedQty: number; uom: string }[]
+    lines: [] as {
+      poLineId?: number;
+      itemId?: number;
+      receiveNow: number;
+      orderedQty: number;
+      receivedQty: number;
+      returnQty: number;
+      uom: string;
+    }[]
   };
   isSubmittingGrn = false;
 
@@ -219,25 +227,39 @@ export class ViewPurchaseOrderComponent implements OnInit {
 
   private prepareGrnLines(): void {
     this.grnForm.lines = this.lines.map(line => ({
-      id: line.id,
+      poLineId: line.id,
       itemId: line.itemId,
       orderedQty: line.orderedQty,
       receivedQty: line.receivedQty,
       receiveNow: 0,
+      returnQty: 0,
       uom: line.uom
     }));
   }
 
   private buildGrnPayload() {
+    const poId = Number(this.poId);
+    const hasPo = Number.isFinite(poId) && poId > 0;
+
     const lines = this.grnForm.lines
-      .filter(l => Number(l.receiveNow) > 0 && (l.itemId !== undefined || l.id !== undefined))
-      .map(l => ({
-        itemId: Number(l.itemId || l.id),
-        receivedQty: Number(l.receiveNow)
-      }));
+      .filter(l => Number(l.receiveNow) > 0 && (hasPo ? l.poLineId !== undefined : l.itemId !== undefined))
+      .map(l =>
+        hasPo
+          ? {
+              poLineId: Number(l.poLineId),
+              receivedQty: Number(l.receiveNow),
+              returnQty: Number(l.returnQty || 0)
+            }
+          : {
+              itemId: Number(l.itemId),
+              orderedQty: Number(l.orderedQty || 0),
+              receivedQty: Number(l.receiveNow),
+              returnQty: Number(l.returnQty || 0)
+            }
+      );
 
     return {
-      poId: Number(this.poId),
+      ...(hasPo ? { poId } : {}),
       receivedByUserId: this.grnForm.receivedBy || '',
       notes: this.grnForm.notes || '',
       lines

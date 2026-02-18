@@ -1,0 +1,63 @@
+<div class="inventory-audit-page">
+  <div class="inventory-audit-header">
+    <h1 class="inventory-audit-title">Inventory Audit Logs</h1>
+  </div>
+
+  <div class="inventory-audit-card table-container">
+    <table class="audit-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Transaction Type</th>
+          <th>Reference Type</th>
+          <th>Reference Number</th>
+          <th>Item ID</th>
+          <th>SKU</th>
+          <th>Item Name</th>
+          <th>Before Qty</th>
+          <th>After Qty</th>
+          <th>Variance</th>
+          <th>Performed By</th>
+          <th>Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="!isLoading && errorMessage">
+          <td colspan="12" class="empty-row">{{ errorMessage }}</td>
+        </tr>
+        <tr *ngIf="!isLoading && hasLoaded && !errorMessage && logs.length === 0">
+          <td colspan="12" class="empty-row">No inventory audit logs found.</td>
+        </tr>
+        <tr *ngFor="let row of logs">
+          <td>{{ row.id ?? '--' }}</td>
+          <td>{{ formatEnumLabel(row.transactionType) }}</td>
+          <td>{{ formatEnumLabel(row.referenceType) }}</td>
+          <td>{{ row.referenceNumber || '--' }}</td>
+          <td>{{ row.itemId || '--' }}</td>
+          <td>{{ row.skuNumber || '--' }}</td>
+          <td>{{ row.itemName || '--' }}</td>
+          <td>{{ row.beforeQuantity ?? 0 }}</td>
+          <td>{{ row.afterQuantity ?? 0 }}</td>
+          <td>{{ row.varianceQuantity ?? 0 }}</td>
+          <td>{{ row.performedBy || '--' }}</td>
+          <td>{{ row.reason || '--' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-loader [visible]="isLoading"></app-loader>
+
+  <div class="pagination" *ngIf="totalElements > 0">
+    <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ totalElements }}</span>
+    <div class="pager-actions">
+      <button class="pager-btn" (click)="previousPage()" [disabled]="currentPage === 0 || isLoading">
+        Previous
+      </button>
+      <span class="pager-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button class="pager-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1 || isLoading">
+        Next
+      </button>
+    </div>
+  </div>
+</div>

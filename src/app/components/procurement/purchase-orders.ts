@@ -17,7 +17,7 @@ interface PurchaseOrderRow {
   poNumber: string;
   vendor: string;
   expectedDelivery: string;
-  updatedAt: string;
+  deliveredAt: string;
   status: string;
 }
 
@@ -112,8 +112,8 @@ export class PurchaseOrdersComponent implements OnInit {
       id: item.id ?? 0,
       poNumber: item.poNumber ?? `PO-${item.id ?? ''}`,
       vendor: item.vendorName ?? 'Unknown vendor',
-      expectedDelivery: item.expectedDeliveryDate ?? '-',
-      updatedAt: item.updatedAt ?? item.createdAt ?? '-',
+      expectedDelivery: item.requiredByDate ?? item.expectedDeliveryDate ?? '-',
+      deliveredAt: item.deliveredAt ?? '-',
       status: this.prettifyStatus(item.status)
     };
   }

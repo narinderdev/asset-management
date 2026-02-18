@@ -151,7 +151,7 @@ export class CreatePurchaseOrderComponent implements OnInit {
 
     return {
       vendorId: this.poInfo.vendorId ?? 0,
-      expectedDeliveryDate: this.poInfo.expectedDelivery,
+      requiredByDate: this.poInfo.expectedDelivery,
       remarks: this.poInfo.remarks,
       glAccountString: this.poInfo.glAccountString || undefined,
       createdByUserId: this.requisition.requestedBy || '',

@@ -90,7 +90,9 @@ export interface PurchaseOrderItem {
   vendorId?: number;
   createdByUserId?: string;
   status?: string;
+  requiredByDate?: string;
   expectedDeliveryDate?: string;
+  deliveredAt?: string;
   remarks?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -222,7 +224,8 @@ export interface CreatePoLine {
 
 export interface CreatePoPayload {
   vendorId: number;
-  expectedDeliveryDate: string;
+  requiredByDate: string;
+  expectedDeliveryDate?: string;
   remarks?: string;
   glAccountString?: string;
   createdByUserId: string;

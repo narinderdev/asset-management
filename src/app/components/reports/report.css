@@ -44,6 +44,22 @@ section.report-page {
 }
 
 .filters .spacer { flex: 1; }
+.checkbox-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #374151;
+  padding: 0 6px;
+}
+.checkbox-filter input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+}
+.status-message {
+  color: #b91c1c;
+  font-size: 13px;
+}
 
 .filters .export {
   background: #2563eb;
@@ -165,7 +181,7 @@ section.report-page {
   letter-spacing: 0.02em;
 }
 
-.table-row:nth-child(every) { background: white; }
+.table-row:nth-child(even) { background: white; }
 .table-row:nth-child(odd) { background: #fcfdff; }
 
 .table-row div { font-size: 14px; }

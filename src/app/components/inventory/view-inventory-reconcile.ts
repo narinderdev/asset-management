@@ -28,6 +28,8 @@ export class ViewInventoryReconcileComponent implements OnInit {
   actionType: 'approve' | 'reject' | null = null;
   actionComment = '';
   isSubmittingAction = false;
+  isPostModalOpen = false;
+  isPostingAdjustment = false;
   private reconcileId = 0;
 
   constructor(
@@ -93,6 +95,10 @@ export class ViewInventoryReconcileComponent implements OnInit {
     return this.normalizedStatus === 'SUBMITTED';
   }
 
+  get canPostAdjustment(): boolean {
+    return this.normalizedStatus === 'APPROVED';
+  }
+
   openActionModal(type: 'approve' | 'reject'): void {
     if (!this.canTakeAction || this.isSubmittingAction) {
       return;
@@ -107,10 +113,7 @@ export class ViewInventoryReconcileComponent implements OnInit {
     if (this.isSubmittingAction) {
       return;
     }
-    this.isActionModalOpen = false;
-    this.actionType = null;
-    this.actionComment = '';
-    this.cdr.detectChanges();
+    this.forceCloseActionModal();
   }
 
   submitAction(): void {
@@ -136,21 +139,24 @@ export class ViewInventoryReconcileComponent implements OnInit {
       ? this.inventoryService.approveInventoryReconciliation(this.reconcileId, payload)
       : this.inventoryService.rejectInventoryReconciliation(this.reconcileId, payload);
 
+    let actionSucceeded = false;
+
     request$
       .pipe(
         finalize(() => {
           this.isSubmittingAction = false;
+          if (actionSucceeded) {
+            this.forceCloseActionModal();
+          }
           this.cdr.detectChanges();
         })
       )
       .subscribe({
         next: () => {
           const completedAction = this.actionType;
-          this.isActionModalOpen = false;
-          this.actionType = null;
-          this.actionComment = '';
-          this.isSubmittingAction = false;
-          this.cdr.detectChanges();
+          actionSucceeded = true;
+          this.forceCloseActionModal();
+          setTimeout(() => this.forceCloseActionModal(), 0);
 
           this.toastr.success(
             completedAction === 'approve'
@@ -169,6 +175,14 @@ export class ViewInventoryReconcileComponent implements OnInit {
       });
   }
 
+  private forceCloseActionModal(): void {
+    this.isActionModalOpen = false;
+    this.actionType = null;
+    this.actionComment = '';
+    this.isSubmittingAction = false;
+    this.cdr.detectChanges();
+  }
+
   get actionModalTitle(): string {
     return this.actionType === 'approve' ? 'Approve Inventory Reconcile' : 'Reject Inventory Reconcile';
   }
@@ -178,6 +192,68 @@ export class ViewInventoryReconcileComponent implements OnInit {
       return this.actionType === 'approve' ? 'Approving...' : 'Rejecting...';
     }
     return this.actionType === 'approve' ? 'Approve' : 'Reject';
+  }
+
+  openPostModal(): void {
+    if (!this.canPostAdjustment || this.isPostingAdjustment) {
+      return;
+    }
+    this.isPostModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  closePostModal(): void {
+    if (this.isPostingAdjustment) {
+      return;
+    }
+    this.forceClosePostModal();
+  }
+
+  confirmPostAdjustment(): void {
+    if (!this.reconcileId || this.isPostingAdjustment) {
+      return;
+    }
+
+    this.isPostingAdjustment = true;
+    this.cdr.detectChanges();
+
+    this.inventoryService
+      .postInventoryReconciliationAdjustment(this.reconcileId)
+      .pipe(
+        finalize(() => {
+          this.isPostingAdjustment = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          const isSuccess =
+            response?.statusCode === undefined ||
+            response?.statusCode === 0 ||
+            response?.statusCode === 200 ||
+            response?.statusCode === 201 ||
+            response?.statusCode === 202;
+
+          if (!isSuccess) {
+            this.toastr.error(response?.message || 'Unable to post inventory adjustment.');
+            return;
+          }
+
+          this.forceClosePostModal();
+          setTimeout(() => this.forceClosePostModal(), 0);
+          this.toastr.success(response?.message || 'Inventory adjustment posted successfully.');
+          this.loadReconcileItem(this.reconcileId);
+        },
+        error: () => {
+          this.toastr.error('Unable to post inventory adjustment.');
+        }
+      });
+  }
+
+  private forceClosePostModal(): void {
+    this.isPostModalOpen = false;
+    this.isPostingAdjustment = false;
+    this.cdr.detectChanges();
   }
 
   formatDate(value?: string): string {

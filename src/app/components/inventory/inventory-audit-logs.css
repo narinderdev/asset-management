@@ -1,0 +1,106 @@
+.inventory-audit-page {
+  padding: 30px;
+  background: #ffffff;
+  border: 1px solid #ebedef;
+  border-radius: 8px;
+  min-height: 88vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.inventory-audit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.inventory-audit-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.inventory-audit-card {
+  border: 1px solid #ebedef;
+  border-radius: 8px;
+  padding: 0;
+  overflow: auto;
+}
+
+.table-status {
+  margin: 0 0 12px;
+  color: #d32f2f;
+  font-size: 14px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.audit-table thead {
+  background-color: #fafafa;
+  border-bottom: 1px solid #e4e4e4;
+}
+
+.audit-table th,
+.audit-table td {
+  padding: 14px 12px;
+  text-align: left;
+  border-bottom: 1px solid #f1f1f1;
+  white-space: nowrap;
+  color: #333;
+}
+
+.audit-table th {
+  font-size: 13px;
+  font-weight: 600;
+  color: #5b5b5b;
+}
+
+.empty-row {
+  text-align: center;
+  color: #777;
+}
+
+.pagination {
+  margin-top: auto;
+  padding-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pager-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pager-btn {
+  padding: 8px 14px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.pager-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pager-info {
+  font-size: 14px;
+  color: #4b5563;
+}

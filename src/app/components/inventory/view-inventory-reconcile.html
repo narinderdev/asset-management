@@ -23,6 +23,11 @@
             Reject
           </button>
         </div>
+        <div class="action-buttons" *ngIf="canPostAdjustment">
+          <button class="btn-post" type="button" (click)="openPostModal()" [disabled]="isPostingAdjustment">
+            {{ isPostingAdjustment ? 'Posting...' : 'Post Adjustment' }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -184,6 +189,23 @@
           [disabled]="isSubmittingAction || !actionComment.trim()"
         >
           {{ actionModalButtonText }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="isPostModalOpen" (click)="closePostModal()">
+    <div class="modal-dialog compact-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Post Adjustment</h3>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to post this inventory adjustment?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" type="button" (click)="closePostModal()" [disabled]="isPostingAdjustment">Cancel</button>
+        <button class="btn-post" type="button" (click)="confirmPostAdjustment()" [disabled]="isPostingAdjustment">
+          {{ isPostingAdjustment ? 'Posting...' : 'Post Adjustment' }}
         </button>
       </div>
     </div>

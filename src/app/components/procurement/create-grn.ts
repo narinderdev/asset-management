@@ -66,18 +66,31 @@ export class CreateGrnComponent implements OnInit {
       return;
     }
 
+    const parsedPoId = Number(this.form.poId);
+    const hasPo = parsedPoId > 0;
+
     const payload: CreateGrnPayload = {
       receivedByUserId: this.form.receivedByUserId,
       notes: this.form.notes || undefined,
-      lines: this.lines.map(line => ({
-        itemId: Number(line.itemId || 0),
-        orderedQty: Number(line.orderedQty) || 0,
-        receivedQty: Number(line.receivedQty) || 0,
-        returnQty: Number(line.returnQty) || 0
-      }))
+      lines: this.lines
+        .filter(line => Number(line.receivedQty) > 0 || Number(line.returnQty) > 0)
+        .filter(line => Number(line.itemId || 0) > 0)
+        .map(line =>
+        hasPo
+          ? {
+              poLineId: Number(line.itemId || 0),
+              receivedQty: Number(line.receivedQty) || 0,
+              returnQty: Number(line.returnQty) || 0
+            }
+          : {
+              itemId: Number(line.itemId || 0),
+              orderedQty: Number(line.orderedQty) || 0,
+              receivedQty: Number(line.receivedQty) || 0,
+              returnQty: Number(line.returnQty) || 0
+            }
+      )
     };
-    const parsedPoId = Number(this.form.poId);
-    if (parsedPoId > 0) {
+    if (hasPo) {
       payload.poId = parsedPoId;
     }
 

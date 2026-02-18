@@ -22,7 +22,7 @@
               <th>PO Number</th>
               <th>Vendor</th>
               <th>Expected Delivery</th>
-              <th>Updated</th>
+              <th>Actual Delivery</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -47,7 +47,7 @@
                 <td>{{ order.poNumber }}</td>
                 <td>{{ order.vendor }}</td>
                 <td>{{ order.expectedDelivery }}</td>
-                <td>{{ order.updatedAt }}</td>
+                <td>{{ order.deliveredAt }}</td>
                 <td>
                   <span class="status-chip" [ngClass]="statusClass(order.status)">
                     {{ order.status }}
