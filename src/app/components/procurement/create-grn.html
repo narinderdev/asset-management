@@ -11,6 +11,13 @@
       <div class="section-title">Goods Receipt Details</div>
       <div class="form-grid">
         <label class="field">
+          <span>PO (optional)</span>
+          <select name="poId" [(ngModel)]="form.poId" (ngModelChange)="onPoChange($event)">
+            <option value="">{{ isLoadingPoOptions ? 'Loading POs...' : 'Select PO' }}</option>
+            <option *ngFor="let po of poOptions" [value]="po.id">{{ po.label }}</option>
+          </select>
+        </label>
+        <label class="field">
           <span>Received By</span>
           <input type="text" name="receivedBy" [(ngModel)]="form.receivedByUserId" required />
         </label>
@@ -23,7 +30,14 @@
       <div class="line-items">
         <div class="line-items-toolbar">
           <div class="section-title">Items</div>
-          <button type="button" class="link-btn add-line-btn" (click)="addLine()">+ Add Line</button>
+          <button
+            type="button"
+            class="link-btn add-line-btn"
+            (click)="addLine()"
+            [disabled]="isPoLinesLocked || isLoadingPoLines"
+          >
+            + Add Line
+          </button>
         </div>
       <div class="line-items-header">
         <div>Inventory name</div>
@@ -33,33 +47,69 @@
         <div class="actions-column">Actions</div>
       </div>
 
-      <div class="line-item-row" *ngFor="let line of lines; let i = index">
-        <div class="line-field">
-          <select name="itemId-{{ i }}" [(ngModel)]="line.itemId" (change)="onItemSelected(i)">
-            <option value="" disabled hidden>Select item</option>
-            <option *ngFor="let option of itemOptions" [value]="option.id">
-              {{ option.name }}
-            </option>
-          </select>
+      <div class="line-item-block" *ngFor="let line of lines; let i = index">
+        <div class="line-item-row">
+          <div class="line-field">
+            <ng-container *ngIf="!isPoLinesLocked; else poItemName">
+              <select name="itemId-{{ i }}" [(ngModel)]="line.itemId" (change)="onItemSelected(i)">
+                <option value="" disabled hidden>Select item</option>
+                <option *ngFor="let option of itemOptions" [value]="option.id">
+                  {{ option.name }}
+                </option>
+              </select>
+            </ng-container>
+            <ng-template #poItemName>
+              <input type="text" [value]="line.itemName || '-'" readonly />
+            </ng-template>
+          </div>
+          <div class="line-field">
+            <input type="number" name="orderedQty-{{ i }}" [(ngModel)]="line.orderedQty" min="0" [readonly]="isPoLinesLocked" />
+          </div>
+          <div class="line-field">
+            <input
+              type="number"
+              name="receivedQty-{{ i }}"
+              [(ngModel)]="line.receivedQty"
+              min="0"
+              [readonly]="isReceivedQtyReadonly(line)"
+            />
+          </div>
+          <div class="line-field">
+            <input type="number" name="returnQty-{{ i }}" [(ngModel)]="line.returnQty" min="0" />
+          </div>
+          <div class="line-field actions-field">
+            <button
+              type="button"
+              class="icon-btn"
+              aria-label="Remove line"
+              (click)="removeLine(i)"
+              [disabled]="isPoLinesLocked"
+            ></button>
+          </div>
         </div>
-        <div class="line-field">
-          <input type="number" name="orderedQty-{{ i }}" [(ngModel)]="line.orderedQty" min="0" />
-        </div>
-        <div class="line-field">
-          <input type="number" name="receivedQty-{{ i }}" [(ngModel)]="line.receivedQty" min="0" />
-        </div>
-        <div class="line-field">
-          <input type="number" name="returnQty-{{ i }}" [(ngModel)]="line.returnQty" min="0" />
-        </div>
-        <div class="line-field actions-field">
-          <button type="button" class="icon-btn" aria-label="Remove line" (click)="removeLine(i)"></button>
+
+        <div class="return-reason-row" *ngIf="line.returnQty > 0">
+          <label class="field field-full">
+            <span>Return Reason <span class="required-star">*</span></span>
+            <input
+              type="text"
+              name="returnReason-{{ i }}"
+              [(ngModel)]="line.returnReason"
+              placeholder="Enter return reason"
+              required
+            />
+          </label>
         </div>
       </div>
       </div>
 
       <div class="form-actions">
         <button type="button" class="btn ghost" (click)="cancel()">Cancel</button>
-        <button type="submit" class="btn primary" [disabled]="isSubmitting || !form.receivedByUserId || !hasValidLine()">
+        <button
+          type="submit"
+          class="btn primary"
+          [disabled]="isSubmitting || !form.receivedByUserId || !hasValidLine() || hasMissingReturnReason()"
+        >
           {{ isSubmitting ? 'Creating...' : 'Create GRN' }}
         </button>
       </div>

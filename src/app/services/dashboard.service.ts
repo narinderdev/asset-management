@@ -24,6 +24,44 @@ export interface SecurityDashboardResponse {
   data?: SecurityDashboardData;
 }
 
+export interface BudgetDashboardResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: BudgetDashboardData;
+}
+
+export interface BudgetDashboardData {
+  workOrders?: BudgetWorkOrder[];
+  totalEstimatedBudget?: number;
+  totalActualBudget?: number;
+  totalVarianceAmount?: number;
+  totalVariancePercentage?: number;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface BudgetWorkOrder {
+  id?: number;
+  workOrderId?: string;
+  workOrderNumber?: string;
+  title?: string;
+  status?: string;
+  assetDbId?: number;
+  assetId?: string;
+  assetName?: string;
+  estimatedLaborHours?: number;
+  estimatedLaborCost?: number;
+  estimatedMaterialCost?: number;
+  estimatedBudget?: number;
+  actualLaborHours?: number;
+  actualLaborCost?: number;
+  actualMaterialCost?: number;
+  actualBudget?: number;
+  varianceAmount?: number;
+  variancePercentage?: number;
+}
+
 export interface SecurityDashboardData {
   thisWeek?: SecurityDashboardPeriodData;
   thisMonth?: SecurityDashboardPeriodData;
@@ -198,5 +236,29 @@ export class DashboardService {
       .set('period', period)
       .set('limit', String(limit));
     return this.http.get<SecurityDashboardResponse>(this.securityDashboardUrl, { headers, params });
+  }
+
+  fetchWorkOrderBudget(filters?: {
+    assetId?: string;
+    workOrderId?: string;
+    period?: string;
+  }): Observable<BudgetDashboardResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    let params = new HttpParams();
+    if (filters?.assetId?.trim()) {
+      params = params.set('assetId', filters.assetId.trim());
+    }
+    if (filters?.workOrderId?.trim()) {
+      params = params.set('workOrderId', filters.workOrderId.trim());
+    }
+    params = params.set('period', filters?.period?.trim() || 'THIS_MONTH');
+
+    return this.http.get<BudgetDashboardResponse>(`${environment.apiUrl}/api/reports/work-orders/budget`, {
+      headers,
+      params
+    });
   }
 }

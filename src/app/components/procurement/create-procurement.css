@@ -163,6 +163,18 @@
   border-bottom: 1px solid #f3f4f6;
 }
 
+.line-item-block {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.line-item-block .line-item-row {
+  border-bottom: none;
+}
+
+.return-reason-row {
+  padding: 0 0 12px;
+}
+
 .line-field input,
 .line-field select {
   /* width: 100%; */

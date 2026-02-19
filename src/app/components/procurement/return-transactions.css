@@ -1,0 +1,9 @@
+.info-message {
+  color: #2563eb;
+  display: block;
+}
+
+.reason-cell {
+  max-width: 260px;
+  white-space: normal;
+}

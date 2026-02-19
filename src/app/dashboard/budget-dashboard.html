@@ -1,0 +1,95 @@
+<div class="budget-dashboard">
+  <header class="page-header">
+    <div>
+      <h1>Budget Dashboard</h1>
+    </div>
+  </header>
+
+  <section class="panel filters-panel">
+    <div class="filters-grid">
+      <label class="field">
+        <span>Period</span>
+        <select [ngModel]="period" (ngModelChange)="onPeriodChange($event)">
+          <option *ngFor="let option of periodOptions" [value]="option.value">{{ option.label }}</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Asset Name</span>
+        <select [ngModel]="assetId" (ngModelChange)="onAssetChange($event)">
+          <option *ngFor="let option of assetOptions" [value]="option.value">{{ option.label }}</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Work Order Name</span>
+        <select [ngModel]="workOrderId" (ngModelChange)="onWorkOrderChange($event)">
+          <option *ngFor="let option of workOrderOptions" [value]="option.value">{{ option.label }}</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="summary-head">
+      <h2>Summary</h2>
+      <span>Variance = Actual - Budget</span>
+    </div>
+    <div class="summary-grid">
+      <article class="summary-card">
+        <h3>Total Budget</h3>
+        <p>{{ formatCurrency(totalEstimatedBudget) }}</p>
+      </article>
+      <article class="summary-card">
+        <h3>Total Actual</h3>
+        <p>{{ formatCurrency(totalActualBudget) }}</p>
+      </article>
+      <article class="summary-card">
+        <h3>Variance Amount</h3>
+        <p [class]="varianceClass(totalVarianceAmount)">{{ formatCurrency(totalVarianceAmount) }}</p>
+      </article>
+      <article class="summary-card">
+        <h3>Variance %</h3>
+        <p [class]="varianceClass(totalVariancePercentage)">{{ formatPercent(totalVariancePercentage) }}</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="table-head">
+      <h2>Work Orders</h2>
+      <span>{{ workOrders.length }} rows</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Work Order</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Asset</th>
+            <th>Budget</th>
+            <th>Actual</th>
+            <th>Variance</th>
+            <th>Variance %</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of workOrders">
+            <td>{{ row.workOrderNumber }}</td>
+            <td>{{ row.title }}</td>
+            <td>{{ row.status }}</td>
+            <td>{{ row.assetName }}</td>
+            <td>{{ formatCurrency(row.estimatedBudget) }}</td>
+            <td>{{ formatCurrency(row.actualBudget) }}</td>
+            <td [class]="varianceClass(row.varianceAmount)">{{ formatCurrency(row.varianceAmount) }}</td>
+            <td [class]="varianceClass(row.variancePercentage)">{{ formatPercent(row.variancePercentage) }}</td>
+          </tr>
+          <tr *ngIf="!isLoading && workOrders.length === 0">
+            <td colspan="8" class="empty">No work order budget data found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

@@ -45,7 +45,8 @@ export class SidebarComponent implements OnInit {
       hasSubmenu: true,
       submenu: [
         { label: 'Maintenance Dashboard', route: '/dashboard' },
-        { label: 'Security Dashboard', route: '/dashboard/security' }
+        { label: 'Security Dashboard', route: '/dashboard/security' },
+        { label: 'Budget Dashboard', route: '/dashboard/budget' }
       ]
     },
     {
@@ -124,7 +125,8 @@ export class SidebarComponent implements OnInit {
       submenu: [
         { label: 'Material Requisition', route: '/procurement/material-requisitions' },
         { label: 'Purchase Order', route: '/procurement/purchase-orders' },
-        { label: 'Goods Receipt (GRN)', route: '/procurement/goods-receipts' }
+        { label: 'Goods Receipt (GRN)', route: '/procurement/goods-receipts' },
+        { label: 'Return Transaction', route: '/procurement/returns' }
       ]
     },
     {

@@ -174,12 +174,45 @@ export interface GoodsReceiptDetailResponse {
   data?: GoodsReceiptItem;
 }
 
+export interface ReturnTransactionItem {
+  id?: number;
+  grnId?: number;
+  grnNumber?: string;
+  grnLineId?: number;
+  poId?: number;
+  poLineId?: number;
+  vendorId?: number;
+  itemDbId?: number;
+  itemId?: string;
+  skuNumber?: string;
+  itemName?: string;
+  orderedQty?: number;
+  receivedQty?: number;
+  returnQty?: number;
+  totalReturnedQty?: number;
+  unitCost?: number;
+  returnCost?: number;
+  stockBefore?: number;
+  stockAfter?: number;
+  reason?: string;
+  performedBy?: string;
+  createdAt?: string;
+}
+
+export interface ReturnTransactionListResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: ReturnTransactionItem[];
+}
+
 export interface CreateGrnLinePayload {
   itemId?: number;
   poLineId?: number;
   orderedQty?: number;
   receivedQty: number;
   returnQty?: number;
+  returnReason?: string;
 }
 
 export interface CreateGrnPayload {
@@ -368,6 +401,16 @@ export class ProcurementService {
     });
 
     return this.http.get<GoodsReceiptDetailResponse>(`${environment.apiUrl}/api/procurement/grn/${id}`, {
+      headers
+    });
+  }
+
+  fetchReturnTransactions(): Observable<ReturnTransactionListResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.get<ReturnTransactionListResponse>(`${environment.apiUrl}/api/procurement/returns`, {
       headers
     });
   }

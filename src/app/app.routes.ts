@@ -53,6 +53,7 @@ import { GoodsReceiptsComponent } from './components/procurement/goods-receipts'
 import { ViewGoodsReceiptComponent } from './components/procurement/view-goods-receipt';
 import { CreatePurchaseOrderComponent } from './components/procurement/create-purchase-order';
 import { CreateGrnComponent } from './components/procurement/create-grn';
+import { ReturnTransactionsComponent } from './components/procurement/return-transactions';
 import { CreatePredictiveMaintenanceComponent } from './components/predictive-maintenance/create-predictive-maintenance';
 import { ViewPredictiveMaintenanceComponent } from './components/predictive-maintenance/view-predictive-maintenance';
 import { CreateEmergencyMaintenanceComponent } from './components/emergency-maintenance/create-emergency-maintenance';
@@ -80,8 +81,13 @@ export const routes: Routes = [
   { path: 'verify-authenticator', component: VerifyAuthenticatorComponent },
   { path: 'set-password', component: SetPasswordComponent },
   { path: 'change-password', component: ChangePasswordComponent, canActivate: [AuthGuard] },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'dashboard', pathMatch: 'full', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'dashboard/security', component: SecurityDashboardComponent, canActivate: [AuthGuard] },
+  {
+    path: 'dashboard/budget',
+    loadComponent: () => import('./dashboard/budget-dashboard').then(m => m.BudgetDashboardComponent),
+    canActivate: [AuthGuard]
+  },
   { path: 'assets/add-asset', component: AddAssetComponent, canActivate: [AuthGuard] },
   { path: 'assets/add-asset/:tab', component: AddAssetComponent, canActivate: [AuthGuard] },
   { path: 'assets/types/create', component: CreateAssetTypeComponent, canActivate: [AuthGuard] },
@@ -160,7 +166,7 @@ export const routes: Routes = [
   { path: 'vendor-management/create', component: CreateVendorComponent, canActivate: [AuthGuard] },
   { path: 'vendor-management/edit/:id', component: CreateVendorComponent, canActivate: [AuthGuard] },
   { path: 'vendor-management/view/:id', component: ViewVendorComponent, canActivate: [AuthGuard] },
-  { path: 'procurement', component: ProcurementComponent, canActivate: [AuthGuard] },
+  { path: 'procurement', pathMatch: 'full', component: ProcurementComponent, canActivate: [AuthGuard] },
   { path: 'procurement/material-requisitions', component: ProcurementComponent, canActivate: [AuthGuard] },
   { path: 'procurement/purchase-orders', component: PurchaseOrdersComponent, canActivate: [AuthGuard] },
   { path: 'procurement/purchase-orders/create', component: CreatePurchaseOrderComponent, canActivate: [AuthGuard] },
@@ -168,6 +174,7 @@ export const routes: Routes = [
   { path: 'procurement/goods-receipts', component: GoodsReceiptsComponent, canActivate: [AuthGuard] },
   { path: 'procurement/goods-receipts/create', component: CreateGrnComponent, canActivate: [AuthGuard] },
   { path: 'procurement/goods-receipts/view/:id', component: ViewGoodsReceiptComponent, canActivate: [AuthGuard] },
+  { path: 'procurement/returns', component: ReturnTransactionsComponent, canActivate: [AuthGuard] },
   { path: 'procurement/create', component: CreateProcurementComponent, canActivate: [AuthGuard] },
   { path: 'procurement/edit/:id', component: CreateProcurementComponent, canActivate: [AuthGuard] },
   { path: 'procurement/view/:id', component: ViewProcurementComponent, canActivate: [AuthGuard] },

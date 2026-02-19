@@ -1,0 +1,58 @@
+<div class="procurement-container">
+  <div class="procurement-header">
+    <h1 class="procurement-title">Return Transaction</h1>
+    <div class="header-actions">
+      <button class="create-service-btn" type="button" [disabled]="isLoading" (click)="refresh()">Refresh</button>
+    </div>
+  </div>
+
+
+
+  <div class="table-container">
+    <div class="table-wrapper">
+      <table class="procurement-table">
+        <thead>
+          <tr>
+            <th>GRN Number</th>
+            <th>Item Name</th>
+            <th>Item ID</th>
+            <th>Received Qty</th>
+            <th>Return Qty</th>
+            <th>Total Returned</th>
+            <th>Unit Cost</th>
+            <th>Return Cost</th>
+            <th>Reason</th>
+            <th>Performed By</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="isLoading; else loadedRows">
+            <tr *ngFor="let _ of loadingRows" class="skeleton-row">
+              <td colspan="10"><span class="skeleton skeleton-text medium"></span></td>
+            </tr>
+          </ng-container>
+
+          <ng-template #loadedRows>
+            <tr *ngIf="showEmptyState">
+              <td colspan="10" class="empty-row">No return transactions found.</td>
+            </tr>
+            <tr *ngFor="let row of rows">
+              <td>{{ row.grnNumber }}</td>
+              <td>{{ row.itemName }}</td>
+              <td>{{ row.itemId }}</td>
+              <td>{{ row.receivedQty }}</td>
+              <td>{{ row.returnQty }}</td>
+              <td>{{ row.totalReturnedQty }}</td>
+              <td>{{ formatCurrency(row.unitCost) }}</td>
+              <td>{{ formatCurrency(row.returnCost) }}</td>
+              <td class="reason-cell">{{ row.reason }}</td>
+              <td>{{ row.performedBy }}</td>
+            </tr>
+          </ng-template>
+        </tbody>
+      </table>
+
+      <app-loader [visible]="isLoading"></app-loader>
+    </div>
+  </div>
+</div>
