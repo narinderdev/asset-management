@@ -44,7 +44,7 @@ describe('ViewAssetComponent', () => {
 
   it('should load asset on init', () => {
     expect(component.asset?.assetName).toBe('Pump');
-    expect(component.locationDetails?.location).toBe('Plant');
+    expect(component.locationDetails?.primaryLocation).toBe('Plant');
   });
 
   it('should format fields safely', () => {

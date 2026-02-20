@@ -138,7 +138,23 @@ export class TopNOnHandQtyChartComponent implements OnChanges {
     return {
       responsive: true,
       maintainAspectRatio: false,
-      animation: false,
+      animation: {
+        duration: 900,
+        easing: 'easeOutCubic'
+      },
+      animations: {
+        y: {
+          from: 0,
+          duration: 900,
+          easing: 'easeOutCubic',
+          delay: context => {
+            if (context.type !== 'data' || context.mode === 'resize') {
+              return 0;
+            }
+            return context.dataIndex * 80;
+          }
+        }
+      },
       plugins: {
         legend: {
           display: false
@@ -154,7 +170,7 @@ export class TopNOnHandQtyChartComponent implements OnChanges {
           },
           padding: {
             top: 8,
-            bottom: 14
+            bottom: 20
           }
         },
         tooltip: {

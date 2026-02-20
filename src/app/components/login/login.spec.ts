@@ -13,7 +13,8 @@ describe('LoginComponent', () => {
   let fixture: ComponentFixture<LoginComponent>;
   let router: Router;
   const authStub = {
-    login: vi.fn().mockReturnValue(of({ statusCode: 200, data: { token: 'token' }, message: 'ok' }))
+    login: vi.fn().mockReturnValue(of({ statusCode: 200, data: { token: 'token' }, message: 'ok' })),
+    sendEmailMfaCode: vi.fn().mockReturnValue(of({ statusCode: 200, message: 'sent' }))
   };
   const toastrStub = {
     success: vi.fn(),
@@ -21,6 +22,11 @@ describe('LoginComponent', () => {
   };
 
   beforeEach(async () => {
+    authStub.login.mockClear();
+    authStub.sendEmailMfaCode.mockClear();
+    toastrStub.success.mockClear();
+    toastrStub.error.mockClear();
+
     await TestBed.configureTestingModule({
       imports: [LoginComponent, RouterTestingModule],
       providers: [
@@ -54,12 +60,15 @@ describe('LoginComponent', () => {
     expect(touchSpy).toHaveBeenCalled();
   });
 
-  it('should navigate to dashboard on successful submit', () => {
+  it('should navigate to verify-account on successful submit', () => {
     const navigateSpy = vi.spyOn(router, 'navigate');
     component.form.setValue({ email: 'user@example.com', password: 'password123' });
 
     component.submit();
-    expect(navigateSpy).toHaveBeenCalledWith(['dashboard']);
+    expect(authStub.sendEmailMfaCode).toHaveBeenCalled();
+    expect(navigateSpy).toHaveBeenCalledWith(['/verify-account'], {
+      queryParams: { email: 'user@example.com' }
+    });
     expect(component.loading).toBe(false);
   });
 });

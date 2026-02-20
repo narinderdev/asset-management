@@ -71,8 +71,8 @@
             </div>
             <div class="field-group">
               <div class="field-label">Expected Delivery</div>
-              <div class="field-value" [ngClass]="{'empty': !po?.requiredByDate && !po?.expectedDeliveryDate}">
-                {{ po?.requiredByDate || po?.expectedDeliveryDate || '—' }}
+              <div class="field-value" [ngClass]="{'empty': !po?.deliveredAt}">
+                {{ formatDateOnly(po?.deliveredAt) }}
               </div>
             </div>
             <div class="field-group">
@@ -83,11 +83,11 @@
             </div>
             <div class="field-group">
               <div class="field-label">Created</div>
-              <div class="field-value">{{ po?.createdAt || '—' }}</div>
+              <div class="field-value">{{ formatDateOnly(po?.createdAt) }}</div>
             </div>
             <div class="field-group">
               <div class="field-label">Updated</div>
-              <div class="field-value">{{ po?.updatedAt || '—' }}</div>
+              <div class="field-value">{{ formatDateOnly(po?.updatedAt) }}</div>
             </div>
             <div class="field-group full-width">
               <div class="field-label">Remarks</div>

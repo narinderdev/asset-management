@@ -143,6 +143,7 @@ export interface GoodsReceiptItem {
   id?: number;
   grnNumber?: string;
   poId?: number;
+  vendorName?: string;
   vendorId?: number;
   status?: string;
   receivedByUserId?: string;

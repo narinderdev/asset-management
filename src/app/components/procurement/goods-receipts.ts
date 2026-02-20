@@ -132,10 +132,28 @@ export class GoodsReceiptsComponent implements OnInit {
       poId: item.poId !== undefined && item.poId !== null ? String(item.poId) : '-',
       vendorId: item.vendorId !== undefined && item.vendorId !== null ? String(item.vendorId) : '-',
       receivedBy: item.receivedByUserId ?? '-',
-      receivedAt: item.receivedAtUtc ?? '-',
-      updatedAt: item.updatedAt ?? item.createdAt ?? '-',
+      receivedAt: this.formatDateOnly(item.receivedAtUtc),
+      updatedAt: this.formatDateOnly(item.updatedAt ?? item.createdAt),
       notes: item.notes ?? '-'
     };
+  }
+
+  private formatDateOnly(value?: string | null): string {
+    const raw = value?.trim();
+    if (!raw || raw === '-') {
+      return '-';
+    }
+
+    const datePrefix = /^\d{4}-\d{2}-\d{2}/.exec(raw)?.[0];
+    if (datePrefix) {
+      return datePrefix;
+    }
+
+    const parsed = new Date(raw);
+    if (Number.isNaN(parsed.getTime())) {
+      return raw;
+    }
+    return parsed.toISOString().slice(0, 10);
   }
 
   viewReceipt(row: GoodsReceiptRow): void {

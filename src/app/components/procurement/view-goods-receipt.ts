@@ -58,6 +58,24 @@ export class ViewGoodsReceiptComponent implements OnInit {
     return this.prettify(this.grn?.status) || 'Draft';
   }
 
+  formatDateOnly(value?: string | null): string {
+    const raw = value?.trim();
+    if (!raw || raw === '-') {
+      return '-';
+    }
+
+    const datePrefix = /^\d{4}-\d{2}-\d{2}/.exec(raw)?.[0];
+    if (datePrefix) {
+      return datePrefix;
+    }
+
+    const parsed = new Date(raw);
+    if (Number.isNaN(parsed.getTime())) {
+      return raw;
+    }
+    return parsed.toISOString().slice(0, 10);
+  }
+
   private fetchGrn(id: string): void {
     this.isLoading = true;
     this.errorMessage = undefined;

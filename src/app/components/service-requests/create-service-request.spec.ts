@@ -74,7 +74,6 @@ describe('CreateServiceRequestComponent', () => {
       problemDescription: 'Overheating',
       preferredDate: component.dateToday,
       preferredTime: '10:00',
-      status: 'NEW',
       safetyRisk: true,
       attachmentUrl: 'http://file'
     };
@@ -97,8 +96,7 @@ describe('CreateServiceRequestComponent', () => {
       maintenanceType: 'inspection',
       priority: 'low',
       shortTitle: 'Inspect',
-      problemDescription: 'Check',
-      status: 'NEW'
+      problemDescription: 'Check'
     };
 
     component.onCreate();

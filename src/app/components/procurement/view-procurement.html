@@ -93,11 +93,11 @@
             </div>
             <div class="field-group">
               <div class="field-label">Created</div>
-              <div class="field-value">{{ mrDetail?.createdAt || mrState?.date || '-' }}</div>
+              <div class="field-value">{{ formatDateOnly(mrDetail?.createdAt || mrState?.date) }}</div>
             </div>
             <div class="field-group">
-              <div class="field-label">Updated</div>
-              <div class="field-value">{{ mrDetail?.updatedAt || mrState?.date || '-' }}</div>
+              <div class="field-label">Approved Date</div>
+              <div class="field-value">{{ formatDateOnly(mrDetail?.approvedAt || mrState?.approvedAt) }}</div>
             </div>
             <div class="field-group full-width">
               <div class="field-label">Notes</div>

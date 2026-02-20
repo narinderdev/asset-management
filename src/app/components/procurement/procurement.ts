@@ -143,11 +143,29 @@ export class ProcurementComponent implements OnInit {
       id: item.id ?? 0,
       prId: item.mrNumber ?? `MR-${item.id ?? ''}`,
       requester: item.requestedByUserId ?? 'Unknown',
-      date: item.updatedAt ?? item.createdAt ?? '',
+      date: this.formatDateOnly(item.updatedAt ?? item.createdAt ?? ''),
       requiredBy: item.neededByDate ?? '',
       status: this.prettifyStatus(item.status),
       isLocked: this.isApprovedOrConverted(item.status)
     };
+  }
+
+  private formatDateOnly(value?: string): string {
+    if (!value) {
+      return '-';
+    }
+    const raw = String(value).trim();
+    if (!raw) {
+      return '-';
+    }
+    if (raw.includes('T')) {
+      return raw.split('T')[0];
+    }
+    const parsed = new Date(raw);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toISOString().split('T')[0];
+    }
+    return raw;
   }
 
   filterRequests(): void {

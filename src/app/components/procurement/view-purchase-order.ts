@@ -160,6 +160,24 @@ export class ViewPurchaseOrderComponent implements OnInit {
     return this.isDraft || this.isIssued;
   }
 
+  formatDateOnly(value?: string | null): string {
+    const raw = value?.trim();
+    if (!raw || raw === '-') {
+      return '—';
+    }
+
+    const datePrefix = /^\d{4}-\d{2}-\d{2}/.exec(raw)?.[0];
+    if (datePrefix) {
+      return datePrefix;
+    }
+
+    const parsed = new Date(raw);
+    if (Number.isNaN(parsed.getTime())) {
+      return raw;
+    }
+    return parsed.toISOString().slice(0, 10);
+  }
+
   private mapLine(line: PurchaseOrderLine): UiPoLine {
     return {
       id: line.id,

@@ -29,6 +29,11 @@ describe('SetPasswordComponent', () => {
   };
 
   beforeEach(async () => {
+    userServiceStub.setPassword.mockClear();
+    routerStub.navigate.mockClear();
+    toastrStub.success.mockClear();
+    toastrStub.error.mockClear();
+
     await TestBed.configureTestingModule({
       imports: [SetPasswordComponent],
       providers: [
@@ -49,9 +54,13 @@ describe('SetPasswordComponent', () => {
   });
 
   it('submits and navigates on success', () => {
-    component.form.setValue({ password: 'Password1!', confirmPassword: 'Password1!' });
+    component.email = 'user@example.com';
+    component.form.setValue({ password: 'Password1234$', confirmPassword: 'Password1234$' });
     component.submit();
-    expect(userServiceStub.setPassword).toHaveBeenCalled();
+    expect(userServiceStub.setPassword).toHaveBeenCalledWith({
+      email: 'user@example.com',
+      password: 'Password1234$'
+    });
     expect(toastrStub.success).toHaveBeenCalled();
     expect(routerStub.navigate).toHaveBeenCalledWith(['/login']);
   });
@@ -60,7 +69,8 @@ describe('SetPasswordComponent', () => {
     userServiceStub.setPassword.mockReturnValueOnce(
       throwError(() => ({ error: { message: 'Failed' } }))
     );
-    component.form.setValue({ password: 'Password1!', confirmPassword: 'Password1!' });
+    component.email = 'user@example.com';
+    component.form.setValue({ password: 'Password1234$', confirmPassword: 'Password1234$' });
     component.submit();
     expect(toastrStub.error).toHaveBeenCalledWith('Failed');
   });

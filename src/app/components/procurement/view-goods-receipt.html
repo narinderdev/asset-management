@@ -14,10 +14,6 @@
       </div>
 
       <div class="header-actions">
-        <div class="status-badges">
-          <span class="badge badge-info">{{ statusChip || 'Submitted' }}</span>
-        </div>
-
         <div class="action-buttons">
           <button class="btn-secondary" type="button" (click)="goBack()">
             Back To List
@@ -51,8 +47,8 @@
             </div>
             <div class="field-group">
               <div class="field-label">Vendor</div>
-              <div class="field-value" [ngClass]="{'empty': !grn?.vendorId}">
-                {{ grn?.vendorId || '-' }}
+              <div class="field-value" [ngClass]="{'empty': !grn?.vendorName && !grn?.vendorId}">
+                {{ grn?.vendorName || grn?.vendorId || '-' }}
               </div>
             </div>
             <div class="field-group">
@@ -64,16 +60,16 @@
             <div class="field-group">
               <div class="field-label">Received At</div>
               <div class="field-value" [ngClass]="{'empty': !grn?.receivedAtUtc}">
-                {{ grn?.receivedAtUtc || '-' }}
+                {{ formatDateOnly(grn?.receivedAtUtc) }}
               </div>
             </div>
             <div class="field-group">
               <div class="field-label">Created</div>
-              <div class="field-value">{{ grn?.createdAt || '-' }}</div>
+              <div class="field-value">{{ formatDateOnly(grn?.createdAt) }}</div>
             </div>
             <div class="field-group">
               <div class="field-label">Updated</div>
-              <div class="field-value">{{ grn?.updatedAt || '-' }}</div>
+              <div class="field-value">{{ formatDateOnly(grn?.updatedAt) }}</div>
             </div>
             <div class="field-group full-width">
               <div class="field-label">Notes</div>
@@ -88,7 +84,7 @@
       <!-- Line Items Card -->
       <div class="card full-width">
         <div class="card-header">
-          <h2 class="card-title">Line Items ({{ lines?.length || 0 }})</h2>
+          <h2 class="card-title">Items ({{ lines?.length || 0 }})</h2>
         </div>
         <div class="card-body">
           <div class="table-container">
