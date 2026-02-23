@@ -67,7 +67,7 @@
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn ghost" (click)="onCancel()" [disabled]="isSubmitting">Cancel</button>
+          <button type="button" class="btn ghost" (click)="onCancel()" [disabled]="isSubmitting">Close</button>
           <button type="submit" class="btn primary" [disabled]="isSubmitting || isLoading">
             {{ isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Reconcile' : 'Create Reconcile') }}
           </button>
@@ -78,3 +78,4 @@
     </div>
   </section>
 </div>
+

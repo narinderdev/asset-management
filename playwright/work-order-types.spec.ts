@@ -105,7 +105,7 @@ test.describe('Work Order Types', () => {
     await mockList(page); // for initial list load (and after redirect back)
 
     let postPayload: any = {};
-    await page.route('**/api/work-order-types', async (route) => {
+    await page.route('**/api/work-order-types**', async (route) => {
       if (route.request().method() === 'POST') {
         postPayload = JSON.parse(route.request().postData() || '{}');
         await route.fulfill({
@@ -118,9 +118,7 @@ test.describe('Work Order Types', () => {
       await route.continue();
     });
 
-    await page.goto('/work-orders/types');
-
-    await page.getByRole('button', { name: '+ Create Work Order Type' }).click();
+    await page.goto('/work-orders/types/create');
 
     await page.locator('input[formcontrolname="workOrderType"]').fill('INSPECTION');
     await page.locator('select[formcontrolname="costTreatment"]').selectOption('OPEX');

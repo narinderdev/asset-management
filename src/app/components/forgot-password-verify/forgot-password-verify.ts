@@ -1,26 +1,25 @@
-import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, ElementRef, QueryList, ViewChildren, ChangeDetectorRef, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { finalize } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
+import { finalize } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
 import { SpinnerComponent } from '../spinner/spinner';
 
 @Component({
-  selector: 'app-verify-account',
+  selector: 'app-forgot-password-verify',
   standalone: true,
-  imports: [CommonModule, FormsModule, SpinnerComponent, RouterModule],
-  templateUrl: './verify-account.html',
-  styleUrls: ['./verify-account.css']
+  imports: [CommonModule, FormsModule, RouterModule, SpinnerComponent],
+  templateUrl: './forgot-password-verify.html',
+  styleUrls: ['./forgot-password-verify.css']
 })
-export class VerifyAccountComponent implements OnInit {
+export class ForgotPasswordVerifyComponent {
   code: string[] = Array(6).fill('');
-  loading = false;
   email = '';
+  loading = false;
   errorMessage = '';
-  private isBrowser = false;
 
   @ViewChildren('otpInput') inputs!: QueryList<ElementRef<HTMLInputElement>>;
 
@@ -28,26 +27,13 @@ export class VerifyAccountComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private authService: AuthService,
-    private toastr: ToastrService,
-    private cdr: ChangeDetectorRef,
-    @Inject(PLATFORM_ID) platformId: object
+    private toastr: ToastrService
   ) {
-    this.isBrowser = isPlatformBrowser(platformId);
-  }
-
-  ngOnInit() {
     this.route.queryParams.subscribe(params => {
-      const emailParam = params['email'];
-      if (emailParam) {
-        this.email = emailParam;
-        if (this.isBrowser) {
-          localStorage.setItem('loginEmail', emailParam);
-        }
-      } else if (this.isBrowser) {
-        const storedEmail = localStorage.getItem('loginEmail');
-        if (storedEmail) {
-          this.email = storedEmail;
-        }
+      this.email = String(params['email'] ?? '').trim().toLowerCase();
+      if (!this.email) {
+        this.toastr.error('Email is missing. Please request code again.');
+        this.router.navigate(['/forgot-password']);
       }
     });
   }
@@ -61,7 +47,6 @@ export class VerifyAccountComponent implements OnInit {
     const value = input.value.replace(/\D/g, '');
 
     this.code[index] = '';
-
     if (value) {
       this.code[index] = value.slice(-1);
       input.value = this.code[index];
@@ -69,7 +54,7 @@ export class VerifyAccountComponent implements OnInit {
       if (index < this.code.length - 1) {
         this.focusInput(index + 1);
       } else {
-        this.checkAndAutoSubmit();
+        this.submit();
       }
     } else {
       input.value = '';
@@ -80,7 +65,6 @@ export class VerifyAccountComponent implements OnInit {
 
   handleKeyDown(event: KeyboardEvent, index: number) {
     const input = event.target as HTMLInputElement;
-
     if (event.key === 'Backspace') {
       if (!this.code[index] && index > 0) {
         this.code[index - 1] = '';
@@ -99,28 +83,12 @@ export class VerifyAccountComponent implements OnInit {
   handlePaste(event: ClipboardEvent, index: number) {
     event.preventDefault();
     const pastedData = event.clipboardData?.getData('text').replace(/\D/g, '') || '';
-
     for (let i = 0; i < pastedData.length && index + i < this.code.length; i++) {
       this.code[index + i] = pastedData[i];
       const input = this.inputs.get(index + i);
       if (input) {
         input.nativeElement.value = pastedData[i];
       }
-    }
-
-    const nextIndex = Math.min(index + pastedData.length, this.code.length - 1);
-    this.focusInput(nextIndex);
-    this.errorMessage = '';
-
-    this.checkAndAutoSubmit();
-  }
-
-  checkAndAutoSubmit() {
-    const allFilled = this.code.every(digit => digit !== '');
-    if (allFilled) {
-      setTimeout(() => {
-        this.submit();
-      }, 300);
     }
   }
 
@@ -135,47 +103,33 @@ export class VerifyAccountComponent implements OnInit {
       return;
     }
 
-    const email = String(this.email ?? '').trim().toLowerCase();
-    if (!email) {
-      this.errorMessage = 'Email is required. Please login again.';
-      return;
-    }
-
     const otp = this.code.join('');
     if (otp.length !== 6) {
-      this.errorMessage = 'Enter the 6-digit code we sent.';
+      this.errorMessage = 'Enter the 6-digit code.';
       return;
     }
 
     this.loading = true;
-    this.cdr.detectChanges();
-
     this.authService
-      .verifyEmailMfaCodeForEmail({ email, code: otp })
+      .verifyEmailMfaCodeForEmail({ email: this.email, code: otp })
       .pipe(
         finalize(() => {
           this.loading = false;
-          this.cdr.detectChanges();
         })
       )
       .subscribe({
         next: response => {
           const statusCode = response?.statusCode;
-          const isSuccess = statusCode === 200 || statusCode === 201;
-          const message = response?.message || (isSuccess ? 'Verification successful.' : 'Invalid code.');
-
-          if (isSuccess) {
-            this.toastr.success(message);
-            const mfaEnabledFlag = this.isBrowser ? localStorage.getItem('mfaEnabled') === 'true' : false;
-            if (mfaEnabledFlag) {
-              this.router.navigate(['/verify-authenticator']);
-            } else {
-              this.router.navigate(['/dashboard']);
-            }
-          } else {
-            this.errorMessage = message;
-            this.toastr.error(message);
+          const status = String(response?.status ?? '').toLowerCase();
+          const isSuccess = statusCode === 200 || statusCode === 201 || status === 'success';
+          if (!isSuccess) {
+            this.toastr.error(response?.message || 'Invalid code.');
+            return;
           }
+          this.toastr.success(response?.message || 'Code verified.');
+          this.router.navigate(['/forgot-password/reset'], {
+            queryParams: { email: this.email, otp }
+          });
         },
         error: error => {
           const message = error?.error?.message || 'Invalid code. Please try again.';
@@ -185,7 +139,9 @@ export class VerifyAccountComponent implements OnInit {
       });
   }
 
-  editEmail() {
-    this.router.navigate(['/login']);
+  useDifferentEmail() {
+    this.router.navigate(['/forgot-password'], {
+      queryParams: this.email ? { email: this.email } : undefined
+    });
   }
 }

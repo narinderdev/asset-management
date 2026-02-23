@@ -119,10 +119,10 @@
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Item / Asset ID</th>
+                  <th>Item Id</th>
                   <th>Item Name</th>
                   <th>Qty</th>
-                  <th>UOM</th>
+                  <th>Uom</th>
                 </tr>
               </thead>
               <tbody>
@@ -169,7 +169,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-secondary" type="button" (click)="closeReject()">Cancel</button>
+        <button class="btn-secondary" type="button" (click)="closeReject()">Close</button>
         <button class="btn-danger" type="button" (click)="submitReject()" [disabled]="isRejecting || !rejectionReason">
           {{ isRejecting ? 'Rejecting...' : 'Reject MR' }}
         </button>
@@ -213,7 +213,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-secondary" type="button" (click)="closePoModal()">Cancel</button>
+        <button class="btn-secondary" type="button" (click)="closePoModal()">Close</button>
         <button
           class="btn-primary"
           type="button"
@@ -226,3 +226,4 @@
     </div>
   </div>
 </div>
+

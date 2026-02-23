@@ -91,7 +91,7 @@
         </div>
         <div class="line-items-header">
           <div>Inventory name</div>
-          <div>Item / Asset ID</div>
+          <div>Item Id</div>
           <div>Order Quantity</div>
           <div>Unit Price</div>
           <!-- UOM column removed -->
@@ -136,7 +136,7 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn ghost" (click)="onCancel()">Cancel</button>
+        <button type="button" class="btn ghost" (click)="onCancel()">Close</button>
         <button type="submit" class="btn primary" [disabled]="isSubmitting || !poInfo.vendorId">
           {{ isSubmitting ? 'Creating...' : 'Create PO' }}
         </button>
@@ -144,3 +144,4 @@
     </form>
   </section>
 </div>
+

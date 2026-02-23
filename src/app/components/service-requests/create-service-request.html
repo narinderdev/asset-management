@@ -36,9 +36,21 @@
           <input type="text" name="requesterName" [(ngModel)]="request.requesterName" placeholder="Select User" />
         </label>
         <label class="field">
-          <span>Requester Contact</span>
+          <span>Requester Email</span>
           <input type="text" name="requesterContact" [(ngModel)]="request.requesterContact"
-            placeholder="Email or Phone" />
+            placeholder="Enter email" />
+        </label>
+        <label class="field">
+          <span>Requestor Phone Number</span>
+          <input
+            type="tel"
+            name="requestorPhoneNumber"
+            [(ngModel)]="request.requestorPhoneNumber"
+            (ngModelChange)="onRequestorPhoneNumberChange($event)"
+            placeholder="(555) 123-4567"
+            inputmode="numeric"
+            maxlength="14" />
+          <small class="field-error" *ngIf="requestorPhoneError">{{ requestorPhoneError }}</small>
         </label>
        
         <label class="field">
@@ -179,7 +191,7 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn ghost" (click)="onCancel()">Cancel</button>
+        <button type="button" class="btn ghost" (click)="onCancel()">Close</button>
         <button type="submit" class="btn primary" [disabled]="isSubmitting">
           {{ isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Service Request' :
           'Create Service Request') }}
@@ -188,3 +200,4 @@
     </form>
   </section>
 </div>
+

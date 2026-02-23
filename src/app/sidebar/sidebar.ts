@@ -248,23 +248,17 @@ export class SidebarComponent implements OnInit {
       this.toggleSubmenu(item);
       const firstSub = item.submenu?.[0];
       if (firstSub) {
-        this.activeRoute = firstSub.route;
-        this.router.navigateByUrl(firstSub.route);
-        this.closeMobileIfNeeded();
+        this.navigateToRoute(firstSub.route);
       }
       return;
     }
 
-    this.router.navigateByUrl(item.route);
-    this.activeRoute = item.route;
-    this.closeMobileIfNeeded();
+    this.navigateToRoute(item.route);
   }
 
   selectSubmenu(sub: { label: string; route: string }, event: MouseEvent) {
     event.preventDefault();
-    this.activeRoute = sub.route;
-    this.router.navigateByUrl(sub.route);
-    this.closeMobileIfNeeded();
+    this.navigateToRoute(sub.route);
   }
 
   isMenuItemActive(item: MenuItem): boolean {
@@ -315,6 +309,21 @@ export class SidebarComponent implements OnInit {
     if (this.mobileOpen) {
       this.mobileClose.emit();
     }
+  }
+
+  private navigateToRoute(route: string): void {
+    this.router.navigateByUrl(route).then(success => {
+      if (success) {
+        this.activeRoute = route;
+        this.closeMobileIfNeeded();
+        return;
+      }
+      this.activeRoute = this.router.url || this.activeRoute;
+      console.warn('Sidebar navigation cancelled:', route);
+    }).catch(err => {
+      this.activeRoute = this.router.url || this.activeRoute;
+      console.error('Sidebar navigation failed:', route, err);
+    });
   }
 
   private syncExpandedMenuForRoute(): void {

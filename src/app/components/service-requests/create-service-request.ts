@@ -28,6 +28,7 @@ export class CreateServiceRequestComponent implements OnInit {
     requestDate: this.dateToday,
     requesterName: '',
     requesterContact: '',
+    requestorPhoneNumber: '',
     department: '',
     asset: '',
     location: '',
@@ -78,6 +79,7 @@ export class CreateServiceRequestComponent implements OnInit {
   ];
   isSubmitting = false;
   errorMessage?: string;
+  requestorPhoneError = '';
   isEditMode = false;
   editRequestId?: string;
   isLoadingDetails = false;
@@ -248,6 +250,12 @@ export class CreateServiceRequestComponent implements OnInit {
       return;
     }
 
+    this.requestorPhoneError = '';
+    if (!this.isValidUsPhone(this.request.requestorPhoneNumber)) {
+      this.requestorPhoneError = 'Enter a valid US phone number (e.g., (555) 123-4567).';
+      return;
+    }
+
     this.isSubmitting = true;
     this.errorMessage = undefined;
 
@@ -299,9 +307,13 @@ export class CreateServiceRequestComponent implements OnInit {
     const startTime = startParts.time ?? fallbackTime;
     const endTime = endParts.time ?? startTime ?? fallbackTime;
 
+    const requesterEmail = String(this.request.requesterContact ?? '').trim();
+    const requestorPhoneNumber = String(this.request.requestorPhoneNumber ?? '').trim();
+    const requesterContact = [requesterEmail, requestorPhoneNumber].filter(Boolean).join(' | ');
+
     const payload: ServiceRequestCreatePayload = {
       requesterName: this.request.requesterName,
-      requesterContact: this.request.requesterContact,
+      requesterContact,
       department: this.request.department,
       location: this.request.location,
       maintenanceType: this.request.maintenanceType.toUpperCase(),
@@ -334,13 +346,18 @@ export class CreateServiceRequestComponent implements OnInit {
 
   private populateFromDetail(detail: NonNullable<ServiceRequestDetailResponse['data']>): void {
     this.autoGenerateRequestId = false;
+    const rawRequesterContact = detail.requesterContact ?? '';
+    const [requesterEmail, requestorPhoneNumber] = rawRequesterContact
+      .split('|')
+      .map(part => part.trim());
 
     this.request = {
       ...this.request,
       requestId: detail.requestId ?? '',
       requestDate: detail.requestDate ? detail.requestDate.split('T')[0] : this.dateToday,
       requesterName: detail.requesterName ?? '',
-      requesterContact: detail.requesterContact ?? '',
+      requesterContact: requesterEmail ?? rawRequesterContact,
+      requestorPhoneNumber: this.formatUsPhone(requestorPhoneNumber ?? ''),
       department: detail.department ?? '',
       asset: detail.assetDbId?.toString() ?? '',
       location: detail.location ?? '',
@@ -359,6 +376,36 @@ export class CreateServiceRequestComponent implements OnInit {
       preferredTechnicianId: (detail as any).preferredTechnicianId,
       preferredTeamId: (detail as any).preferredTeamId
     };
+  }
+
+  onRequestorPhoneNumberChange(value: string): void {
+    this.request.requestorPhoneNumber = this.formatUsPhone(value);
+    this.requestorPhoneError = this.isValidUsPhone(this.request.requestorPhoneNumber)
+      ? ''
+      : 'Enter a valid US phone number (e.g., (555) 123-4567).';
+  }
+
+  private formatUsPhone(value: string): string {
+    let digits = String(value ?? '').replace(/\D/g, '');
+    if (digits.length > 10 && digits.startsWith('1')) {
+      digits = digits.slice(1);
+    }
+    digits = digits.slice(0, 10);
+
+    if (digits.length <= 3) {
+      return digits;
+    }
+    if (digits.length <= 6) {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    }
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+
+  private isValidUsPhone(value: string): boolean {
+    const trimmed = String(value ?? '').trim();
+    if (!trimmed) return true;
+    const digits = trimmed.replace(/\D/g, '');
+    return digits.length === 10;
   }
 
   private loadAssetOptions(): void {

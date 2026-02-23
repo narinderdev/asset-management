@@ -1,4 +1,4 @@
-﻿<div class="create-request-page">
+<div class="create-request-page">
   <section class="create-card">
     <header class="create-header">
       <button
@@ -7,7 +7,7 @@
         aria-label="Back to work orders"
         (click)="onCancel()"
       >
-        ←
+        &larr;
       </button>
       <h2>{{ isEditMode ? 'Edit Work Order' : 'Create Work Order' }}</h2>
     </header>
@@ -157,9 +157,10 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn ghost" (click)="onCancel()">Cancel</button>
+        <button type="button" class="btn ghost" (click)="onCancel()">Close</button>
         <button type="submit" class="btn primary">{{ isEditMode ? 'Update Work Order' : 'Create Work Order' }}</button>
       </div>
     </form>
   </section>
 </div>
+

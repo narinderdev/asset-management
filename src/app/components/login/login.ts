@@ -70,6 +70,13 @@ export class LoginComponent {
     });
   }
 
+  goToForgotPassword() {
+    const email = String(this.form.get('email')?.value ?? '').trim().toLowerCase();
+    this.router.navigate(['/forgot-password'], {
+      queryParams: email ? { email } : undefined
+    });
+  }
+
   submit() {
     if (this.loading) {
       return;
@@ -146,7 +153,7 @@ export class LoginComponent {
             // Trigger email MFA flow before allowing dashboard access
             this.loading = true;
             this.authService
-              .sendEmailMfaCode()
+              .sendEmailMfaCodeForEmail({ email })
               .pipe(
                 finalize(() => {
                   this.loading = false;

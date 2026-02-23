@@ -86,7 +86,7 @@
       </label>
 
       <div class="form-actions">
-        <button type="button" class="secondary-btn" (click)="onCancel()">Cancel</button>
+        <button type="button" class="secondary-btn" (click)="onCancel()">Close</button>
         <button type="submit" class="primary-btn" [disabled]="isSubmitting">
           {{ isSubmitting ? (isEdit ? 'Updating...' : 'Creating...') : (isEdit ? 'Update Work Order Type' : 'Create Work Order Type') }}
         </button>
@@ -94,3 +94,4 @@
     </form>
   </div>
 </div>
+

@@ -44,6 +44,26 @@ section.report-page {
 }
 
 .filters .spacer { flex: 1; }
+.report-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.print-btn {
+  background: white;
+  color: #1f2937;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.print-btn:hover {
+  background: #f9fafb;
+}
 .checkbox-filter {
   display: inline-flex;
   align-items: center;
@@ -208,4 +228,48 @@ section.report-page {
   .report-header { grid-template-columns: 1fr; }
   .filters { flex-wrap: wrap; }
   .filters select { flex: 1 1 160px; }
+}
+
+@media print {
+  section.report-page {
+    padding: 0;
+    gap: 8px;
+    min-height: auto;
+    color: #000;
+  }
+
+  .no-print,
+  .pager {
+    display: none !important;
+  }
+
+  .filters {
+    background: transparent;
+    border: 0;
+    padding: 0;
+  }
+
+  .filters select,
+  .filters input,
+  .checkbox-filter {
+    border: 0;
+    padding: 0;
+    min-width: 0;
+    color: #000;
+  }
+
+  .table-card {
+    border: 1px solid #000;
+    border-radius: 0;
+  }
+
+  .table-head {
+    background: #f3f4f6 !important;
+    color: #000;
+  }
+
+  .table-row:nth-child(even),
+  .table-row:nth-child(odd) {
+    background: #fff !important;
+  }
 }

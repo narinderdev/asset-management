@@ -498,8 +498,8 @@ export class AddAssetComponent implements OnInit {
     this.insurance.insuranceStatus = insuranceData.insuranceStatus ?? 'ACTIVE';
     this.insurance.policyType = insuranceData.policyType ?? '';
     this.insurance.certificateUrl = insuranceData.certificateUrl ?? '';
-    this.insurance.coverageAmount = this.toString(insuranceData.coverageAmount);
-    this.insurance.premiumAmount = this.toString(insuranceData.premiumAmount);
+    this.insurance.coverageAmount = this.formatCurrencyValue(insuranceData.coverageAmount);
+    this.insurance.premiumAmount = this.formatCurrencyValue(insuranceData.premiumAmount);
 
     const technical = detail.technicalDetails ?? {};
     this.technical.manufacturer = technical.manufacturer ?? '';
@@ -512,16 +512,16 @@ export class AddAssetComponent implements OnInit {
 
     const financial = detail.financialDetails ?? {};
     this.financial.acquisitionDate = financial.acquisitionDate ?? '';
-    this.financial.acquisitionCost = this.toString(financial.acquisitionCost);
+    this.financial.acquisitionCost = this.formatCurrencyValue(financial.acquisitionCost);
     this.financial.supplier = financial.supplier ?? '';
     this.financial.poInvoiceNumber = financial.poInvoiceNumber ?? '';
     this.financial.depreciationMethod = financial.depreciationMethod ?? '';
     this.financial.usefulLife = this.toString(financial.usefulLifeYears);
     this.financial.expectedUsefulLifeYears = this.toString((financial as any).expectedUsefulLifeYears);
     this.financial.depreciationStartDate = financial.depreciationStartDate ?? '';
-    this.financial.salvageValue = this.toString(financial.salvageValue);
-    this.financial.accumulatedDepreciation = this.toString(financial.accumulatedDepreciation);
-    this.financial.currentBookValue = this.toString(financial.currentBookValue);
+    this.financial.salvageValue = this.formatCurrencyValue(financial.salvageValue);
+    this.financial.accumulatedDepreciation = this.formatCurrencyValue(financial.accumulatedDepreciation);
+    this.financial.currentBookValue = this.formatCurrencyValue(financial.currentBookValue);
 
     const warranty = detail.warrantyLifecycle ?? {};
     this.warranty.commissioningDate = warranty.commissioningDate ?? '';
@@ -563,6 +563,22 @@ export class AddAssetComponent implements OnInit {
       return '';
     }
     return String(value);
+  }
+
+  private formatCurrencyValue(value?: string | number | null): string {
+    const source = this.toString(value);
+    if (!source) {
+      return '';
+    }
+
+    const raw = source.replace(/[^0-9.]/g, '');
+    if (!raw) {
+      return '';
+    }
+
+    const [intPart, decimalPart] = raw.split('.');
+    const intFormatted = Number(intPart || 0).toLocaleString('en-US');
+    return decimalPart !== undefined ? `${intFormatted}.${decimalPart.slice(0, 2)}` : intFormatted;
   }
 
   onYearInput(event: Event): void {

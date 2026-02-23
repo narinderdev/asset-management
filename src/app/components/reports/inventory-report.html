@@ -38,13 +38,19 @@
     </select>
 
     <div class="spacer"></div>
-    <div class="export-wrapper">
-      <button class="export" type="button" (click)="toggleExportMenu()">
-        <span class="export-icon" aria-hidden="true">&#8681;</span> Export Report <span class="caret">&#9662;</span>
+    <div class="report-actions no-print">
+      <button class="print-btn" type="button" (click)="printReport()">
+        <span aria-hidden="true">🖨</span> Print Report
       </button>
-      <div class="export-menu" *ngIf="exportMenuOpen">
-        <button type="button" (click)="exportAs('pdf')">&#128196; Export as PDF</button>
-        <button type="button" (click)="exportAs('excel')">&#128196; Export as Excel</button>
+      <div class="export-wrapper">
+        <button class="export" type="button" (click)="toggleExportMenu()">
+          <span class="export-icon" aria-hidden="true">&#8681;</span> Export Report <span class="caret">&#9662;</span>
+        </button>
+        <div class="export-menu" *ngIf="exportMenuOpen">
+          <button type="button" (click)="exportAs('pdf')">&#128196; Export as PDF</button>
+          <button type="button" (click)="exportAs('excel')">&#128196; Export as Excel</button>
+          <button type="button" (click)="exportAs('csv')">&#128196; Export as CSV</button>
+        </div>
       </div>
     </div>
   </div>

@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 
@@ -39,6 +40,10 @@ export class WarehouseComponent implements OnInit {
     this.loadWarehouses();
   }
 
+  private isAuthError(err: unknown): boolean {
+    return err instanceof HttpErrorResponse && (err.status === 401 || err.status === 403);
+  }
+
   private loadWarehouses(): void {
     this.isLoading = true;
     this.hasLoaded = false;
@@ -72,7 +77,9 @@ export class WarehouseComponent implements OnInit {
               this.warehouses = list;
               this.showEmptyState = this.warehouses.length === 0;
             } catch (err) {
-              console.error('Failed to map warehouses', err);
+              if (!this.isAuthError(err)) {
+                console.error('Failed to map warehouses', err);
+              }
               this.errorMessage = 'Unable to load warehouses. Please try again.';
               this.warehouses = [];
               this.showEmptyState = true;
@@ -83,7 +90,9 @@ export class WarehouseComponent implements OnInit {
         },
         error: (err) => {
           this.zone.run(() => {
-            console.error('Warehouse load error', err);
+            if (!this.isAuthError(err)) {
+              console.error('Warehouse load error', err);
+            }
             this.errorMessage = 'Unable to load warehouses. Please try again.';
             this.toastr.error(this.errorMessage);
             this.warehouses = [];
@@ -158,7 +167,9 @@ export class WarehouseComponent implements OnInit {
       },
       error: err => {
         this.zone.run(() => {
-          console.error('Delete warehouse error', err);
+          if (!this.isAuthError(err)) {
+            console.error('Delete warehouse error', err);
+          }
           this.toastr.error('Unable to delete warehouse. Please try again.');
         });
       }

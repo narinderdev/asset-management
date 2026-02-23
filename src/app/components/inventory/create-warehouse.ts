@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -51,6 +52,10 @@ export class CreateWarehouseComponent implements OnInit {
     }
   }
 
+  private isAuthError(err: unknown): boolean {
+    return err instanceof HttpErrorResponse && (err.status === 401 || err.status === 403);
+  }
+
   private loadWarehouse(id: number): void {
     this.isLoading = true;
     this.errorMessage = undefined;
@@ -82,7 +87,9 @@ export class CreateWarehouseComponent implements OnInit {
           }
         },
         error: err => {
-          console.error('Load warehouse for edit failed', err);
+          if (!this.isAuthError(err)) {
+            console.error('Load warehouse for edit failed', err);
+          }
           this.errorMessage = 'Unable to load warehouse details.';
           this.toastr.error(this.errorMessage);
           this.cdr.detectChanges();

@@ -1,4 +1,4 @@
-﻿<div class="create-request-page">
+<div class="create-request-page">
   <section class="create-card">
     <header class="create-header">
       <button type="button" class="back-btn" aria-label="Back to warehouses" (click)="cancel()">&larr;</button>
@@ -50,7 +50,7 @@
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn ghost" (click)="cancel()" [disabled]="isSubmitting">Cancel</button>
+          <button type="button" class="btn ghost" (click)="cancel()" [disabled]="isSubmitting">Close</button>
           <button type="submit" class="btn primary" [disabled]="isSubmitting || isLoading">
             {{ isEdit ? 'Update' : 'Create' }}
           </button>
@@ -59,3 +59,4 @@
     </div>
   </section>
 </div>
+

@@ -573,7 +573,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn-secondary" (click)="closeMeterModal()">Cancel</button>
+        <button type="button" class="btn-secondary" (click)="closeMeterModal()">Close</button>
         <button type="button" class="btn-primary" [disabled]="isSavingMeter" (click)="submitMeterReading()">
           <ng-container *ngIf="!isSavingMeter; else savingTpl">Save</ng-container>
           <ng-template #savingTpl>Saving...</ng-template>
@@ -582,3 +582,4 @@
     </div>
   </div>
 </div>
+

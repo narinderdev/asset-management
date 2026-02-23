@@ -96,7 +96,7 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn ghost" (click)="cancel()">Cancel</button>
+        <button type="button" class="btn ghost" (click)="cancel()">Close</button>
         <button type="submit" class="btn primary" [disabled]="isSubmitting">
           {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Asset Type' : 'Create Asset Type') }}
         </button>
@@ -104,3 +104,4 @@
     </form>
   </section>
 </div>
+

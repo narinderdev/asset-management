@@ -194,7 +194,7 @@
       </div>
 
       <div class="modal-actions">
-        <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
+        <button type="button" class="btn-secondary" (click)="closeModal()">Close</button>
         <button type="submit" class="btn-primary" [disabled]="isSaving">
           <app-spinner *ngIf="isSaving"></app-spinner>
           <span *ngIf="!isSaving">{{ isEditMode ? 'Save Changes' : 'Create Role' }}</span>
@@ -203,3 +203,4 @@
     </form>
   </div>
 </div>
+

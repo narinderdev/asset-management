@@ -1,4 +1,4 @@
-﻿<div class="view-workorder-page">
+<div class="view-workorder-page">
   <!-- Header -->
   <div class="header">
     <button class="back-button" type="button" aria-label="Back to work orders" (click)="goBack()">
@@ -445,7 +445,7 @@
         <div class="modal-error" *ngIf="approveError">{{ approveError }}</div>
       </form>
       <div class="modal-footer">
-        <button type="button" class="btn-secondary" (click)="closeApproveModal()" [disabled]="isApproving">Cancel</button>
+        <button type="button" class="btn-secondary" (click)="closeApproveModal()" [disabled]="isApproving">Close</button>
         <button type="submit" class="btn-primary" (click)="submitApproval()" [disabled]="isApproving">
           {{ isApproving ? 'Approving...' : 'Approve' }}
         </button>
@@ -493,7 +493,7 @@
         <div class="modal-error" *ngIf="teamCheckError">{{ teamCheckError }}</div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn-secondary" (click)="closeTeamCheckModal()" [disabled]="isSubmittingTeamCheck">Cancel</button>
+        <button type="button" class="btn-secondary" (click)="closeTeamCheckModal()" [disabled]="isSubmittingTeamCheck">Close</button>
         <button type="button" class="btn-primary" (click)="submitTeamCheck()" [disabled]="isSubmittingTeamCheck">
           {{ isSubmittingTeamCheck ? 'Submitting...' : (teamCheckMode === 'IN' ? 'Submit Check-in' : 'Submit Check-out') }}
         </button>
@@ -635,7 +635,7 @@
         <div class="modal-error" *ngIf="scheduleError">{{ scheduleError }}</div>
       </form>
       <div class="modal-footer">
-        <button type="button" class="btn-secondary" (click)="closeScheduleModal()" [disabled]="isScheduling">Cancel</button>
+        <button type="button" class="btn-secondary" (click)="closeScheduleModal()" [disabled]="isScheduling">Close</button>
         <button type="submit" class="btn-primary" (click)="submitSchedule()" [disabled]="isScheduling">
           {{ isScheduling ? 'Scheduling...' : 'Schedule' }}
         </button>
@@ -777,7 +777,7 @@
         <div class="modal-error" *ngIf="completeError">{{ completeError }}</div>
       </form>
       <div class="modal-footer">
-        <button type="button" class="btn-secondary" (click)="closeCompleteModal()" [disabled]="isCompleting">Cancel</button>
+        <button type="button" class="btn-secondary" (click)="closeCompleteModal()" [disabled]="isCompleting">Close</button>
         <button type="submit" class="btn-primary" (click)="submitCompletion()" [disabled]="isCompleting">
           {{ isCompleting ? 'Completing...' : 'Complete' }}
         </button>
@@ -799,7 +799,7 @@
         <div class="modal-error" *ngIf="closeError">{{ closeError }}</div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn-secondary" (click)="closeCloseModal()" [disabled]="isClosing">Cancel</button>
+        <button type="button" class="btn-secondary" (click)="closeCloseModal()" [disabled]="isClosing">Close</button>
         <button type="button" class="btn-primary" (click)="closeWorkOrder()" [disabled]="isClosing">
           {{ isClosing ? 'Closing...' : 'Yes, close' }}
         </button>
@@ -864,7 +864,7 @@
         <div class="modal-error" *ngIf="invoiceError">{{ invoiceError }}</div>
       </form>
       <div class="modal-footer">
-        <button type="button" class="btn-secondary" (click)="closeInvoiceModal()" [disabled]="isGeneratingInvoice">Cancel</button>
+        <button type="button" class="btn-secondary" (click)="closeInvoiceModal()" [disabled]="isGeneratingInvoice">Close</button>
         <button type="button" class="btn-primary" (click)="submitInvoice()" [disabled]="isGeneratingInvoice">
           {{ isGeneratingInvoice ? 'Generating...' : 'Generate' }}
         </button>
@@ -883,7 +883,7 @@
         <div class="modal-error" *ngIf="inProgressError">{{ inProgressError }}</div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn-secondary" (click)="cancelInProgressConfirm()" [disabled]="isMarkingInProgress">Cancel</button>
+        <button type="button" class="btn-secondary" (click)="cancelInProgressConfirm()" [disabled]="isMarkingInProgress">Close</button>
         <button type="button" class="btn-primary" (click)="confirmInProgress()" [disabled]="isMarkingInProgress">
           {{ isMarkingInProgress ? 'Updating...' : 'Confirm' }}
         </button>
@@ -892,6 +892,7 @@
   </div>
 
 </div>
+
 
 
 

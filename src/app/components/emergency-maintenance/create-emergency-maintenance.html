@@ -182,7 +182,7 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn ghost" (click)="onCancel()">Cancel</button>
+        <button type="button" class="btn ghost" (click)="onCancel()">Close</button>
         <button type="submit" class="btn primary" [disabled]="isSubmitting">
           {{ isSubmitting ? (isEditMode ? 'Updating...' : 'Saving...') : (isEditMode ? 'Update Corrective Maintenance' : 'Save Corrective Maintenance') }}
         </button>
@@ -190,3 +190,4 @@
     </form>
   </section>
 </div>
+

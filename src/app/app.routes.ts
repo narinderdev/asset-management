@@ -71,6 +71,9 @@ import { MfaComponent } from './components/mfa/mfa';
 import { VerifyAccountComponent } from './components/verify-account/verify-account';
 import { VerifyAuthenticatorComponent } from './components/verify-authenticator/verify-authenticator';
 import { ChangePasswordComponent } from './components/change-password/change-password';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password';
+import { ForgotPasswordVerifyComponent } from './components/forgot-password-verify/forgot-password-verify';
+import { ForgotPasswordResetComponent } from './components/forgot-password-reset/forgot-password-reset';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -80,6 +83,9 @@ export const routes: Routes = [
   { path: 'verify-account', component: VerifyAccountComponent },
   { path: 'verify-authenticator', component: VerifyAuthenticatorComponent },
   { path: 'set-password', component: SetPasswordComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'forgot-password/verify', component: ForgotPasswordVerifyComponent },
+  { path: 'forgot-password/reset', component: ForgotPasswordResetComponent },
   { path: 'change-password', component: ChangePasswordComponent, canActivate: [AuthGuard] },
   { path: 'dashboard', pathMatch: 'full', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'dashboard/security', component: SecurityDashboardComponent, canActivate: [AuthGuard] },

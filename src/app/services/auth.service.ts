@@ -32,6 +32,24 @@ export interface VerifyAccountPayload {
   otp: string;
 }
 
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface ResetPasswordPayload {
+  email: string;
+  newPassword: string;
+}
+
+export interface SendEmailMfaCodePayload {
+  email: string;
+}
+
+export interface VerifyEmailMfaCodePayload {
+  email: string;
+  code: string;
+}
+
 export interface MfaSetupResponse {
   statusCode?: number;
   status?: string;
@@ -105,10 +123,31 @@ export class AuthService {
     return this.http.post<ApiResponse>(`${this.apiUrl}/mfa/email/send`, {}, { headers });
   }
 
+  sendEmailMfaCodeForEmail(payload: SendEmailMfaCodePayload): Observable<ApiResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.post<ApiResponse>(`${this.apiUrl}/mfa/email/send`, payload, { headers });
+  }
+
   verifyEmailMfaCode(code: string): Observable<ApiResponse> {
     const headers = new HttpHeaders({
       'ngrok-skip-browser-warning': 'true',
       ...(this.getAuthHeader() ? { Authorization: this.getAuthHeader() } : {})
+    });
+    return this.http.post<ApiResponse>(`${this.apiUrl}/mfa/email/verify`, { code }, { headers });
+  }
+
+  verifyEmailMfaCodeForEmail(payload: VerifyEmailMfaCodePayload): Observable<ApiResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.post<ApiResponse>(`${this.apiUrl}/mfa/email/verify`, payload, { headers });
+  }
+
+  verifyEmailMfaCodePublic(code: string): Observable<ApiResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
     });
     return this.http.post<ApiResponse>(`${this.apiUrl}/mfa/email/verify`, { code }, { headers });
   }
@@ -118,6 +157,20 @@ export class AuthService {
       'ngrok-skip-browser-warning': 'true'
     });
     return this.http.post<ApiResponse>(`${this.apiUrl}/login/mfa`, { code, mfa_token: mfaToken }, { headers });
+  }
+
+  forgotPassword(payload: ForgotPasswordPayload): Observable<ApiResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.post<ApiResponse>(`${this.apiUrl}/forgot-password`, payload, { headers });
+  }
+
+  resetPassword(payload: ResetPasswordPayload): Observable<ApiResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    return this.http.post<ApiResponse>(`${environment.apiUrl}/users/forgot-password`, payload, { headers });
   }
 
   private getAuthHeader(): string {

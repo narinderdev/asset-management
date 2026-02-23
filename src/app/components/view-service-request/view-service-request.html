@@ -7,7 +7,8 @@
       aria-label="Back to service requests"
       (click)="goBack()"
     >
-      ← Back to service requests
+      <span aria-hidden="true">&larr;</span>
+      <span>Back to service requests</span>
     </button>
 
     <!-- Header content only when request exists -->
@@ -18,7 +19,7 @@
           <span class="request-id">
             {{ request.requestId ?? request.id ?? '-' }}
           </span>
-          <span *ngIf="request.requestDate">·</span>
+          <span *ngIf="request.requestDate">&middot;</span>
           <span *ngIf="request.requestDate">
             {{ formatDate(request.requestDate) }}
           </span>
@@ -32,10 +33,12 @@
         >
           <ng-container *ngIf="isStatusNew(request.status)">
             <button class="btn-accept" type="button" (click)="onAccept()">
-              ✓ Accept
+              <span aria-hidden="true">&#10003;</span>
+              <span>Accept</span>
             </button>
             <button class="btn-reject" type="button" (click)="onReject()">
-              ✕ Reject
+              <span aria-hidden="true">&times;</span>
+              <span>Reject</span>
             </button>
           </ng-container>
 
@@ -303,7 +306,7 @@
   <div class="modal-backdrop" *ngIf="showAcceptModal" (click)="closeModals()">
     <div class="modal-dialog" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <div class="modal-icon success">✓</div>
+        <div class="modal-icon success" aria-hidden="true">&#10003;</div>
         <h3>Accept Service Request</h3>
         <p>
           Are you sure you want to accept
@@ -312,7 +315,7 @@
       </div>
       <div class="modal-actions">
         <button class="btn-secondary" type="button" (click)="closeModals()">
-          Cancel
+          Close
         </button>
         <button
           class="btn-success"
@@ -331,7 +334,7 @@
   <div class="modal-backdrop" *ngIf="showRejectModal" (click)="closeModals()">
     <div class="modal-dialog" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <div class="modal-icon danger">✕</div>
+        <div class="modal-icon danger" aria-hidden="true">&times;</div>
         <h3>Reject Service Request</h3>
         <p>
           Are you sure you want to reject
@@ -340,7 +343,7 @@
       </div>
       <div class="modal-actions">
         <button class="btn-secondary" type="button" (click)="closeModals()">
-          Cancel
+          Close
         </button>
         <button
           class="btn-danger"
@@ -359,7 +362,7 @@
   <div class="modal-backdrop" *ngIf="showConvertModal" (click)="closeModals()">
     <div class="modal-dialog" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <div class="modal-icon info">ℹ</div>
+        <div class="modal-icon info" aria-hidden="true">i</div>
         <h3>Convert to Work Order</h3>
         <p>
           Do you want to convert
@@ -369,7 +372,7 @@
       </div>
       <div class="modal-actions">
         <button class="btn-secondary" type="button" (click)="closeModals()">
-          Cancel
+          Close
         </button>
         <button
           class="btn-primary"
@@ -384,3 +387,4 @@
     </div>
   </div>
 </div>
+

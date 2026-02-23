@@ -181,7 +181,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-secondary" type="button" (click)="closeActionModal()" [disabled]="isSubmittingAction">Cancel</button>
+        <button class="btn-secondary" type="button" (click)="closeActionModal()" [disabled]="isSubmittingAction">Close</button>
         <button
           [class]="actionType === 'approve' ? 'btn-approve' : 'btn-reject'"
           type="button"
@@ -203,7 +203,7 @@
         <p>Are you sure you want to post this inventory adjustment?</p>
       </div>
       <div class="modal-footer">
-        <button class="btn-secondary" type="button" (click)="closePostModal()" [disabled]="isPostingAdjustment">Cancel</button>
+        <button class="btn-secondary" type="button" (click)="closePostModal()" [disabled]="isPostingAdjustment">Close</button>
         <button class="btn-post" type="button" (click)="confirmPostAdjustment()" [disabled]="isPostingAdjustment">
           {{ isPostingAdjustment ? 'Posting...' : 'Post Adjustment' }}
         </button>
@@ -211,3 +211,4 @@
     </div>
   </div>
 </div>
+

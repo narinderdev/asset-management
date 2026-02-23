@@ -266,11 +266,17 @@ export class InventoryReportComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  exportAs(type: 'pdf' | 'excel'): void {
+  printReport(): void {
+    this.exportMenuOpen = false;
+    this.cdr.detectChanges();
+    setTimeout(() => window.print(), 0);
+  }
+
+  exportAs(type: 'pdf' | 'excel' | 'csv'): void {
     const sections = this.getExportSections();
     const hasRows = sections.some(section => section.rows.length > 0);
     const hasCharts = this.getRenderedChartsForPdf().length > 0;
-    const hasContent = type === 'excel' ? hasRows : hasRows || hasCharts;
+    const hasContent = type === 'pdf' ? hasRows || hasCharts : hasRows;
     if (!hasContent) {
       this.exportMenuOpen = false;
       this.cdr.detectChanges();
@@ -280,6 +286,9 @@ export class InventoryReportComponent implements OnInit {
     if (type === 'excel') {
       const table = this.buildHtmlTable(sections);
       this.downloadFile(table, `${this.view === 'ITEMS' ? 'inventory' : 'transaction'}-report.xls`, 'application/vnd.ms-excel');
+    } else if (type === 'csv') {
+      const csv = this.buildCsv(sections);
+      this.downloadFile(csv, `${this.view === 'ITEMS' ? 'inventory' : 'transaction'}-report.csv`, 'text/csv;charset=utf-8;');
     } else {
       this.buildStyledPdf(this.heading, sections);
     }
@@ -405,6 +414,26 @@ export class InventoryReportComponent implements OnInit {
       })
       .join('');
     return tables;
+  }
+
+  private buildCsv(sections: Array<{ title: string; headers: string[]; rows: string[][] }>): string {
+    const chunks = sections
+      .filter(section => section.rows.length > 0)
+      .map(section => {
+        const headerLine = section.headers.map(h => this.escapeCsvValue(h)).join(',');
+        const rowLines = section.rows.map(row => row.map(cell => this.escapeCsvValue(cell)).join(','));
+        return [this.escapeCsvValue(section.title), headerLine, ...rowLines].join('\n');
+      });
+
+    return `\uFEFF${chunks.join('\n\n')}`;
+  }
+
+  private escapeCsvValue(value: string): string {
+    const safe = String(value ?? '');
+    if (safe.includes('"') || safe.includes(',') || safe.includes('\n') || safe.includes('\r')) {
+      return `"${safe.replace(/"/g, '""')}"`;
+    }
+    return safe;
   }
 
   private buildStyledPdf(title: string, sections: Array<{ title: string; headers: string[]; rows: string[][] }>): void {

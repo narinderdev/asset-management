@@ -23,7 +23,11 @@ export class AuthTokenInterceptor implements HttpInterceptor {
 
     const url = (req.url || '').toLowerCase();
     const isAuthEndpoint =
-      url.includes('/auth/signup/verify') || url.endsWith('/auth') || url.includes('/auth/signup');
+      url.includes('/auth/signup/verify') ||
+      url.endsWith('/auth') ||
+      url.includes('/auth/signup') ||
+      url.includes('/auth/mfa/email/send') ||
+      url.includes('/auth/mfa/email/verify');
     const isChangePasswordEndpoint = url.includes('/users/change-password');
 
     if (isAuthEndpoint) {

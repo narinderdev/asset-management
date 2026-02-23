@@ -117,3 +117,21 @@
 .auth-shell {
   min-height: 100vh;
 }
+
+@media print {
+  app-sidebar,
+  .mobile-header,
+  .sidebar-overlay {
+    display: none !important;
+  }
+
+  .app-shell,
+  .main-content,
+  .main-content-sub,
+  .auth-shell {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: auto !important;
+    background: #fff !important;
+  }
+}

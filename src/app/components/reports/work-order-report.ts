@@ -137,7 +137,13 @@ export class WorkOrderReportComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  exportAs(type: 'pdf' | 'excel'): void {
+  printReport(): void {
+    this.exportMenuOpen = false;
+    this.cdr.detectChanges();
+    setTimeout(() => window.print(), 0);
+  }
+
+  exportAs(type: 'pdf' | 'excel' | 'csv'): void {
     const headers = ['WO ID', 'Title', 'Asset', 'Technician/Team', 'Priority', 'Status'];
     const rows = this.rows.map(r => [
       r.woId,
@@ -151,6 +157,9 @@ export class WorkOrderReportComponent implements OnInit {
     if (type === 'excel') {
       const table = this.buildHtmlTable(headers, rows);
       this.downloadFile(table, 'work-order-report.xls', 'application/vnd.ms-excel');
+    } else if (type === 'csv') {
+      const csv = this.buildCsv(headers, rows);
+      this.downloadFile(csv, 'work-order-report.csv', 'text/csv;charset=utf-8;');
     } else {
       this.buildStyledPdf('Work Order Report', headers, rows);
     }
@@ -175,6 +184,19 @@ export class WorkOrderReportComponent implements OnInit {
       .map(r => `<tr>${r.map(c => `<td ${textStyle}>${c}</td>`).join('')}</tr>`)
       .join('');
     return `<table border="1"><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+  }
+
+  private buildCsv(headers: string[], rows: string[][]): string {
+    const allRows = [headers, ...rows];
+    return `\uFEFF${allRows.map(row => row.map(cell => this.escapeCsvValue(cell)).join(',')).join('\n')}`;
+  }
+
+  private escapeCsvValue(value: string): string {
+    const safe = String(value ?? '');
+    if (safe.includes('"') || safe.includes(',') || safe.includes('\n') || safe.includes('\r')) {
+      return `"${safe.replace(/"/g, '""')}"`;
+    }
+    return safe;
   }
 
   private escapePdfText(text: string): string {
