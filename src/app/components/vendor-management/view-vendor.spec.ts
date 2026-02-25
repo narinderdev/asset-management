@@ -3,20 +3,27 @@ import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
+import { ToastrService } from 'ngx-toastr';
 
 import { ViewVendorComponent } from './view-vendor';
 import { VendorService } from '../../services/vendor.service';
+import { PermissionService } from '../../services/permission.service';
 
 class VendorServiceStub {
-  fetchVendorById = vi.fn().mockReturnValue(of({
-    data: {
-      id: 1,
-      vendorId: 'V-1',
-      vendorName: 'Vendor One',
-      paymentTerms: 'NET_30',
-      createdAt: '2025-01-01T00:00:00Z'
-    }
-  }));
+  fetchVendorById = vi.fn().mockReturnValue(
+    of({
+      data: {
+        id: 1,
+        vendorId: 'V-1',
+        vendorName: 'Vendor One',
+        status: 'PENDING',
+        paymentTerms: 'NET_30',
+        createdAt: '2025-01-01T00:00:00Z'
+      }
+    })
+  );
+  approveVendor = vi.fn().mockReturnValue(of({}));
+  rejectVendor = vi.fn().mockReturnValue(of({}));
 }
 
 describe('ViewVendorComponent', () => {
@@ -28,6 +35,8 @@ describe('ViewVendorComponent', () => {
       imports: [ViewVendorComponent, RouterTestingModule],
       providers: [
         { provide: VendorService, useClass: VendorServiceStub },
+        { provide: PermissionService, useValue: { hasPermission: vi.fn().mockReturnValue(true) } },
+        { provide: ToastrService, useValue: { success: vi.fn(), error: vi.fn() } },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: '1' }) } } }
       ]
     }).compileComponents();
@@ -48,7 +57,12 @@ describe('ViewVendorComponent', () => {
 
   it('should format helpers', () => {
     expect(component.formatPaymentTermsLabel('NET_15')).toBe('NET 15');
-    expect(component.formatDateString(undefined)).toBe('—');
+    expect(component.formatDateString(undefined)).toBe('-');
+  });
+
+  it('should approve pending vendor', () => {
+    component.openActionModal('approve');
+    component.confirmAction();
+    expect(component.vendor?.status).toBe('APPROVED');
   });
 });
-

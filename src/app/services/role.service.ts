@@ -40,12 +40,33 @@ export interface PermissionResponseModule {
   permissions: Permission[];
 }
 
+export interface SecurityReportByRoleItem {
+  role: string;
+  objects: Record<string, string[]>;
+}
+
+export interface SecurityReportByRoleResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: SecurityReportByRoleItem[];
+}
+
+export interface SecurityReportByObjectResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: Record<string, Record<string, string[]>>;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class RoleService {
   private readonly apiUrl = `${environment.apiUrl}/api/roles`;
   private readonly permissionsUrl = `${environment.apiUrl}/api/permissions`;
+  private readonly securityReportByRoleUrl = `${environment.apiUrl}/api/reports/security/roles`;
+  private readonly securityReportByObjectUrl = `${environment.apiUrl}/api/reports/security/objects`;
   private readonly headers = new HttpHeaders({
     'ngrok-skip-browser-warning': 'true'
   });
@@ -72,5 +93,13 @@ export class RoleService {
 
   updateRole(id: number | string, payload: Partial<CreateRolePayload>): Observable<ApiResponse<Role>> {
     return this.http.patch<ApiResponse<Role>>(`${this.apiUrl}/${id}`, payload, { headers: this.headers });
+  }
+
+  getSecurityReportByRole(): Observable<SecurityReportByRoleResponse> {
+    return this.http.get<SecurityReportByRoleResponse>(this.securityReportByRoleUrl, { headers: this.headers });
+  }
+
+  getSecurityReportByObject(): Observable<SecurityReportByObjectResponse> {
+    return this.http.get<SecurityReportByObjectResponse>(this.securityReportByObjectUrl, { headers: this.headers });
   }
 }

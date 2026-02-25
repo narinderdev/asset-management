@@ -117,9 +117,9 @@
             </select>
           </label>
           <label class="field">
-            <span>Primary Vendor</span>
+            <span> Vendor</span>
             <select name="primaryVendor" [(ngModel)]="inventoryItem.primaryVendorDbId">
-              <option [ngValue]="null" disabled hidden>Select Primary Vendor</option>
+              <option [ngValue]="null" disabled hidden>Select Vendor</option>
               <option *ngFor="let vendor of vendorOptions" [ngValue]="vendor.id">
                 {{ vendor.label }}
               </option>

@@ -164,7 +164,8 @@ export class SidebarComponent implements OnInit {
       submenu: [
         { label: 'Roles', route: '/roles-permissions' },
         { label: 'Users', route: '/users' },
-        { label: 'MFA', route: '/security/mfa' }
+        { label: 'MFA', route: '/security/mfa' },
+        { label: 'Security Report', route: '/security/report' }
       ]
     },
     {

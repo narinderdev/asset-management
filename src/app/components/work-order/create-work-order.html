@@ -101,12 +101,10 @@
         </label>
         <label class="field">
           <span>Work Request Type Code</span>
-          <input
-            type="text"
-            name="workRequestTypeCode"
-            [(ngModel)]="workOrder.workRequestTypeCode"
-            placeholder="Enter request type code"
-          />
+          <select name="workRequestTypeCode" [(ngModel)]="workOrder.workRequestTypeCode">
+            <option value="" disabled hidden>Select Request Type Code</option>
+            <option *ngFor="let code of workRequestTypeCodeOptions" [value]="code">{{ code }}</option>
+          </select>
         </label>
 
         <label class="field">

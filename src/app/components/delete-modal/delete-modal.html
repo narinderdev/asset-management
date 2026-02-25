@@ -4,7 +4,7 @@
     <p>{{ message }}</p>
 
     <div class="modal-actions">
-      <button class="cancelBtn" type="button" (click)="onCancel()">Close</button>
+      <button class="cancelBtn" type="button" (click)="onCancel()">{{ cancelLabel }}</button>
 
       <button class="deleteBtn" type="button" (click)="onConfirm()" [disabled]="deleting" [ngClass]="{ 'convert-btn': confirmLabel === 'Convert' }">
         <ng-container *ngIf="!deleting">{{ confirmLabel }}</ng-container>

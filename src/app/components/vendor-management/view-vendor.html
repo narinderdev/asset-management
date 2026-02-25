@@ -1,50 +1,37 @@
 <div class="view-vendor-page">
-  <!-- Header -->
   <div class="header">
     <button class="back-button" type="button" aria-label="Back to vendors" (click)="goBack()">
-      ← Back to vendors
+      <- Back to vendors
     </button>
-    
+
     <div class="header-content" *ngIf="vendor">
       <div class="title-section">
         <h1>{{ vendor.vendorName || 'Vendor Details' }}</h1>
         <div class="vendor-meta">
-          <span class="vendor-id">{{ vendor.vendorId ?? '—' }}</span>
-          <span *ngIf="vendor.contactPerson">•</span>
+          <span class="vendor-id">{{ vendor.vendorId ?? '-' }}</span>
+          <span *ngIf="vendor.contactPerson">|</span>
           <span *ngIf="vendor.contactPerson">{{ vendor.contactPerson }}</span>
         </div>
       </div>
 
       <div class="header-actions">
-        <div class="status-badges">
-          <span class="badge" [ngClass]="{
-            'badge-success': vendor.active,
-            'badge-info': !vendor.active
-          }">{{ vendor.active ? 'Active' : 'Inactive' }}</span>
-          
-          <span class="badge" [ngClass]="{
-            'badge-success': vendor.rating >= 4,
-            'badge-warning': vendor.rating >= 2 && vendor.rating < 4,
-            'badge-info': vendor.rating < 2 || !vendor.rating
-          }" *ngIf="vendor.rating">
-            ⭐ {{ vendor.rating }}
-          </span>
+        <div class="approval-actions" *ngIf="canShowApprovalActions">
+          <button class="btn-approve" type="button" (click)="openActionModal('approve')" [disabled]="isSubmittingAction">
+            Approve
+          </button>
+          <button class="btn-reject" type="button" (click)="openActionModal('reject')" [disabled]="isSubmittingAction">
+            Reject
+          </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Status Messages -->
-  <!-- <div class="status-message" *ngIf="errorMessage">{{ errorMessage }}</div> -->
-
-  <!-- Main Content -->
   <div class="main-content">
     <app-loader [visible]="isLoading && !vendor"></app-loader>
 
     <ng-container *ngIf="vendor">
       <div class="details-grid">
-        
-        <!-- Overview Card -->
         <div class="card full-width">
           <div class="card-header">
             <h2 class="card-title">Vendor Information</h2>
@@ -53,15 +40,15 @@
             <div class="field-grid field-grid-4">
               <div class="field-group">
                 <div class="field-label">Vendor ID</div>
-                <div class="field-value highlight">{{ vendor.vendorId ?? '—' }}</div>
+                <div class="field-value highlight">{{ vendor.vendorId ?? '-' }}</div>
               </div>
               <div class="field-group">
                 <div class="field-label">Name</div>
-                <div class="field-value">{{ vendor.vendorName ?? '—' }}</div>
+                <div class="field-value">{{ vendor.vendorName ?? '-' }}</div>
               </div>
               <div class="field-group">
                 <div class="field-label">Contact Person</div>
-                <div class="field-value" [ngClass]="{'empty': !vendor.contactPerson}">{{ vendor.contactPerson ?? '—' }}</div>
+                <div class="field-value" [ngClass]="{ empty: !vendor.contactPerson }">{{ vendor.contactPerson ?? '-' }}</div>
               </div>
               <div class="field-group">
                 <div class="field-label">Status</div>
@@ -69,21 +56,21 @@
               </div>
               <div class="field-group">
                 <div class="field-label">Email</div>
-                <div class="field-value" [ngClass]="{'empty': !vendor.email}">
+                <div class="field-value" [ngClass]="{ empty: !vendor.email }">
                   <a *ngIf="vendor.email" [href]="'mailto:' + vendor.email" class="link">{{ vendor.email }}</a>
-                  <span *ngIf="!vendor.email">—</span>
+                  <span *ngIf="!vendor.email">-</span>
                 </div>
               </div>
               <div class="field-group">
                 <div class="field-label">Phone</div>
-                <div class="field-value" [ngClass]="{'empty': !vendor.phone}">
+                <div class="field-value" [ngClass]="{ empty: !vendor.phone }">
                   <a *ngIf="vendor.phone" [href]="'tel:' + vendor.phone" class="link">{{ vendor.phone }}</a>
-                  <span *ngIf="!vendor.phone">—</span>
+                  <span *ngIf="!vendor.phone">-</span>
                 </div>
               </div>
               <div class="field-group span-2">
                 <div class="field-label">Address</div>
-                <div class="field-value" [ngClass]="{'empty': !vendor.address}">{{ vendor.address ?? '—' }}</div>
+                <div class="field-value" [ngClass]="{ empty: !vendor.address }">{{ vendor.address ?? '-' }}</div>
               </div>
               <div class="field-group">
                 <div class="field-label">Payment Terms</div>
@@ -91,12 +78,12 @@
               </div>
               <div class="field-group">
                 <div class="field-label">Rating</div>
-                <div class="field-value" [ngClass]="{'empty': !vendor.rating}">
+                <div class="field-value" [ngClass]="{ empty: !vendor.rating }">
                   <span *ngIf="vendor.rating" class="rating-display">
                     <span class="rating-stars">{{ getStarRating(vendor.rating) }}</span>
                     <span class="rating-number">({{ vendor.rating }})</span>
                   </span>
-                  <span *ngIf="!vendor.rating">—</span>
+                  <span *ngIf="!vendor.rating">-</span>
                 </div>
               </div>
               <div class="field-group">
@@ -110,8 +97,44 @@
             </div>
           </div>
         </div>
-
       </div>
     </ng-container>
+  </div>
+
+  <div class="vendor-action-overlay" *ngIf="isActionModalOpen">
+    <div class="vendor-action-modal">
+      <h3>{{ actionTitle }}</h3>
+      <p>{{ actionMessage }}</p>
+
+      <div class="reject-comment-group" *ngIf="selectedAction === 'reject'">
+        <label for="rejectComment">Comment <span class="required">*</span></label>
+        <textarea
+          id="rejectComment"
+          rows="3"
+          [value]="rejectComment"
+          (input)="onRejectCommentChange($any($event.target).value)"
+          (blur)="rejectCommentTouched = true"
+          placeholder="Enter rejection comment"
+        ></textarea>
+        <div class="field-error" *ngIf="rejectCommentTouched && !rejectComment.trim()">
+          Comment is required.
+        </div>
+      </div>
+
+      <div class="vendor-action-buttons">
+        <button class="btn-cancel" type="button" (click)="closeActionModal()" [disabled]="isSubmittingAction">
+          No
+        </button>
+        <button
+          class="btn-confirm"
+          type="button"
+          (click)="confirmAction()"
+          [disabled]="isSubmittingAction || (selectedAction === 'reject' && !rejectComment.trim())"
+        >
+          <ng-container *ngIf="!isSubmittingAction">Yes</ng-container>
+          <ng-container *ngIf="isSubmittingAction"><span class="spinner"></span></ng-container>
+        </button>
+      </div>
+    </div>
   </div>
 </div>

@@ -22,7 +22,7 @@
             <th>Email</th>
             <th>Phone</th>
             <th>Payment Terms</th>
-            <th>Rating</th>
+            <th>Approved</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
@@ -53,7 +53,11 @@
               <td>{{ vendor.email }}</td>
               <td>{{ vendor.phone }}</td>
               <td>{{ vendor.paymentTerms }}</td>
-              <td>{{ vendor.rating }}</td>
+              <td>
+                <span class="status-chip" [ngClass]="{ 'status-green': vendor.approvedStatus === 'Approved', 'status-grey': vendor.approvedStatus === 'Pending' }">
+                  {{ vendor.approvedStatus }}
+                </span>
+              </td>
               <td>
                 <span class="status-chip" [ngClass]="{ 'status-green': vendor.status === 'Active', 'status-grey': vendor.status === 'Inactive' }">
                   {{ vendor.status }}

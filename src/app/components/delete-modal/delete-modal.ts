@@ -13,6 +13,7 @@ export class DeleteModalComponent {
   @Input() title = 'Delete Item';
   @Input() message = 'Are you sure you want to delete this item?';
   @Input() deleting = false;
+  @Input() cancelLabel = 'Close';
   @Input() confirmLabel = 'Delete';
 
   @Output() cancel = new EventEmitter<void>();

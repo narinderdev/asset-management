@@ -113,4 +113,20 @@ export class VendorService {
 
     return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers });
   }
+
+  approveVendor(id: number): Observable<VendorCreateResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.post<VendorCreateResponse>(`${this.apiUrl}/${id}/approve`, {}, { headers });
+  }
+
+  rejectVendor(id: number, comment: string): Observable<VendorCreateResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.post<VendorCreateResponse>(`${this.apiUrl}/${id}/reject`, { comment }, { headers });
+  }
 }

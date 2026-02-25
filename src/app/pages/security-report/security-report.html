@@ -1,0 +1,143 @@
+<div class="security-report-page">
+  <div class="filters-card">
+    <div class="header-row">
+      <div>
+        <h1>Security Report</h1>
+        <p>Review role and object-level permissions across modules.</p>
+      </div>
+
+      <div class="view-toggle" role="tablist" aria-label="Security report view mode">
+        <button
+          type="button"
+          [class.active]="viewMode() === 'ROLE'"
+          [disabled]="viewMode() === 'ROLE'"
+          (click)="switchView('ROLE')"
+        >
+          View by Role
+        </button>
+        <button
+          type="button"
+          [class.active]="viewMode() === 'OBJECT'"
+          [disabled]="viewMode() === 'OBJECT'"
+          (click)="switchView('OBJECT')"
+        >
+          View by Object
+        </button>
+      </div>
+    </div>
+
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label for="roleFilter">Role</label>
+        <select
+          id="roleFilter"
+          class="filter-select"
+          [ngModel]="selectedRole()"
+          [disabled]="viewMode() === 'OBJECT'"
+          (ngModelChange)="onRoleChange($event)"
+        >
+          <option value="">All Roles</option>
+          <option *ngFor="let role of roleOptions()" [value]="role">{{ formatLabel(role) }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="objectFilter">Object</label>
+        <select
+          id="objectFilter"
+          class="filter-select"
+          [ngModel]="selectedObject()"
+          [disabled]="viewMode() === 'ROLE'"
+          (ngModelChange)="onObjectChange($event)"
+        >
+          <option value="">All Objects</option>
+          <option *ngFor="let objectName of objectOptions()" [value]="objectName">{{ formatLabel(objectName) }}</option>
+        </select>
+      </div>
+
+      <div class="export-wrap" (click)="onExportMenuClick($event)">
+        <button type="button" class="export-btn" (click)="toggleExportMenu($event)">
+          <span class="export-icon">⬇</span>
+          Export Report
+        </button>
+        <div class="export-menu" *ngIf="showExportMenu()">
+          <button type="button" (click)="exportAsCsv()">CSV</button>
+          <button type="button" (click)="exportAsExcel()">Excel</button>
+          <button type="button" (click)="exportAsPdf()">PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <app-loader [visible]="loading()"></app-loader>
+
+    <ng-container *ngIf="filteredRows().length; else emptyState">
+      <div class="table-wrap">
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>{{ primaryHeader() }}</th>
+              <th>{{ secondaryHeader() }}</th>
+              <th *ngFor="let permission of permissionColumns()">{{ formatLabel(permission) }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of paginatedRows()">
+              <td>{{ getPrimaryValue(row) }}</td>
+              <td>{{ getSecondaryValue(row) }}</td>
+              <td *ngFor="let permission of permissionColumns()" class="permission-col">
+                <span class="permission-box" [class.checked]="hasPermission(row, permission)">
+                  <span *ngIf="hasPermission(row, permission)" class="checkmark">✓</span>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination-bar">
+        <div class="pagination-summary">
+          Showing {{ getStartEntry() }} - {{ getEndEntry() }} of {{ filteredRows().length }} entries
+        </div>
+        <div class="pagination-controls">
+          <button type="button" class="page-btn" [disabled]="currentPage() === 0" (click)="goToPage(currentPage() - 1)">
+            Prev
+          </button>
+
+          <ng-container *ngFor="let page of pageNumbers()">
+            <button
+              *ngIf="page !== -1; else dots"
+              type="button"
+              class="page-btn"
+              [class.active]="page === currentPage()"
+              (click)="goToPage(page)"
+            >
+              {{ page + 1 }}
+            </button>
+            <ng-template #dots>
+              <button type="button" class="page-btn ellipsis" disabled>...</button>
+            </ng-template>
+          </ng-container>
+
+          <button
+            type="button"
+            class="page-btn"
+            [disabled]="currentPage() >= totalPages() - 1"
+            (click)="goToPage(currentPage() + 1)"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <h3>No security records found</h3>
+        <p *ngIf="viewMode() === 'ROLE'">No role-based permissions match the current filters.</p>
+        <p *ngIf="viewMode() === 'OBJECT'">No object-based permissions match the current filters.</p>
+      </div>
+    </ng-template>
+  </div>
+</div>

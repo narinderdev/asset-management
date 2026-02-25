@@ -93,6 +93,11 @@
   color: #2e7d32;
 }
 
+.status-chip.status-grey {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
 .actions-cell {
   display: flex;
   gap: 8px;

@@ -68,6 +68,7 @@ import { AssetReportComponent } from './components/reports/asset-report';
 import { InventoryReportComponent } from './components/reports/inventory-report';
 import { WorkOrderReportComponent } from './components/reports/work-order-report';
 import { MfaComponent } from './components/mfa/mfa';
+import { SecurityReportComponent } from './pages/security-report/security-report';
 import { VerifyAccountComponent } from './components/verify-account/verify-account';
 import { VerifyAuthenticatorComponent } from './components/verify-authenticator/verify-authenticator';
 import { ChangePasswordComponent } from './components/change-password/change-password';
@@ -197,5 +198,6 @@ export const routes: Routes = [
   { path: 'roles-permissions', component: RolesComponent, canActivate: [AuthGuard] },
   { path: 'roles/view/:id', component: ViewRoleComponent, canActivate: [AuthGuard] },
   { path: 'security/mfa', component: MfaComponent, canActivate: [AuthGuard] },
+  { path: 'security/report', component: SecurityReportComponent, canActivate: [AuthGuard] },
   { path: 'users', component: UsersComponent, canActivate: [AuthGuard] }
 ];

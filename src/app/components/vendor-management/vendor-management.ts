@@ -18,7 +18,7 @@ interface Vendor {
   email: string;
   phone: string;
   paymentTerms: string;
-  rating: number;
+  approvedStatus: 'Approved' | 'Pending';
   status: 'Active' | 'Inactive';
 }
 
@@ -142,9 +142,16 @@ export class VendorManagementComponent implements OnInit {
       email: data.email ?? '-',
       phone: data.phone ?? '-',
       paymentTerms: this.formatPaymentTerms(data.paymentTerms),
-      rating: data.rating ?? 0,
+      approvedStatus: this.resolveApprovedStatus(data.status),
       status: data.active ? 'Active' : 'Inactive'
     };
+  }
+  private resolveApprovedStatus(status?: string): 'Approved' | 'Pending' {
+    if (!status) {
+      return 'Pending';
+    }
+
+    return status.trim().toUpperCase() === 'APPROVED' ? 'Approved' : 'Pending';
   }
 
   private formatPaymentTerms(value?: string): string {
@@ -250,4 +257,5 @@ export class VendorManagementComponent implements OnInit {
     this.router.navigate(['/vendor-management/create']);
   }
 }
+
 

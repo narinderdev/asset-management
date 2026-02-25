@@ -64,6 +64,7 @@ export class CreateWorkOrderComponent implements OnInit {
     { label: 'Inspection', value: 'INSPECTION' },
     { label: 'Emergency', value: 'EMERGENCY' }
   ];
+  workRequestTypeCodeOptions = ['CM', 'PM', 'EM', 'IN'];
   workOrderTypeOptions: Array<WorkOrderType & { label: string }> = [];
   selectedWorkOrderTypeCreateAsset = false;
 
