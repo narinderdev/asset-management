@@ -75,6 +75,7 @@ export class AddAssetComponent implements OnInit {
     retirementUnit: '',       // NEW
     utilityAccount: '',       // NEW
     propertyGroup: '',        // NEW
+    propertyUnit: '',         // NEW
     serialNumber: ''          // NEW
   };
   categoryOptions: AssetCategory[] = [];
@@ -461,6 +462,7 @@ export class AddAssetComponent implements OnInit {
     this.assetMaster.retirementUnit = (detail as any).retirementUnit ?? '';
     this.assetMaster.utilityAccount = (detail as any).utilityAccount ?? '';
     this.assetMaster.propertyGroup = (detail as any).propertyGroup ?? '';
+    this.assetMaster.propertyUnit = (detail as any).propertyUnit ?? '';
     this.assetMaster.serialNumber = (detail as any).serialNumber ?? '';
     
     this.currentAssetId = detail.id !== undefined ? String(detail.id) : this.currentAssetId;
@@ -907,6 +909,7 @@ export class AddAssetComponent implements OnInit {
       retirementUnit: this.assetMaster.retirementUnit || undefined,
       utilityAccount: this.assetMaster.utilityAccount || undefined,
       propertyGroup: this.assetMaster.propertyGroup || undefined,
+      propertyUnit: this.assetMaster.propertyUnit || undefined,
       serialNumber: this.assetMaster.serialNumber || undefined
     };
 
@@ -983,6 +986,7 @@ export class AddAssetComponent implements OnInit {
         retirementUnit: this.assetMaster.retirementUnit || undefined,
         utilityAccount: this.assetMaster.utilityAccount || undefined,
         propertyGroup: this.assetMaster.propertyGroup || undefined,
+        propertyUnit: this.assetMaster.propertyUnit || undefined,
         serialNumber: this.assetMaster.serialNumber || undefined
       }
     };

@@ -152,6 +152,7 @@ export interface AssetDetailResponse {
     retirementUnit?: string;
     utilityAccount?: string;
     propertyGroup?: string;
+    propertyUnit?: string;
     serialNumber?: string;
     insurance?: {
       insuranceProvider?: string;
@@ -245,6 +246,7 @@ export interface AssetCreatePayload {
   retirementUnit?: string;
   utilityAccount?: string;
   propertyGroup?: string;
+  propertyUnit?: string;
   serialNumber?: string;
   insurance?: {
     insuranceProvider?: string;
@@ -316,6 +318,7 @@ export interface AssetUpdatePayload {
     retirementUnit?: string;
     utilityAccount?: string;
     propertyGroup?: string;
+    propertyUnit?: string;
     serialNumber?: string;
   };
   locationOrg?: AssetLocationOrgPayload;

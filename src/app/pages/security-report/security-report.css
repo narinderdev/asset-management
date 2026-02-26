@@ -105,6 +105,27 @@
   justify-self: end;
 }
 
+.actions-wrap {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.print-btn {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #1e293b;
+  border-radius: 10px;
+  padding: 11px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.print-btn:hover {
+  background: #f8fafc;
+}
+
 .export-btn {
   border: none;
   background: linear-gradient(135deg, #3b82f6, #2563eb);
@@ -282,6 +303,10 @@
     grid-template-columns: 1fr;
   }
 
+  .actions-wrap {
+    justify-self: stretch;
+  }
+
   .export-wrap {
     justify-self: stretch;
   }
@@ -297,6 +322,16 @@
     justify-content: center;
   }
 
+  .actions-wrap {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .print-btn {
+    width: 100%;
+  }
+
   .table-wrap {
     overflow-x: auto;
   }
@@ -304,5 +339,25 @@
   .pagination-bar {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media print {
+  .view-toggle,
+  .filters-grid,
+  .pagination-bar {
+    display: none !important;
+  }
+
+  .security-report-page {
+    padding: 0;
+  }
+
+  .filters-card,
+  .table-card {
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    padding: 0;
   }
 }

@@ -151,6 +151,11 @@ export class SecurityReportComponent {
     event.stopPropagation();
   }
 
+  printReport(): void {
+    this.showExportMenu.set(false);
+    window.print();
+  }
+
   exportAsCsv(): void {
     const rows = this.getExportRows();
     if (!rows.length) {
