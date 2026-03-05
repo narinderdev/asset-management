@@ -1,11 +1,6 @@
 <div class="preventive-wrapper">
   <div class="preventive-header">
     <h1 class="preventive-title">Technician Team</h1>
-    <button
-      class="create-service-btn"
-      type="button"
-      *ngIf="canCreateTeams"
-      (click)="addTeam()">+ Create Team</button>
   </div>
 
   <div *ngIf="errorMessage" class="table-status">{{ errorMessage }}</div>
@@ -49,20 +44,6 @@
               <td class="actions-cell">
                 <button class="action-icon" aria-label="View team" (click)="viewTeam(team)">
                   <img src="assets/icons/Vector.svg" alt="View" />
-                </button>
-                <button
-                  class="action-icon"
-                  aria-label="Edit team"
-                  *ngIf="canEditTeams"
-                  (click)="editTeam(team)">
-                  <img src="assets/icons/edit.svg" alt="Edit" />
-                </button>
-                <button
-                  class="action-icon danger"
-                  aria-label="Delete team"
-                  *ngIf="canDeleteTeams"
-                  (click)="openDeleteModal(team)">
-                  <img src="assets/icons/delete.svg" alt="Delete" />
                 </button>
               </td>
             </tr>
