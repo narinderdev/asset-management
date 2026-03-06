@@ -10,11 +10,13 @@ describe('InventoryAuditLogsComponent', () => {
   let fixture: ComponentFixture<InventoryAuditLogsComponent>;
 
   const inventoryServiceMock = {
-    fetchInventoryAuditLogs: vi.fn()
+    fetchInventoryAuditLogs: vi.fn(),
+    searchInventoryAuditLogs: vi.fn()
   };
 
   beforeEach(async () => {
     inventoryServiceMock.fetchInventoryAuditLogs.mockReset();
+    inventoryServiceMock.searchInventoryAuditLogs.mockReset();
 
     await TestBed.configureTestingModule({
       imports: [InventoryAuditLogsComponent],
@@ -44,7 +46,7 @@ describe('InventoryAuditLogsComponent', () => {
     fixture.detectChanges();
 
     expect(component).toBeTruthy();
-    expect(inventoryServiceMock.fetchInventoryAuditLogs).toHaveBeenCalledWith(0, 10);
+    expect(inventoryServiceMock.fetchInventoryAuditLogs).toHaveBeenCalledWith(0, 20);
     expect(component.logs.length).toBe(1);
     expect(component.totalElements).toBe(1);
   });

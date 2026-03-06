@@ -455,6 +455,20 @@ export class InventoryService {
     return this.http.get<InventoryAuditLogListResponse>(this.inventoryAuditLogUrl, { headers, params });
   }
 
+  searchInventoryAuditLogs(
+    sku: string,
+    page: number = 0,
+    size: number = 20
+  ): Observable<InventoryAuditLogListResponse> {
+    const headers = this.buildAuthHeaders();
+    const params = new HttpParams()
+      .set('sku', sku)
+      .set('page', String(page))
+      .set('size', String(size));
+
+    return this.http.get<InventoryAuditLogListResponse>(`${this.inventoryAuditLogUrl}/search`, { headers, params });
+  }
+
   fetchInventoryReport(
     filters: {
       view?: 'ITEMS' | 'TRANSACTIONS';

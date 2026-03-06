@@ -99,6 +99,12 @@
               <div class="field-label">Approved Date</div>
               <div class="field-value">{{ formatDateOnly(mrDetail?.approvedAt || mrState?.approvedAt) }}</div>
             </div>
+            <div class="field-group">
+              <div class="field-label">PO Number</div>
+              <div class="field-value" [ngClass]="{'empty': !mrDetail?.poNumber && !mrState?.poNumber}">
+                {{ mrDetail?.poNumber || mrState?.poNumber || '-' }}
+              </div>
+            </div>
             <div class="field-group full-width">
               <div class="field-label">Notes</div>
               <div class="field-value notes-content" [ngClass]="{'empty': !mrDetail?.notes && !mrState?.notes}">

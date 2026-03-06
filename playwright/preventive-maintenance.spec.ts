@@ -100,7 +100,7 @@ test.describe('Preventive Maintenance', () => {
 
     await page.goto('/maintenance/preventive');
 
-    await expect(page.getByRole('heading', { name: /Preventative Maintenance/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Preventive Maintenance/i })).toBeVisible();
     await expect(page.getByText('Quarterly Inspection')).toBeVisible();
     await expect(page.getByText('Pump A')).toBeVisible();
     await expect(page.getByText('Yes')).toBeVisible();

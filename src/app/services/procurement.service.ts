@@ -35,6 +35,7 @@ export interface CreateMrPayload {
 export interface PurchaseRequisitionItem {
   id?: number;
   mrNumber?: string;
+  poNumber?: string;
   requestedByUserId?: string;
   status?: string;
   neededByDate?: string;

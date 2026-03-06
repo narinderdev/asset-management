@@ -1,6 +1,28 @@
 <div class="inventory-audit-page">
   <div class="inventory-audit-header">
     <h1 class="inventory-audit-title">Inventory Audit Logs</h1>
+    <div class="report-actions no-print">
+      <input
+        type="text"
+        class="sku-search-input"
+        placeholder="Search by SKU"
+        [value]="skuSearch"
+        (input)="onSkuInput(($any($event.target)).value)"
+      />
+      <button class="print-btn" type="button" (click)="printReport()">
+        <span aria-hidden="true">&#128438;</span> Print Report
+      </button>
+      <div class="export-wrapper">
+        <button class="export" type="button" (click)="toggleExportMenu()">
+          <span class="export-icon" aria-hidden="true">&#8681;</span> Export Report <span class="caret">&#9662;</span>
+        </button>
+        <div class="export-menu" *ngIf="exportMenuOpen">
+          <button type="button" (click)="exportAs('pdf')">&#128196; Export as PDF</button>
+          <button type="button" (click)="exportAs('excel')">&#128196; Export as Excel</button>
+          <button type="button" (click)="exportAs('csv')">&#128196; Export as CSV</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="inventory-audit-card table-container">

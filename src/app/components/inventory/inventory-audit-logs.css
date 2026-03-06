@@ -23,6 +23,101 @@
   color: #2c3e50;
 }
 
+.report-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sku-search-input {
+  min-width: 230px;
+  height: 25px;
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  color: #111827;
+  font-size: 14px;
+}
+
+.sku-search-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.print-btn {
+  background: white;
+  color: #1f2937;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.print-btn:hover {
+  background: #f9fafb;
+}
+
+.export {
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.export-icon {
+  font-size: 14px;
+}
+
+.caret {
+  font-size: 12px;
+}
+
+.export-wrapper {
+  position: relative;
+}
+
+.export-menu {
+  position: absolute;
+  right: 0;
+  margin-top: 6px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  min-width: 190px;
+  z-index: 10;
+}
+
+.export-menu button {
+  background: white;
+  border: none;
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.export-menu button:hover {
+  background: #f3f6ff;
+}
+
 .inventory-audit-card {
   border: 1px solid #ebedef;
   border-radius: 8px;
@@ -103,4 +198,28 @@
 .pager-info {
   font-size: 14px;
   color: #4b5563;
+}
+
+@media print {
+  .no-print,
+  .pagination {
+    display: none !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .inventory-audit-header {
+    flex-wrap: wrap;
+  }
+
+  .report-actions {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .sku-search-input {
+    flex: 1 1 220px;
+    min-width: 220px;
+  }
 }

@@ -24,6 +24,7 @@
               <th>Needed by</th>
               <th>Updated</th>
               <th>Status</th>
+              <th>PO Number</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -35,13 +36,14 @@
                 <td><span class="skeleton skeleton-text short"></span></td>
                 <td><span class="skeleton skeleton-text short"></span></td>
                 <td><span class="skeleton skeleton-pill"></span></td>
+                <td><span class="skeleton skeleton-text short"></span></td>
                 <td><span class="skeleton skeleton-text tiny"></span></td>
               </tr>
             </ng-container>
 
             <ng-template #loadedRequests>
               <tr *ngIf="showEmptyState">
-                <td colspan="6" class="empty-row">No material requisitions to display.</td>
+                <td colspan="7" class="empty-row">No material requisitions to display.</td>
               </tr>
               <tr *ngFor="let request of filteredRequests">
                 <td>{{ request.prId }}</td>
@@ -53,6 +55,7 @@
                     {{ request.status }}
                   </span>
                 </td>
+                <td>{{ request.poNumber || '-' }}</td>
                 <td class="actions-cell">
                   <button class="action-icon" aria-label="View requisition" (click)="viewRequisition(request)">
                     <img src="assets/icons/Vector.svg" alt="View" />

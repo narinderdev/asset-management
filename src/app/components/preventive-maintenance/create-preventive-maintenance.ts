@@ -131,7 +131,7 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
     this.isSubmitting = true;
 
     const payload = this.buildMaintenancePayload();
-    const successMessage = this.isEditMode ? 'Preventative maintenance template saved.' : 'Preventative maintenance template created successfully.';
+    const successMessage = this.isEditMode ? 'Preventive maintenance template saved.' : 'Preventive maintenance template created successfully.';
     const errorMessage = this.isEditMode ? 'Unable to save PM template. Please try again.' : 'Unable to create PM template. Please try again.';
     const request$: Observable<any> = this.isEditMode && this.editTemplateId
       ? this.pmTemplateService.updatePreventiveMaintenance(this.editTemplateId, this.buildUpdatePayload(payload))
@@ -390,3 +390,4 @@ export class CreatePreventiveMaintenanceComponent implements OnInit {
     this.cdr.detectChanges();
   }
 }
+

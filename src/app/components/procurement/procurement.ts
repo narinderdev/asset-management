@@ -18,6 +18,7 @@ interface ProcurementRequest {
   date: string;
   requiredBy: string;
   status: string;
+  poNumber: string;
   isLocked: boolean;
 }
 
@@ -146,6 +147,7 @@ export class ProcurementComponent implements OnInit {
       date: this.formatDateOnly(item.updatedAt ?? item.createdAt ?? ''),
       requiredBy: item.neededByDate ?? '',
       status: this.prettifyStatus(item.status),
+      poNumber: item.poNumber ?? '-',
       isLocked: this.isApprovedOrConverted(item.status)
     };
   }

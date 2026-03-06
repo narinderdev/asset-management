@@ -41,12 +41,12 @@ export class PreventiveMaintenanceComponent implements OnInit {
   canCreatePm = false;
   canEditPm = false;
   canDeletePm = false;
-  headingText = 'Preventative Maintenance Template';
-  createButtonText = '+ Create Preventative Maintenance Template';
-  deleteMessage = 'Are you sure you want to delete this preventative maintenance template?';
+  headingText = 'Preventive Maintenance Template';
+  createButtonText = '+ Create Preventive Maintenance Template';
+  deleteMessage = 'Are you sure you want to delete this Preventive maintenance template?';
   isPredictiveMode = false;
   isEmergencyMode = false;
-  emptyStateText = 'No Preventative maintenance templates to display.';
+  emptyStateText = 'No Preventive maintenance templates to display.';
 
   constructor(
     private router: Router,
@@ -72,8 +72,8 @@ export class PreventiveMaintenanceComponent implements OnInit {
       this.emptyStateText = 'No emergency maintenance items to display.';
       this.deleteMessage = 'Delete is not available for emergency maintenance.';
     } else {
-      this.emptyStateText = 'No Preventative maintenance templates to display.';
-      this.deleteMessage = 'Are you sure you want to delete this Preventative maintenance template?';
+      this.emptyStateText = 'No Preventive maintenance templates to display.';
+      this.deleteMessage = 'Are you sure you want to delete this Preventive maintenance template?';
     }
     this.loadTemplates();
   }
@@ -399,7 +399,7 @@ export class PreventiveMaintenanceComponent implements OnInit {
       })
     ).subscribe({
       next: () => {
-        this.toastr.success(this.isPredictiveMode ? 'Predictive maintenance item deleted.' : 'Preventative maintenance template deleted.');
+        this.toastr.success(this.isPredictiveMode ? 'Predictive maintenance item deleted.' : 'Preventive maintenance template deleted.');
         this.closeDeleteModal();
         this.loadTemplates();
         this.cdr.detectChanges();
@@ -444,3 +444,4 @@ export class PreventiveMaintenanceComponent implements OnInit {
     return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalTemplates);
   }
 }
+

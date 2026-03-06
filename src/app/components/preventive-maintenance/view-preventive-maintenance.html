@@ -1,13 +1,13 @@
 <div class="view-pm-page">
   <!-- Header -->
   <div class="header">
-    <button class="back-button" type="button" aria-label="Back to preventative maintenance" (click)="goBack()">
-      ← Back to preventative maintenance
+    <button class="back-button" type="button" aria-label="Back to Preventive maintenance" (click)="goBack()">
+      ← Back to Preventive maintenance
     </button>
     
     <div class="header-content" *ngIf="template">
       <div class="title-section">
-        <h1>{{ template.title || 'Preventative Maintenance Details' }}</h1>
+        <h1>{{ template.title || 'Preventive Maintenance Details' }}</h1>
         <div class="pm-meta">
           <span class="pm-code">{{ template.planCode || 'N/A' }}</span>
           <span *ngIf="template.workType">•</span>
@@ -156,3 +156,4 @@
     </div>
   </div>
 </div>
+
