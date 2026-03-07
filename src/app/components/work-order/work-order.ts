@@ -16,6 +16,7 @@ import { NewWorkOrderHighlightService } from '../../services/new-work-order-high
 export class WorkOrderManagementComponent implements OnInit {
   canCreateWorkOrders = false;
   newlyCreatedWorkOrder: WorkOrder | null = null;
+  currentListPage = 1;
 
   constructor(
     private router: Router,
@@ -33,5 +34,9 @@ export class WorkOrderManagementComponent implements OnInit {
       return;
     }
     this.router.navigate(['/work-orders/create']);
+  }
+
+  onPageChanged(page: number): void {
+    this.currentListPage = page;
   }
 }

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
@@ -55,6 +55,7 @@ export class WorkOrderTable implements OnInit, OnChanges {
   @Input() loading = false;
   @Input() emptyMessage = 'No work orders to display.';
   @Input() showEditDelete = true;
+  @Output() pageChanged = new EventEmitter<number>();
 
   workOrders: WorkOrder[] = [];
   isLoading = false;
@@ -153,6 +154,7 @@ export class WorkOrderTable implements OnInit, OnChanges {
           }
           this.errorMessage = undefined;
           this.isLoading = false;
+          this.pageChanged.emit(this.currentPage + 1);
           this.cdr.detectChanges();
         },
         error: () => {
