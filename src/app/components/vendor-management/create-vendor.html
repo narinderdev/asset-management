@@ -35,7 +35,12 @@
         </label>
         <label class="field">
           <span>Tax ID</span>
-          <input type="text" name="taxId" [(ngModel)]="vendor.taxId" placeholder="Enter Tax ID" />
+          <ng-container *ngIf="isEditMode; else editableTaxId">
+            <input type="text" name="taxIdMasked" class="masked-tax-id" [value]="maskTaxId(vendor.taxId)" readonly />
+          </ng-container>
+          <ng-template #editableTaxId>
+            <input type="text" name="taxId" [(ngModel)]="vendor.taxId" placeholder="Enter Tax ID" />
+          </ng-template>
         </label>
         <label class="field">
           <span>Address</span>

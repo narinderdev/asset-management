@@ -76,7 +76,7 @@ export class SidebarComponent implements OnInit {
       module: 'WORK_ORDER',
       hasSubmenu: true,
       submenu: [
-        { label: 'Work Order Types', route: '/work-orders/types' },
+        { label: 'Work Order Type', route: '/work-orders/types' },
         { label: 'Work Order', route: '/work-orders' }
         
       ]
@@ -91,7 +91,7 @@ export class SidebarComponent implements OnInit {
       submenu: [
         { label: 'Preventive', route: '/maintenance/preventive' },
         // { label: 'Predictive Maintenance', route: '/maintenance/predictive' },
-        { label: 'Corrective Maintenance', route: '/maintenance/emergency' }
+        { label: 'Corrective', route: '/maintenance/emergency' }
       ]
     },
     {

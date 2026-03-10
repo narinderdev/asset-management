@@ -16,6 +16,7 @@ class VendorServiceStub {
         id: 1,
         vendorId: 'V-1',
         vendorName: 'Vendor One',
+        taxId: '123456789',
         status: 'PENDING',
         paymentTerms: 'NET_30',
         createdAt: '2025-01-01T00:00:00Z'
@@ -58,6 +59,7 @@ describe('ViewVendorComponent', () => {
   it('should format helpers', () => {
     expect(component.formatPaymentTermsLabel('NET_15')).toBe('NET 15');
     expect(component.formatDateString(undefined)).toBe('-');
+    expect(component.maskTaxId('123456789')).toBe('*****6789');
   });
 
   it('should approve pending vendor', () => {

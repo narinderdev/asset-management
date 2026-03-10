@@ -150,6 +150,11 @@
   color: #9ca3af;
 }
 
+.field input.masked-tax-id {
+  font-family: Consolas, "Courier New", monospace;
+  letter-spacing: 0.04em;
+}
+
 .field input.ng-invalid.ng-touched,
 .field select.ng-invalid.ng-touched {
   border-color: #d32f2f;

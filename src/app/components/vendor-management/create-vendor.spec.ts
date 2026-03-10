@@ -73,4 +73,10 @@ describe('CreateVendorComponent', () => {
     expect(id).toBe(9);
     expect(payload).toBeTruthy();
   });
+
+  it('should mask tax id except last 4 characters', () => {
+    expect(component.maskTaxId('123456789')).toBe('*****6789');
+    expect(component.maskTaxId('1234')).toBe('1234');
+    expect(component.maskTaxId('')).toBe('');
+  });
 });

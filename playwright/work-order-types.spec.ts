@@ -84,7 +84,7 @@ const mockList = async (page: Page) => {
   });
 };
 
-test.describe('Work Order Types', () => {
+test.describe('Work Order Type', () => {
   test.beforeEach(async ({ page }) => {
     await seedAuth(page);
   });
@@ -95,7 +95,7 @@ test.describe('Work Order Types', () => {
     await page.goto('/work-orders/types');
 
     // Fix strict mode violation: target the heading specifically.
-    await expect(page.getByRole('heading', { name: 'Work Order Types' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Work Order Type' })).toBeVisible();
 
     await expect(page.getByRole('button', { name: '+ Create Work Order Type' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'View' }).first()).toBeVisible();

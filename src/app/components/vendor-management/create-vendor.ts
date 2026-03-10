@@ -149,6 +149,14 @@ export class CreateVendorComponent implements OnInit {
       });
   }
 
+  maskTaxId(taxId: string | null | undefined): string {
+    const value = (taxId ?? '').trim();
+    if (!value || value.length <= 4) {
+      return value;
+    }
+    return `${'*'.repeat(value.length - 4)}${value.slice(-4)}`;
+  }
+
   private loadVendor(id: number): void {
     this.isLoadingDetails = true;
     this.errorMessage = undefined;

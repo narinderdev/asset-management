@@ -393,6 +393,11 @@
   font-weight: 600;
 }
 
+.field-value.tax-id-masked {
+  font-family: "Courier New", Consolas, monospace;
+  letter-spacing: 0.04em;
+}
+
 .field-value .link {
   color: #2563eb;
   text-decoration: none;

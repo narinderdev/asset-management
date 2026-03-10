@@ -12,6 +12,7 @@ interface VendorDetail {
   id?: number;
   vendorId?: string;
   vendorName?: string;
+  taxId?: string;
   address?: string;
   contactPerson?: string;
   email?: string;
@@ -118,6 +119,17 @@ export class ViewVendorComponent implements OnInit {
     }
     const rating = Math.max(0, Math.min(5, Math.round(value)));
     return '*'.repeat(rating) + '-'.repeat(5 - rating);
+  }
+
+  maskTaxId(value?: string): string {
+    const taxId = (value ?? '').trim();
+    if (!taxId) {
+      return '-';
+    }
+    if (taxId.length <= 4) {
+      return taxId;
+    }
+    return `${'*'.repeat(taxId.length - 4)}${taxId.slice(-4)}`;
   }
 
   get isPendingApproval(): boolean {
