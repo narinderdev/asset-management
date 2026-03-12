@@ -1,0 +1,166 @@
+<div class="create-role-page">
+  <app-loader [visible]="isLoading"></app-loader>
+  <div class="create-role-card">
+    <div class="modal-header">
+      <div class="header-left">
+        <button class="back-btn" type="button" aria-label="Back to roles" (click)="closePage()">
+          &larr;
+        </button>
+        <div>
+          <h3>Add Role</h3>
+          <p class="modal-subtitle" *ngIf="getSelectedCount() > 0">
+            {{ getSelectedCount() }} permission(s) selected
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="addRoleForm" (ngSubmit)="saveRole()" class="modal-body">
+      <div class="form-field">
+        <label>Name</label>
+        <input type="text" formControlName="name" placeholder="e.g. Collections Manager" />
+        <div class="error" *ngIf="submitted && addRoleForm.controls['name'].errors">Required</div>
+      </div>
+
+      <div class="form-field">
+        <label>Description</label>
+        <textarea formControlName="description" placeholder="Describe what this role can do"></textarea>
+        <div class="error" *ngIf="submitted && addRoleForm.controls['description'].errors">
+          Required
+        </div>
+      </div>
+
+      <div class="form-field permissions-field">
+        <div class="permissions-header">
+          <label>Permissions</label>
+        </div>
+        <div class="security-structure">
+          <div class="security-grid">
+            <div class="security-card">
+              <div class="security-card-header">Security Classes</div>
+              <div class="security-list">
+                <button
+                  type="button"
+                  class="security-item"
+                  *ngFor="let securityClass of securityClasses"
+                  [class.active]="selectedSecurityClass === securityClass"
+                  (click)="onSecurityClassSelect(securityClass)"
+                >
+                  {{ securityClass }}
+                </button>
+              </div>
+            </div>
+
+            <div class="security-card">
+              <div class="security-card-header">Securable Objects</div>
+              <div class="security-list">
+                <button
+                  type="button"
+                  class="security-item"
+                  *ngFor="let row of modulesForSelectedClass"
+                  [class.active]="selectedModule === row.label"
+                  (click)="onModuleSelect(row.label)"
+                >
+                  {{ formatModuleLabel(row.label) }}
+                </button>
+              </div>
+            </div>
+
+            <div class="security-card object-permissions-card">
+              <div class="security-card-header">Object Permissions</div>
+              <div class="permissions-table-wrapper inline-object-permissions">
+                <table class="permissions-table compact-object-table">
+                  <thead>
+                    <tr>
+                      <th class="permission-col">View</th>
+                      <th class="permission-col">Create</th>
+                      <th class="permission-col">Update</th>
+                      <th class="permission-col">Delete</th>
+                      <th class="permission-col">Export</th>
+                      <th class="permission-col">Approve</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngIf="selectedRow as row; else noObjectSelected">
+                      <td class="permission-cell">
+                        <label class="checkbox-wrapper" *ngIf="row.permissions.view">
+                          <input
+                            type="checkbox"
+                            [checked]="isPermissionSelected(row.permissions.view)"
+                            [disabled]="isViewDisabled(row)"
+                            (change)="onPermissionToggle(row, 'view')"
+                          />
+                        </label>
+                      </td>
+
+                      <td class="permission-cell">
+                        <label class="checkbox-wrapper" *ngIf="row.permissions.create">
+                          <input
+                            type="checkbox"
+                            [checked]="isPermissionSelected(row.permissions.create)"
+                            (change)="onPermissionToggle(row, 'create')"
+                          />
+                        </label>
+                      </td>
+
+                      <td class="permission-cell">
+                        <label class="checkbox-wrapper" *ngIf="row.permissions.update">
+                          <input
+                            type="checkbox"
+                            [checked]="isPermissionSelected(row.permissions.update)"
+                            (change)="onPermissionToggle(row, 'update')"
+                          />
+                        </label>
+                      </td>
+
+                      <td class="permission-cell">
+                        <label class="checkbox-wrapper" *ngIf="row.permissions.delete">
+                          <input
+                            type="checkbox"
+                            [checked]="isPermissionSelected(row.permissions.delete)"
+                            (change)="onPermissionToggle(row, 'delete')"
+                          />
+                        </label>
+                      </td>
+
+                      <td class="permission-cell">
+                        <label class="checkbox-wrapper" *ngIf="row.permissions.export">
+                          <input
+                            type="checkbox"
+                            [checked]="isPermissionSelected(row.permissions.export)"
+                            (change)="onPermissionToggle(row, 'export')"
+                          />
+                        </label>
+                      </td>
+
+                      <td class="permission-cell">
+                        <label class="checkbox-wrapper" *ngIf="row.permissions.approve">
+                          <input
+                            type="checkbox"
+                            [checked]="isPermissionSelected(row.permissions.approve)"
+                            (change)="onPermissionToggle(row, 'approve')"
+                          />
+                        </label>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <ng-template #noObjectSelected>
+                  <div class="empty-object-message">Select a securable object to configure permissions.</div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="closePage()">Close</button>
+        <button type="submit" class="btn-primary" [disabled]="isSaving">
+          <app-spinner *ngIf="isSaving"></app-spinner>
+          <span *ngIf="!isSaving">Create Role</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

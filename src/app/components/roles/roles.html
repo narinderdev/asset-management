@@ -1,7 +1,7 @@
 <div class="roles-wrapper">
   <div class="roles-header">
     <h1 class="roles-title">Roles</h1>
-    <button class="create-btn" type="button" (click)="openModal()" *ngIf="canCreateRoles">
+    <button class="create-btn" type="button" (click)="openCreateRolePage()" *ngIf="canCreateRoles">
       + Add Role
     </button>
   </div>
@@ -22,8 +22,8 @@
           <!-- Mutually exclusive: rows OR empty -->
           <ng-container *ngIf="(pagedRoles?.length ?? 0) > 0; else emptyState">
             <tr *ngFor="let r of pagedRoles; trackBy: trackByRole">
-              <td>{{ r.name || 'ƒ?"' }}</td>
-              <td>{{ r.description || 'ƒ?"' }}</td>
+              <td>{{ r.name || '-' }}</td>
+              <td>{{ r.description || '-' }}</td>
               <td>
                 <span
                   class="status-chip"
@@ -85,122 +85,4 @@
   </div>
 </div>
 
-<!-- ADD ROLE MODAL -->
-<div class="modal-backdrop" *ngIf="isModalOpen">
-  <div class="modal-card">
-    <div class="modal-header">
-      <div>
-        <h3>{{ isEditMode ? 'Edit Role' : 'Add Role' }}</h3>
-        <p class="modal-subtitle" *ngIf="getSelectedCount() > 0">
-          {{ getSelectedCount() }} permission(s) selected
-        </p>
-      </div>
-      <button class="close-btn" type="button" aria-label="Close" (click)="closeModal()">
-        &times;
-      </button>
-    </div>
-
-    <form [formGroup]="addRoleForm" (ngSubmit)="saveRole()" class="modal-body">
-      <div class="form-field">
-        <label>Name</label>
-        <input type="text" formControlName="name" placeholder="e.g. Collections Manager" />
-        <div class="error" *ngIf="submitted && addRoleForm.controls['name'].errors">Required</div>
-      </div>
-
-      <div class="form-field">
-        <label>Description</label>
-        <textarea formControlName="description" placeholder="Describe what this role can do"></textarea>
-        <div class="error" *ngIf="submitted && addRoleForm.controls['description'].errors">
-          Required
-        </div>
-      </div>
-
-      <div class="form-field">
-        <label class="checkbox-label">
-          <input type="checkbox" formControlName="technicianRole" />
-          Is Technician
-        </label>
-      </div>
-
-      <div class="form-field permissions-field">
-        <div class="permissions-header">
-          <label>Permissions</label>
-          <label class="checkbox-wrapper assign-all">
-            <input type="checkbox" [checked]="assignAllChecked" (change)="onToggleAssignAll($event.target.checked)" />
-            Assign all
-          </label>
-        </div>
-        <div class="permissions-table-wrapper">
-          <table class="permissions-table">
-            <thead>
-              <tr>
-                <th class="module-col">Module</th>
-                <th class="permission-col">View</th>
-                <th class="permission-col">Create</th>
-                <th class="permission-col">Update</th>
-                <th class="permission-col">Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let row of permissionRows" [class.sub-row]="row.isSubRow">
-                <td class="module-name" [class.sub-module]="row.isSubRow">
-                  {{ formatModuleLabel(row.label) }}
-                </td>
-
-                <td class="permission-cell">
-                  <label class="checkbox-wrapper" *ngIf="row.permissions.view">
-                    <input
-                      type="checkbox"
-                      [checked]="isPermissionSelected(row.permissions.view)"
-                      [disabled]="isViewDisabled(row)"
-                      (change)="onPermissionToggle(row, 'view')"
-                    />
-                  </label>
-                </td>
-
-                <td class="permission-cell">
-                  <label class="checkbox-wrapper" *ngIf="row.permissions.create">
-                    <input
-                      type="checkbox"
-                      [checked]="isPermissionSelected(row.permissions.create)"
-                      (change)="onPermissionToggle(row, 'create')"
-                    />
-                  </label>
-                </td>
-
-                <td class="permission-cell">
-                  <label class="checkbox-wrapper" *ngIf="row.permissions.update">
-                    <input
-                      type="checkbox"
-                      [checked]="isPermissionSelected(row.permissions.update)"
-                      (change)="onPermissionToggle(row, 'update')"
-                    />
-                  </label>
-                </td>
-
-                <td class="permission-cell">
-                  <label class="checkbox-wrapper" *ngIf="row.permissions.delete">
-                    <input
-                      type="checkbox"
-                      [checked]="isPermissionSelected(row.permissions.delete)"
-                      (change)="onPermissionToggle(row, 'delete')"
-                    />
-                  </label>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <button type="button" class="btn-secondary" (click)="closeModal()">Close</button>
-        <button type="submit" class="btn-primary" [disabled]="isSaving">
-          <app-spinner *ngIf="isSaving"></app-spinner>
-          <span *ngIf="!isSaving">{{ isEditMode ? 'Save Changes' : 'Create Role' }}</span>
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
 

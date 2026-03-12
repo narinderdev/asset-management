@@ -1,0 +1,244 @@
+:host {
+  --page-bg: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+  --card-bg: #ffffff;
+  --line: #e2e8f0;
+  --line-soft: #e9eef5;
+  --text-strong: #0f172a;
+  --text: #334155;
+  --muted: #64748b;
+  --brand: #2f80ed;
+  --brand-soft: #e7f0ff;
+  display: block;
+  min-height: 100vh;
+  background: var(--page-bg);
+}
+
+.create-role-page {
+  padding: 22px 24px;
+}
+
+.create-role-card {
+  background: var(--card-bg);
+  border: 1px solid #e6edf6;
+  border-radius: 18px;
+  padding: 22px;
+  min-height: calc(100vh - 44px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+}
+
+.modal-header {
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--text-strong);
+}
+
+.modal-subtitle {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.back-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #cbd5e1;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.back-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.modal-body {
+  padding-right: 0;
+  gap: 14px;
+}
+
+.form-field label {
+  margin-bottom: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.form-field input,
+.form-field textarea {
+  border: 1px solid #cfd8e3;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 15px;
+  color: #1f2937;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(47, 128, 237, 0.12);
+}
+
+.form-field textarea {
+  min-height: 86px;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.technician-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.permissions-field {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  background: #fafcff;
+  min-height: 480px;
+}
+
+.permissions-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.permissions-header > label {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.assign-all {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.security-title {
+  font-size: 18px;
+  margin: 0 0 10px;
+  color: #0f172a;
+}
+
+.security-grid {
+  gap: 12px;
+  grid-template-columns: 230px 250px minmax(0, 1fr);
+}
+
+.security-card {
+  border: 1px solid #d9e2ef;
+  border-radius: 12px;
+  background: #ffffff;
+  min-height: 380px;
+}
+
+.security-card-header {
+  background: #f5f8fc;
+  border-bottom: 1px solid #e6edf6;
+  color: #0f172a;
+}
+
+.security-list {
+  max-height: 340px;
+}
+
+.security-item {
+  border-bottom: 1px solid #edf2f9;
+  padding: 10px 14px;
+  color: #1e293b;
+}
+
+.security-item.active {
+  background: var(--brand-soft);
+  color: #0f3d85;
+}
+
+.inline-object-permissions {
+  margin: 8px;
+}
+
+.permissions-table-wrapper {
+  border-color: #dbe3ee;
+  background: #ffffff;
+}
+
+.permissions-table th {
+  background: #f8fbff;
+  color: #64748b;
+}
+
+.permissions-table td {
+  color: #1e293b;
+}
+
+.modal-actions {
+  padding-top: 0;
+  border-top: none;
+  background: transparent;
+}
+
+.btn-secondary {
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.btn-primary {
+  border-radius: 10px;
+  border: 1px solid #1d70dc;
+  background: var(--brand);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+@media (max-width: 1024px) {
+  .create-role-page {
+    padding: 12px;
+  }
+
+  .create-role-card {
+    min-height: calc(100vh - 24px);
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .modal-header h3 {
+    font-size: 28px;
+  }
+}

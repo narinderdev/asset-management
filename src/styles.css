@@ -176,7 +176,7 @@ body {
   border-radius: 16px;
   padding: 20px;
   width: 100%;
-  max-width: 720px;
+  max-width: 1280px;
   max-height: 90vh;
   box-shadow: 0 25px 50px rgba(15, 23, 42, 0.2);
   display: flex;
@@ -286,7 +286,7 @@ body {
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
-  max-height: 450px;
+  max-height: 360px;
   overflow-y: auto;
 }
 
@@ -315,12 +315,12 @@ body {
 }
 
 .permissions-table th.module-col {
-  width: 40%;
+  width: 34%;
   text-align: left;
 }
 
 .permissions-table th.permission-col {
-  width: 15%;
+  min-width: 90px;
   text-align: center;
 }
 
@@ -335,6 +335,10 @@ body {
 
 .permissions-table tbody tr:hover {
   background: #f9fafb;
+}
+
+.permissions-table tbody tr.selected-object-row {
+  background: #eef3fb;
 }
 
 .permissions-table tbody tr.sub-row {
@@ -466,4 +470,109 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.security-title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.security-structure {
+  margin-bottom: 12px;
+}
+
+.security-grid {
+  display: grid;
+  grid-template-columns: 210px 230px minmax(0, 1fr);
+  gap: 14px;
+}
+
+.security-card {
+  border: 1px solid #d9dee8;
+  border-radius: 10px;
+  background: #ffffff;
+  overflow: hidden;
+  min-height: 210px;
+}
+
+.security-card-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.security-list {
+  max-height: 210px;
+  overflow-y: auto;
+}
+
+.security-item {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #edf1f6;
+  background: #ffffff;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 14px;
+  color: #1f2937;
+  cursor: pointer;
+}
+
+.security-item:last-child {
+  border-bottom: none;
+}
+
+.security-item:hover {
+  background: #f4f7fb;
+}
+
+.security-item.active {
+  background: #dfe8f6;
+  font-weight: 600;
+}
+
+.object-permissions {
+  margin-top: 2px;
+}
+
+.object-permissions-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.inline-object-permissions {
+  margin: 10px;
+  max-height: 270px;
+}
+
+.compact-object-table th {
+  position: sticky;
+  top: 0;
+  background: #f9fafb;
+  z-index: 1;
+}
+
+.empty-object-message {
+  padding: 18px 14px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+@media (max-width: 1024px) {
+  .modal-card {
+    max-width: 94vw;
+  }
+
+  .security-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .security-card {
+    min-height: auto;
+  }
 }

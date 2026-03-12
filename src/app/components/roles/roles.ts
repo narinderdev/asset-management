@@ -10,7 +10,15 @@ import { Router } from '@angular/router';
 
 interface PermissionRow {
   label: string;
-  permissions: { view?: string; create?: string; update?: string; delete?: string };
+  securityClass: string;
+  permissions: {
+    view?: string;
+    create?: string;
+    update?: string;
+    delete?: string;
+    export?: string;
+    approve?: string;
+  };
   isSubRow?: boolean;
 }
 
@@ -41,6 +49,9 @@ export class RolesComponent implements OnInit {
   pagination = { pageSize: 10, currentPage: 0, totalPages: 0, totalItems: 0 };
   requiredViewCode = '';
   assignAllChecked = false;
+  selectedSecurityClass = '';
+  selectedModule = '';
+  companyCode = '';
 
   constructor(
     private fb: FormBuilder,
@@ -58,8 +69,8 @@ export class RolesComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.companyCode = this.getCompanyCode();
     this.fetchRoles();
-    this.fetchPermissions();
   }
 
   formatModuleLabel(raw: string | undefined): string {
@@ -85,7 +96,12 @@ export class RolesComponent implements OnInit {
       technicianRole: false
     });
     this.assignAllChecked = false;
+    this.initializeSecuritySelection();
     this.isModalOpen = true;
+  }
+
+  openCreateRolePage(): void {
+    this.router.navigate(['/roles/create']);
   }
 
   openEdit(role: any) {
@@ -172,16 +188,12 @@ export class RolesComponent implements OnInit {
       )
       .subscribe({
         next: res => {
-          const data: any = Array.isArray(res) ? res : res?.data;
-          const modules = Array.isArray(data) ? data : [];
-
-          this.permissionRows = modules.map((mod: any) => ({
-            label: mod.module || 'Module',
-            permissions: this.mapActions(mod.permissions || [], mod.module)
-          }));
+          const data = this.normalizePermissionsPayload(res);
+          this.permissionRows = this.mapPermissionRows(data);
 
           // reset assign-all checkbox whenever permissions refreshed
           this.assignAllChecked = false;
+          this.initializeSecuritySelection();
 
           this.cdr.detectChanges();
         },
@@ -192,7 +204,138 @@ export class RolesComponent implements OnInit {
       });
   }
 
-  private mapActions(perms: any[], moduleName?: string): { view?: string; create?: string; update?: string; delete?: string } {
+  private normalizePermissionsPayload(response: any): any {
+    let current: any = response;
+    let depth = 0;
+
+    while (current && depth < 5) {
+      if (Array.isArray(current) || Array.isArray(current?.classes)) {
+        return this.parseIfJsonString(current);
+      }
+
+      if (current?.data !== undefined) {
+        current = current.data;
+        depth += 1;
+        continue;
+      }
+
+      break;
+    }
+
+    const parsed = this.parseIfJsonString(current);
+
+    if (Array.isArray(parsed) || Array.isArray(parsed?.classes)) {
+      return parsed;
+    }
+
+    const classes = this.findClassesArray(parsed);
+    if (classes) {
+      return { classes };
+    }
+
+    const modules = this.findModulesArray(parsed);
+    if (modules) {
+      return modules;
+    }
+
+    return parsed;
+  }
+
+  private parseIfJsonString(value: any): any {
+    if (typeof value !== 'string') {
+      return value;
+    }
+
+    const trimmed = value.trim();
+    if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+      return value;
+    }
+
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return value;
+    }
+  }
+
+  private findClassesArray(value: any, depth = 0): any[] | null {
+    if (!value || depth > 6) {
+      return null;
+    }
+
+    if (Array.isArray(value?.classes)) {
+      return value.classes;
+    }
+
+    if (Array.isArray(value)) {
+      return null;
+    }
+
+    for (const nested of Object.values(value)) {
+      const candidate = this.parseIfJsonString(nested);
+      if (Array.isArray((candidate as any)?.classes)) {
+        return (candidate as any).classes;
+      }
+      const found = this.findClassesArray(candidate, depth + 1);
+      if (found) {
+        return found;
+      }
+    }
+
+    return null;
+  }
+
+  private findModulesArray(value: any, depth = 0): any[] | null {
+    if (!value || depth > 6) {
+      return null;
+    }
+
+    if (Array.isArray(value)) {
+      return value.some(item => item?.module || item?.permissions) ? value : null;
+    }
+
+    for (const nested of Object.values(value)) {
+      const candidate = this.parseIfJsonString(nested);
+      const found = this.findModulesArray(candidate, depth + 1);
+      if (found) {
+        return found;
+      }
+    }
+
+    return null;
+  }
+
+  private mapPermissionRows(data: any): PermissionRow[] {
+    if (data && Array.isArray(data.classes)) {
+      return data.classes.flatMap((securityClass: any) => {
+        const objects = Array.isArray(securityClass?.objects) ? securityClass.objects : [];
+        return objects.map((objectItem: any) => ({
+          label: objectItem?.name || 'Object',
+          securityClass: securityClass?.name || 'Security Class',
+          permissions: this.mapActions(objectItem?.permissions || [], objectItem?.name)
+        }));
+      });
+    }
+
+    const modules = Array.isArray(data) ? data : [];
+    return modules.map((mod: any) => {
+      const moduleName = mod?.module || 'Module';
+      return {
+        label: moduleName,
+        securityClass: this.resolveSecurityClass(moduleName),
+        permissions: this.mapActions(mod?.permissions || [], moduleName)
+      };
+    });
+  }
+
+  private mapActions(perms: any[], moduleName?: string): {
+    view?: string;
+    create?: string;
+    update?: string;
+    delete?: string;
+    export?: string;
+    approve?: string;
+  } {
     const out: any = {};
 
     perms.forEach(p => {
@@ -205,6 +348,10 @@ export class RolesComponent implements OnInit {
         out.update = p.code;
       } else if (action === 'DELETE') {
         out.delete = p.code;
+      } else if (action === 'EXPORT') {
+        out.export = p.code;
+      } else if (action === 'APPROVE') {
+        out.approve = p.code;
       }
     });
 
@@ -275,7 +422,10 @@ export class RolesComponent implements OnInit {
     return Array.isArray(val) ? val.includes(code) : false;
   }
 
-  onPermissionToggle(row: PermissionRow, action: 'view' | 'create' | 'update' | 'delete') {
+  onPermissionToggle(
+    row: PermissionRow,
+    action: 'view' | 'create' | 'update' | 'delete' | 'export' | 'approve'
+  ) {
     const code = row.permissions[action];
     if (!code) return;
 
@@ -290,7 +440,13 @@ export class RolesComponent implements OnInit {
       const updated = current.filter((c: string) => c !== code);
 
       if (action === 'view') {
-        const deps = [row.permissions.create, row.permissions.update, row.permissions.delete].filter(Boolean);
+        const deps = [
+          row.permissions.create,
+          row.permissions.update,
+          row.permissions.delete,
+          row.permissions.export,
+          row.permissions.approve
+        ].filter(Boolean);
         control?.setValue(updated.filter(val => !deps.includes(val)));
       } else {
         control?.setValue(updated);
@@ -316,7 +472,13 @@ export class RolesComponent implements OnInit {
 
     const control = this.addRoleForm.get('permissions');
     const current = Array.isArray(control?.value) ? control?.value : [];
-    const deps = [row.permissions.create, row.permissions.update, row.permissions.delete].filter(Boolean);
+    const deps = [
+      row.permissions.create,
+      row.permissions.update,
+      row.permissions.delete,
+      row.permissions.export,
+      row.permissions.approve
+    ].filter(Boolean);
 
     return !!row.permissions.view && deps.some(code => current.includes(code as string));
   }
@@ -331,7 +493,7 @@ export class RolesComponent implements OnInit {
   }
 
   editRole(role: any) {
-    this.openEdit(role);
+    this.router.navigate(['/roles/create']);
   }
 
   /** keeps table rows stable */
@@ -412,5 +574,98 @@ export class RolesComponent implements OnInit {
     }
     const all = this.getAllPermissionCodes();
     return all.every(code => selected.includes(code));
+  }
+
+  onSecurityClassSelect(securityClass: string): void {
+    this.selectedSecurityClass = securityClass;
+    const firstRow = this.modulesForSelectedClass[0];
+    this.selectedModule = firstRow ? firstRow.label : '';
+  }
+
+  onModuleSelect(module: string): void {
+    this.selectedModule = module;
+  }
+
+  get securityClasses(): string[] {
+    const classes: string[] = [];
+    this.permissionRows.forEach(row => {
+      if (row.securityClass && !classes.includes(row.securityClass)) {
+        classes.push(row.securityClass);
+      }
+    });
+    return classes;
+  }
+
+  get modulesForSelectedClass(): PermissionRow[] {
+    return this.permissionRows.filter(row => row.securityClass === this.selectedSecurityClass);
+  }
+
+  get selectedRow(): PermissionRow | undefined {
+    return this.modulesForSelectedClass.find(row => row.label === this.selectedModule);
+  }
+
+  get objectPermissionRows(): PermissionRow[] {
+    return this.modulesForSelectedClass;
+  }
+
+  private initializeSecuritySelection(): void {
+    const classes = this.securityClasses;
+    if (!classes.length) {
+      this.selectedSecurityClass = '';
+      this.selectedModule = '';
+      return;
+    }
+
+    if (!this.selectedSecurityClass || !classes.includes(this.selectedSecurityClass)) {
+      this.selectedSecurityClass = classes[0];
+    }
+
+    const rows = this.modulesForSelectedClass;
+    if (!rows.length) {
+      this.selectedModule = '';
+      return;
+    }
+
+    if (!this.selectedModule || !rows.some(row => row.label === this.selectedModule)) {
+      this.selectedModule = rows[0].label;
+    }
+  }
+
+  private resolveSecurityClass(moduleName: string): string {
+    const normalized = String(moduleName || '')
+      .trim()
+      .toUpperCase();
+
+    const inventoryModules = ['INVENTORY', 'WAREHOUSE', 'STOCK', 'GOODS_RECEIPT_NOTE', 'GRN'];
+    const maintenanceModules = [
+      'WORK_ORDER',
+      'WORK_ORDER_TYPE',
+      'PREVENTIVE_MAINTENANCE',
+      'PREDICTIVE_MAINTENANCE',
+      'SERVICE_REQUEST',
+      'TECHNICIAN',
+      'FAILURE_CODE',
+      'MAINTENANCE'
+    ];
+    const securityAdminModules = ['MANAGE_ROLES', 'MANAGE_USERS', 'INVITE_USER', 'USERS', 'ROLES'];
+
+    if (securityAdminModules.some(name => normalized.includes(name))) {
+      return 'Security Administration';
+    }
+    if (inventoryModules.some(name => normalized.includes(name))) {
+      return 'Inventory';
+    }
+    if (maintenanceModules.some(name => normalized.includes(name))) {
+      return 'Maintenance';
+    }
+    return 'Asset Management';
+  }
+
+  private getCompanyCode(): string {
+    if (typeof localStorage === 'undefined') {
+      return '800';
+    }
+    const stored = localStorage.getItem('companyCode');
+    return stored && stored.trim() ? stored.trim() : '800';
   }
 }

@@ -9,7 +9,6 @@ import {
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { routes } from './app.routes';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideToastr } from 'ngx-toastr';
 import { ServerErrorToastInterceptor } from './interceptors/server-error-toast.interceptor';
 import { AuthTokenInterceptor } from './interceptors/auth-token.interceptor';
@@ -21,8 +20,6 @@ export const appConfig: ApplicationConfig = {
     provideToastr(),
     provideRouter(routes),
     provideHttpClient(withFetch(), withInterceptorsFromDi()),
-    provideClientHydration(withEventReplay())
-    ,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ServerErrorToastInterceptor,

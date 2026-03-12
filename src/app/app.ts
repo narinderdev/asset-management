@@ -72,7 +72,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       '/change-password'
     ];
     this.isLoginRoute = authRoutes.includes(normalized);
-    this.isStandaloneRoute = normalized.startsWith('/tm-system');
+    this.isStandaloneRoute =
+      normalized.startsWith('/tm-system') ||
+      normalized.startsWith('/roles/create');
     if (this.isLoginRoute || this.isStandaloneRoute) {
       this.isSidebarCollapsed = false;
       this.isMobileSidebarVisible = false;

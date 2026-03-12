@@ -2,7 +2,13 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Loader } from '../loader/loader';
-import { RoleService, PermissionModule, Permission } from '../../services/role.service';
+import {
+  RoleService,
+  PermissionModule,
+  Permission,
+  PermissionCatalog,
+  PermissionClass
+} from '../../services/role.service';
 import { Role } from '../../models/company-users.model';
 
 interface PermissionRowView {
@@ -75,7 +81,7 @@ export class ViewRoleComponent implements OnInit {
     this.roleService.getPermissions().subscribe({
       next: res => {
         const data: any = Array.isArray(res) ? res : res?.data;
-        const modules: PermissionModule[] = Array.isArray(data) ? data : [];
+        const modules = this.normalizeModules(data);
         this.permissionRows = modules.map(mod => this.mapModule(mod));
         this.accessibleTabs = modules
           .filter(mod => this.moduleHasView(mod.permissions))
@@ -90,6 +96,24 @@ export class ViewRoleComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  private normalizeModules(data: PermissionModule[] | PermissionCatalog | undefined): PermissionModule[] {
+    if (Array.isArray(data)) {
+      return data;
+    }
+
+    if (data && Array.isArray(data.classes)) {
+      return data.classes.flatMap((securityClass: PermissionClass) => {
+        const objects = Array.isArray(securityClass?.objects) ? securityClass.objects : [];
+        return objects.map(objectItem => ({
+          module: objectItem?.name || 'Object',
+          permissions: objectItem?.permissions || []
+        }));
+      });
+    }
+
+    return [];
   }
 
   private mapModule(mod: PermissionModule): PermissionRowView {

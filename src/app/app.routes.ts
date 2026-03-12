@@ -41,6 +41,7 @@ import { ViewTechnicianTeamComponent } from './components/technician/view-techni
 import { LoginComponent } from './components/login/login';
 import { SignUpComponent } from './components/sign-up/sign-up';
 import { RolesComponent } from './components/roles/roles';
+import { CreateRoleComponent } from './components/roles/create-role';
 import { ViewRoleComponent } from './components/roles/view-role';
 import { ViewProcurementComponent } from './components/procurement/view-procurement';
 import { VerifyOtpComponent } from './components/verify-otp/verify-otp';
@@ -196,6 +197,7 @@ export const routes: Routes = [
   { path: 'tm-system/:tab', component: TmSystemComponent, canActivate: [AuthGuard] },
   { path: 'tm-system/technicians/:id/availability', loadComponent: () => import('./components/technician-availability/technician-availability').then(m => m.TechnicianAvailabilityComponent), canActivate: [AuthGuard] },
   { path: 'roles-permissions', component: RolesComponent, canActivate: [AuthGuard] },
+  { path: 'roles/create', component: CreateRoleComponent, canActivate: [AuthGuard] },
   { path: 'roles/view/:id', component: ViewRoleComponent, canActivate: [AuthGuard] },
   { path: 'security/mfa', component: MfaComponent, canActivate: [AuthGuard] },
   { path: 'security/report', component: SecurityReportComponent, canActivate: [AuthGuard] },

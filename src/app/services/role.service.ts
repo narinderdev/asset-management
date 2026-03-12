@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -26,7 +26,21 @@ export interface PermissionModule {
   permissions: Permission[];
 }
 
-export type PermissionsResponse = ApiResponse<PermissionModule[]> | PermissionModule[];
+export interface PermissionObject {
+  name: string;
+  permissions: Permission[];
+}
+
+export interface PermissionClass {
+  name: string;
+  objects: PermissionObject[];
+}
+
+export interface PermissionCatalog {
+  classes: PermissionClass[];
+}
+
+export type PermissionsResponse = ApiResponse<PermissionModule[] | PermissionCatalog> | PermissionModule[];
 
 export interface CreateRolePayload {
   name: string;
@@ -78,8 +92,10 @@ export class RoleService {
   }
 
   getPermissions(): Observable<PermissionsResponse> {
+    const params = new HttpParams().set('_ts', Date.now().toString());
     return this.http.get<PermissionsResponse>(this.permissionsUrl, {
-      headers: this.headers
+      headers: this.headers,
+      params
     });
   }
 

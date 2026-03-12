@@ -10,15 +10,22 @@ class RoleServiceStub {
   getRoles = vi.fn().mockReturnValue(of({ data: [] }));
   getPermissions = vi.fn().mockReturnValue(
     of({
-      data: [
-        {
-          module: 'MANAGE_USERS',
-          permissions: [
-            { code: 'MANAGE_USERS_VIEW', action: 'ACCESS' },
-            { code: 'MANAGE_USERS_INVITE', action: 'INVITE' }
-          ]
-        }
-      ]
+      data: {
+        classes: [
+          {
+            name: 'Security Administration',
+            objects: [
+              {
+                name: 'Manage Users',
+                permissions: [
+                  { code: 'MANAGE_USERS_VIEW', action: 'ACCESS' },
+                  { code: 'MANAGE_USERS_INVITE', action: 'INVITE' }
+                ]
+              }
+            ]
+          }
+        ]
+      }
     })
   );
   createRoles = vi.fn().mockReturnValue(of({ message: 'created' }));

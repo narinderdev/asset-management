@@ -62,6 +62,7 @@ export class UsersComponent {
 
   ngOnInit() {
     this.canInviteUsers = this.permissionService.hasPermission('INVITE_USER', 'CREATE') ||
+      this.permissionService.hasPermission('INVITE_USER', 'VIEW') ||
       this.permissionService.hasPermission('INVITE_USER', 'ACCESS') ||
       this.permissionService.hasPermission('MANAGE_USERS', 'INVITE');
     this.fetchUsers();
