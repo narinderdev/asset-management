@@ -16,6 +16,7 @@ import {
 } from '../../services/inventory.service';
 import { Loader } from '../loader/loader';
 import { TopNOnHandQtyChartComponent, TopNOnHandQtyItem } from './top-n-onhand-qty-chart';
+import { PermissionService } from '../../services/permission.service';
 
 @Component({
   selector: 'app-inventory-report',
@@ -50,6 +51,7 @@ export class InventoryReportComponent implements OnInit {
   hasLoaded = false;
   errorMessage = '';
   exportMenuOpen = false;
+  canExportReports = false;
   private reportLoadRequestId = 0;
 
   readonly transactionTypeOptions = ['', 'RECEIVE', 'ISSUE', 'RETURN', 'ADJUSTMENT'];
@@ -59,10 +61,12 @@ export class InventoryReportComponent implements OnInit {
   constructor(
     private inventoryService: InventoryService,
     private cdr: ChangeDetectorRef,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private permissionService: PermissionService
   ) {}
 
   ngOnInit(): void {
+    this.canExportReports = this.permissionService.hasPermission('REPORTS', 'EXPORT');
     this.applyRouteView();
     this.loadWarehouses();
     this.loadReport();
@@ -262,6 +266,9 @@ export class InventoryReportComponent implements OnInit {
   }
 
   toggleExportMenu(): void {
+    if (!this.canExportReports) {
+      return;
+    }
     this.exportMenuOpen = !this.exportMenuOpen;
     this.cdr.detectChanges();
   }
@@ -273,6 +280,9 @@ export class InventoryReportComponent implements OnInit {
   }
 
   exportAs(type: 'pdf' | 'excel' | 'csv'): void {
+    if (!this.canExportReports) {
+      return;
+    }
     const sections = this.getExportSections();
     const hasRows = sections.some(section => section.rows.length > 0);
     const hasCharts = this.getRenderedChartsForPdf().length > 0;

@@ -7,7 +7,7 @@
           {{ status === 'ALL' ? 'All statuses' : status }}
         </option>
       </select>
-      <button class="create-service-btn" (click)="createRequisition()">+ Create MR</button>
+      <button *ngIf="canCreateRequisition" class="create-service-btn" (click)="createRequisition()">+ Create MR</button>
     </div>
   </div>
 
@@ -57,20 +57,20 @@
                 </td>
                 <td>{{ request.poNumber || '-' }}</td>
                 <td class="actions-cell">
-                  <button class="action-icon" aria-label="View requisition" (click)="viewRequisition(request)">
+                  <button *ngIf="canViewRequisition" class="action-icon" aria-label="View requisition" (click)="viewRequisition(request)">
                     <img src="assets/icons/Vector.svg" alt="View" />
                   </button>
                   <button
                     class="action-icon"
                     aria-label="Edit requisition"
-                    *ngIf="!request.isLocked"
+                    *ngIf="canEditRequisition && !request.isLocked"
                     (click)="editRequisition(request)">
                     <img src="assets/icons/edit.svg" alt="Edit" />
                   </button>
                   <button
                     class="action-icon danger"
                     aria-label="Delete requisition"
-                    *ngIf="!request.isLocked">
+                    *ngIf="canDeleteRequisition && !request.isLocked">
                     <img src="assets/icons/delete.svg" alt="Delete" />
                   </button>
                 </td>

@@ -2,7 +2,7 @@
   <div class="procurement-header">
     <h1 class="procurement-title">Goods Receipt</h1>
     <div class="header-actions">
-      <button class="create-service-btn" type="button" (click)="createGoodsReceipt()">+ Create GRN</button>
+      <button *ngIf="canCreateGoodsReceipt" class="create-service-btn" type="button" (click)="createGoodsReceipt()">+ Create GRN</button>
     </div>
   </div>
 
@@ -51,7 +51,7 @@
             <td>{{ receipt.updatedAt }}</td>
             <td>{{ receipt.notes }}</td>
             <td class="actions-cell">
-              <button class="action-icon" aria-label="View goods receipt" (click)="viewReceipt(receipt)">
+              <button *ngIf="canViewGoodsReceipt" class="action-icon" aria-label="View goods receipt" (click)="viewReceipt(receipt)">
                 <img src="assets/icons/Vector.svg" alt="View" />
               </button>
             </td>

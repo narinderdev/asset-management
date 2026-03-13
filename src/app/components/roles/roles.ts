@@ -7,6 +7,7 @@ import { RoleService, CreateRolePayload } from '../../services/role.service';
 import { finalize } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
+import { PermissionService } from '../../services/permission.service';
 
 interface PermissionRow {
   label: string;
@@ -43,7 +44,9 @@ export class RolesComponent implements OnInit {
 
   addRoleForm: FormGroup;
   permissionRows: PermissionRow[] = [];
-  canCreateRoles = true;
+  canCreateRoles = false;
+  canEditRoles = false;
+  canViewRoles = false;
 
   Math = Math;
   pagination = { pageSize: 10, currentPage: 0, totalPages: 0, totalItems: 0 };
@@ -58,7 +61,8 @@ export class RolesComponent implements OnInit {
     private roleService: RoleService,
     private cdr: ChangeDetectorRef,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private permissionService: PermissionService
   ) {
     this.addRoleForm = this.fb.group({
       name: [''],
@@ -69,8 +73,23 @@ export class RolesComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.setPermissions();
     this.companyCode = this.getCompanyCode();
     this.fetchRoles();
+  }
+
+  private setPermissions(): void {
+    this.canCreateRoles =
+      this.permissionService.hasPermission('MANAGE_ROLES', 'CREATE') ||
+      this.permissionService.hasPermission('MANAGE_ROLES', 'ACCESS');
+    this.canEditRoles =
+      this.permissionService.hasPermission('MANAGE_ROLES', 'UPDATE') ||
+      this.permissionService.hasPermission('MANAGE_ROLES', 'ACCESS');
+    this.canViewRoles =
+      this.permissionService.hasPermission('MANAGE_ROLES', 'VIEW') ||
+      this.permissionService.hasPermission('MANAGE_ROLES', 'ACCESS') ||
+      this.permissionService.hasPermission('MANAGE_ROLES', 'CREATE') ||
+      this.permissionService.hasPermission('MANAGE_ROLES', 'UPDATE');
   }
 
   formatModuleLabel(raw: string | undefined): string {
@@ -101,6 +120,9 @@ export class RolesComponent implements OnInit {
   }
 
   openCreateRolePage(): void {
+    if (!this.canCreateRoles) {
+      return;
+    }
     this.router.navigate(['/roles/create']);
   }
 
@@ -484,6 +506,9 @@ export class RolesComponent implements OnInit {
   }
 
   viewRole(role: any) {
+    if (!this.canViewRoles) {
+      return;
+    }
     const roleId = role?.id ?? role?.roleId ?? role?.role_id ?? role?.code ?? role?.name;
     if (!roleId) {
       this.toastr.warning('Role id missing');
@@ -493,6 +518,9 @@ export class RolesComponent implements OnInit {
   }
 
   editRole(role: any) {
+    if (!this.canEditRoles) {
+      return;
+    }
     this.router.navigate(['/roles/create']);
   }
 

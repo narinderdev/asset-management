@@ -42,7 +42,7 @@
       <button class="print-btn" type="button" (click)="printReport()">
         <span aria-hidden="true">🖨</span> Print Report
       </button>
-      <div class="export-wrapper">
+      <div class="export-wrapper" *ngIf="canExportReports">
         <button class="export" type="button" (click)="toggleExportMenu()">
           <span class="export-icon" aria-hidden="true">&#8681;</span> Export Report <span class="caret">&#9662;</span>
         </button>

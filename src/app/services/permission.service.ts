@@ -23,6 +23,7 @@ const USER_STORAGE_KEY = 'currentUser';
 })
 export class PermissionService {
   private readonly isBrowser: boolean;
+  private readonly defaultAccessActions = ['VIEW', 'ACCESS', 'CREATE', 'UPDATE', 'DELETE', 'EXPORT', 'APPROVE', 'INVITE'];
 
   constructor(@Inject(PLATFORM_ID) platformId: object) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -72,6 +73,9 @@ export class PermissionService {
     }
 
     const payload: StoredPermissions = { modules };
+    Object.keys(payload.modules).forEach((moduleKey) => {
+      payload.modules[moduleKey] = Array.from(new Set((payload.modules[moduleKey] || []).map((action) => String(action).toUpperCase())));
+    });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(profile));
   }
@@ -115,6 +119,17 @@ export class PermissionService {
     } catch {
       return false;
     }
+  }
+
+  hasAnyPermission(module: ModuleKey, actions?: ActionKey[]): boolean {
+    const actionList = (actions && actions.length ? actions : this.defaultAccessActions).map((action) =>
+      String(action).toUpperCase()
+    );
+    return actionList.some((action) => this.hasPermission(module, action));
+  }
+
+  hasAnyModulePermission(modules: ModuleKey[], actions?: ActionKey[]): boolean {
+    return modules.some((module) => this.hasAnyPermission(module, actions));
   }
 
   getCurrentUser(): StoredUserProfile | null {

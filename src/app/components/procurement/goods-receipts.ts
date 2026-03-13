@@ -10,6 +10,7 @@ import {
   ProcurementService
 } from '../../services/procurement.service';
 import { Loader } from '../loader/loader';
+import { PermissionService } from '../../services/permission.service';
 
 interface GoodsReceiptRow {
   id: number;
@@ -40,19 +41,27 @@ export class GoodsReceiptsComponent implements OnInit {
   loadingRows = Array.from({ length: 5 });
   showEmptyState = false;
   errorMessage?: string;
+  canCreateGoodsReceipt = false;
+  canViewGoodsReceipt = false;
 
   constructor(
     private procurementService: ProcurementService,
     private cdr: ChangeDetectorRef,
     private router: Router,
-    private zone: NgZone
+    private zone: NgZone,
+    private permissionService: PermissionService
   ) {}
 
   ngOnInit(): void {
+    this.canCreateGoodsReceipt = this.permissionService.hasPermission('GOODS_RECEIPT_NOTE', 'CREATE');
+    this.canViewGoodsReceipt = this.permissionService.hasPermission('GOODS_RECEIPT_NOTE', 'VIEW');
     this.loadReceipts();
   }
 
   createGoodsReceipt(): void {
+    if (!this.canCreateGoodsReceipt) {
+      return;
+    }
     this.router.navigate(['/procurement/goods-receipts/create']);
   }
 
@@ -157,6 +166,9 @@ export class GoodsReceiptsComponent implements OnInit {
   }
 
   viewReceipt(row: GoodsReceiptRow): void {
+    if (!this.canViewGoodsReceipt) {
+      return;
+    }
     this.router.navigate(['/procurement/goods-receipts/view', row.id]);
   }
 

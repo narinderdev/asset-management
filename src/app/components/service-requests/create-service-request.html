@@ -192,7 +192,11 @@
 
       <div class="form-actions">
         <button type="button" class="btn ghost" (click)="onCancel()">Close</button>
-        <button type="submit" class="btn primary" [disabled]="isSubmitting">
+        <button
+          *ngIf="(isEditMode && canEditRequest) || (!isEditMode && canCreateRequest)"
+          type="submit"
+          class="btn primary"
+          [disabled]="isSubmitting">
           {{ isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Service Request' :
           'Create Service Request') }}
         </button>

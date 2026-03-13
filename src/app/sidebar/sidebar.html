@@ -73,7 +73,7 @@
           *ngIf="item.hasSubmenu && expandedMenuLabel === item.label && !isCollapsed"
         >
           <li
-            *ngFor="let sub of item.submenu || []"
+            *ngFor="let sub of getVisibleSubmenu(item)"
             class="submenu-item"
             [class.active]="isSubmenuActive(sub)"
           >

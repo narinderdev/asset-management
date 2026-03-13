@@ -146,9 +146,9 @@ export class LoginComponent {
               if (token) {
                 localStorage.setItem('authToken', token);
               }
-              if (user) {
-                this.permissionService.setFromUser(user);
-              }
+              // Reset any stale permissions from a previous session, then set current user permissions.
+              this.permissionService.clear();
+              this.permissionService.setFromUser(user ?? {});
             }
             // Trigger email MFA flow before allowing dashboard access
             this.loading = true;

@@ -7,7 +7,7 @@
           {{ status === 'ALL' ? 'All statuses' : status }}
         </option>
       </select>
-      <button class="create-service-btn" type="button" (click)="createPurchaseOrder()">+ Create PO</button>
+      <button *ngIf="canCreatePurchaseOrder" class="create-service-btn" type="button" (click)="createPurchaseOrder()">+ Create PO</button>
     </div>
   </div>
 
@@ -55,6 +55,7 @@
                 </td>
                 <td class="actions-cell">
                   <button
+                    *ngIf="canViewPurchaseOrder"
                     class="action-icon"
                     aria-label="View purchase order"
                     (click)="viewOrder(order)"

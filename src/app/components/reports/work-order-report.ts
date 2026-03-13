@@ -5,6 +5,7 @@ import { AssetsService, WorkOrderReportPage } from '../../services/assets.servic
 import { Loader } from '../loader/loader';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { PermissionService } from '../../services/permission.service';
 
 interface ReportRow {
   woId: string;
@@ -47,10 +48,16 @@ export class WorkOrderReportComponent implements OnInit {
   totalPages = 0;
   isLoading = false;
   exportMenuOpen = false;
+  canExportReports = false;
 
-  constructor(private assetsService: AssetsService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private assetsService: AssetsService,
+    private cdr: ChangeDetectorRef,
+    private permissionService: PermissionService
+  ) {}
 
   ngOnInit(): void {
+    this.canExportReports = this.permissionService.hasPermission('REPORTS', 'EXPORT');
     this.loadReport();
   }
 
@@ -128,6 +135,9 @@ export class WorkOrderReportComponent implements OnInit {
   }
 
   toggleExportMenu(): void {
+    if (!this.canExportReports) {
+      return;
+    }
     this.exportMenuOpen = !this.exportMenuOpen;
     this.cdr.detectChanges();
   }
@@ -144,6 +154,9 @@ export class WorkOrderReportComponent implements OnInit {
   }
 
   exportAs(type: 'pdf' | 'excel' | 'csv'): void {
+    if (!this.canExportReports) {
+      return;
+    }
     const headers = ['WO ID', 'Title', 'Asset', 'Technician/Team', 'Priority', 'Status'];
     const rows = this.rows.map(r => [
       r.woId,

@@ -6,6 +6,7 @@ import { AssetsService, AssetTypesApiResponse, AssetReportPage } from '../../ser
 import { Loader } from '../loader/loader';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { PermissionService } from '../../services/permission.service';
 
 interface ReportRow {
   assetId: string;
@@ -52,10 +53,16 @@ export class AssetReportComponent implements OnInit {
   totalPages = 0;
   isLoading = false;
   exportMenuOpen = false;
+  canExportReports = false;
 
-  constructor(private assetsService: AssetsService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private assetsService: AssetsService,
+    private cdr: ChangeDetectorRef,
+    private permissionService: PermissionService
+  ) {}
 
   ngOnInit(): void {
+    this.canExportReports = this.permissionService.hasPermission('REPORTS', 'EXPORT');
     this.loadAssetTypes();
     this.loadReport();
   }
@@ -158,6 +165,9 @@ export class AssetReportComponent implements OnInit {
   }
 
   toggleExportMenu(): void {
+    if (!this.canExportReports) {
+      return;
+    }
     this.exportMenuOpen = !this.exportMenuOpen;
     this.cdr.detectChanges();
   }
@@ -174,6 +184,9 @@ export class AssetReportComponent implements OnInit {
   }
 
   exportAs(type: 'pdf' | 'excel' | 'csv'): void {
+    if (!this.canExportReports) {
+      return;
+    }
     const headers = ['Asset ID', 'Asset Name', 'Location', 'Status', 'Warranty Expired Date', 'Criticality', 'Asset Type'];
     const rows = this.rows.map(r => [
       r.assetId,

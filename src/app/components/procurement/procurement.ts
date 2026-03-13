@@ -10,6 +10,7 @@ import {
   PurchaseRequisitionItem
 } from '../../services/procurement.service';
 import { Loader } from '../loader/loader';
+import { PermissionService } from '../../services/permission.service';
 
 interface ProcurementRequest {
   id: number;
@@ -42,30 +43,52 @@ export class ProcurementComponent implements OnInit {
   loadingRows = Array.from({ length: 5 });
   errorMessage?: string;
   showEmptyState = false;
+  canCreateRequisition = false;
+  canViewRequisition = false;
+  canEditRequisition = false;
+  canDeleteRequisition = false;
 
   constructor(
     private router: Router,
     private procurementService: ProcurementService,
     private cdr: ChangeDetectorRef,
     private toastr: ToastrService,
-    private zone: NgZone
+    private zone: NgZone,
+    private permissionService: PermissionService
   ) {}
 
   ngOnInit(): void {
+    this.setPermissions();
     this.loadRequisitions();
   }
 
+  private setPermissions(): void {
+    this.canCreateRequisition = this.permissionService.hasPermission('MATERIAL_REQUISITION', 'CREATE');
+    this.canViewRequisition = this.permissionService.hasPermission('MATERIAL_REQUISITION', 'VIEW');
+    this.canEditRequisition = this.permissionService.hasPermission('MATERIAL_REQUISITION', 'UPDATE');
+    this.canDeleteRequisition = this.permissionService.hasPermission('MATERIAL_REQUISITION', 'DELETE');
+  }
+
   createRequisition(): void {
+    if (!this.canCreateRequisition) {
+      return;
+    }
     this.router.navigate(['/procurement/create']);
   }
 
   viewRequisition(request: ProcurementRequest): void {
+    if (!this.canViewRequisition) {
+      return;
+    }
     this.router.navigate(['/procurement/view', request.id], {
       state: { mr: request }
     });
   }
 
   editRequisition(request: ProcurementRequest): void {
+    if (!this.canEditRequisition) {
+      return;
+    }
     this.router.navigate(['/procurement/edit', request.id]);
   }
 

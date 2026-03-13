@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { SpinnerComponent } from '../spinner/spinner';
 import { Loader } from '../loader/loader';
 import { RoleService, CreateRolePayload } from '../../services/role.service';
+import { PermissionService } from '../../services/permission.service';
 
 interface PermissionRow {
   label: string;
@@ -44,13 +45,15 @@ export class CreateRoleComponent implements OnInit {
   requiredViewToken = '';
   selectedSecurityClass = '';
   selectedModule = '';
+  canCreateRole = false;
 
   constructor(
     private fb: FormBuilder,
     private roleService: RoleService,
     private cdr: ChangeDetectorRef,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private permissionService: PermissionService
   ) {
     this.addRoleForm = this.fb.group({
       name: [''],
@@ -61,6 +64,14 @@ export class CreateRoleComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.canCreateRole =
+      this.permissionService.hasPermission('MANAGE_ROLES', 'CREATE') ||
+      this.permissionService.hasPermission('MANAGE_ROLES', 'ACCESS');
+    if (!this.canCreateRole) {
+      this.toastr.error('You do not have permission to create roles.');
+      this.closePage();
+      return;
+    }
     this.fetchPermissions();
   }
 
@@ -82,6 +93,9 @@ export class CreateRoleComponent implements OnInit {
   }
 
   saveRole(): void {
+    if (!this.canCreateRole) {
+      return;
+    }
     this.submitted = true;
     if (this.addRoleForm.invalid) {
       return;

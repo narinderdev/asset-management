@@ -12,7 +12,8 @@ interface MenuItem {
   route: string;
   module?: string;
   hasSubmenu?: boolean;
-  submenu?: { label: string; route: string }[];
+  action?: string | string[];
+  submenu?: { label: string; route: string; module?: string | string[]; action?: string | string[] }[];
 }
 
 @Component({
@@ -57,8 +58,8 @@ export class SidebarComponent implements OnInit {
       module: 'ASSET',
       hasSubmenu: true,
       submenu: [
-        { label: 'Asset Type', route: '/assets/types' },
-        { label: 'All Assets', route: '/assets' }
+        { label: 'Asset Type', route: '/assets/types', module: ['ASSET_TYPE', 'ASSET'] },
+        { label: 'All Assets', route: '/assets', module: 'ASSET' }
       ]
     },
     {
@@ -76,8 +77,8 @@ export class SidebarComponent implements OnInit {
       module: 'WORK_ORDER',
       hasSubmenu: true,
       submenu: [
-        { label: 'Work Order Type', route: '/work-orders/types' },
-        { label: 'Work Order', route: '/work-orders' }
+        { label: 'Work Order Type', route: '/work-orders/types', module: ['WORK_ORDER_TYPE', 'WORK_ORDER'] },
+        { label: 'Work Order', route: '/work-orders', module: 'WORK_ORDER' }
         
       ]
     },
@@ -89,9 +90,9 @@ export class SidebarComponent implements OnInit {
       module: 'PREVENTIVE_MAINTENANCE',
       hasSubmenu: true,
       submenu: [
-        { label: 'Preventive', route: '/maintenance/preventive' },
+        { label: 'Preventive', route: '/maintenance/preventive', module: 'PREVENTIVE_MAINTENANCE' },
         // { label: 'Predictive Maintenance', route: '/maintenance/predictive' },
-        { label: 'Corrective', route: '/maintenance/emergency' }
+        { label: 'Corrective', route: '/maintenance/emergency', module: ['EMERGENCY_MAINTENANCE', 'PREVENTIVE_MAINTENANCE'] }
       ]
     },
     {
@@ -102,10 +103,10 @@ export class SidebarComponent implements OnInit {
       module: 'INVENTORY',
       hasSubmenu: true,
       submenu: [
-        { label: 'Warehouse', route: '/inventory/warehouse' },
-        { label: 'Inventory', route: '/inventory' },
-        { label: 'Inventory Reconcile', route: '/inventory/reconcile' },
-        { label: 'Inventory Audit Logs', route: '/inventory/audit-logs' }
+        { label: 'Warehouse', route: '/inventory/warehouse', module: ['WAREHOUSE', 'INVENTORY'] },
+        { label: 'Inventory', route: '/inventory', module: 'INVENTORY' },
+        { label: 'Inventory Reconcile', route: '/inventory/reconcile', module: ['INVENTORY_RECONCILE', 'INVENTORY'] },
+        { label: 'Inventory Audit Logs', route: '/inventory/audit-logs', module: ['INVENTORY_AUDIT_LOGS', 'INVENTORY'] }
       ]
     },
     {
@@ -123,10 +124,10 @@ export class SidebarComponent implements OnInit {
       module: 'PROCUREMENT',
       hasSubmenu: true,
       submenu: [
-        { label: 'Material Requisition', route: '/procurement/material-requisitions' },
-        { label: 'Purchase Order', route: '/procurement/purchase-orders' },
-        { label: 'Goods Receipt (GRN)', route: '/procurement/goods-receipts' },
-        { label: 'Return Transaction', route: '/procurement/returns' }
+        { label: 'Material Requisition', route: '/procurement/material-requisitions', module: 'MATERIAL_REQUISITION' },
+        { label: 'Purchase Order', route: '/procurement/purchase-orders', module: 'PURCHASE_ORDER' },
+        { label: 'Goods Receipt (GRN)', route: '/procurement/goods-receipts', module: 'GOODS_RECEIPT_NOTE' },
+        { label: 'Return Transaction', route: '/procurement/returns', module: ['RETURN_TRANSACTION', 'PROCUREMENT'] }
       ]
     },
     {
@@ -137,8 +138,8 @@ export class SidebarComponent implements OnInit {
       module: 'TECHNICIAN',
       hasSubmenu: true,
         submenu: [
-        { label: 'Technician', route: '/technicians' },
-        { label: 'Technician Team', route: '/technicians/teams' }
+        { label: 'Technician', route: '/technicians', module: 'TECHNICIAN' },
+        { label: 'Technician Team', route: '/technicians/teams', module: 'TECHNICIAN_TEAM' }
       ]
     },
     {
@@ -146,12 +147,13 @@ export class SidebarComponent implements OnInit {
       activeIcon: 'proicons_document (1).svg',
       label: 'Reports',
       route: '/reports',
+      module: 'REPORTS',
       hasSubmenu: true,
       submenu: [
-        { label: 'Asset Report', route: '/reports/assets' },
-        { label: 'Inventory Report', route: '/reports/inventory' },
-        { label: 'Transaction Report', route: '/reports/transactions' },
-        { label: 'Work Order Report', route: '/reports/work-orders' }
+        { label: 'Asset Report', route: '/reports/assets', module: 'REPORTS' },
+        { label: 'Inventory Report', route: '/reports/inventory', module: 'REPORTS' },
+        { label: 'Transaction Report', route: '/reports/transactions', module: 'REPORTS' },
+        { label: 'Work Order Report', route: '/reports/work-orders', module: 'REPORTS' }
       ]
     },
     {
@@ -162,17 +164,11 @@ export class SidebarComponent implements OnInit {
       module: 'ROLES',
       hasSubmenu: true,
       submenu: [
-        { label: 'Roles', route: '/roles-permissions' },
-        { label: 'Users', route: '/users' },
-        { label: 'MFA', route: '/security/mfa' },
-        { label: 'Security Report', route: '/security/report' }
+        { label: 'Roles', route: '/roles-permissions', module: ['MANAGE_ROLES', 'ROLES'] },
+        { label: 'Users', route: '/users', module: ['MANAGE_USERS', 'INVITE_USER'] },
+        { label: 'MFA', route: '/security/mfa', module: ['MFA', 'MANAGE_USERS'] },
+        { label: 'Security Report', route: '/security/report', module: ['SECURITY_REPORT', 'REPORTS'] }
       ]
-    },
-    {
-      icon: 'tm-system.svg',
-      activeIcon: 'tm-system.svg',
-      label: 'TM System',
-      route: '/tm-system'
     }
   ];
 
@@ -223,16 +219,11 @@ export class SidebarComponent implements OnInit {
   }
 
   get menuItems(): MenuItem[] {
-    const allowed = this.permissions.getAllowedModules();
-    if (!allowed || !allowed.length) {
-      return this.baseMenuItems;
-    }
-    const allowedSet = new Set(allowed.map((a: string) => a.toUpperCase()));
     return this.baseMenuItems.filter(item => {
-      if (!item.module) {
-        return true;
+      if (item.hasSubmenu) {
+        return this.getVisibleSubmenu(item).length > 0;
       }
-      return allowedSet.has(item.module.toUpperCase());
+      return this.hasAccess(item.module, item.action);
     });
   }
 
@@ -247,7 +238,7 @@ export class SidebarComponent implements OnInit {
 
     if (item.hasSubmenu) {
       this.toggleSubmenu(item);
-      const firstSub = item.submenu?.[0];
+      const firstSub = this.getVisibleSubmenu(item)[0];
       if (firstSub) {
         this.navigateToRoute(firstSub.route);
       }
@@ -331,11 +322,31 @@ export class SidebarComponent implements OnInit {
     const match = this.menuItems.find(
       item =>
         item.hasSubmenu &&
-        item.submenu?.some(
+        this.getVisibleSubmenu(item).some(
           sub => this.activeRoute === sub.route || this.activeRoute.startsWith(`${sub.route}/`)
         )
     );
     this.expandedMenuLabel = match?.label;
+  }
+
+  getVisibleSubmenu(item: MenuItem): { label: string; route: string; module?: string | string[]; action?: string | string[] }[] {
+    const submenu = item.submenu || [];
+    return submenu.filter(sub => this.hasAccess(sub.module, sub.action));
+  }
+
+  private hasAccess(module?: string | string[], action?: string | string[]): boolean {
+    if (!module) {
+      return true;
+    }
+
+    const modules = Array.isArray(module) ? module : [module];
+    const actions = action ? (Array.isArray(action) ? action : [action]) : undefined;
+
+    if (actions && actions.length) {
+      return modules.some(mod => this.permissions.hasAnyPermission(mod, actions));
+    }
+
+    return modules.some((mod) => this.permissions.hasAnyPermission(mod));
   }
 }
 

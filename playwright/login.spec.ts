@@ -121,3 +121,51 @@ test('login validates email format even when password provided', async ({ page }
   await expect(page).toHaveURL(/login/);
   await expect(page.getByText(/Enter a valid email/i)).toBeVisible();
 });
+
+test('login clears stale permissions when response has no user object', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'userPermissions',
+      JSON.stringify({ modules: { ASSET: ['VIEW'], WORK_ORDER: ['VIEW'] } })
+    );
+  });
+
+  await page.route('**/auth', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        statusCode: 200,
+        message: 'Login successful',
+        data: { token: 'fresh-token' }
+      })
+    });
+  });
+
+  await page.route('**/auth/mfa/email/send', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        statusCode: 200,
+        message: 'Verification code sent'
+      })
+    });
+  });
+
+  await page.goto('/login');
+  await page.waitForSelector('input[name="email"]');
+
+  await page.locator('input[name="email"]').type('test@gmail.com', { delay: typeDelay });
+  await page.locator('input[name="password"]').type('123456', { delay: typeDelay });
+  await page.click('button[type="submit"]');
+
+  await expect(page).toHaveURL(/verify-account/);
+
+  const modules = await page.evaluate(() => {
+    const raw = localStorage.getItem('userPermissions');
+    return raw ? JSON.parse(raw).modules : null;
+  });
+
+  expect(modules).toEqual({});
+});

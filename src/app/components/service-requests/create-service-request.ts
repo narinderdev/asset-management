@@ -13,6 +13,7 @@ import { AssetsService } from '../../services/assets.service';
 import { ToastrService } from 'ngx-toastr';
 import { TechnicianService, ApiTechnician, TechnicianTeam } from '../../services/technician.service';
 import { WorkOrderService } from '../../services/work-order.service';
+import { PermissionService } from '../../services/permission.service';
 
 @Component({
   selector: 'app-create-service-request',
@@ -86,6 +87,8 @@ export class CreateServiceRequestComponent implements OnInit {
   hasLoadedDetails = false;
   technicianOptions: ApiTechnician[] = [];
   teamOptions: TechnicianTeam[] = [];
+  canCreateRequest = false;
+  canEditRequest = false;
 
   constructor(
     private router: Router,
@@ -94,16 +97,29 @@ export class CreateServiceRequestComponent implements OnInit {
     private assetsService: AssetsService,
     private technicianService: TechnicianService,
     private workOrderService: WorkOrderService,
+    private permissionService: PermissionService,
     private cdr: ChangeDetectorRef,
     private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
+    this.canCreateRequest = this.permissionService.hasPermission('SERVICE_REQUEST', 'CREATE');
+    this.canEditRequest = this.permissionService.hasPermission('SERVICE_REQUEST', 'UPDATE');
     this.loadAssetOptions();
     this.loadTechniciansAndTeams();
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
+      if (!this.canCreateRequest) {
+        this.toastr.error('You do not have permission to create service requests.');
+        this.onCancel();
+        return;
+      }
       this.hasLoadedDetails = true;
+      return;
+    }
+    if (!this.canEditRequest) {
+      this.toastr.error('You do not have permission to edit service requests.');
+      this.onCancel();
       return;
     }
 
@@ -246,6 +262,9 @@ export class CreateServiceRequestComponent implements OnInit {
   }
 
   onCreate(): void {
+    if ((this.isEditMode && !this.canEditRequest) || (!this.isEditMode && !this.canCreateRequest)) {
+      return;
+    }
     if (this.isEditMode && this.isLoadingDetails) {
       return;
     }

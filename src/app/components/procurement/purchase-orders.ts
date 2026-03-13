@@ -11,6 +11,7 @@ import {
 } from '../../services/procurement.service';
 import { ToastrService } from 'ngx-toastr';
 import { Loader } from '../loader/loader';
+import { PermissionService } from '../../services/permission.service';
 
 interface PurchaseOrderRow {
   id: number;
@@ -41,16 +42,21 @@ export class PurchaseOrdersComponent implements OnInit {
   showEmptyState = false;
   errorMessage?: string;
   loadingRows = Array.from({ length: 5 });
+  canCreatePurchaseOrder = false;
+  canViewPurchaseOrder = false;
 
   constructor(
     private procurementService: ProcurementService,
     private cdr: ChangeDetectorRef,
     private router: Router,
     private toastr: ToastrService,
-    private zone: NgZone
+    private zone: NgZone,
+    private permissionService: PermissionService
   ) {}
 
   ngOnInit(): void {
+    this.canCreatePurchaseOrder = this.permissionService.hasPermission('PURCHASE_ORDER', 'CREATE');
+    this.canViewPurchaseOrder = this.permissionService.hasPermission('PURCHASE_ORDER', 'VIEW');
     this.loadPurchaseOrders();
   }
 
@@ -183,10 +189,16 @@ export class PurchaseOrdersComponent implements OnInit {
   }
 
   createPurchaseOrder(): void {
+    if (!this.canCreatePurchaseOrder) {
+      return;
+    }
     this.router.navigate(['/procurement/purchase-orders/create']);
   }
 
   viewOrder(order: PurchaseOrderRow): void {
+    if (!this.canViewPurchaseOrder) {
+      return;
+    }
     if (!order.id) {
       return;
     }

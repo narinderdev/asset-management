@@ -36,10 +36,10 @@
                 </span>
               </td>
               <td class="actions-cell">
-                <button class="action-icon" type="button" aria-label="View role" (click)="viewRole(r)">
+                <button *ngIf="canViewRoles" class="action-icon" type="button" aria-label="View role" (click)="viewRole(r)">
                   <img src="/assets/icons/Vector.svg" alt="View role" />
                 </button>
-                <button class="action-icon" type="button" aria-label="Edit role" (click)="editRole(r)">
+                <button *ngIf="canEditRoles" class="action-icon" type="button" aria-label="Edit role" (click)="editRole(r)">
                   <img src="/assets/icons/edit.svg" alt="Edit role" />
                 </button>
               </td>
