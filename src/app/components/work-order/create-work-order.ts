@@ -22,6 +22,9 @@ import { finalize } from 'rxjs/operators';
   styleUrls: ['./create-work-order.css']
 })
 export class CreateWorkOrderComponent implements OnInit {
+  private readonly maxAttachmentSizeBytes = 5 * 1024 * 1024; // 5MB
+  private readonly allowedAttachmentExtensions = ['.pdf', '.png', '.jpg', '.jpeg', '.gif', '.webp'];
+
   dateToday = new Date().toISOString().split('T')[0];
   assetsLoading = false;
   isEditMode = false;
@@ -95,8 +98,33 @@ export class CreateWorkOrderComponent implements OnInit {
   onAttachmentSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files && input.files.length > 0 ? input.files[0] : null;
+    if (file && !this.isAllowedAttachment(file)) {
+      this.workOrder.attachmentFile = null;
+      this.workOrder.attachmentUrl = '';
+      input.value = '';
+      return;
+    }
     this.workOrder.attachmentFile = file;
     this.workOrder.attachmentUrl = file ? file.name : '';
+  }
+
+  private isAllowedAttachment(file: File): boolean {
+    if (file.size > this.maxAttachmentSizeBytes) {
+      this.toastr.error('Attachment must be 5MB or smaller.');
+      return false;
+    }
+
+    const lowerName = file.name.toLowerCase();
+    const hasAllowedExtension = this.allowedAttachmentExtensions.some((ext) => lowerName.endsWith(ext));
+    const mime = (file.type || '').toLowerCase();
+    const hasAllowedMime = mime === 'application/pdf' || mime.startsWith('image/');
+
+    if (!hasAllowedExtension || !hasAllowedMime) {
+      this.toastr.error('Only PDF or image files are allowed.');
+      return false;
+    }
+
+    return true;
   }
 
   private loadAssets(): void {

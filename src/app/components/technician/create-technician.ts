@@ -39,6 +39,11 @@ interface TechnicianForm {
   styleUrls: ['./create-technician.css']
 })
 export class CreateTechnicianComponent implements OnInit {
+  private readonly maxPhotoSizeBytes = 2 * 1024 * 1024; // 2MB
+  private readonly maxCertificateSizeBytes = 5 * 1024 * 1024; // 5MB
+  private readonly allowedImageExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
+  private readonly allowedCertificateExtensions = ['.pdf', '.png', '.jpg', '.jpeg', '.gif', '.webp'];
+
   form: TechnicianForm = this.createEmptyForm();
   isSubmitting = false;
   isEditMode = false;
@@ -120,6 +125,12 @@ export class CreateTechnicianComponent implements OnInit {
       this.form.photoName = undefined;
       return;
     }
+    if (!this.isAllowedImage(file, this.maxPhotoSizeBytes)) {
+      (event.target as HTMLInputElement).value = '';
+      this.form.technicianPhotoUrl = undefined;
+      this.form.photoName = undefined;
+      return;
+    }
     this.form.technicianPhotoUrl = file.name;
     this.form.photoName = file.name;
   }
@@ -131,8 +142,45 @@ export class CreateTechnicianComponent implements OnInit {
       this.form.certificateName = undefined;
       return;
     }
+    if (!this.isAllowedCertificate(file, this.maxCertificateSizeBytes)) {
+      (event.target as HTMLInputElement).value = '';
+      this.form.certificateUrl = undefined;
+      this.form.certificateName = undefined;
+      return;
+    }
     this.form.certificateUrl = file.name;
     this.form.certificateName = file.name;
+  }
+
+  private isAllowedImage(file: File, maxSizeBytes: number): boolean {
+    if (file.size > maxSizeBytes) {
+      this.toastr.error('Photo must be 2MB or smaller.');
+      return false;
+    }
+    const lowerName = file.name.toLowerCase();
+    const hasAllowedExtension = this.allowedImageExtensions.some((ext) => lowerName.endsWith(ext));
+    const mime = (file.type || '').toLowerCase();
+    if (!hasAllowedExtension || !mime.startsWith('image/')) {
+      this.toastr.error('Only image files are allowed for photo upload.');
+      return false;
+    }
+    return true;
+  }
+
+  private isAllowedCertificate(file: File, maxSizeBytes: number): boolean {
+    if (file.size > maxSizeBytes) {
+      this.toastr.error('Certificate must be 5MB or smaller.');
+      return false;
+    }
+    const lowerName = file.name.toLowerCase();
+    const hasAllowedExtension = this.allowedCertificateExtensions.some((ext) => lowerName.endsWith(ext));
+    const mime = (file.type || '').toLowerCase();
+    const hasAllowedMime = mime === 'application/pdf' || mime.startsWith('image/');
+    if (!hasAllowedExtension || !hasAllowedMime) {
+      this.toastr.error('Only PDF or image files are allowed for certificate upload.');
+      return false;
+    }
+    return true;
   }
 
   get isContractor(): boolean {

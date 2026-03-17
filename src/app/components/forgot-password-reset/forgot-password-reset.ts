@@ -18,6 +18,7 @@ import { SpinnerComponent } from '../spinner/spinner';
 export class ForgotPasswordResetComponent {
   form: FormGroup;
   email = '';
+  otp = '';
   submitted = false;
   loading = false;
   errorMessage = '';
@@ -47,8 +48,9 @@ export class ForgotPasswordResetComponent {
 
     this.route.queryParams.subscribe(params => {
       this.email = String(params['email'] ?? '').trim().toLowerCase();
+      this.otp = String(params['otp'] ?? '').trim();
 
-      if (!this.email) {
+      if (!this.email || !this.otp) {
         this.toastr.error('Verification step is required first.');
         this.router.navigate(['/forgot-password'], {
           queryParams: this.email ? { email: this.email } : undefined
@@ -125,11 +127,16 @@ export class ForgotPasswordResetComponent {
       this.form.markAllAsTouched();
       return;
     }
+    if (!this.otp) {
+      this.errorMessage = 'Verification code is missing. Please verify again.';
+      this.toastr.error(this.errorMessage);
+      return;
+    }
 
     const newPassword = String(this.form.get('newPassword')?.value ?? '');
     this.loading = true;
     this.authService
-      .resetPassword({ email: this.email, newPassword })
+      .resetPassword({ email: this.email, newPassword, otp: this.otp })
       .pipe(
         finalize(() => {
           this.loading = false;

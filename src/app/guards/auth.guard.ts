@@ -20,13 +20,6 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     return !!localStorage.getItem('authToken');
   }
 
-  private hasSignupUser(): boolean {
-    if (!this.isBrowser) {
-      return true;
-    }
-    return !!localStorage.getItem('signupUserId');
-  }
-
   private redirectToLogin(): UrlTree {
     return this.router.parseUrl('/login');
   }
@@ -46,7 +39,7 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     if (!this.isBrowser) {
       return true;
     }
-    if (this.isLoggedIn() || this.hasSignupUser()) {
+    if (this.isLoggedIn()) {
       return true;
     }
     if (this.canAccessExpiredPasswordFlow(state.url)) {

@@ -39,6 +39,7 @@ export interface ForgotPasswordPayload {
 export interface ResetPasswordPayload {
   email: string;
   newPassword: string;
+  otp: string;
 }
 
 export interface SendEmailMfaCodePayload {
