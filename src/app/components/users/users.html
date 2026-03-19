@@ -1,6 +1,17 @@
 <div class="preventive-wrapper">
   <div class="preventive-header">
     <h1 class="preventive-title">Users</h1>
+    <div class="header-controls">
+      <label class="view-label" for="usersViewBy">View</label>
+      <select
+        id="usersViewBy"
+        class="view-filter"
+        [ngModel]="selectedViewBy"
+        (ngModelChange)="onViewByChange($event)">
+        <option value="USER">By User</option>
+        <option value="ROLE">By Role</option>
+      </select>
+    </div>
     <button
       class="create-service-btn"
       type="button"
@@ -14,17 +25,17 @@
       <table class="preventive-table">
         <thead>
           <tr>
-            <th>Name</th>
+            <th>{{ selectedViewBy === 'ROLE' ? 'Role' : 'Name' }}</th>
             <th>Email</th>
-            <th>Role</th>
+            <th>{{ selectedViewBy === 'ROLE' ? 'Name' : 'Role' }}</th>
             <th>Status</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let user of pagedUsers">
-            <td>{{ user.name }}</td>
+            <td>{{ selectedViewBy === 'ROLE' ? user.role : user.name }}</td>
             <td>{{ user.email }}</td>
-            <td>{{ user.role }}</td>
+            <td>{{ selectedViewBy === 'ROLE' ? user.name : user.role }}</td>
             <td>
               <span class="status-chip" [ngClass]="{ 'status-green': user.status === 'Active', 'status-grey': user.status === 'Inactive' }">
                 {{ user.status }}

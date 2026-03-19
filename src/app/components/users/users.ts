@@ -27,6 +27,8 @@ export class UsersComponent {
   loadingUsers = false;
   sendingInvite = false;
   users: UserRow[] = [];
+  displayedUsers: UserRow[] = [];
+  selectedViewBy: 'USER' | 'ROLE' = 'USER';
   totalUsers = 0;
   currentPage = 0;
   itemsPerPage = 10;
@@ -158,12 +160,13 @@ export class UsersComponent {
           role: Array.isArray(u?.roles) && u.roles.length ? u.roles.join(', ') : 'N/A',
           status: this.formatStatus(u?.status)
         }));
-        this.totalUsers = this.users.length;
+        this.applyViewBy();
         this.loadingUsers = false;
         this.cdr.detectChanges();
       },
       error: () => {
         this.users = [];
+        this.displayedUsers = [];
         this.totalUsers = 0;
         this.loadingUsers = false;
         this.cdr.detectChanges();
@@ -171,9 +174,15 @@ export class UsersComponent {
     });
   }
 
+  onViewByChange(value: string): void {
+    this.selectedViewBy = value === 'ROLE' ? 'ROLE' : 'USER';
+    this.applyViewBy();
+    this.cdr.detectChanges();
+  }
+
   get pagedUsers(): UserRow[] {
     const start = this.currentPage * this.itemsPerPage;
-    return this.users.slice(start, start + this.itemsPerPage);
+    return this.displayedUsers.slice(start, start + this.itemsPerPage);
   }
 
   previousPage(): void {
@@ -220,5 +229,23 @@ export class UsersComponent {
       return 'Invited';
     }
     return status || 'Active';
+  }
+
+  private applyViewBy(): void {
+    const source = [...this.users];
+    if (this.selectedViewBy === 'ROLE') {
+      source.sort((a, b) => {
+        const roleCompare = a.role.localeCompare(b.role, undefined, { sensitivity: 'base' });
+        if (roleCompare !== 0) {
+          return roleCompare;
+        }
+        return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+      });
+    } else {
+      source.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+    }
+    this.displayedUsers = source;
+    this.totalUsers = this.displayedUsers.length;
+    this.currentPage = 0;
   }
 }
