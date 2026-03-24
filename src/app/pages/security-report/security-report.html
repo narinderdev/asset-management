@@ -82,6 +82,7 @@
         <table class="report-table">
           <thead>
             <tr>
+              <th>Company Number</th>
               <th>{{ primaryHeader() }}</th>
               <th>{{ secondaryHeader() }}</th>
               <th *ngFor="let permission of permissionColumns()">{{ formatLabel(permission) }}</th>
@@ -89,6 +90,7 @@
           </thead>
           <tbody>
             <tr *ngFor="let row of paginatedRows()">
+              <td>{{ selectedCompanyNumber() }}</td>
               <td>{{ getPrimaryValue(row) }}</td>
               <td>{{ getSecondaryValue(row) }}</td>
               <td *ngFor="let permission of permissionColumns()" class="permission-col">

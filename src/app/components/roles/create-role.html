@@ -17,6 +17,11 @@
 
     <form [formGroup]="addRoleForm" (ngSubmit)="saveRole()" class="modal-body">
       <div class="form-field">
+        <label>Company</label>
+        <input type="text" [value]="selectedCompanyLabel" disabled readonly />
+      </div>
+
+      <div class="form-field">
         <label>Name</label>
         <input type="text" formControlName="name" placeholder="e.g. Collections Manager" />
         <div class="error" *ngIf="submitted && addRoleForm.controls['name'].errors">Required</div>

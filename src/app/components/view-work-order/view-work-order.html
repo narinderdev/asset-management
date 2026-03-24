@@ -21,7 +21,7 @@
             <button
               class="btn-approve"
               type="button"
-              *ngIf="workOrder?.status?.toUpperCase() === 'NEW'"
+              *ngIf="(workOrder.status ?? '').toUpperCase() === 'NEW'"
               (click)="openApproveModal()"
             >
               Approve
@@ -30,7 +30,7 @@
             <button
               class="btn-schedule"
               type="button"
-              *ngIf="workOrder?.status?.toUpperCase() === 'APPROVED'"
+              *ngIf="(workOrder.status ?? '').toUpperCase() === 'APPROVED'"
               (click)="openScheduleModal()"
             >
               Schedule
@@ -39,14 +39,14 @@
             <button
               class="btn-inprogress"
               type="button"
-              *ngIf="workOrder?.status?.toUpperCase() === 'SCHEDULED'"
+              *ngIf="(workOrder.status ?? '').toUpperCase() === 'SCHEDULED'"
               [disabled]="isMarkingInProgress"
               (click)="openInProgressConfirm()"
             >
               {{ isMarkingInProgress ? 'Updating...' : 'In Progress' }}
             </button>
             
-            <ng-container *ngIf="workOrder?.status?.toUpperCase() === 'IN_PROGRESS' && !hasCheckedIn()">
+            <ng-container *ngIf="(workOrder.status ?? '').toUpperCase() === 'IN_PROGRESS' && !hasCheckedIn()">
               <button class="btn-secondary" type="button" (click)="markComplete()">
                 Complete
               </button>
@@ -64,7 +64,7 @@
               </button>
             </ng-container>
             
-            <ng-container *ngIf="workOrder?.status?.toUpperCase() === 'IN_PROGRESS' && hasCheckedIn()">
+            <ng-container *ngIf="(workOrder.status ?? '').toUpperCase() === 'IN_PROGRESS' && hasCheckedIn()">
               <button class="btn-secondary" type="button" (click)="markComplete()">
                 Complete
               </button>
@@ -82,7 +82,7 @@
               </button>
             </ng-container>
             
-            <ng-container *ngIf="workOrder?.status?.toUpperCase() === 'COMPLETED'">
+            <ng-container *ngIf="(workOrder.status ?? '').toUpperCase() === 'COMPLETED'">
               <button
                 class="btn-primary"
                 type="button"
@@ -104,7 +104,7 @@
             <button
               class="btn-secondary"
               type="button"
-              *ngIf="workOrder?.status?.toUpperCase() === 'CLOSED'"
+              *ngIf="(workOrder.status ?? '').toUpperCase() === 'CLOSED'"
               (click)="goBack()"
             >
               Back to list
@@ -112,12 +112,12 @@
           </div>
         </ng-container>
        <ng-template #technicianActions>
-          <ng-container *ngIf="workOrder?.status?.toUpperCase() !== 'COMPLETED' && workOrder?.status?.toUpperCase() !== 'CLOSED'">
+          <ng-container *ngIf="(workOrder.status ?? '').toUpperCase() !== 'COMPLETED' && (workOrder.status ?? '').toUpperCase() !== 'CLOSED'">
           <div class="action-buttons technician-actions">
             <button
               class="btn-inprogress"
               type="button"
-              *ngIf="workOrder?.status?.toUpperCase() === 'SCHEDULED'"
+              *ngIf="(workOrder.status ?? '').toUpperCase() === 'SCHEDULED'"
               [disabled]="isMarkingInProgress"
               (click)="openInProgressConfirm()"
             >
@@ -892,6 +892,9 @@
   </div>
 
 </div>
+
+
+
 
 
 

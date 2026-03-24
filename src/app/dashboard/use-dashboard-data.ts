@@ -1,5 +1,6 @@
 import { DestroyRef, Signal, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import {
   DashboardApiResponse,
   DashboardData,
@@ -10,6 +11,7 @@ import {
   SummaryMetric,
   WorkOrdersByStatus,
 } from '../services/dashboard.service';
+import { CompanyContextService } from '../services/company-context.service';
 
 export type MetricDirection = 'up' | 'down' | null;
 
@@ -92,6 +94,7 @@ export interface DashboardRecentServiceRequest {
 
 export function useDashboardData(): UseDashboardDataResult {
   const dashboardService = inject(DashboardService);
+  const companyContext = inject(CompanyContextService);
   const destroyRef = inject(DestroyRef);
 
   const data = signal<DashboardViewData | null>(null);
@@ -128,7 +131,12 @@ export function useDashboardData(): UseDashboardDataResult {
     subscriptions.unsubscribe();
   });
 
-  fetchDashboard();
+  const companySelectionSub = companyContext.selectedCompanyId$
+    .pipe(distinctUntilChanged())
+    .subscribe(() => {
+      fetchDashboard();
+    });
+  subscriptions.add(companySelectionSub);
 
   return {
     data,

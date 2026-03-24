@@ -1,0 +1,82 @@
+<div class="view-vendor-page">
+  <div class="header">
+    <button class="back-button" type="button" aria-label="Back to companies" (click)="goBack()">
+      &lt;- Back to companies
+    </button>
+
+    <div class="header-content" *ngIf="company">
+      <div class="title-section">
+        <h1>{{ company.companyLegalName || 'Company Details' }}</h1>
+        <div class="vendor-meta">
+          <span class="vendor-id">{{ company.companyNumber ?? '-' }}</span>
+          <span>|</span>
+          <span>{{ company.companyTradeName ?? '-' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <app-loader [visible]="isLoading && !company"></app-loader>
+
+    <ng-container *ngIf="errorMessage">
+      <p class="status-message">{{ errorMessage }}</p>
+    </ng-container>
+
+    <ng-container *ngIf="company">
+      <div class="details-grid">
+        <div class="card full-width">
+          <div class="card-header">
+            <h2 class="card-title">Company Information</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-4">
+              <div class="field-group">
+                <div class="field-label">Company Number</div>
+                <div class="field-value highlight">{{ company.companyNumber ?? '-' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Legal Name</div>
+                <div class="field-value">{{ company.companyLegalName ?? '-' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Trade Name</div>
+                <div class="field-value">{{ company.companyTradeName ?? '-' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Status</div>
+                <div class="field-value">{{ company.active ? 'Active' : 'Inactive' }}</div>
+              </div>
+
+              <div class="field-group span-2">
+                <div class="field-label">Address</div>
+                <div class="field-value">{{ company.address ?? '-' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">City</div>
+                <div class="field-value">{{ company.city ?? '-' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Country</div>
+                <div class="field-value">{{ company.country ?? '-' }}</div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Postal Code</div>
+                <div class="field-value">{{ company.postalCode ?? '-' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Created</div>
+                <div class="field-value">{{ formatDateString(company.createdAt) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Updated</div>
+                <div class="field-value">{{ formatDateString(company.updatedAt) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

@@ -23,6 +23,7 @@
     </div>
 
     <div class="main-content">
+      <app-navbar class="top-navbar-fixed" *ngIf="!isStandaloneRoute"></app-navbar>
       <div class="main-content-sub">
         <router-outlet></router-outlet>
       </div>

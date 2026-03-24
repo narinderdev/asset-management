@@ -105,6 +105,12 @@
   min-height: 86px;
 }
 
+.form-field input:disabled {
+  background: #f8fafc;
+  color: #475569;
+  cursor: not-allowed;
+}
+
 .checkbox-label {
   display: inline-flex;
   align-items: center;

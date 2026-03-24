@@ -4,19 +4,32 @@
 }
 
 .main-content {
-  margin-left: 270px;
+  margin-left: 280px;
   min-height: 100vh;
   background-color: #f5f5f5;
   transition: margin-left 0.3s ease;
+}
+
+.top-navbar-fixed {
+  position: fixed;
+  top: 0;
+  left: 280px;
+  right: 0;
+  z-index: 900;
 }
 
 .app-shell.sidebar-hidden .main-content {
   margin-left: 0;
 }
 
+.app-shell.sidebar-hidden .top-navbar-fixed {
+  left: 0;
+}
+
 .main-content-sub {
   padding: 30px;
   padding-left: 38px;
+  padding-top: 108px;
   background: #f5f5f5;
 }
 
@@ -25,7 +38,11 @@
 }
 
 .app-shell.sidebar-collapsed .main-content {
-  margin-left: 55px;
+  margin-left: 70px;
+}
+
+.app-shell.sidebar-collapsed .top-navbar-fixed {
+  left: 70px;
 }
 
 .mobile-header {
@@ -41,8 +58,12 @@
     margin-left: 70px;
   }
 
+  .top-navbar-fixed {
+    left: 70px;
+  }
+
   .mobile-header {
-    display: flex;
+    display: none;
     align-items: center;
     gap: 12px;
     padding: 14px 18px;
@@ -86,12 +107,17 @@
     margin-left: 0;
   }
 
+  .top-navbar-fixed {
+    display: none;
+  }
+
   .app-shell.sidebar-collapsed .main-content,
   .app-shell.mobile-sidebar-open .main-content {
     margin-left: 0;
   }
 
   .mobile-header {
+    display: flex;
     margin-left: 0;
   }
 
@@ -120,6 +146,7 @@
 
 @media print {
   app-sidebar,
+  app-navbar,
   .mobile-header,
   .sidebar-overlay {
     display: none !important;

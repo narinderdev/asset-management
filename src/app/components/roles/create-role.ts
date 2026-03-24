@@ -1,13 +1,16 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { Subject, finalize } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { SpinnerComponent } from '../spinner/spinner';
 import { Loader } from '../loader/loader';
 import { RoleService, CreateRolePayload } from '../../services/role.service';
 import { PermissionService } from '../../services/permission.service';
+import { CompanyContextService } from '../../services/company-context.service';
+import { Company } from '../../services/company.service';
 
 interface PermissionRow {
   label: string;
@@ -34,7 +37,7 @@ interface PermissionSelection {
   templateUrl: './create-role.html',
   styleUrl: './create-role.css'
 })
-export class CreateRoleComponent implements OnInit {
+export class CreateRoleComponent implements OnInit, OnDestroy {
   addRoleForm: FormGroup;
   permissionRows: PermissionRow[] = [];
 
@@ -46,6 +49,11 @@ export class CreateRoleComponent implements OnInit {
   selectedSecurityClass = '';
   selectedModule = '';
   canCreateRole = false;
+  selectedCompanyLabel = '-';
+
+  private selectedCompanyId: number | null = null;
+  private companies: Company[] = [];
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -53,7 +61,8 @@ export class CreateRoleComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private toastr: ToastrService,
     private router: Router,
-    private permissionService: PermissionService
+    private permissionService: PermissionService,
+    private companyContext: CompanyContextService
   ) {
     this.addRoleForm = this.fb.group({
       name: [''],
@@ -64,6 +73,24 @@ export class CreateRoleComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.selectedCompanyId = this.companyContext.getSelectedCompanyId();
+    this.companies = this.companyContext.getCompanies();
+    this.updateSelectedCompanyLabel();
+
+    this.companyContext.selectedCompanyId$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((companyId) => {
+        this.selectedCompanyId = companyId;
+        this.updateSelectedCompanyLabel();
+      });
+
+    this.companyContext.companies$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((companies) => {
+        this.companies = companies;
+        this.updateSelectedCompanyLabel();
+      });
+
     this.canCreateRole =
       this.permissionService.hasPermission('MANAGE_ROLES', 'CREATE') ||
       this.permissionService.hasPermission('MANAGE_ROLES', 'ACCESS');
@@ -73,6 +100,11 @@ export class CreateRoleComponent implements OnInit {
       return;
     }
     this.fetchPermissions();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   formatModuleLabel(raw: string | undefined): string {
@@ -532,5 +564,28 @@ export class CreateRoleComponent implements OnInit {
       return 'Maintenance';
     }
     return 'Asset Management';
+  }
+
+  private updateSelectedCompanyLabel(): void {
+    const selected = this.companies.find(
+      (company) => this.toCompanyId(company?.id ?? (company as any)?.companyId) === this.selectedCompanyId
+    );
+
+    const name = (selected?.companyLegalName || selected?.companyTradeName || '').trim();
+    const number = (selected?.companyNumber || '').trim();
+
+    if (!name && !number) {
+      this.selectedCompanyLabel = '-';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.selectedCompanyLabel = number ? `${name} - ${number}` : name;
+    this.cdr.detectChanges();
+  }
+
+  private toCompanyId(value: unknown): number | null {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
   }
 }

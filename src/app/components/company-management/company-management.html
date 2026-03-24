@@ -1,0 +1,90 @@
+<div class="preventive-wrapper">
+  <div class="preventive-header">
+    <h1 class="preventive-title">Company Management</h1>
+    <button class="create-service-btn" (click)="addCompany()">+ Add Company</button>
+  </div>
+
+  <div class="table-status" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="table-wrapper">
+    <div class="table-container">
+      <table class="preventive-table">
+        <thead>
+          <tr>
+            <th>Company Number</th>
+            <th>Legal Name</th>
+            <th>Trade Name</th>
+            <th>City</th>
+            <th>Country</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="isLoading; else loadedCompanies">
+            <tr *ngFor="let _ of loadingRows" class="skeleton-row">
+              <td><span class="skeleton skeleton-text short"></span></td>
+              <td><span class="skeleton skeleton-text medium"></span></td>
+              <td><span class="skeleton skeleton-text medium"></span></td>
+              <td><span class="skeleton skeleton-text short"></span></td>
+              <td><span class="skeleton skeleton-text short"></span></td>
+              <td><span class="skeleton skeleton-pill"></span></td>
+              <td><span class="skeleton skeleton-text tiny"></span></td>
+            </tr>
+          </ng-container>
+
+          <ng-template #loadedCompanies>
+            <tr *ngIf="showEmptyState">
+              <td colspan="7" class="empty-row">No companies to display.</td>
+            </tr>
+            <tr *ngFor="let company of companies">
+              <td>{{ company.companyNumber }}</td>
+              <td>{{ company.companyLegalName }}</td>
+              <td>{{ company.companyTradeName }}</td>
+              <td>{{ company.city }}</td>
+              <td>{{ company.country }}</td>
+              <td>
+                <span class="status-chip" [ngClass]="{ 'status-green': company.active, 'status-grey': !company.active }">
+                  {{ company.active ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button class="action-icon" aria-label="View company" (click)="viewCompany(company)">
+                  <img src="assets/icons/Vector.svg" alt="View" />
+                </button>
+                <button class="action-icon" aria-label="Edit company" (click)="editCompany(company)">
+                  <img src="assets/icons/edit.svg" alt="Edit" />
+                </button>
+                <button class="action-icon danger" aria-label="Delete company" (click)="openDeleteModal(company)">
+                  <img src="assets/icons/delete.svg" alt="Delete" />
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+        </tbody>
+      </table>
+    </div>
+
+    <app-loader [visible]="isLoading"></app-loader>
+  </div>
+
+  <div class="pagination" *ngIf="totalCompanies > 0">
+    <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ totalCompanies }}</span>
+    <div class="pager-actions">
+      <button class="pager-btn" (click)="previousPage()" [disabled]="currentPage === 0 || isLoading">Previous</button>
+      <span class="pager-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button class="pager-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1 || isLoading">Next</button>
+    </div>
+  </div>
+
+  <app-delete-modal
+    [isOpen]="isDeleteModalOpen"
+    [deleting]="isDeleting"
+    title="Delete company"
+    message="Are you sure you want to delete this company?"
+    (cancel)="closeDeleteModal()"
+    (confirm)="confirmDelete()"
+  ></app-delete-modal>
+</div>

@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { AuthService } from '../../services/auth.service';
 import { SpinnerComponent } from '../spinner/spinner';
+import { CompanySetupService } from '../../services/company-setup.service';
 
 @Component({
   selector: 'app-verify-account',
@@ -28,6 +29,7 @@ export class VerifyAccountComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private authService: AuthService,
+    private companySetupService: CompanySetupService,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) platformId: object
@@ -167,10 +169,17 @@ export class VerifyAccountComponent implements OnInit {
           if (isSuccess) {
             this.toastr.success(message);
             const mfaEnabledFlag = this.isBrowser ? localStorage.getItem('mfaEnabled') === 'true' : false;
+            if (this.isBrowser) {
+              localStorage.setItem('emailOtpVerified', 'true');
+              localStorage.setItem('authenticatorVerified', String(!mfaEnabledFlag));
+            }
             if (mfaEnabledFlag) {
               this.router.navigate(['/verify-authenticator']);
             } else {
-              this.router.navigate(['/dashboard']);
+              const setupRoute = this.companySetupService.isSetupRequired()
+                ? '/company/create'
+                : '/dashboard';
+              this.router.navigate([setupRoute]);
             }
           } else {
             this.errorMessage = message;
@@ -189,3 +198,4 @@ export class VerifyAccountComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 }
+

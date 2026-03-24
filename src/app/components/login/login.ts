@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { SpinnerComponent } from '../spinner/spinner';
 import { AuthService } from '../../services/auth.service';
 import { PermissionService } from '../../services/permission.service';
+import { CompanySetupService } from '../../services/company-setup.service';
 
 @Component({
   selector: 'app-login',
@@ -28,6 +29,7 @@ export class LoginComponent {
     private router: Router,
     private authService: AuthService,
     private permissionService: PermissionService,
+    private companySetupService: CompanySetupService,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) platformId: object
@@ -117,10 +119,12 @@ export class LoginComponent {
             ?? (response as any)?.data?.user?.technician?.id
             ?? (response as any)?.data?.technicianId
             ?? (response as any)?.data?.user?.technicianId;
+          const userId = (response as any)?.data?.user?.id;
           const message = response?.message || (isSuccess ? 'Login successful' : 'Invalid credentials');
 
           if (isSuccess) {
             if (this.isBrowser) {
+              this.companySetupService.setFromLoginResponse(response);
               // Store auth-independent login flags for downstream screens.
               if (mfaToken) {
                 localStorage.setItem('mfa_token', mfaToken);
@@ -128,6 +132,8 @@ export class LoginComponent {
                 localStorage.removeItem('mfa_token');
               }
               localStorage.setItem('mfaEnabled', String(!!mfaEnabled));
+              localStorage.setItem('emailOtpVerified', 'false');
+              localStorage.setItem('authenticatorVerified', String(!mfaEnabled));
               localStorage.setItem('loginEmail', email);
               localStorage.setItem('passwordExpired', String(!!passwordExpired));
               localStorage.removeItem('passwordChangeToken');
@@ -140,6 +146,11 @@ export class LoginComponent {
                 localStorage.setItem('technicianId', String(technicianId));
               } else {
                 localStorage.removeItem('technicianId');
+              }
+              if (userId !== undefined && userId !== null) {
+                localStorage.setItem('userId', String(userId));
+              } else {
+                localStorage.removeItem('userId');
               }
 
               // Token may or may not be present depending on MFA flow.

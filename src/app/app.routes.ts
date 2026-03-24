@@ -76,6 +76,9 @@ import { ChangePasswordComponent } from './components/change-password/change-pas
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password';
 import { ForgotPasswordVerifyComponent } from './components/forgot-password-verify/forgot-password-verify';
 import { ForgotPasswordResetComponent } from './components/forgot-password-reset/forgot-password-reset';
+import { CompanyManagementComponent } from './components/company-management/company-management';
+import { CreateCompanyComponent } from './components/company-management/create-company';
+import { ViewCompanyComponent } from './components/company-management/view-company';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -201,5 +204,10 @@ export const routes: Routes = [
   { path: 'roles/view/:id', component: ViewRoleComponent, canActivate: [AuthGuard] },
   { path: 'security/mfa', component: MfaComponent, canActivate: [AuthGuard] },
   { path: 'security/report', component: SecurityReportComponent, canActivate: [AuthGuard] },
+  { path: 'company', component: CompanyManagementComponent, canActivate: [AuthGuard] },
+  { path: 'company/create', component: CreateCompanyComponent, canActivate: [AuthGuard] },
+  { path: 'company/edit/:id', component: CreateCompanyComponent, canActivate: [AuthGuard] },
+  { path: 'company/view/:id', component: ViewCompanyComponent, canActivate: [AuthGuard] },
   { path: 'users', component: UsersComponent, canActivate: [AuthGuard] }
 ];
+

@@ -1,12 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, computed, signal } from '@angular/core';
+import { Component, HostListener, OnDestroy, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { finalize } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { Loader } from '../../components/loader/loader';
 import {
   RoleService,
   SecurityReportByRoleResponse
 } from '../../services/role.service';
+import { CompanyContextService } from '../../services/company-context.service';
+import { Company } from '../../services/company.service';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 
@@ -25,7 +28,7 @@ interface RolePermissionRow {
   templateUrl: './security-report.html',
   styleUrl: './security-report.css'
 })
-export class SecurityReportComponent {
+export class SecurityReportComponent implements OnDestroy {
   readonly math = Math;
   readonly pageSize = 10;
   readonly viewMode = signal<ViewMode>('ROLE');
@@ -36,8 +39,18 @@ export class SecurityReportComponent {
   readonly showExportMenu = signal(false);
   readonly roleRows = signal<RolePermissionRow[]>([]);
   readonly objectRows = signal<RolePermissionRow[]>([]);
+  readonly selectedCompanyId = signal<number | null>(null);
+  readonly companies = signal<Company[]>([]);
   readonly pendingRequests = signal(0);
   readonly permissionPriority = ['VIEW', 'CREATE', 'UPDATE', 'EDIT', 'DELETE', 'APPROVE', 'APPLY', 'SEND', 'INVITE_USER'];
+  private readonly destroy$ = new Subject<void>();
+
+  readonly selectedCompanyNumber = computed(() => {
+    const companyId = this.selectedCompanyId();
+    const selected = this.companies().find((company) => this.toCompanyId(company?.id ?? (company as any)?.companyId) === companyId);
+    const number = (selected?.companyNumber || '').trim();
+    return number || '-';
+  });
 
   readonly roleOptions = computed(() => {
     const source = this.viewMode() === 'ROLE' ? this.roleRows() : this.objectRows();
@@ -93,6 +106,7 @@ export class SecurityReportComponent {
   });
 
   readonly tableHeaders = computed(() => [
+    'Company Number',
     this.primaryHeader(),
     this.secondaryHeader(),
     ...this.permissionColumns()
@@ -108,8 +122,31 @@ export class SecurityReportComponent {
     return this.filteredRows().slice(start, start + this.pageSize);
   });
 
-  constructor(private roleService: RoleService) {
+  constructor(
+    private roleService: RoleService,
+    private companyContext: CompanyContextService
+  ) {
+    this.selectedCompanyId.set(this.companyContext.getSelectedCompanyId());
+    this.companies.set(this.companyContext.getCompanies());
+
+    this.companyContext.selectedCompanyId$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((companyId) => {
+        this.selectedCompanyId.set(companyId);
+      });
+
+    this.companyContext.companies$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((companies) => {
+        this.companies.set(companies);
+      });
+
     this.fetchRoleDataset();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   @HostListener('document:click')
@@ -181,9 +218,12 @@ export class SecurityReportComponent {
     const worksheet = XLSX.utils.aoa_to_sheet(aoa);
     worksheet['!cols'] = this.tableHeaders().map((_, idx) => {
       if (idx === 0) {
-        return { wch: 25 };
+        return { wch: 18 };
       }
       if (idx === 1) {
+        return { wch: 25 };
+      }
+      if (idx === 2) {
         return { wch: 25 };
       }
       return { wch: 12 };
@@ -210,11 +250,12 @@ export class SecurityReportComponent {
     const headerHeight = 34;
     const rowHeight = 30;
     const headers = this.tableHeaders();
-    const firstColWidth = 170;
-    const secondColWidth = 170;
-    const remainingWidth = pageWidth - (margin * 2) - firstColWidth - secondColWidth;
+    const firstColWidth = 130;
+    const secondColWidth = 160;
+    const thirdColWidth = 160;
+    const remainingWidth = pageWidth - (margin * 2) - firstColWidth - secondColWidth - thirdColWidth;
     const permissionWidth = permissionCount ? Math.max(56, remainingWidth / permissionCount) : 0;
-    const widths = [firstColWidth, secondColWidth, ...Array(permissionCount).fill(permissionWidth)];
+    const widths = [firstColWidth, secondColWidth, thirdColWidth, ...Array(permissionCount).fill(permissionWidth)];
 
     let y = margin;
     const drawHeader = () => {
@@ -227,8 +268,8 @@ export class SecurityReportComponent {
       let x = margin;
       headers.forEach((header, idx) => {
         const cellWidth = widths[idx];
-        const text = idx <= 1 ? header : this.formatLabel(header);
-        if (idx <= 1) {
+        const text = idx <= 2 ? header : this.formatLabel(header);
+        if (idx <= 2) {
           pdf.text(text, x + 8, y + 21);
         } else {
           pdf.text(text, x + (cellWidth / 2), y + 21, { align: 'center' });
@@ -255,7 +296,7 @@ export class SecurityReportComponent {
       let x = margin;
       row.forEach((value, idx) => {
         const cellWidth = widths[idx];
-        if (idx <= 1) {
+        if (idx <= 2) {
           pdf.text(String(value), x + 8, y + 19);
         } else {
           pdf.text(String(value), x + (cellWidth / 2), y + 19, { align: 'center' });
@@ -412,12 +453,18 @@ export class SecurityReportComponent {
 
   private getExportRows(): string[][] {
     const permissions = this.permissionColumns();
+    const companyNumber = this.selectedCompanyNumber();
     return this.filteredRows().map(row => {
       const primary = this.getPrimaryValue(row);
       const secondary = this.getSecondaryValue(row);
       const permissionValues = permissions.map(permission => (row.permissions.includes(permission) ? 'Yes' : 'No'));
-      return [primary, secondary, ...permissionValues];
+      return [companyNumber, primary, secondary, ...permissionValues];
     });
+  }
+
+  private toCompanyId(value: unknown): number | null {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
   }
 
   private escapeCsv(value: string): string {

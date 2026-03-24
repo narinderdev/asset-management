@@ -1,6 +1,11 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, CanActivateChild, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
+import { CompanySetupService } from '../services/company-setup.service';
+
+const EMAIL_OTP_VERIFIED_KEY = 'emailOtpVerified';
+const AUTHENTICATOR_VERIFIED_KEY = 'authenticatorVerified';
+const MFA_ENABLED_KEY = 'mfaEnabled';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +13,11 @@ import { isPlatformBrowser } from '@angular/common';
 export class AuthGuard implements CanActivate, CanActivateChild {
   private readonly isBrowser: boolean;
 
-  constructor(private router: Router, @Inject(PLATFORM_ID) platformId: object) {
+  constructor(
+    private router: Router,
+    private companySetupService: CompanySetupService,
+    @Inject(PLATFORM_ID) platformId: object
+  ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
@@ -22,6 +31,35 @@ export class AuthGuard implements CanActivate, CanActivateChild {
 
   private redirectToLogin(): UrlTree {
     return this.router.parseUrl('/login');
+  }
+
+  private redirectToVerifyAccount(): UrlTree {
+    const email = this.isBrowser ? String(localStorage.getItem('loginEmail') ?? '').trim().toLowerCase() : '';
+    return this.router.createUrlTree(['/verify-account'], {
+      queryParams: email ? { email } : undefined
+    });
+  }
+
+  private redirectToVerifyAuthenticator(): UrlTree {
+    return this.router.parseUrl('/verify-authenticator');
+  }
+
+  private isEmailOtpVerified(): boolean {
+    if (!this.isBrowser) {
+      return true;
+    }
+    return localStorage.getItem(EMAIL_OTP_VERIFIED_KEY) === 'true';
+  }
+
+  private isAuthenticatorVerified(): boolean {
+    if (!this.isBrowser) {
+      return true;
+    }
+    const isMfaEnabled = localStorage.getItem(MFA_ENABLED_KEY) === 'true';
+    if (!isMfaEnabled) {
+      return true;
+    }
+    return localStorage.getItem(AUTHENTICATOR_VERIFIED_KEY) === 'true';
   }
 
   private canAccessExpiredPasswordFlow(url: string): boolean {
@@ -40,6 +78,15 @@ export class AuthGuard implements CanActivate, CanActivateChild {
       return true;
     }
     if (this.isLoggedIn()) {
+      if (!this.isEmailOtpVerified()) {
+        return this.redirectToVerifyAccount();
+      }
+      if (!this.isAuthenticatorVerified()) {
+        return this.redirectToVerifyAuthenticator();
+      }
+      if (this.companySetupService.isSetupRequired() && !state.url.startsWith('/company/create')) {
+        return this.router.parseUrl('/company/create');
+      }
       return true;
     }
     if (this.canAccessExpiredPasswordFlow(state.url)) {
@@ -52,3 +99,4 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     return this.canActivate(route, state);
   }
 }
+

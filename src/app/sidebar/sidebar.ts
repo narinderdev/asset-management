@@ -4,6 +4,8 @@ import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { PermissionService } from '../services/permission.service';
 import { AuthService } from '../services/auth.service';
+import { CompanySetupService } from '../services/company-setup.service';
+import { CompanyContextService } from '../services/company-context.service';
 
 interface MenuItem {
   icon: string;
@@ -169,13 +171,21 @@ export class SidebarComponent implements OnInit {
         { label: 'MFA', route: '/security/mfa', module: ['MFA', 'MANAGE_USERS'] },
         { label: 'Security Report', route: '/security/report', module: ['SECURITY_REPORT', 'REPORTS'] }
       ]
+    },
+    {
+      icon: 'proicons_document.svg',
+      activeIcon: 'proicons_document (1).svg',
+      label: 'Company',
+      route: '/company'
     }
   ];
 
   constructor(
     private router: Router,
     private permissions: PermissionService,
-    private authService: AuthService
+    private authService: AuthService,
+    private companySetupService: CompanySetupService,
+    private companyContext: CompanyContextService
   ) {
     this.activeRoute = this.router.url || this.activeRoute;
     this.router.events
@@ -282,6 +292,7 @@ export class SidebarComponent implements OnInit {
       next: () => this.finishLogout(),
       error: () => this.finishLogout()
     });
+    localStorage.clear();
   }
 
   private finishLogout(): void {
@@ -289,8 +300,14 @@ export class SidebarComponent implements OnInit {
     localStorage.removeItem('signupUserId');
     localStorage.removeItem('signupEmail');
     localStorage.removeItem('mfaEnabled');
+    localStorage.removeItem('mfa_token');
+    localStorage.removeItem('emailOtpVerified');
+    localStorage.removeItem('authenticatorVerified');
     localStorage.removeItem('passwordExpired');
     localStorage.removeItem('daysUntilPasswordExpiry');
+    localStorage.removeItem('userId');
+    this.companySetupService.clear();
+    this.companyContext.clear();
     this.permissions.clear();
     this.showLogoutModal = false;
     this.router.navigate(['/login']);
@@ -349,4 +366,5 @@ export class SidebarComponent implements OnInit {
     return modules.some((mod) => this.permissions.hasAnyPermission(mod));
   }
 }
+
 

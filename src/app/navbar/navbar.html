@@ -1,0 +1,54 @@
+<div class="top-navbar">
+  <app-loader [visible]="isLoadingCompanies"></app-loader>
+  <div class="top-navbar-spacer"></div>
+
+  <div class="company-switcher" *ngIf="isLoadingCompanies; else loadedCompanyState">
+    <div class="company-pill company-pill-disabled">
+      <span>Loading companies...</span>
+    </div>
+  </div>
+
+  <ng-template #loadedCompanyState>
+  <div class="company-switcher" *ngIf="companies.length; else emptyCompanyState">
+    <ng-container *ngIf="companies.length > 1; else singleCompany">
+      <div class="company-select-wrap">
+        <svg class="company-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.7"></rect>
+          <path d="M9 8h6M9 12h6M9 16h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+        </svg>
+
+        <select
+          class="company-select"
+          [ngModel]="selectedCompanyId"
+          (ngModelChange)="onCompanyChange($event)"
+          aria-label="Select company"
+        >
+          <option *ngFor="let company of companies" [ngValue]="getCompanyId(company)">
+            {{ getCompanyLabel(company) }}
+          </option>
+        </select>
+
+        <svg class="company-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+    </ng-container>
+
+    <ng-template #singleCompany>
+      <button type="button" class="company-pill company-pill-disabled" disabled>
+        <svg class="company-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.7"></rect>
+          <path d="M9 8h6M9 12h6M9 16h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+        </svg>
+        <span>{{ selectedCompanyLabel }}</span>
+      </button>
+    </ng-template>
+  </div>
+  </ng-template>
+
+  <ng-template #emptyCompanyState>
+    <div class="company-pill company-pill-disabled">
+      <span>No Company</span>
+    </div>
+  </ng-template>
+</div>

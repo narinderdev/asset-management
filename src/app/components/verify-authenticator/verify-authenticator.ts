@@ -161,6 +161,9 @@ export class VerifyAuthenticatorComponent implements OnInit {
               if (token) {
                 localStorage.setItem('authToken', token);
               }
+              localStorage.setItem('emailOtpVerified', 'true');
+              localStorage.setItem('authenticatorVerified', 'true');
+              localStorage.removeItem('mfa_token');
               localStorage.setItem('passwordExpired', String(!!passwordExpired));
               if (daysUntilPasswordExpiry !== null && daysUntilPasswordExpiry !== undefined) {
                 localStorage.setItem('daysUntilPasswordExpiry', String(daysUntilPasswordExpiry));

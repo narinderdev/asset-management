@@ -1,0 +1,157 @@
+<div class="create-request-page">
+  <section class="create-card">
+    <header class="create-header circle-header">
+      <button
+        type="button"
+        class="back-btn-circle"
+        aria-label="Back to companies"
+        (click)="onCancel()"
+        *ngIf="!isSetupRequiredMode"
+      >
+        <span aria-hidden="true">&#8592;</span>
+      </button>
+      <h2>{{ isEditMode ? 'Edit Company' : 'Add Company' }}</h2>
+      <button
+        type="button"
+        class="btn ghost signout-btn"
+        *ngIf="isSetupRequiredMode"
+        (click)="signOut()"
+      >
+        Sign out
+      </button>
+    </header>
+
+    <form class="request-form" #companyForm="ngForm" (ngSubmit)="onSubmit(companyForm)">
+      <div class="stepper">
+        <div class="step-item" [class.active]="activeTab === 'basic'" [class.completed]="activeTab === 'address'">
+          <div class="step-circle">1</div>
+          <div class="step-meta">
+            <div class="step-title">Basic Information</div>
+            <div class="step-subtitle">Company details</div>
+          </div>
+        </div>
+
+        <div class="step-line" [class.completed]="activeTab === 'address'"></div>
+
+        <div class="step-item" [class.active]="activeTab === 'address'">
+          <div class="step-circle">2</div>
+          <div class="step-meta">
+            <div class="step-title">Company Address</div>
+            <div class="step-subtitle">Location details</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card" *ngIf="activeTab === 'basic'">
+        <div class="section-header">
+          <h3>Basic Information</h3>
+          <p>Enter the company’s primary details.</p>
+        </div>
+
+        <div class="form-grid" *ngIf="activeTab === 'basic'">
+          <label class="field">
+            <span>Company Number <span class="required-star">*</span></span>
+            <input type="text" name="companyNumber" [(ngModel)]="company.companyNumber"
+              (input)="onCompanyNumberInput($any($event.target).value)" placeholder="Enter Company Number" required
+              maxlength="20" pattern="^\d+$" inputmode="numeric" />
+            <span class="error" *ngIf="isControlInvalid(companyForm, 'companyNumber')">
+              Company number is required and must contain numbers only.
+            </span>
+          </label>
+
+          <label class="field">
+            <span>Legal Name <span class="required-star">*</span></span>
+            <input type="text" name="companyLegalName" [(ngModel)]="company.companyLegalName"
+              placeholder="Enter Legal Name" required />
+            <span class="error" *ngIf="isControlInvalid(companyForm, 'companyLegalName')">
+              Legal name is required.
+            </span>
+          </label>
+
+          <label class="field">
+            <span>Trade Name <span class="required-star">*</span></span>
+            <input type="text" name="companyTradeName" [(ngModel)]="company.companyTradeName"
+              placeholder="Enter Trade Name" required />
+            <span class="error" *ngIf="isControlInvalid(companyForm, 'companyTradeName')">
+              Trade name is required.
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="section-card" *ngIf="activeTab === 'address'">
+        <div class="section-header">
+          <h3>Company Address</h3>
+          <p>Provide the registered address information.</p>
+        </div>
+
+        <div class="form-grid" *ngIf="activeTab === 'address'">
+          <label class="field">
+            <span>Address <span class="required-star">*</span></span>
+            <input type="text" name="address" [(ngModel)]="company.address" placeholder="Enter Address" required />
+            <span class="error" *ngIf="isControlInvalid(companyForm, 'address')">
+              Address is required.
+            </span>
+          </label>
+
+          <label class="field">
+            <span>City <span class="required-star">*</span></span>
+            <input type="text" name="city" [(ngModel)]="company.city" placeholder="Enter City" required />
+            <span class="error" *ngIf="isControlInvalid(companyForm, 'city')">
+              City is required.
+            </span>
+          </label>
+
+          <label class="field">
+            <span>Country <span class="required-star">*</span></span>
+            <select name="country" [(ngModel)]="company.country" required>
+              <option value="" disabled>Select Country</option>
+              <option *ngFor="let country of countryOptions" [value]="country.value">
+                {{ country.label }}
+              </option>
+            </select>
+            <span class="error" *ngIf="isControlInvalid(companyForm, 'country')">
+              Country is required.
+            </span>
+          </label>
+
+          <label class="field">
+            <span>Postal Code <span class="required-star">*</span></span>
+            <input type="text" name="postalCode" [(ngModel)]="company.postalCode"
+              (input)="onPostalCodeInput($any($event.target).value)" placeholder="Enter Postal Code" required
+              maxlength="6" pattern="^\d{1,6}$" inputmode="numeric" />
+            <span class="error" *ngIf="isControlInvalid(companyForm, 'postalCode')">
+              Postal code is required, numbers only, and max 6 digits.
+            </span>
+          </label>
+
+          <label class="field check-field">
+            <input type="checkbox" name="active" [(ngModel)]="company.active" />
+            <span>Active</span>
+          </label>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="form-error">{{ errorMessage }}</div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" (click)="onCancel()" *ngIf="!isSetupRequiredMode">Close</button>
+
+        <div class="form-actions-right">
+          <button type="button" class="btn secondary" *ngIf="activeTab === 'address'" (click)="onBackToBasic()">
+            Back
+          </button>
+
+          <button type="button" class="btn primary" *ngIf="activeTab === 'basic'"
+            (click)="onNextToAddress(companyForm)">
+            Continue
+          </button>
+
+          <button type="submit" class="btn primary" *ngIf="activeTab === 'address'" [disabled]="isSubmitting">
+            {{ isEditMode ? 'Save Company' : 'Create Company' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </section>
+</div>
