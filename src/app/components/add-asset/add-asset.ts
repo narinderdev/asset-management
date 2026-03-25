@@ -36,6 +36,9 @@ export class AddAssetComponent implements OnInit {
   activeTab: string = 'asset-master';
   private readonly defaultTab = 'asset-master';
   private readonly locationTabId = 'location-organization';
+  private readonly flowQueryParam = 'flow';
+  private readonly createFlowValue = 'create';
+  private readonly draftStoragePrefix = 'add_asset_draft_';
   isEditMode = false;
 
   isSavingLocation = false;
@@ -295,16 +298,33 @@ export class AddAssetComponent implements OnInit {
     this.loadCategories();
     this.loadAssetTypes();
 
-    const navigation = this.router.getCurrentNavigation();
-    const asset = (navigation?.extras.state as { asset?: Asset })?.asset;
+    const navigationState = (this.router.getCurrentNavigation()?.extras.state ??
+      (typeof history !== 'undefined' ? history.state : undefined)) as {
+      asset?: Asset;
+      preserveDraft?: boolean;
+      draft?: Record<string, unknown>;
+    } | undefined;
+    const asset = navigationState?.asset;
+    const draftFromNavigation = navigationState?.preserveDraft ? navigationState.draft : undefined;
     const assetId = this.route.snapshot.queryParamMap.get('id');
+    const flow = this.route.snapshot.queryParamMap.get(this.flowQueryParam);
+    const isCreateFlow = flow === this.createFlowValue;
     if (asset) {
       this.isEditMode = true;
       this.activeAsset = asset;
       this.populateFromAsset(asset);
-    } else if (assetId) {
+    } else if (assetId && !isCreateFlow) {
       this.isEditMode = true;
-      this.loadAssetDetails(assetId);
+      this.currentAssetId = assetId;
+      const draft = draftFromNavigation ?? this.loadDraftState(assetId);
+      if (draft) {
+        this.restoreDraftState(draft);
+      } else {
+        this.loadAssetDetails(assetId);
+      }
+    } else if (assetId && isCreateFlow) {
+      this.currentAssetId = assetId;
+      this.setThresholdAssetFromCurrent(assetId);
     }
 
     if (!this.route.snapshot.paramMap.get('tab')) {
@@ -329,7 +349,95 @@ export class AddAssetComponent implements OnInit {
     }
     this.activeTab = tabId;
     const mergedQueryParams = { ...this.route.snapshot.queryParams, ...queryParams };
-    this.router.navigate(['/assets', 'add-asset', tabId], { queryParams: mergedQueryParams });
+    const extras: { queryParams: Params; state?: Record<string, unknown> } = {
+      queryParams: mergedQueryParams
+    };
+
+    if (this.isEditMode) {
+      const assetId = this.getAssetIdFromParams();
+      if (assetId) {
+        this.saveDraftState(assetId);
+      }
+      extras.state = {
+        preserveDraft: true,
+        draft: this.buildDraftState()
+      };
+    }
+
+    this.router.navigate(['/assets', 'add-asset', tabId], extras);
+  }
+
+  private buildDraftState(): Record<string, unknown> {
+    return {
+      assetMaster: { ...this.assetMaster },
+      locationOrg: { ...this.locationOrg },
+      insurance: { ...this.insurance },
+      technical: { ...this.technical },
+      financial: { ...this.financial },
+      threshold: { ...this.threshold },
+      warranty: { ...this.warranty },
+      safety: { ...this.safety },
+      attachments: { ...this.attachments },
+      autoGenerateAssetId: this.autoGenerateAssetId,
+      currentAssetId: this.currentAssetId
+    };
+  }
+
+  private restoreDraftState(draft: Record<string, unknown>): void {
+    this.assetMaster = { ...this.assetMaster, ...(draft['assetMaster'] as object ?? {}) };
+    this.locationOrg = { ...this.locationOrg, ...(draft['locationOrg'] as object ?? {}) };
+    this.insurance = { ...this.insurance, ...(draft['insurance'] as object ?? {}) };
+    this.technical = { ...this.technical, ...(draft['technical'] as object ?? {}) };
+    this.financial = { ...this.financial, ...(draft['financial'] as object ?? {}) };
+    this.threshold = { ...this.threshold, ...(draft['threshold'] as object ?? {}) };
+    this.warranty = { ...this.warranty, ...(draft['warranty'] as object ?? {}) };
+    this.safety = { ...this.safety, ...(draft['safety'] as object ?? {}) };
+    this.attachments = { ...this.attachments, ...(draft['attachments'] as object ?? {}) };
+
+    const autoGenerate = draft['autoGenerateAssetId'];
+    if (typeof autoGenerate === 'boolean') {
+      this.autoGenerateAssetId = autoGenerate;
+    }
+
+    const draftAssetId = draft['currentAssetId'];
+    if (draftAssetId !== null && draftAssetId !== undefined) {
+      this.currentAssetId = String(draftAssetId);
+    }
+  }
+
+  private saveDraftState(assetId: string): void {
+    try {
+      sessionStorage.setItem(
+        `${this.draftStoragePrefix}${assetId}`,
+        JSON.stringify(this.buildDraftState())
+      );
+    } catch {
+      // Ignore storage errors; draft restore is best-effort.
+    }
+  }
+
+  private loadDraftState(assetId: string): Record<string, unknown> | undefined {
+    try {
+      const raw = sessionStorage.getItem(`${this.draftStoragePrefix}${assetId}`);
+      if (!raw) {
+        return undefined;
+      }
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  private clearDraftState(assetId?: string): void {
+    if (!assetId) {
+      return;
+    }
+    try {
+      sessionStorage.removeItem(`${this.draftStoragePrefix}${assetId}`);
+    } catch {
+      // Ignore storage errors.
+    }
   }
 
   private navigateToNextTab(): void {
@@ -1037,6 +1145,7 @@ export class AddAssetComponent implements OnInit {
   }
 
   onCancel(): void {
+    this.clearDraftState(this.getAssetIdFromParams());
     this.router.navigate(['/assets']);
   }
 
@@ -1118,7 +1227,7 @@ export class AddAssetComponent implements OnInit {
           this.assetMaster.assetId = response.data?.assetId ?? this.assetMaster.assetId;
           this.setThresholdAssetFromCurrent(createdId);
           console.log('Asset created with ID', createdId);
-          this.navigateToTab(this.locationTabId, { id: createdId });
+          this.navigateToTab(this.locationTabId, { id: createdId, [this.flowQueryParam]: this.createFlowValue });
         },
         error: () => {
           console.error('Failed to create asset');
@@ -1469,6 +1578,7 @@ export class AddAssetComponent implements OnInit {
       }))
       .subscribe({
         next: () => {
+          this.clearDraftState(assetId);
           this.toastr.success('Asset updated successfully.');
           this.router.navigate(['/assets']);
         },

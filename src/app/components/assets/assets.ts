@@ -250,7 +250,7 @@ export class AssetsComponent implements OnInit {
     if (!this.canEditAssets || !asset.id) return;
 
     this.router.navigate(['/assets', 'add-asset', 'asset-master'], {
-      queryParams: { id: asset.id }
+      queryParams: { id: asset.id, flow: 'edit' }
     });
   }
 

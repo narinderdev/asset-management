@@ -18,53 +18,92 @@
 
 .company-select-wrap,
 .company-pill {
-  min-width: 280px;
-  max-width: 420px;
-  height: 40px;
-  border-radius: 24px;
-  background: #d6e5f8;
-  border: 1px solid #acc6ee;
+  width: clamp(170px, 20vw, 250px);
+  height: 42px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #eef4ff 0%, #e3edff 100%);
+  border: 1px solid #bfd2f5;
+  box-shadow: 0 2px 6px rgba(31, 71, 148, 0.1);
   color: #2a4f9e;
   display: inline-flex;
   align-items: center;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
 .company-select-wrap {
   position: relative;
 }
 
+.company-select-wrap:hover {
+  border-color: #9bb7ea;
+  box-shadow: 0 4px 10px rgba(31, 71, 148, 0.16);
+}
+
+.company-select-wrap:focus-within {
+  border-color: #4d7fe0;
+  box-shadow: 0 0 0 3px rgba(77, 127, 224, 0.2);
+}
+
 .company-icon {
-  margin-left: 12px;
+  margin-left: 10px;
   color: #2f66d5;
   flex-shrink: 0;
 }
 
 .company-select {
   flex: 1;
+  width: 100%;
+  min-width: 0;
   height: 100%;
   border: none;
   outline: none;
   background: transparent;
   appearance: none;
   -webkit-appearance: none;
-  padding: 0 34px 0 10px;
+  padding: 0 30px 0 8px;
   color: #234187;
-  font-size: 18px;
+  font-size: 15px;
+  font-weight: 500;
   line-height: 1;
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.company-select option {
+  background: #f5f8ff;
+  color: #1f3f83;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.company-select option:checked {
+  background: linear-gradient(180deg, #3e74d9 0%, #2f66d5 100%);
+  color: #ffffff;
 }
 
 .company-chevron {
   position: absolute;
-  right: 12px;
+  right: 10px;
   color: #2f66d5;
   pointer-events: none;
 }
 
 .company-pill {
-  padding: 0 14px;
-  gap: 10px;
-  font-size: 18px;
+  padding: 0 10px;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.company-pill span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .company-pill-disabled {
@@ -75,12 +114,11 @@
 @media (max-width: 1200px) {
   .company-select-wrap,
   .company-pill {
-    min-width: 230px;
-    max-width: 320px;
+    width: clamp(150px, 30vw, 200px);
   }
 
   .company-select,
   .company-pill {
-    font-size: 15px;
+    font-size: 14px;
   }
 }
