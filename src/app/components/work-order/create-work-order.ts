@@ -214,10 +214,8 @@ export class CreateWorkOrderComponent implements OnInit {
       return;
     }
     const match = this.assetOptionMap[assetId];
-    if (match?.locationText) {
-      this.workOrder.location = match.locationText;
-      this.cdr.detectChanges();
-    }
+    this.workOrder.location = match?.locationText ?? '';
+    this.cdr.detectChanges();
   }
 
   private updateWorkOrder(payload: CreateWorkOrderRequest, id: string): void {
