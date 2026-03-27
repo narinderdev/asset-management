@@ -105,7 +105,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       const cached = this.companyContext.getCompanies();
       if (cached.length) {
         this.companies = cached;
-        this.companyContext.initializeFromCompanies(cached);
+        this.companyContext.initializeFromCompanies(cached, { preserveCurrentSelection: true });
         this.cdr.detectChanges();
         return;
       }
@@ -136,7 +136,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
           }
 
           this.companies = normalizedCompanies;
-          this.companyContext.initializeFromCompanies(this.companies);
+          this.companyContext.initializeFromCompanies(this.companies, { preserveCurrentSelection: true });
           this.cdr.detectChanges();
         },
         error: () => {
@@ -181,6 +181,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
     if (Array.isArray(response?.content)) {
       return response.content as Company[];
+    }
+    if (response?.data && typeof response.data === 'object') {
+      return [response.data as Company];
     }
     return [];
   }

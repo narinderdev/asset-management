@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
-import { CompanyPayload, CompanyService } from '../../services/company.service';
+import { Company, CompanyPayload, CompanyService } from '../../services/company.service';
 import { AuthService } from '../../services/auth.service';
 import { PermissionService } from '../../services/permission.service';
 import { CompanySetupService } from '../../services/company-setup.service';
@@ -149,8 +149,9 @@ export class CreateCompanyComponent implements OnInit {
       )
       .subscribe({
         next: (response) => {
-          const createdOrUpdatedId = Number(response?.data?.id);
-          if (Number.isFinite(createdOrUpdatedId) && createdOrUpdatedId > 0) {
+          this.syncCompanyCache(response);
+          const createdOrUpdatedId = this.extractCompanyId(response);
+          if (createdOrUpdatedId !== null && Number.isFinite(createdOrUpdatedId) && createdOrUpdatedId > 0) {
             this.companyContext.setSelectedCompanyId(createdOrUpdatedId);
           }
           this.companyContext.notifyCompaniesUpdated();
@@ -169,6 +170,36 @@ export class CreateCompanyComponent implements OnInit {
           this.cdr.detectChanges();
         }
       });
+  }
+
+  private extractCompanyId(response: any): number | null {
+    const candidate =
+      response?.data?.id ??
+      response?.data?.companyId ??
+      response?.id ??
+      response?.companyId;
+    const parsed = Number(candidate);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  }
+
+  private syncCompanyCache(response: any): void {
+    const payloadCompany = response?.data;
+    if (!payloadCompany || typeof payloadCompany !== 'object') {
+      return;
+    }
+
+    const normalizedId = Number(payloadCompany.id ?? (payloadCompany as any).companyId);
+    if (!Number.isFinite(normalizedId) || normalizedId <= 0) {
+      return;
+    }
+
+    const current = this.companyContext.getCompanies();
+    const filtered = current.filter((company) => {
+      const id = Number(company?.id ?? (company as any)?.companyId);
+      return !Number.isFinite(id) || id !== normalizedId;
+    });
+
+    this.companyContext.setCompanies([{ ...(payloadCompany as Company), id: normalizedId }, ...filtered]);
   }
 
   signOut(): void {

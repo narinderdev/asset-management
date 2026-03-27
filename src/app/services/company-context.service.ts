@@ -6,6 +6,10 @@ import { Company } from './company.service';
 const SELECTED_COMPANY_ID_KEY = 'selectedCompanyId';
 const COMPANIES_CACHE_KEY = 'companiesCache';
 
+type InitializeCompanyOptions = {
+  preserveCurrentSelection?: boolean;
+};
+
 @Injectable({
   providedIn: 'root'
 })
@@ -65,7 +69,7 @@ export class CompanyContextService {
     localStorage.setItem(SELECTED_COMPANY_ID_KEY, String(companyId));
   }
 
-  initializeFromCompanies(companies: Company[]): number | null {
+  initializeFromCompanies(companies: Company[], options?: InitializeCompanyOptions): number | null {
     const validCompanies = companies.filter((company) => this.getCompanyId(company) !== null);
     this.setCompanies(validCompanies);
 
@@ -80,6 +84,11 @@ export class CompanyContextService {
     if (existingId !== null) {
       this.setSelectedCompanyId(existingId);
       return existingId;
+    }
+
+    if (options?.preserveCurrentSelection && currentId !== null) {
+      this.setSelectedCompanyId(currentId);
+      return currentId;
     }
 
     const firstId = this.getCompanyId(validCompanies[0]);
