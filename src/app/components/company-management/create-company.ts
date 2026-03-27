@@ -128,7 +128,7 @@ export class CreateCompanyComponent implements OnInit {
       city: this.company.city,
       country: this.company.country,
       postalCode: this.company.postalCode,
-      active: this.company.active
+      active: true
     };
 
     const userId = Number(localStorage.getItem('userId'));
@@ -249,6 +249,7 @@ export class CreateCompanyComponent implements OnInit {
     localStorage.removeItem('daysUntilPasswordExpiry');
     localStorage.removeItem('userId');
     this.companySetupService.clear();
+    this.companyContext.clear();
     this.permissionService.clear();
     this.router.navigate(['/login']);
   }
