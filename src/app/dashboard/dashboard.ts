@@ -1,4 +1,4 @@
-import { Component, computed, effect, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, computed, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { StatCard } from '../components/stat-card/stat-card';
 import { WorkOrderChart, WorkOrderStatus } from '../components/work-order-chart/work-order-chart';
@@ -6,7 +6,6 @@ import { CostChart, CostChartPoint } from '../components/cost-chart/cost-chart';
 import { WorkOrderTable } from '../components/work-order-table/work-order-table';
 import { ServiceRequestTable } from '../components/service-request-table/service-request-table';
 import { MetricDisplay, DashboardRecentWorkOrder, DashboardRecentServiceRequest, useDashboardData } from './use-dashboard-data';
-import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 
 interface DashboardStatCard {
@@ -51,7 +50,6 @@ interface DashboardTableServiceRequest {
 })
 export class DashboardComponent {
   readonly state = useDashboardData();
-  private lastErrorShown: string | null = null;
   passwordExpired = false;
   daysUntilPasswordExpiry?: number;
 
@@ -107,10 +105,8 @@ export class DashboardComponent {
   );
 
   readonly isLoading = computed<boolean>(() => this.state.loading());
-  readonly error = computed<string | null>(() => this.state.error());
 
   constructor(
-    private toastr: ToastrService,
     private router: Router,
     @Inject(PLATFORM_ID) platformId: object
   ) {
@@ -124,15 +120,6 @@ export class DashboardComponent {
         this.daysUntilPasswordExpiry === 0;
     }
 
-    effect(() => {
-      const errorMessage = this.error();
-      if (errorMessage && errorMessage !== this.lastErrorShown) {
-        this.lastErrorShown = errorMessage;
-        this.toastr.error(errorMessage, 'Dashboard');
-      } else if (!errorMessage) {
-        this.lastErrorShown = null;
-      }
-    });
   }
 
   refetch(): void {

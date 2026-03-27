@@ -1,6 +1,6 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 interface CompaniesApiResponse {
@@ -65,15 +65,13 @@ export class CompanyService {
   constructor(private http: HttpClient) {}
 
   fetchCompanies(page: number, size: number, sort: string[] = []): Observable<CompaniesApiResponse> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
+    const userId = this.getUserId();
+    if (userId === null) {
+      return throwError(() => new Error('Missing userId for companies API request.'));
+    }
 
-    sort.forEach(sortValue => {
-      params = params.append('sort', sortValue);
-    });
-
-    return this.http.get<CompaniesApiResponse>(this.apiUrl, { params, headers: this.headers });
+    const url = `${this.apiUrl}/user/${userId}`;
+    return this.http.get<CompaniesApiResponse>(url, { headers: this.headers });
   }
 
   createCompany(payload: CompanyPayload): Observable<CompanyResponse> {
@@ -96,5 +94,14 @@ export class CompanyService {
     return new HttpHeaders({
       'ngrok-skip-browser-warning': 'true'
     });
+  }
+
+  private getUserId(): number | null {
+    const rawUserId = localStorage.getItem('userId');
+    if (!rawUserId) {
+      return null;
+    }
+    const parsed = Number(rawUserId);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
   }
 }

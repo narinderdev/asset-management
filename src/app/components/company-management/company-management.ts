@@ -64,7 +64,7 @@ export class CompanyManagementComponent implements OnInit {
       next: response => {
         this.zone.run(() => {
           try {
-            const content = response.data?.content ?? [];
+            const content = this.extractCompanies(response);
             this.companies = content.map(company => this.mapCompany(company));
             this.totalCompanies = response.data?.totalElements ?? this.companies.length;
             this.currentPage = response.data?.page ?? this.currentPage;
@@ -90,6 +90,25 @@ export class CompanyManagementComponent implements OnInit {
         });
       }
     });
+  }
+
+  private extractCompanies(response: any): Company[] {
+    if (Array.isArray(response?.data?.content)) {
+      return response.data.content as Company[];
+    }
+    if (Array.isArray(response?.data?.companies)) {
+      return response.data.companies as Company[];
+    }
+    if (Array.isArray(response?.data)) {
+      return response.data as Company[];
+    }
+    if (Array.isArray(response?.content)) {
+      return response.content as Company[];
+    }
+    if (response?.data && typeof response.data === 'object') {
+      return [response.data as Company];
+    }
+    return [];
   }
 
   private mapCompany(data: Company): CompanyRow {

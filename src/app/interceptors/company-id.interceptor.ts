@@ -58,7 +58,7 @@ export class CompanyIdInterceptor implements HttpInterceptor {
 
   private isCompanyListRequest(req: HttpRequest<unknown>): boolean {
     const value = (req.url || '').toLowerCase();
-    return req.method.toUpperCase() === 'GET' && /\/api\/companies(?:\?|$)/.test(value);
+    return req.method.toUpperCase() === 'GET' && /\/api\/companies(?:\/user\/[^/?#]+|\/[^/?#]+)?(?:\?|$)/.test(value);
   }
 
   private ensureCompanySelection(): Observable<number | null> {
@@ -99,6 +99,9 @@ export class CompanyIdInterceptor implements HttpInterceptor {
     }
     if (Array.isArray(response?.content)) {
       return response.content as Company[];
+    }
+    if (response?.data && typeof response.data === 'object') {
+      return [response.data as Company];
     }
     return [];
   }
