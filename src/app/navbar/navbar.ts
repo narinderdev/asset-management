@@ -101,24 +101,29 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private loadCompanies(forceRefresh = false): void {
+    let hasCachedCompanies = false;
     if (!forceRefresh) {
       const cached = this.companyContext.getCompanies();
       if (cached.length) {
+        hasCachedCompanies = true;
         this.companies = cached;
         this.companyContext.initializeFromCompanies(cached, { preserveCurrentSelection: true });
         this.cdr.detectChanges();
-        return;
       }
     }
 
     const requestSequence = ++this.loadSequence;
-    this.startLoading();
+    if (!hasCachedCompanies || forceRefresh) {
+      this.startLoading();
+    }
 
     this.companyService.fetchCompanies(0, 1000, ['companyLegalName,asc'])
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => {
-          this.stopLoading();
+          if (!hasCachedCompanies || forceRefresh) {
+            this.stopLoading();
+          }
         })
       )
       .subscribe({
