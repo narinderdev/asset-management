@@ -817,7 +817,15 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Company Name</label>
-            <input class="form-input" type="text" name="companyName" [(ngModel)]="invoiceForm.companyName" required />
+            <input
+              class="form-input"
+              type="text"
+              name="companyName"
+              [(ngModel)]="invoiceForm.companyName"
+              readonly
+              disabled
+              required
+            />
           </div>
           <div class="form-group">
             <label class="form-label">Company Address</label>

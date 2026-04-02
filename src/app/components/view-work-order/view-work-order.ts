@@ -23,6 +23,7 @@ import { TechnicianService, ApiTechnician, TechnicianTeam } from '../../services
 import { InventoryService } from '../../services/inventory.service';
 import { NgZone } from '@angular/core';
 import { Loader } from '../loader/loader';
+import { CompanyContextService } from '../../services/company-context.service';
 
 type WorkOrderDetail = NonNullable<WorkOrderDetailResponse['data']> & {
   workRequestTypeDescription?: string;
@@ -166,10 +167,12 @@ export class ViewWorkOrderComponent implements OnInit {
     private technicianService: TechnicianService,
     private inventoryService: InventoryService,
     private ngZone: NgZone,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private companyContext: CompanyContextService
   ) {}
 
   ngOnInit(): void {
+    this.syncInvoiceCompanyName();
     this.technicianContext = this.getTechnicianIdFromStorage() !== null;
     this.workOrderId = this.route.snapshot.paramMap.get('id');
     if (!this.workOrderId) {
@@ -1307,6 +1310,7 @@ export class ViewWorkOrderComponent implements OnInit {
 
   openInvoiceModal(): void {
     this.invoiceError = undefined;
+    this.syncInvoiceCompanyName();
     // prefill from labor entries if present
     const laborEntries = (this.workOrder as any)?.laborEntries ?? [];
     if (Array.isArray(laborEntries) && laborEntries.length) {
@@ -1328,6 +1332,24 @@ export class ViewWorkOrderComponent implements OnInit {
     }
     this.showInvoiceModal = true;
     this.cdr.detectChanges();
+  }
+
+  private syncInvoiceCompanyName(): void {
+    const selectedCompanyId = this.companyContext.getSelectedCompanyId();
+    const companies = this.companyContext.getCompanies();
+    const selectedCompany = companies.find(
+      (company) => this.toCompanyId(company?.id ?? (company as any)?.companyId) === selectedCompanyId
+    );
+
+    const name = (selectedCompany?.companyLegalName || selectedCompany?.companyTradeName || '').trim();
+    const number = (selectedCompany?.companyNumber || '').trim();
+
+    this.invoiceForm.companyName = number ? `${name} - ${number}` : name;
+  }
+
+  private toCompanyId(value: unknown): number | null {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
   }
 
   closeInvoiceModal(): void {
