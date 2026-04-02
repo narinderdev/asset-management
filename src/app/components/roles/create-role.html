@@ -38,6 +38,14 @@
       <div class="form-field permissions-field">
         <div class="permissions-header">
           <label>Permissions</label>
+          <label class="assign-all">
+            <input
+              type="checkbox"
+              [checked]="assignAllChecked"
+              (change)="onToggleAssignAll($any($event.target).checked)"
+            />
+            All Permissions
+          </label>
         </div>
         <div class="security-structure">
           <div class="security-grid">
