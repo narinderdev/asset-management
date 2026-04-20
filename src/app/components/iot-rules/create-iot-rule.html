@@ -1,0 +1,91 @@
+<div class="create-request-page">
+  <section class="create-card">
+    <header class="create-header">
+      <button type="button" class="back-btn" aria-label="Back to rules" (click)="onCancel()">&#8592;</button>
+      <h2>{{ isEditMode ? 'Edit IoT Rule' : 'Create IoT Rule' }}</h2>
+    </header>
+
+    <div class="form-loading" *ngIf="isLoading">
+      <div class="loading-indicator"></div>
+      <span>Loading rule...</span>
+    </div>
+
+    <form class="request-form" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+      <div class="form-grid">
+        <label class="field">
+          <span>Asset <span class="required-star">*</span></span>
+          <select name="assetId" [(ngModel)]="form.assetId" (ngModelChange)="onAssetChange($event)">
+            <option value="">Select Asset</option>
+            <option *ngFor="let asset of assetOptions" [value]="asset.id">{{ asset.label }}</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Metric <span class="required-star">*</span></span>
+          <select name="metricCode" [(ngModel)]="form.metricCode">
+            <option value="">Select Metric</option>
+            <option *ngFor="let metric of metricOptions" [value]="metric.code">{{ metric.label }}</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Location</span>
+          <input type="text" name="location" [(ngModel)]="form.location" disabled />
+        </label>
+
+        <label class="field">
+          <span>Operator</span>
+          <select name="ruleOperator" [(ngModel)]="form.ruleOperator">
+            <option value="ABOVE">ABOVE</option>
+            <option value="BELOW">BELOW</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Low Threshold</span>
+          <input type="number" step="0.01" name="lowThreshold" [(ngModel)]="form.lowThreshold" />
+        </label>
+        <label class="field">
+          <span>Medium Threshold</span>
+          <input type="number" step="0.01" name="mediumThreshold" [(ngModel)]="form.mediumThreshold" />
+        </label>
+        <label class="field">
+          <span>High Threshold</span>
+          <input type="number" step="0.01" name="highThreshold" [(ngModel)]="form.highThreshold" />
+        </label>
+        <label class="field">
+          <span>Critical Threshold</span>
+          <input type="number" step="0.01" name="criticalThreshold" [(ngModel)]="form.criticalThreshold" />
+        </label>
+        <label class="field">
+          <span>Cooldown Minutes</span>
+          <input type="number" name="cooldownMinutes" [(ngModel)]="form.cooldownMinutes" />
+        </label>
+        <label class="field">
+          <span>Spike Delta</span>
+          <input type="number" step="0.01" name="spikeDelta" [(ngModel)]="form.spikeDelta" />
+        </label>
+        <label class="field">
+          <span>Consecutive Abnormal Count</span>
+          <input type="number" name="consecutiveAbnormalCount" [(ngModel)]="form.consecutiveAbnormalCount" />
+        </label>
+        <label class="field">
+          <span>Auto Create Service Request</span>
+          <select name="autoCreateServiceRequest" [(ngModel)]="form.autoCreateServiceRequest">
+            <option [ngValue]="true">Yes</option>
+            <option [ngValue]="false">No</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="form-error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" (click)="onCancel()">Close</button>
+        <button type="submit" class="btn primary" [disabled]="isSubmitting">
+          {{ isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Rule' : 'Create Rule') }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

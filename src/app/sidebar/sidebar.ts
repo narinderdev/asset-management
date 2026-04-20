@@ -49,7 +49,8 @@ export class SidebarComponent implements OnInit {
       submenu: [
         { label: 'Maintenance Dashboard', route: '/dashboard' },
         { label: 'Security Dashboard', route: '/dashboard/security' },
-        { label: 'Budget Dashboard', route: '/dashboard/budget' }
+        { label: 'Budget Dashboard', route: '/dashboard/budget' },
+        { label: 'IoT Dashboard', route: '/dashboard/iot' }
       ]
     },
     {
@@ -95,6 +96,19 @@ export class SidebarComponent implements OnInit {
         { label: 'Preventive', route: '/maintenance/preventive', module: 'PREVENTIVE_MAINTENANCE' },
         // { label: 'Predictive Maintenance', route: '/maintenance/predictive' },
         { label: 'Corrective', route: '/maintenance/emergency', module: ['EMERGENCY_MAINTENANCE', 'PREVENTIVE_MAINTENANCE'] }
+      ]
+    },
+    {
+      icon: 'proicons_document.svg',
+      activeIcon: 'proicons_document (1).svg',
+      label: 'IoT Monitoring',
+      route: '/iot/devices',
+      hasSubmenu: true,
+      submenu: [
+        { label: 'Devices', route: '/iot/devices' },
+        { label: 'Alerts', route: '/iot/alerts' },
+        { label: 'Rules', route: '/iot/rules' },
+        { label: 'Metrics', route: '/iot/metrics' }
       ]
     },
     {

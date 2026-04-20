@@ -1,4 +1,4 @@
-import { Component, computed, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, computed, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { StatCard } from '../components/stat-card/stat-card';
 import { WorkOrderChart, WorkOrderStatus } from '../components/work-order-chart/work-order-chart';
@@ -7,6 +7,7 @@ import { WorkOrderTable } from '../components/work-order-table/work-order-table'
 import { ServiceRequestTable } from '../components/service-request-table/service-request-table';
 import { MetricDisplay, DashboardRecentWorkOrder, DashboardRecentServiceRequest, useDashboardData } from './use-dashboard-data';
 import { Router } from '@angular/router';
+import { UserLocationService } from '../services/user-location.service';
 
 interface DashboardStatCard {
   title: string;
@@ -48,7 +49,7 @@ interface DashboardTableServiceRequest {
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css'],
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   readonly state = useDashboardData();
   passwordExpired = false;
   daysUntilPasswordExpiry?: number;
@@ -108,6 +109,7 @@ export class DashboardComponent {
 
   constructor(
     private router: Router,
+    private readonly userLocationService: UserLocationService,
     @Inject(PLATFORM_ID) platformId: object
   ) {
     if (isPlatformBrowser(platformId)) {
@@ -120,6 +122,12 @@ export class DashboardComponent {
         this.daysUntilPasswordExpiry === 0;
     }
 
+  }
+
+  ngOnInit(): void {
+    if (!this.userLocationService.hasSavedCoordinates()) {
+      void this.userLocationService.captureAndStoreCoordinates();
+    }
   }
 
   refetch(): void {

@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Observable, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 interface CompaniesApiResponse {
@@ -61,13 +62,30 @@ export interface CompanyDeleteResponse {
 })
 export class CompanyService {
   private readonly apiUrl = `${environment.apiUrl}/api/companies`;
+  private readonly isBrowser: boolean;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) platformId: object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   fetchCompanies(page: number, size: number, sort: string[] = []): Observable<CompaniesApiResponse> {
     const userId = this.getUserId();
     if (userId === null) {
-      return throwError(() => new Error('Missing userId for companies API request.'));
+      return of({
+        statusCode: 0,
+        status: 'OK',
+        message: 'No user context available.',
+        data: {
+          content: [],
+          page,
+          size,
+          totalElements: 0,
+          totalPages: 0
+        }
+      });
     }
 
     const url = `${this.apiUrl}/user/${userId}`;
@@ -97,6 +115,10 @@ export class CompanyService {
   }
 
   private getUserId(): number | null {
+    if (!this.isBrowser) {
+      return null;
+    }
+
     const rawUserId = localStorage.getItem('userId');
     if (!rawUserId) {
       return null;

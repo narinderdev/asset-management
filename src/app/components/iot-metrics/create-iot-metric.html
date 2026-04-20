@@ -1,0 +1,46 @@
+<div class="create-page">
+  <section class="create-card">
+    <header class="create-header">
+      <button type="button" class="back-btn" aria-label="Back to metrics" (click)="onCancel()">&#8592;</button>
+      <h2>{{ isEditMode ? 'Edit IoT Metric' : 'Create IoT Metric' }}</h2>
+    </header>
+
+    <div class="form-loading" *ngIf="isLoading">
+      <div class="loading-indicator"></div>
+      <span>Loading metric...</span>
+    </div>
+
+    <form class="metric-form" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+      <div class="form-grid">
+        <label class="field">
+          <span>Metric Code <span class="required">*</span></span>
+          <input type="text" name="metricCode" [(ngModel)]="metric.metricCode" placeholder="Enter metric code" />
+        </label>
+
+        <label class="field">
+          <span>Metric Name <span class="required">*</span></span>
+          <input type="text" name="metricName" [(ngModel)]="metric.metricName" placeholder="Enter metric name" />
+        </label>
+
+        <label class="field">
+          <span>Unit</span>
+          <input type="text" name="unit" [(ngModel)]="metric.unit" placeholder="e.g. Celsius, PSI, kWh" />
+        </label>
+
+        <label class="field full">
+          <span>Description</span>
+          <textarea rows="4" name="description" [(ngModel)]="metric.description" placeholder="Add description"></textarea>
+        </label>
+      </div>
+
+      <div class="form-error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" (click)="onCancel()">Close</button>
+        <button type="submit" class="btn primary" [disabled]="isSubmitting">
+          {{ isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Metric' : 'Create Metric') }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

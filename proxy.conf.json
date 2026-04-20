@@ -1,0 +1,10 @@
+{
+  "/backend-api": {
+    "target": "https://4dc9-203-190-154-162.ngrok-free.app",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/backend-api": ""
+    }
+  }
+}

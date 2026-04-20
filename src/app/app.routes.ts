@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard';
 import { SecurityDashboardComponent } from './dashboard/security-dashboard';
+import { IotDashboardComponent } from './dashboard/iot-dashboard';
 import { AssetsComponent } from './components/assets/assets';
 import { AddAssetComponent } from './components/add-asset/add-asset';
 import { AssetTypesComponent } from './components/asset-types/asset-types';
@@ -55,8 +56,6 @@ import { ViewGoodsReceiptComponent } from './components/procurement/view-goods-r
 import { CreatePurchaseOrderComponent } from './components/procurement/create-purchase-order';
 import { CreateGrnComponent } from './components/procurement/create-grn';
 import { ReturnTransactionsComponent } from './components/procurement/return-transactions';
-import { CreatePredictiveMaintenanceComponent } from './components/predictive-maintenance/create-predictive-maintenance';
-import { ViewPredictiveMaintenanceComponent } from './components/predictive-maintenance/view-predictive-maintenance';
 import { CreateEmergencyMaintenanceComponent } from './components/emergency-maintenance/create-emergency-maintenance';
 import { ViewEmergencyMaintenanceComponent } from './components/emergency-maintenance/view-emergency-maintenance';
 import { CreateAssetTypeComponent } from './components/asset-types/create-asset-type';
@@ -79,6 +78,16 @@ import { ForgotPasswordResetComponent } from './components/forgot-password-reset
 import { CompanyManagementComponent } from './components/company-management/company-management';
 import { CreateCompanyComponent } from './components/company-management/create-company';
 import { ViewCompanyComponent } from './components/company-management/view-company';
+import { IotDevicesComponent } from './components/iot-devices/iot-devices';
+import { CreateIotDeviceComponent } from './components/iot-devices/create-iot-device';
+import { ViewIotDeviceComponent } from './components/iot-devices/view-iot-device';
+import { IotAlertsComponent } from './components/iot-alerts/iot-alerts';
+import { IotRulesComponent } from './components/iot-rules/iot-rules';
+import { IotMetricsComponent } from './components/iot-metrics/iot-metrics';
+import { CreateIotMetricComponent } from './components/iot-metrics/create-iot-metric';
+import { ViewIotMetricComponent } from './components/iot-metrics/view-iot-metric';
+import { CreateIotRuleComponent } from './components/iot-rules/create-iot-rule';
+import { ViewIotRuleComponent } from './components/iot-rules/view-iot-rule';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -99,6 +108,7 @@ export const routes: Routes = [
     loadComponent: () => import('./dashboard/budget-dashboard').then(m => m.BudgetDashboardComponent),
     canActivate: [AuthGuard]
   },
+  { path: 'dashboard/iot', component: IotDashboardComponent, canActivate: [AuthGuard] },
   { path: 'assets/add-asset', component: AddAssetComponent, canActivate: [AuthGuard] },
   { path: 'assets/add-asset/:tab', component: AddAssetComponent, canActivate: [AuthGuard] },
   { path: 'assets/types/create', component: CreateAssetTypeComponent, canActivate: [AuthGuard] },
@@ -129,15 +139,15 @@ export const routes: Routes = [
   { path: 'technicians/teams', component: TechnicianTeamsComponent, canActivate: [AuthGuard] },
   { path: 'maintenance', pathMatch: 'full', redirectTo: 'maintenance/preventive' },
   { path: 'maintenance/preventive', component: PreventiveMaintenanceComponent, canActivate: [AuthGuard] },
-  { path: 'maintenance/predictive', component: PreventiveMaintenanceComponent, canActivate: [AuthGuard] },
+  { path: 'maintenance/predictive', pathMatch: 'full', redirectTo: 'maintenance/preventive' },
   { path: 'maintenance/emergency', component: PreventiveMaintenanceComponent, canActivate: [AuthGuard] },
   { path: 'preventive-maintenance', pathMatch: 'full', redirectTo: 'maintenance/preventive' },
   { path: 'preventive-maintenance/create', component: CreatePreventiveMaintenanceComponent, canActivate: [AuthGuard] },
   { path: 'preventive-maintenance/edit/:id', component: CreatePreventiveMaintenanceComponent, canActivate: [AuthGuard] },
   { path: 'preventive-maintenance/view/:id', component: ViewPreventiveMaintenanceComponent, canActivate: [AuthGuard] },
-  { path: 'predictive-maintenance/create', component: CreatePredictiveMaintenanceComponent, canActivate: [AuthGuard] },
-  { path: 'predictive-maintenance/edit/:id', component: CreatePredictiveMaintenanceComponent, canActivate: [AuthGuard] },
-  { path: 'predictive-maintenance/view/:id', component: ViewPredictiveMaintenanceComponent, canActivate: [AuthGuard] },
+  { path: 'predictive-maintenance/create', pathMatch: 'full', redirectTo: 'maintenance/preventive' },
+  { path: 'predictive-maintenance/edit/:id', pathMatch: 'full', redirectTo: 'maintenance/preventive' },
+  { path: 'predictive-maintenance/view/:id', pathMatch: 'full', redirectTo: 'maintenance/preventive' },
   { path: 'emergency-maintenance/create', component: CreateEmergencyMaintenanceComponent, canActivate: [AuthGuard] },
   { path: 'emergency-maintenance/view/:id', component: ViewEmergencyMaintenanceComponent, canActivate: [AuthGuard] },
   { path: 'emergency-maintenance/edit/:id', component: CreateEmergencyMaintenanceComponent, canActivate: [AuthGuard] },
@@ -208,6 +218,19 @@ export const routes: Routes = [
   { path: 'company/create', component: CreateCompanyComponent, canActivate: [AuthGuard] },
   { path: 'company/edit/:id', component: CreateCompanyComponent, canActivate: [AuthGuard] },
   { path: 'company/view/:id', component: ViewCompanyComponent, canActivate: [AuthGuard] },
-  { path: 'users', component: UsersComponent, canActivate: [AuthGuard] }
+  { path: 'users', component: UsersComponent, canActivate: [AuthGuard] },
+  { path: 'iot/devices', component: IotDevicesComponent, canActivate: [AuthGuard] },
+  { path: 'iot/devices/create', component: CreateIotDeviceComponent, canActivate: [AuthGuard] },
+  { path: 'iot/devices/edit/:id', component: CreateIotDeviceComponent, canActivate: [AuthGuard] },
+  { path: 'iot/devices/view/:id', component: ViewIotDeviceComponent, canActivate: [AuthGuard] },
+  { path: 'iot/alerts', component: IotAlertsComponent, canActivate: [AuthGuard] },
+  { path: 'iot/rules', component: IotRulesComponent, canActivate: [AuthGuard] },
+  { path: 'iot/rules/create', component: CreateIotRuleComponent, canActivate: [AuthGuard] },
+  { path: 'iot/rules/edit/:id', component: CreateIotRuleComponent, canActivate: [AuthGuard] },
+  { path: 'iot/rules/view/:id', component: ViewIotRuleComponent, canActivate: [AuthGuard] },
+  { path: 'iot/metrics', component: IotMetricsComponent, canActivate: [AuthGuard] },
+  { path: 'iot/metrics/create', component: CreateIotMetricComponent, canActivate: [AuthGuard] },
+  { path: 'iot/metrics/edit/:id', component: CreateIotMetricComponent, canActivate: [AuthGuard] },
+  { path: 'iot/metrics/view/:id', component: ViewIotMetricComponent, canActivate: [AuthGuard] }
 ];
 

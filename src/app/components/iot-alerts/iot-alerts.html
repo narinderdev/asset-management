@@ -1,0 +1,112 @@
+<div class="iot-alerts-container">
+  <div class="header">
+    <div class="title-group">
+      <h1>IoT Alerts</h1>
+      <span class="count" *ngIf="hasLoaded">({{ totalAlerts }} total)</span>
+    </div>
+    <div class="actions">
+      <button class="refresh" type="button" (click)="loadAlerts()" [disabled]="isLoading">Refresh</button>
+    </div>
+  </div>
+
+  <div class="table-status" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <div class="table-wrapper">
+    <div class="table-container">
+      <table class="iot-alerts-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Severity</th>
+            <th>Status</th>
+            <th>Asset</th>
+            <th>Location</th>
+            <th>Message</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="isLoading; else loadedBody">
+            <tr *ngFor="let _ of loadingRows" class="skeleton-row">
+              <td><span class="skeleton skeleton-text tiny"></span></td>
+              <td><span class="skeleton skeleton-pill"></span></td>
+              <td><span class="skeleton skeleton-pill"></span></td>
+              <td><span class="skeleton skeleton-text short"></span></td>
+              <td><span class="skeleton skeleton-text short"></span></td>
+              <td><span class="skeleton skeleton-text medium"></span></td>
+              <td><span class="skeleton skeleton-text medium"></span></td>
+              <td><span class="skeleton skeleton-text tiny"></span></td>
+            </tr>
+          </ng-container>
+
+          <ng-template #loadedBody>
+            <tr *ngIf="hasLoaded && !alerts.length">
+              <td colspan="8" class="empty-row">No IoT alerts found.</td>
+            </tr>
+
+            <tr *ngFor="let alert of alerts">
+              <td>{{ alert.id ?? '-' }}</td>
+              <td>
+                <span class="chip" [ngClass]="getSeverityClass(alert.severity)">
+                  {{ formatSeverity(alert.severity) }}
+                </span>
+              </td>
+              <td>
+                <span class="chip" [ngClass]="getStatusClass(alert.status)">
+                  {{ formatStatus(alert.status) }}
+                </span>
+              </td>
+              <td>{{ alert.assetName || (alert.assetId ?? '-') }}</td>
+              <td>{{ alert.location || '-' }}</td>
+              <td class="message-cell">{{ alert.message || alert.title || '-' }}</td>
+              <td>{{ formatDateTime(alert.createdAt) }}</td>
+              <td>
+                <div class="action-group">
+                  <button class="table-btn" type="button" (click)="openActionModal('ACK', alert)" [disabled]="!canAcknowledge(alert.status)">Ack</button>
+                  <button class="table-btn" type="button" (click)="openActionModal('RESOLVE', alert)" [disabled]="!canResolve(alert.status)">Resolve</button>
+                  <button class="table-btn" type="button" (click)="openActionModal('SUPPRESS', alert)" [disabled]="!canSuppress(alert.status)">Suppress</button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </tbody>
+      </table>
+    </div>
+
+    <app-loader [visible]="isLoading"></app-loader>
+  </div>
+
+  <div class="pagination" *ngIf="totalAlerts > 0">
+    <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ totalAlerts }}</span>
+    <div class="pager-actions">
+      <button class="pager-btn" type="button" (click)="previousPage()" [disabled]="currentPage === 0 || isLoading">Previous</button>
+      <span class="pager-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button class="pager-btn" type="button" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1 || isLoading">Next</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="isActionModalOpen" (click)="closeActionModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <h3>{{ getActionTitle() }}</h3>
+    <p class="modal-subtitle">Alert #{{ activeAction?.alert?.id ?? '-' }}</p>
+
+    <label class="modal-field">
+      <span>Reason</span>
+      <textarea [(ngModel)]="actionForm.reason" placeholder="Enter reason"></textarea>
+    </label>
+
+    <label class="modal-field" *ngIf="activeAction?.type === 'SUPPRESS'">
+      <span>Suppressed Until</span>
+      <input type="datetime-local" [(ngModel)]="actionForm.suppressedUntil" />
+    </label>
+
+    <div class="modal-actions">
+      <button class="refresh" type="button" (click)="closeActionModal()">Cancel</button>
+      <button class="primary" type="button" (click)="submitAction()" [disabled]="isActionSubmitting">
+        {{ isActionSubmitting ? 'Saving...' : getActionButtonLabel() }}
+      </button>
+    </div>
+  </div>
+</div>

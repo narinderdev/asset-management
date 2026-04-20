@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { ChangeDetectorRef, Component, Inject, NgZone, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -23,14 +24,18 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private loadSequence = 0;
   private activeCompanyRequests = 0;
+  private readonly isBrowser: boolean;
 
   constructor(
     private readonly companyService: CompanyService,
     private readonly companyContext: CompanyContextService,
     private readonly cdr: ChangeDetectorRef,
     private readonly ngZone: NgZone,
-    private readonly router: Router
-  ) {}
+    private readonly router: Router,
+    @Inject(PLATFORM_ID) platformId: object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit(): void {
     this.companyContext.selectedCompanyId$
@@ -101,6 +106,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private loadCompanies(forceRefresh = false): void {
+    if (!this.isBrowser) {
+      return;
+    }
+
     let hasCachedCompanies = false;
     if (!forceRefresh) {
       const cached = this.companyContext.getCompanies();

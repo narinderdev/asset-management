@@ -86,6 +86,8 @@ export interface AssetLocationDetails {
   costCenter?: string;
   assignedOwner?: string;
   maintenanceTeam?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface AssetReportPage {
@@ -114,6 +116,8 @@ export interface AssetLocationOrgPayload {
   costCenter?: string;
   assignedOwner?: string;
   maintenanceTeam?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface AssetInsurancePayload {

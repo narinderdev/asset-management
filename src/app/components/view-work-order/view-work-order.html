@@ -125,6 +125,15 @@
             </button>
 
             <button
+              class="btn-secondary"
+              type="button"
+              *ngIf="(workOrder.status ?? '').toUpperCase() === 'IN_PROGRESS'"
+              (click)="markComplete()"
+            >
+              Complete
+            </button>
+
+            <button
               class="btn-primary"
               type="button"
               (click)="handleCheckToggle()"

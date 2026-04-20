@@ -1,0 +1,76 @@
+<div class="iot-dashboard-wrapper">
+  <div class="iot-dashboard-header">
+    <h1 class="iot-dashboard-title">IoT Dashboard</h1>
+    <button class="secondary-btn" type="button" (click)="refresh()" [disabled]="dashboardLoading">Refresh</button>
+  </div>
+
+  <div class="dashboard-status" *ngIf="dashboardError">{{ dashboardError }}</div>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <span class="summary-label">Total Devices</span>
+      <span class="summary-value">{{ dashboard.totalDevices }}</span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Online Devices</span>
+      <span class="summary-value">{{ dashboard.onlineDevices }}</span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Offline Devices</span>
+      <span class="summary-value">{{ dashboard.offlineDevices }}</span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Active Alerts</span>
+      <span class="summary-value">{{ dashboard.activeAlerts }}</span>
+    </div>
+    <div class="summary-card summary-card-critical">
+      <span class="summary-label">Critical Alerts</span>
+      <span class="summary-value">{{ dashboard.criticalAlerts }}</span>
+    </div>
+  </div>
+
+  <div class="recent-issues-card">
+    <div class="recent-issues-header">
+      <h2>Recent Issues</h2>
+      <span class="issue-count">{{ dashboard.recentIssues.length }}</span>
+    </div>
+    <div class="table-container">
+      <table class="recent-issues-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Device UID</th>
+            <th>Asset</th>
+            <th>Metric</th>
+            <th>Severity</th>
+            <th>Status</th>
+            <th>Location</th>
+            <th>Occurred At</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="dashboardLoading">
+            <td colspan="8">Loading recent issues...</td>
+          </tr>
+          <tr *ngIf="!dashboardLoading && !dashboard.recentIssues.length">
+            <td colspan="8">No recent issues.</td>
+          </tr>
+          <tr *ngFor="let issue of dashboard.recentIssues">
+            <td>{{ issue.id ?? '-' }}</td>
+            <td>{{ issue.deviceUid || '-' }}</td>
+            <td>{{ issue.assetName || (issue.assetId ?? '-') }}</td>
+            <td>{{ issue.metricCode || '-' }}</td>
+            <td>
+              <span class="status-chip" [ngClass]="getIssueSeverityClass(issue.severity)">
+                {{ formatIssueSeverity(issue.severity) }}
+              </span>
+            </td>
+            <td>{{ issue.status || '-' }}</td>
+            <td>{{ issue.location || '-' }}</td>
+            <td>{{ formatDateTime(issue.occurredAt) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

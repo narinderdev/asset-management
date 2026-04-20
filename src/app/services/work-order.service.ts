@@ -321,6 +321,7 @@ export interface WorkOrderDetailResponse {
 export class WorkOrderService {
   private readonly apiUrl = `${environment.apiUrl}/api/work-orders`;
   private readonly workOrderTypesUrl = `${environment.apiUrl}/api/work-order-types`;
+  private readonly timesheetsApiUrl = `${environment.apiUrl}/api/timesheets/work-orders`;
 
   constructor(private http: HttpClient) {}
 
@@ -511,6 +512,14 @@ export class WorkOrderService {
       'ngrok-skip-browser-warning': 'true'
     });
     return this.http.post<WorkOrderDetailResponse>(`${this.apiUrl}/${id}/complete`, payload, { headers });
+  }
+
+  syncWorkOrderTimesheet(id: number | string, companyId: number): Observable<unknown> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    const params = new HttpParams().set('companyId', String(companyId));
+    return this.http.post(`${this.timesheetsApiUrl}/${id}/sync`, {}, { headers, params });
   }
 
   closeWorkOrder(id: number | string, payload: CloseWorkOrderRequest): Observable<WorkOrderDetailResponse> {

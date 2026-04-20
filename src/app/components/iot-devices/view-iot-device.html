@@ -1,0 +1,182 @@
+<div class="view-device-page">
+  <div class="header">
+    <button class="back-button" type="button" aria-label="Back to IoT devices" (click)="goBack()">
+      <span aria-hidden="true">&larr;</span>
+      <span>Back to IoT devices</span>
+    </button>
+
+    <div class="header-content" *ngIf="device">
+      <div class="title-section">
+        <h1>{{ device.deviceName || 'IoT Device Details' }}</h1>
+        <div class="device-meta">
+          <span class="device-id">{{ device.deviceUid || '-' }}</span>
+          <span>&middot;</span>
+          <span class="status-chip" [ngClass]="getEnabledClass(device.enabled)">
+            {{ getEnabledLabel(device.enabled) }}
+          </span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn-secondary" type="button" (click)="editDevice()">Edit Device</button>
+        <button class="btn-secondary" type="button" (click)="openTelemetryModal()">Send Telemetry</button>
+        <button class="btn-primary" type="button" (click)="openRotateSecretModal()">Rotate Secret</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <app-loader [visible]="isLoading"></app-loader>
+
+    <div class="status-message" *ngIf="!isLoading && errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <ng-container *ngIf="!isLoading && device">
+      <div class="details-grid">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Device Overview</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group">
+                <div class="field-label">Device ID</div>
+                <div class="field-value">{{ device.id ?? '-' }}</div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Device UID</div>
+                <div class="field-value">{{ device.deviceUid || '-' }}</div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Device Name</div>
+                <div class="field-value">{{ device.deviceName || '-' }}</div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Asset ID</div>
+                <div class="field-value">{{ device.assetId ?? '-' }}</div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Asset Name</div>
+                <div class="field-value">{{ device.assetName || '-' }}</div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Location</div>
+                <div class="field-value">{{ device.location || '-' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Monitoring Timestamps</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group">
+                <div class="field-label">Last Seen</div>
+                <div class="field-value">{{ formatDateTime(device.lastSeenAt) }}</div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Created</div>
+                <div class="field-value">{{ formatDateTime(device.createdAt) }}</div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label">Updated</div>
+                <div class="field-value">{{ formatDateTime(device.updatedAt) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" *ngIf="latestRotatedSecret">
+          <div class="card-header">
+            <h2 class="card-title">Latest Rotated Secret</h2>
+          </div>
+          <div class="card-body">
+            <div class="secret-row">
+              <code class="secret-value">{{ latestRotatedSecret }}</code>
+              <button type="button" class="btn-secondary" (click)="copySecret()">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <app-delete-modal
+    [isOpen]="isRotateModalOpen"
+    title="Rotate Device Secret"
+    message="Are you sure you want to rotate this device secret? Save the new secret immediately after generation."
+    cancelLabel="Cancel"
+    confirmLabel="Rotate"
+    [deleting]="isRotatingSecret"
+    (cancel)="closeRotateSecretModal()"
+    (confirm)="confirmRotateSecret()">
+  </app-delete-modal>
+
+  <div class="modal-backdrop" *ngIf="isTelemetryModalOpen" (click)="closeTelemetryModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <h3>Ingest Telemetry</h3>
+      <p class="modal-subtitle">Device UID: {{ device?.deviceUid || '-' }}</p>
+
+      <label class="modal-field">
+        <span>X-IoT-Timestamp *</span>
+        <input
+          type="text"
+          [(ngModel)]="telemetryForm.timestamp"
+          (ngModelChange)="onTelemetryInputChange()"
+          placeholder="2026-04-07T07:34:35.830Z" />
+      </label>
+
+      <label class="modal-field">
+        <span>X-IoT-Nonce</span>
+        <input
+          type="text"
+          [(ngModel)]="telemetryForm.nonce"
+          (ngModelChange)="onTelemetryInputChange()"
+          placeholder="Optional nonce" />
+      </label>
+
+      <label class="modal-field">
+        <span>Device Secret *</span>
+        <input
+          type="text"
+          [(ngModel)]="telemetryForm.deviceSecret"
+          (ngModelChange)="onTelemetryInputChange()"
+          placeholder="Paste rotated device secret" />
+      </label>
+
+      <label class="modal-field">
+        <span>X-IoT-Signature *</span>
+        <div class="signature-row">
+          <input type="text" [(ngModel)]="telemetryForm.signature" placeholder="Auto-generated or manual signature" />
+          <button class="btn-secondary" type="button" (click)="generateTelemetrySignature()">Auto Generate</button>
+        </div>
+      </label>
+
+      <label class="modal-field">
+        <span>Request Body *</span>
+        <textarea
+          [(ngModel)]="telemetryForm.body"
+          (ngModelChange)="onTelemetryInputChange()"
+          placeholder="Enter telemetry payload as string"></textarea>
+      </label>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" type="button" (click)="closeTelemetryModal()">Cancel</button>
+        <button class="btn-primary" type="button" (click)="submitTelemetry()" [disabled]="isTelemetrySubmitting">
+          {{ isTelemetrySubmitting ? 'Sending...' : 'Send' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

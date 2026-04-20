@@ -1,10 +1,11 @@
-﻿import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ActivatedRoute, NavigationEnd, Params, Router } from '@angular/router';
 import { filter, finalize } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
+import { UserLocationService } from '../../services/user-location.service';
 
 import { Asset } from '../../models/assets.models';
 import {
@@ -96,7 +97,9 @@ export class AddAssetComponent implements OnInit {
     department: '',
     costCenter: '',
     assignedOwner: '',
-    maintenanceTeam: ''
+    maintenanceTeam: '',
+    latitude: null as number | null,
+    longitude: null as number | null
   };
   maintenanceTeams: TechnicianTeam[] = [];
   locationError?: string;
@@ -265,6 +268,7 @@ export class AddAssetComponent implements OnInit {
   currentAssetId?: string;
   isSavingAssetMaster = false;
   isUpdatingAsset = false;
+  private readonly isBrowser: boolean;
 
   constructor(
     private router: Router,
@@ -273,8 +277,12 @@ export class AddAssetComponent implements OnInit {
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private toastr: ToastrService,
-    private pmTemplateService: PmTemplateService
-  ) {}
+    private pmTemplateService: PmTemplateService,
+    private readonly userLocationService: UserLocationService,
+    @Inject(PLATFORM_ID) platformId: object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit(): void {
     this.yearOptions = this.buildYearOptions();
@@ -284,17 +292,21 @@ export class AddAssetComponent implements OnInit {
       this.activeTab = this.tabs.some(tab => tab.id === tabFromUrl)
         ? tabFromUrl
         : this.defaultTab;
+      this.applySavedCoordinatesForLocationTab();
     });
 
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
-        const currentTab = this.normalizeTab(this.route.snapshot.paramMap.get('tab') ?? this.defaultTab);
+      const currentTab = this.normalizeTab(this.route.snapshot.paramMap.get('tab') ?? this.defaultTab);
       this.activeTab = this.tabs.some(tab => tab.id === currentTab) ? currentTab : this.defaultTab;
+      this.applySavedCoordinatesForLocationTab();
       this.cdr.detectChanges();
     });
 
-    this.loadTechnicianTeams();
+    if (this.isBrowser) {
+      this.loadTechnicianTeams();
+    }
     this.loadCategories();
     this.loadAssetTypes();
 
@@ -333,6 +345,24 @@ export class AddAssetComponent implements OnInit {
         queryParams: this.route.snapshot.queryParams
       });
     }
+  }
+
+  private applySavedCoordinatesForLocationTab(): void {
+    if (!this.isBrowser || this.isEditMode || this.activeTab !== this.locationTabId) {
+      return;
+    }
+
+    if (this.locationOrg.latitude !== null || this.locationOrg.longitude !== null) {
+      return;
+    }
+
+    const saved = this.userLocationService.getSavedCoordinates();
+    if (!saved) {
+      return;
+    }
+
+    this.locationOrg.latitude = saved.latitude;
+    this.locationOrg.longitude = saved.longitude;
   }
 
   setActiveTab(tabId: string): void {
@@ -485,6 +515,8 @@ export class AddAssetComponent implements OnInit {
     this.locationOrg.costCenter = '';
     this.locationOrg.assignedOwner = '';
     this.locationOrg.maintenanceTeam = '';
+    this.locationOrg.latitude = null;
+    this.locationOrg.longitude = null;
     this.setThresholdAssetFromCurrent(asset.id);
   }
 
@@ -538,9 +570,9 @@ export class AddAssetComponent implements OnInit {
 
     const lastServicedDate = detail.warrantyLifecycle?.lastMaintenanceDate
       ?? detail.financialDetails?.acquisitionDate
-      ?? '—';
+      ?? '-';
 
-    const warrantyExpiry = detail.warrantyLifecycle?.warrantyEnd ?? '—';
+    const warrantyExpiry = detail.warrantyLifecycle?.warrantyEnd ?? '-';
 
     return {
       id: detail.id,
@@ -582,12 +614,16 @@ export class AddAssetComponent implements OnInit {
       this.locationOrg.costCenter = '';
       this.locationOrg.assignedOwner = '';
       this.locationOrg.maintenanceTeam = '';
+      this.locationOrg.latitude = null;
+      this.locationOrg.longitude = null;
     } else if (typeof detailLocation === 'string') {
       this.locationOrg.location = detailLocation;
       this.locationOrg.department = '';
       this.locationOrg.costCenter = '';
       this.locationOrg.assignedOwner = '';
       this.locationOrg.maintenanceTeam = '';
+      this.locationOrg.latitude = null;
+      this.locationOrg.longitude = null;
     } else {
       this.locationOrg.location =
         detailLocation.location ??
@@ -598,6 +634,8 @@ export class AddAssetComponent implements OnInit {
       this.locationOrg.costCenter = detailLocation.costCenter ?? '';
       this.locationOrg.assignedOwner = detailLocation.assignedOwner ?? '';
       this.locationOrg.maintenanceTeam = detailLocation.maintenanceTeam ?? '';
+      this.locationOrg.latitude = detailLocation.latitude ?? null;
+      this.locationOrg.longitude = detailLocation.longitude ?? null;
     }
 
     const insuranceData = (detail as any).insurance ?? {};
@@ -864,7 +902,9 @@ export class AddAssetComponent implements OnInit {
       department: this.normalizeLocationField(this.locationOrg.department),
       costCenter: this.normalizeLocationField(this.locationOrg.costCenter),
       assignedOwner: this.normalizeLocationField(this.locationOrg.assignedOwner),
-      maintenanceTeam: this.normalizeLocationField(this.locationOrg.maintenanceTeam)
+      maintenanceTeam: this.normalizeLocationField(this.locationOrg.maintenanceTeam),
+      latitude: this.locationOrg.latitude ?? undefined,
+      longitude: this.locationOrg.longitude ?? undefined
     };
 
     const hasValue = Object.values(payload).some(value => value !== undefined);
@@ -1620,6 +1660,7 @@ export class AddAssetComponent implements OnInit {
   }
 
 }
+
 
 
 

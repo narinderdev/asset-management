@@ -1,0 +1,130 @@
+<div class="view-workorder-page">
+  <div class="header">
+    <button class="back-button" type="button" aria-label="Back to rules" (click)="goBack()">
+      <- Back to rules
+    </button>
+
+    <div class="header-content" *ngIf="rule">
+      <div class="title-section">
+        <h1>{{ rule.metricName || rule.metricCode || 'IoT Rule Details' }}</h1>
+        <div class="metric-meta">
+          <span class="metric-id">Rule #{{ rule.id ?? '-' }}</span>
+          <span *ngIf="rule.assetName || rule.assetId">.</span>
+          <span *ngIf="rule.assetName || rule.assetId">{{ rule.assetName || ('Asset ' + rule.assetId) }}</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn-primary" type="button" (click)="editRule()">Edit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-message" *ngIf="!isLoading && errorMessage">{{ errorMessage }}</div>
+
+  <div class="main-content">
+    <app-loader [visible]="isLoading"></app-loader>
+
+    <ng-container *ngIf="!isLoading && rule">
+      <div class="details-grid">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Overview</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-2">
+              <div class="field-group">
+                <div class="field-label">Rule ID</div>
+                <div class="field-value highlight">{{ rule.id ?? '-' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Asset</div>
+                <div class="field-value">{{ rule.assetName || (rule.assetId ?? 'N/A') }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Metric</div>
+                <div class="field-value">{{ rule.metricName || rule.metricCode || 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Location</div>
+                <div class="field-value">{{ rule.location || 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Operator</div>
+                <div class="field-value">{{ rule.ruleOperator || 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Active</div>
+                <div class="field-value">{{ rule.active ? 'Yes' : 'No' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Audit Information</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-2">
+              <div class="field-group">
+                <div class="field-label">Create Date</div>
+                <div class="field-value">{{ rule.createdAt ? (rule.createdAt | date: 'MMM dd, yyyy, hh:mm a') : 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Updated Date</div>
+                <div class="field-value">{{ rule.updatedAt ? (rule.updatedAt | date: 'MMM dd, yyyy, hh:mm a') : 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Last Triggered</div>
+                <div class="field-value">{{ rule.lastTriggeredAt ? (rule.lastTriggeredAt | date: 'MMM dd, yyyy, hh:mm a') : 'N/A' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card full-width">
+          <div class="card-header">
+            <h2 class="card-title">Threshold Configuration</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-3">
+              <div class="field-group">
+                <div class="field-label">Low Threshold</div>
+                <div class="field-value">{{ rule.lowThreshold ?? 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Medium Threshold</div>
+                <div class="field-value">{{ rule.mediumThreshold ?? 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">High Threshold</div>
+                <div class="field-value">{{ rule.highThreshold ?? 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Critical Threshold</div>
+                <div class="field-value">{{ rule.criticalThreshold ?? 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Cooldown Minutes</div>
+                <div class="field-value">{{ rule.cooldownMinutes ?? 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Spike Delta</div>
+                <div class="field-value">{{ rule.spikeDelta ?? 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Consecutive Abnormal Count</div>
+                <div class="field-value">{{ rule.consecutiveAbnormalCount ?? 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Auto Create Service Request</div>
+                <div class="field-value">{{ rule.autoCreateServiceRequest ? 'Yes' : 'No' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

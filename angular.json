@@ -65,9 +65,10 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-         "options": {
-      "allowedHosts": ["f91d-203-190-154-162.ngrok-free.app"]
-    },
+          "options": {
+            "allowedHosts": ["ad88-203-190-154-162.ngrok-free.app"],
+            "proxyConfig": "proxy.conf.json"
+          },
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {

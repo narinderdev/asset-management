@@ -1,0 +1,78 @@
+<div class="iot-metrics-container">
+  <div class="header">
+    <div class="title-group">
+      <h1>IoT Metrics</h1>
+      <span class="count" *ngIf="hasLoaded">({{ totalMetrics }} total)</span>
+    </div>
+    <div class="actions">
+      <input
+        class="search"
+        type="text"
+        placeholder="Search by code or name"
+        [(ngModel)]="searchText"
+        (input)="applyFilter()"
+      />
+      <button class="refresh" type="button" (click)="refresh()" [disabled]="isLoading">Refresh</button>
+      <button class="primary" type="button" (click)="createMetric()">+ Create Metric</button>
+    </div>
+  </div>
+
+  <div class="table-status" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <div class="table-wrapper">
+    <app-loader [visible]="isLoading"></app-loader>
+    <div class="table-container">
+      <table class="iot-metrics-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Metric Code</th>
+            <th>Metric Name</th>
+            <th>Unit</th>
+            <th>Active</th>
+            <th>Updated</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="filteredMetrics.length; else emptyState">
+            <tr *ngFor="let metric of filteredMetrics; trackBy: trackByMetric">
+              <td>{{ metric.id ?? '-' }}</td>
+              <td>{{ metric.metricCode || '-' }}</td>
+              <td>{{ metric.metricName || '-' }}</td>
+              <td>{{ metric.unit || '-' }}</td>
+              <td>
+                <span class="pill" [class.pill-yes]="metric.active" [class.pill-no]="!metric.active">
+                  {{ metric.active ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>{{ formatDateTime(metric.updatedAt) }}</td>
+              <td class="actions-cell">
+                <button type="button" class="action-icon" aria-label="View IoT metric" (click)="viewMetric(metric)">
+                  <img src="assets/icons/Vector.svg" alt="View IoT metric" />
+                </button>
+                <button type="button" class="action-icon" aria-label="Edit IoT metric" (click)="editMetric(metric)">
+                  <img src="assets/icons/edit.svg" alt="Edit IoT metric" />
+                </button>
+              </td>
+            </tr>
+          </ng-container>
+          <ng-template #emptyState>
+            <tr *ngIf="hasLoaded && !isLoading">
+              <td colspan="7" class="empty-row">{{ errorMessage || 'No IoT metrics found.' }}</td>
+            </tr>
+          </ng-template>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="pagination" *ngIf="totalPages > 1">
+    <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ totalMetrics }}</span>
+    <div class="pager-actions">
+      <button class="pager-btn" type="button" (click)="previousPage()" [disabled]="currentPage === 0 || isLoading">Previous</button>
+      <span class="pager-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button class="pager-btn" type="button" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1 || isLoading">Next</button>
+    </div>
+  </div>
+</div>

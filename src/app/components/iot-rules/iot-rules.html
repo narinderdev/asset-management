@@ -1,0 +1,81 @@
+<div class="iot-rules-container">
+  <div class="header">
+    <div class="title-group">
+      <h1>IoT Rules</h1>
+      <span class="count" *ngIf="hasLoaded">({{ totalRules }} total)</span>
+    </div>
+    <div class="actions">
+      <input
+        class="search"
+        type="text"
+        placeholder="Search by asset or metric"
+        [(ngModel)]="searchText"
+        (input)="applyFilter()"
+      />
+      <button class="primary" type="button" (click)="createRule()">+ Create Rule</button>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <app-loader [visible]="isLoading"></app-loader>
+    <table class="iot-rules-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Asset</th>
+            <th>Metric</th>
+            <th>Operator</th>
+            <th>Critical Threshold</th>
+            <th>Active</th>
+            <th>Updated</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="filteredRules.length; else emptyState">
+            <tr *ngFor="let rule of filteredRules; trackBy: trackByRule">
+              <td>{{ rule.id ?? '-' }}</td>
+              <td>{{ rule.assetName || (rule.assetId ?? '-') }}</td>
+              <td>{{ rule.metricName || rule.metricCode || '-' }}</td>
+              <td>{{ rule.ruleOperator || '-' }}</td>
+              <td>{{ rule.criticalThreshold ?? '-' }}</td>
+              <td>
+                <span class="pill" [class.pill-yes]="rule.active" [class.pill-no]="!rule.active">
+                  {{ rule.active ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>{{ formatDateTime(rule.updatedAt) }}</td>
+              <td class="actions-cell">
+                <button type="button" class="action-icon" aria-label="View IoT rule" (click)="viewRule(rule)">
+                  <img src="assets/icons/Vector.svg" alt="View IoT rule" />
+                </button>
+                <button type="button" class="action-icon" aria-label="Edit IoT rule" (click)="editRule(rule)">
+                  <img src="assets/icons/edit.svg" alt="Edit IoT rule" />
+                </button>
+                <button type="button" class="action-icon danger" aria-label="Delete IoT rule" (click)="deleteRule(rule)">
+                  <img src="assets/icons/delete.svg" alt="Delete IoT rule" />
+                </button>
+              </td>
+            </tr>
+          </ng-container>
+
+          <ng-template #emptyState>
+            <tr *ngIf="hasLoaded && !isLoading">
+              <td colspan="8" class="empty-row">
+                {{ errorMessage || 'No IoT rules found.' }}
+              </td>
+            </tr>
+          </ng-template>
+        </tbody>
+    </table>
+  </div>
+
+  <div class="pagination" *ngIf="totalRules > 0">
+    <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ totalRules }}</span>
+    <div class="pager-actions">
+      <button class="pager-btn" type="button" (click)="previousPage()" [disabled]="currentPage === 0 || isLoading">Previous</button>
+      <span class="pager-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button class="pager-btn" type="button" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1 || isLoading">Next</button>
+    </div>
+  </div>
+</div>

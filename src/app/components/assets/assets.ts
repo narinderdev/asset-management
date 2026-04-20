@@ -202,10 +202,6 @@ export class AssetsComponent implements OnInit {
     );
   }
 
-  searchAssets(): void {
-    this.applyFilters();
-  }
-
   previousPage(): void {
     if (this.currentPage > 0 && !this.isLoading) {
       this.currentPage--;

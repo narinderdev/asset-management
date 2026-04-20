@@ -23,6 +23,7 @@ export class CompanyIdInterceptor implements HttpInterceptor {
     if (
       !this.isBrowser ||
       this.isAuthRequest(req.url) ||
+      this.isTelemetryIngestRequest(req.url) ||
       this.isCompanyCreateRequest(req) ||
       this.isCompanyListRequest(req) ||
       req.params.has('companyId')
@@ -55,6 +56,11 @@ export class CompanyIdInterceptor implements HttpInterceptor {
   private isAuthRequest(url: string): boolean {
     const value = (url || '').toLowerCase();
     return value.includes('/auth') || value.includes('/users/change-password');
+  }
+
+  private isTelemetryIngestRequest(url: string): boolean {
+    const value = (url || '').toLowerCase();
+    return /\/iot\/v1\/telemetry(?:\?|$)/.test(value);
   }
 
   private isCompanyListRequest(req: HttpRequest<unknown>): boolean {

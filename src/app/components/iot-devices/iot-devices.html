@@ -1,0 +1,96 @@
+<div class="iot-devices-wrapper">
+  <div class="iot-devices-header">
+    <h1 class="iot-devices-title">IoT Device Management</h1>
+    <div class="header-actions">
+      <button class="secondary-btn" type="button" (click)="refresh()" [disabled]="isLoading">Refresh</button>
+      <button class="primary-btn" type="button" (click)="createDevice()">+ Add Device</button>
+    </div>
+  </div>
+
+  <div class="table-status" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="table-wrapper">
+    <div class="table-container">
+      <table class="iot-devices-table">
+        <thead>
+          <tr>
+            <th>Device UID</th>
+            <th>Device Name</th>
+            <th>Linked Asset</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Last Seen</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="isLoading; else loadedBody">
+            <tr *ngFor="let _ of loadingRows" class="skeleton-row">
+              <td><span class="skeleton skeleton-text medium"></span></td>
+              <td><span class="skeleton skeleton-text medium"></span></td>
+              <td><span class="skeleton skeleton-text short"></span></td>
+              <td><span class="skeleton skeleton-text short"></span></td>
+              <td><span class="skeleton skeleton-pill"></span></td>
+              <td><span class="skeleton skeleton-text medium"></span></td>
+              <td><span class="skeleton skeleton-text tiny"></span></td>
+            </tr>
+          </ng-container>
+
+          <ng-template #loadedBody>
+            <tr *ngIf="hasLoaded && !devices.length">
+              <td colspan="7" class="empty-row">No IoT devices found.</td>
+            </tr>
+
+            <tr *ngFor="let device of devices">
+              <td>{{ device.deviceUid || '-' }}</td>
+              <td>{{ device.deviceName || '-' }}</td>
+              <td>{{ device.assetName || '-' }}</td>
+              <td>{{ device.location || '-' }}</td>
+              <td>
+                <span class="status-chip" [ngClass]="getEnabledClass(device.enabled)">
+                  {{ getEnabledLabel(device.enabled) }}
+                </span>
+              </td>
+              <td>{{ formatDateTime(device.lastSeenAt) }}</td>
+              <td class="actions-cell">
+                <div class="icon-group">
+                  <button
+                    class="action-button icon-btn view-btn"
+                    aria-label="View device"
+                    type="button"
+                    (click)="viewDevice(device)">
+                    <img src="assets/icons/Vector.svg" alt="View" class="view-icon" />
+                  </button>
+                  <button
+                    class="action-button icon-btn edit-btn"
+                    aria-label="Edit device"
+                    type="button"
+                    (click)="editDevice(device)">
+                    <img src="assets/icons/edit.svg" alt="Edit" class="view-icon" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </tbody>
+      </table>
+    </div>
+
+    <app-loader [visible]="isLoading"></app-loader>
+  </div>
+
+  <div class="pagination" *ngIf="totalDevices > 0">
+    <span class="pager-info">Showing {{ displayStart }} - {{ displayEnd }} of {{ totalDevices }}</span>
+    <div class="pager-actions">
+      <button class="pager-btn" type="button" (click)="previousPage()" [disabled]="currentPage === 0 || isLoading">
+        Previous
+      </button>
+      <span class="pager-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button class="pager-btn" type="button" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1 || isLoading">
+        Next
+      </button>
+    </div>
+  </div>
+</div>

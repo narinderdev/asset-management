@@ -1440,7 +1440,9 @@ export class ViewWorkOrderComponent implements OnInit {
   }
 
   submitCompletion(): void {
-    if (!this.workOrder?.id || !this.workOrderId) {
+    const workOrder = this.workOrder;
+    const workOrderApiId = workOrder?.id;
+    if (!workOrder || workOrderApiId === undefined || workOrderApiId === null || !this.workOrderId) {
       this.completeError = 'Missing work order id.';
       return;
     }
@@ -1457,16 +1459,26 @@ export class ViewWorkOrderComponent implements OnInit {
     const payload: CompleteWorkOrderRequest = {
       ...this.completeForm,
       actualEndDateTime: this.completeForm.actualEndDateTime || new Date().toISOString(),
-      actualStartDateTime: this.completeForm.actualStartDateTime || this.workOrder.actualStartDateTime
+      actualStartDateTime: this.completeForm.actualStartDateTime || workOrder.actualStartDateTime
     };
 
     this.isCompleting = true;
     this.completeError = undefined;
 
-    this.workOrderService.completeWorkOrder(this.workOrder.id, payload).subscribe({
+    const companyId = this.companyContext.getSelectedCompanyId() ?? 300;
+
+    this.workOrderService.completeWorkOrder(workOrderApiId, payload).subscribe({
       next: () => {
+        // Close modal as soon as complete API succeeds.
         this.closeCompleteModal();
         this.loadWorkOrder(this.workOrderId!);
+
+        // Trigger timesheet sync in background; it should not block modal close.
+        this.workOrderService.syncWorkOrderTimesheet(workOrderApiId, companyId).subscribe({
+          error: () => {
+            console.warn('Work order completed, but timesheet sync failed.');
+          }
+        });
       },
       error: () => {
         this.completeError = 'Failed to complete work order. Please try again.';

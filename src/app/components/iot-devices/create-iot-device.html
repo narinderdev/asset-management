@@ -1,0 +1,72 @@
+<div class="create-device-page">
+  <section class="create-card">
+    <header class="create-header">
+      <button type="button" class="back-btn" aria-label="Back to devices" (click)="onCancel()">
+        &larr;
+      </button>
+      <h2>{{ isEditMode ? 'Edit IoT Device' : 'Create IoT Device' }}</h2>
+    </header>
+
+    <div class="form-loading" *ngIf="isEditMode && isLoadingDetails">
+      <div class="loading-indicator"></div>
+      <span>Loading device...</span>
+    </div>
+
+    <form class="device-form" (ngSubmit)="onSubmit()" *ngIf="!isEditMode || hasLoadedDetails">
+      <div class="form-grid">
+        <label class="field">
+          <span>Device UID *</span>
+          <input
+            type="text"
+            name="deviceUid"
+            [(ngModel)]="device.deviceUid"
+            [disabled]="isEditMode"
+            placeholder="Enter device UID" />
+        </label>
+
+        <label class="field">
+          <span>Device Name *</span>
+          <input
+            type="text"
+            name="deviceName"
+            [(ngModel)]="device.deviceName"
+            placeholder="Enter device name" />
+        </label>
+
+        <label class="field">
+          <span>Asset</span>
+          <select
+            name="assetId"
+            [(ngModel)]="device.assetId"
+            (ngModelChange)="onAssetChange($event)">
+            <option value="">Select Asset</option>
+            <option *ngFor="let asset of assetOptions" [value]="asset.id">
+              {{ asset.label }}
+            </option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Location</span>
+          <input
+            type="text"
+            name="location"
+            [(ngModel)]="device.location"
+            [disabled]="true" />
+        </label>
+
+      </div>
+
+      <div class="form-error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn ghost" (click)="onCancel()">Close</button>
+        <button type="submit" class="btn primary" [disabled]="isSubmitting">
+          {{ isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Device' : 'Create Device') }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

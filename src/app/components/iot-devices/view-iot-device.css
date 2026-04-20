@@ -1,0 +1,290 @@
+.view-device-page {
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.header {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 24px 40px;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.title-section h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 8px;
+}
+
+.device-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.device-id {
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
+}
+
+.status-chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-enabled {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-disabled {
+  background: #ffe4e6;
+  color: #b91c1c;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-primary,
+.btn-secondary {
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.btn-secondary {
+  background: #eef2f7;
+  color: #374151;
+}
+
+.main-content {
+  position: relative;
+  padding: 32px 40px;
+}
+
+.status-message {
+  color: #b91c1c;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  padding: 12px 16px;
+  border-radius: 6px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid #f3f4f6;
+  background: #fafafa;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.card-body {
+  padding: 24px;
+}
+
+.field-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.field-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.field-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  word-break: break-word;
+}
+
+.secret-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.secret-value {
+  background: #111827;
+  color: #f3f4f6;
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: inline-block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1100;
+}
+
+.modal-card {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 560px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+}
+
+.modal-card h3 {
+  margin: 0 0 4px;
+}
+
+.modal-subtitle {
+  margin: 0 0 14px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.modal-field input,
+.modal-field textarea {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+  background: #fff;
+}
+
+.modal-field textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.signature-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.signature-row input {
+  flex: 1;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+@media (max-width: 1024px) {
+  .field-grid-3 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .header,
+  .main-content {
+    padding: 20px;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    flex: 1;
+  }
+
+  .field-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .secret-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .signature-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

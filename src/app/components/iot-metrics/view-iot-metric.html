@@ -1,0 +1,94 @@
+<div class="view-workorder-page">
+  <div class="header">
+    <button class="back-button" type="button" aria-label="Back to metrics" (click)="goBack()">
+      <- Back to metrics
+    </button>
+
+    <div class="header-content" *ngIf="metric">
+      <div class="title-section">
+        <h1>{{ metric.metricName || 'IoT Metric Details' }}</h1>
+        <div class="metric-meta">
+          <span class="metric-id">{{ metric.metricCode || 'N/A' }}</span>
+          <span *ngIf="metric.unit">.</span>
+          <span *ngIf="metric.unit">{{ metric.unit }}</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn-primary" type="button" (click)="editMetric()">Edit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-message" *ngIf="!isLoading && errorMessage">{{ errorMessage }}</div>
+
+  <div class="main-content">
+    <app-loader [visible]="isLoading"></app-loader>
+
+    <ng-container *ngIf="!isLoading && metric">
+      <div class="details-grid">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Overview</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-2">
+              <div class="field-group">
+                <div class="field-label">Metric ID</div>
+                <div class="field-value highlight">{{ metric.id ?? '-' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Metric Code</div>
+                <div class="field-value">{{ metric.metricCode || 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Metric Name</div>
+                <div class="field-value">{{ metric.metricName || 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Unit</div>
+                <div class="field-value">{{ metric.unit || 'N/A' }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Active</div>
+                <div class="field-value">{{ metric.active ? 'Yes' : 'No' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Audit Information</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-2">
+              <div class="field-group">
+                <div class="field-label">Create Date</div>
+                <div class="field-value">{{ formatDateTime(metric.createdAt) }}</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Updated Date</div>
+                <div class="field-value">{{ formatDateTime(metric.updatedAt) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card full-width">
+          <div class="card-header">
+            <h2 class="card-title">Description</h2>
+          </div>
+          <div class="card-body">
+            <div class="field-grid field-grid-2">
+              <div class="field-group full-width">
+                <div class="field-label">Metric Description</div>
+                <div class="field-value" [ngClass]="{ 'empty': !metric.description }">{{ metric.description || 'N/A' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>
