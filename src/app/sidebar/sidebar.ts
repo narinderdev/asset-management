@@ -106,9 +106,9 @@ export class SidebarComponent implements OnInit {
       hasSubmenu: true,
       submenu: [
         { label: 'Devices', route: '/iot/devices' },
-        { label: 'Alerts', route: '/iot/alerts' },
+        { label: 'Metrics', route: '/iot/metrics' },
         { label: 'Rules', route: '/iot/rules' },
-        { label: 'Metrics', route: '/iot/metrics' }
+        { label: 'Alerts', route: '/iot/alerts' }
       ]
     },
     {

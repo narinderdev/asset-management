@@ -77,10 +77,28 @@ export interface IotTelemetryIngestResponse {
   data?: unknown;
 }
 
+export interface IotDummyReadingsPayload {
+  deviceUid: string;
+  assetId: number;
+  metricCode: string;
+  location: string;
+  readings: number[];
+  intervalSeconds: number;
+  eventPrefix: string;
+}
+
+export interface IotDummyReadingsResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: unknown;
+}
+
 @Injectable({ providedIn: 'root' })
 export class IotDeviceService {
   private readonly apiUrl = `${environment.apiUrl}/api/iot/devices`;
   private readonly telemetryUrl = `${environment.apiUrl}/iot/v1/telemetry`;
+  private readonly dummyTelemetryUrl = `${environment.apiUrl}/api/iot/telemetry/dummy-readings`;
 
   constructor(private http: HttpClient) {}
 
@@ -131,6 +149,17 @@ export class IotDeviceService {
     }
 
     return this.http.post<IotTelemetryIngestResponse>(this.telemetryUrl, payload.body, { headers });
+  }
+
+  sendDummyReadings(companyId: number, payload: IotDummyReadingsPayload): Observable<IotDummyReadingsResponse> {
+    const params = new HttpParams()
+      .set('companyid', String(companyId))
+      .set('companyId', String(companyId));
+
+    return this.http.post<IotDummyReadingsResponse>(this.dummyTelemetryUrl, payload, {
+      params,
+      headers: this.getHeaders()
+    });
   }
 
   private getHeaders(): HttpHeaders {

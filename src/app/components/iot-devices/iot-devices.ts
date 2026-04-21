@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { Loader } from '../loader/loader';
+import { CompanyContextService } from '../../services/company-context.service';
 import { IotDevice, IotDeviceService } from '../../services/iot-device.service';
 
 @Component({
@@ -22,12 +23,14 @@ export class IotDevicesComponent implements OnInit {
   isLoading = false;
   hasLoaded = false;
   errorMessage?: string;
+  stimulatingDeviceUids = new Set<string>();
 
   loadingRows = Array.from({ length: 5 });
 
   constructor(
     private readonly router: Router,
     private readonly iotDeviceService: IotDeviceService,
+    private readonly companyContext: CompanyContextService,
     private readonly cdr: ChangeDetectorRef,
     private readonly toastr: ToastrService
   ) {}
@@ -115,6 +118,68 @@ export class IotDevicesComponent implements OnInit {
   refresh(): void {
     this.currentPage = 0;
     this.loadDevices();
+  }
+
+  stimulate(device: IotDevice): void {
+    const companyId = this.companyContext.getSelectedCompanyId();
+    if (companyId === null) {
+      this.toastr.error('No company selected. Please select a company and try again.');
+      return;
+    }
+
+    const deviceUid = device.deviceUid?.trim();
+    if (!deviceUid) {
+      this.toastr.error('Device UID is missing for this row.');
+      return;
+    }
+
+    const assetId = Number(device.assetId);
+    if (!Number.isFinite(assetId)) {
+      this.toastr.error(`Asset ID is missing for device ${deviceUid}.`);
+      return;
+    }
+
+    if (this.stimulatingDeviceUids.has(deviceUid)) {
+      return;
+    }
+
+    this.stimulatingDeviceUids.add(deviceUid);
+    this.cdr.detectChanges();
+
+    this.iotDeviceService
+      .sendDummyReadings(companyId, {
+        deviceUid,
+        assetId,
+        metricCode: 'TEMP_C',
+        location: device.location?.trim() || 'Unknown Location',
+        readings: [72.4, 78.1, 84.7, 93.2, 101.5],
+        intervalSeconds: 30,
+        eventPrefix: 'ui-dummy'
+      })
+      .pipe(
+        finalize(() => {
+          this.stimulatingDeviceUids.delete(deviceUid);
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          const apiMessage = response.message?.trim();
+          this.toastr.success(apiMessage || `Dummy telemetry sent for ${deviceUid}.`);
+        },
+        error: () => {
+          this.toastr.error(`Failed to send dummy telemetry for ${deviceUid}.`);
+        }
+      });
+  }
+
+  isStimulating(device: IotDevice): boolean {
+    const deviceUid = device.deviceUid?.trim();
+    if (!deviceUid) {
+      return false;
+    }
+
+    return this.stimulatingDeviceUids.has(deviceUid);
   }
 
   get totalPages(): number {

@@ -70,6 +70,14 @@
                     (click)="editDevice(device)">
                     <img src="assets/icons/edit.svg" alt="Edit" class="view-icon" />
                   </button>
+                  <button
+                    class="action-button stimulate-btn"
+                    aria-label="Stimulate device"
+                    type="button"
+                    [disabled]="isStimulating(device)"
+                    (click)="stimulate(device)">
+                    {{ isStimulating(device) ? 'Stimulating...' : 'Stimulate' }}
+                  </button>
                 </div>
               </td>
             </tr>

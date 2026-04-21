@@ -151,7 +151,7 @@ export class CreateIotRuleComponent implements OnInit {
   private loadAssets(): void {
     this.assetsService.fetchAssets(0, 500).subscribe({
       next: (response) => {
-        const content = response.data?.content ?? [];
+        const content = this.extractCollection<any>(response);
         this.assetOptions = content
           .filter(asset => asset.id !== undefined)
           .map(asset => ({
@@ -166,9 +166,11 @@ export class CreateIotRuleComponent implements OnInit {
         if (this.form.assetId) {
           this.onAssetChange(this.form.assetId);
         }
+        this.cdr.detectChanges();
       },
       error: () => {
         this.assetOptions = [];
+        this.cdr.detectChanges();
       }
     });
   }
@@ -176,18 +178,39 @@ export class CreateIotRuleComponent implements OnInit {
   private loadMetrics(): void {
     this.iotMetricService.fetchMetrics({ page: 0, size: 500 }).subscribe({
       next: (response) => {
-        const content = response.data?.content ?? [];
+        const content = this.extractCollection<any>(response);
         this.metricOptions = content
           .filter(metric => !!metric.metricCode)
           .map(metric => ({
             code: metric.metricCode as string,
             label: metric.metricName ?? (metric.metricCode as string)
           }));
+        this.cdr.detectChanges();
       },
       error: () => {
         this.metricOptions = [];
+        this.cdr.detectChanges();
       }
     });
+  }
+
+  private extractCollection<T>(response: any): T[] {
+    if (Array.isArray(response?.data?.content)) {
+      return response.data.content as T[];
+    }
+    if (Array.isArray(response?.data?.items)) {
+      return response.data.items as T[];
+    }
+    if (Array.isArray(response?.data)) {
+      return response.data as T[];
+    }
+    if (Array.isArray(response?.content)) {
+      return response.content as T[];
+    }
+    if (Array.isArray(response?.items)) {
+      return response.items as T[];
+    }
+    return [];
   }
 
   private buildPayload(): IotRuleCreatePayload | IotRuleUpdatePayload | null {

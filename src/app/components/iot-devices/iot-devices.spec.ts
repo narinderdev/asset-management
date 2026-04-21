@@ -7,6 +7,7 @@ import { vi } from 'vitest';
 
 import { IotDevicesComponent } from './iot-devices';
 import { IotDeviceService } from '../../services/iot-device.service';
+import { CompanyContextService } from '../../services/company-context.service';
 
 describe('IotDevicesComponent', () => {
   let component: IotDevicesComponent;
@@ -14,13 +15,20 @@ describe('IotDevicesComponent', () => {
   let router: Router;
   let iotDeviceServiceStub: {
     fetchDevices: ReturnType<typeof vi.fn>;
+    sendDummyReadings: ReturnType<typeof vi.fn>;
+  };
+  let companyContextStub: {
+    getSelectedCompanyId: ReturnType<typeof vi.fn>;
   };
   let toastrStub: {
     error: ReturnType<typeof vi.fn>;
+    info: ReturnType<typeof vi.fn>;
+    success: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
     iotDeviceServiceStub = {
+      sendDummyReadings: vi.fn(),
       fetchDevices: vi.fn().mockReturnValue(
         of({
           data: {
@@ -42,14 +50,21 @@ describe('IotDevicesComponent', () => {
       )
     };
 
+    companyContextStub = {
+      getSelectedCompanyId: vi.fn().mockReturnValue(1)
+    };
+
     toastrStub = {
-      error: vi.fn()
+      error: vi.fn(),
+      info: vi.fn(),
+      success: vi.fn()
     };
 
     await TestBed.configureTestingModule({
       imports: [IotDevicesComponent, RouterTestingModule],
       providers: [
         { provide: IotDeviceService, useValue: iotDeviceServiceStub },
+        { provide: CompanyContextService, useValue: companyContextStub },
         { provide: ToastrService, useValue: toastrStub }
       ]
     }).compileComponents();
@@ -150,6 +165,7 @@ describe('IotDevicesComponent', () => {
     const native = fixture.nativeElement as HTMLElement;
 
     expect(native.textContent).toContain('IoT Device Management');
+    expect(native.textContent).toContain('Stimulate');
     expect(native.textContent).toContain('435435');
     expect(native.textContent).toContain('cvbcvbsss');
     expect(native.textContent).toContain('Authorized');
