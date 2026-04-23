@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { ServiceRequestService } from '../../services/service-request.service';
 
 export interface DashboardServiceRequestRow {
   id: string;
@@ -30,7 +31,11 @@ export class ServiceRequestTable implements OnInit, OnChanges {
   hasLoaded = false;
   loadingRows = Array.from({ length: 3 });
 
-  constructor(private router: Router, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private serviceRequestService: ServiceRequestService
+  ) {}
 
   ngOnInit(): void {
     this.updateRows();
@@ -47,6 +52,13 @@ export class ServiceRequestTable implements OnInit, OnChanges {
     if (!id) {
       return;
     }
+
+    this.serviceRequestService.fetchVoiceAiIntakeTranscripts().subscribe({
+      error: () => {
+        // Keep navigation intact even if transcript preload fails.
+      }
+    });
+
     this.router.navigate(['/service-requests/view', id]);
   }
 

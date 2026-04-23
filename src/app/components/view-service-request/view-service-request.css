@@ -306,6 +306,40 @@
   font-weight: 600;
 }
 
+.transcript-text {
+  white-space: pre-wrap;
+}
+
+.conversation-list {
+  display: grid;
+  gap: 10px;
+}
+
+.conversation-item {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.conversation-item .speaker {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #374151;
+  letter-spacing: 0.03em;
+  min-width: 64px;
+}
+
+.conversation-item .message {
+  font-size: 14px;
+  color: #111827;
+  word-break: break-word;
+}
+
 /* Full Width Cards */
 .card.full-width {
   grid-column: 1 / -1;

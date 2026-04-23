@@ -67,7 +67,7 @@
   <!-- MAIN CONTENT -->
   <div class="main-content">
     <!-- LOADING STATE -->
-    <app-loader [visible]="isLoading"></app-loader>
+    <app-loader [visible]="isLoading && !request"></app-loader>
 
     <!-- DATA STATE -->
     <ng-container *ngIf="request">
@@ -218,7 +218,7 @@
                   class="field-value"
                   [ngClass]="{ empty: !request.problemDescription }"
                 >
-                  {{ request.problemDescription ?? '-' }}
+                  {{ formatProblemDescription(request.problemDescription) }}
                 </div>
               </div>
 
@@ -296,6 +296,67 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Calling Details -->
+        <div class="card full-width">
+          <div class="card-header">
+            <h2 class="card-title">Calling Details</h2>
+          </div>
+          <div class="card-body">
+            <div *ngIf="isCallingDetailsLoading" class="field-value empty">
+              Loading calling details...
+            </div>
+
+            <ng-container *ngIf="!isCallingDetailsLoading">
+              <ng-container *ngIf="callingDetails; else noCallingDetails">
+                <div class="field-grid field-grid-3">
+                  <div class="field-group">
+                    <div class="field-label">Call ID</div>
+                    <div class="field-value">{{ callingDetails.externalCallId ?? '-' }}</div>
+                  </div>
+
+                  <div class="field-group">
+                    <div class="field-label">Intent</div>
+                    <div class="field-value">{{ formatEnumLabel(callingDetails.intent) }}</div>
+                  </div>
+
+                  <div class="field-group">
+                    <div class="field-label">Outcome</div>
+                    <div class="field-value">{{ formatEnumLabel(callingDetails.outcome) }}</div>
+                  </div>
+
+                  <div class="field-group">
+                    <div class="field-label">Requester Name</div>
+                    <div class="field-value">{{ callingDetails.requesterName ?? '-' }}</div>
+                  </div>
+
+                  <div class="field-group">
+                    <div class="field-label">Phone Number</div>
+                    <div class="field-value">{{ callingDetails.requesterPhoneNumber ?? '-' }}</div>
+                  </div>
+
+                  <div class="field-group">
+                    <div class="field-label">Created At</div>
+                    <div class="field-value">{{ formatDateTime(callingDetails.createdAt) }}</div>
+                  </div>
+
+                  <div class="field-group full-width">
+                    <div class="field-label">Transcript</div>
+                    <div class="field-value transcript-text" [ngClass]="{ empty: !callingDetails.transcript }">
+                      {{ formatReadableTranscript(callingDetails) }}
+                    </div>
+                  </div>
+
+                </div>
+              </ng-container>
+
+              <ng-template #noCallingDetails>
+                <div class="field-value empty">No calling details found for this service request.</div>
+              </ng-template>
+
+            </ng-container>
           </div>
         </div>
       </div>

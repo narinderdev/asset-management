@@ -82,9 +82,45 @@ export interface ServiceRequestDetailResponse {
   data?: ApiServiceRequestDetail;
 }
 
+export interface VoiceAiConversationMessage {
+  speaker?: string;
+  message?: string;
+}
+
+export interface VoiceAiIntakeTranscript {
+  id?: number;
+  externalCallId?: string;
+  intent?: string;
+  outcome?: string;
+  requesterName?: string;
+  requesterPhoneNumber?: string;
+  shortTitle?: string;
+  transcript?: string;
+  conversation?: VoiceAiConversationMessage[] | string | Record<string, unknown> | null;
+  serviceRequestDbId?: number;
+  serviceRequestId?: string;
+  serviceRequestLink?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface VoiceAiIntakeTranscriptListResponse {
+  success?: boolean;
+  status?: number;
+  message?: string;
+  data?: {
+    content?: VoiceAiIntakeTranscript[];
+    page?: number;
+    size?: number;
+    totalElements?: number;
+    totalPages?: number;
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class ServiceRequestService {
   private readonly apiUrl = `${environment.apiUrl}/api/service-requests`;
+  private readonly voiceAiApiUrl = `${environment.apiUrl}/api/voice-ai/intakes/transcripts`;
 
   constructor(private http: HttpClient) {}
 
@@ -152,5 +188,13 @@ export class ServiceRequestService {
     });
 
     return this.http.post<void>(`${this.apiUrl}/${id}/reject`, { reason }, { headers });
+  }
+
+  fetchVoiceAiIntakeTranscripts(): Observable<VoiceAiIntakeTranscriptListResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    return this.http.get<VoiceAiIntakeTranscriptListResponse>(this.voiceAiApiUrl, { headers });
   }
 }

@@ -235,6 +235,13 @@ export class ServiceRequestsComponent implements OnInit {
       console.warn('Missing identifier for service request', request);
       return;
     }
+
+    this.serviceRequestService.fetchVoiceAiIntakeTranscripts().subscribe({
+      error: () => {
+        this.toastr.warning('Could not load voice intake transcripts.');
+      }
+    });
+
     this.router.navigate(['/service-requests/view', identifier]);
   }
 
