@@ -479,6 +479,26 @@
   max-width: 620px;
 }
 
+.modal-dialog.schedule-modal .modal-header {
+  padding: 20px 28px 14px;
+}
+
+.modal-dialog.schedule-modal .modal-body {
+  padding: 18px 28px;
+}
+
+.modal-dialog.schedule-modal .modal-footer {
+  padding: 14px 28px;
+}
+
+.modal-dialog.schedule-modal .form-group {
+  gap: 6px;
+}
+
+.modal-dialog.schedule-modal .radio-group {
+  margin: 4px 0;
+}
+
 @keyframes modalSlideIn {
   from {
     opacity: 0;

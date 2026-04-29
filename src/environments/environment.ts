@@ -1,5 +1,6 @@
 export const environment = {
   production: false,
-  // apiUrl: 'https://7a54-203-190-154-162.ngrok-free.app'
-  apiUrl: 'http://3.82.49.182:8081'
+  // apiUrl: 'https://11cc-203-190-154-162.ngrok-free.app'
+  apiUrl: 'https://eam-api.myfinlware.com'
 };
+ 
