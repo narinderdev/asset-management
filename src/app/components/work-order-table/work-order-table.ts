@@ -55,6 +55,7 @@ export class WorkOrderTable implements OnInit, OnChanges {
   @Input() loading = false;
   @Input() emptyMessage = 'No work orders to display.';
   @Input() showEditDelete = true;
+  @Input() showDeleteAction = true;
   @Output() pageChanged = new EventEmitter<number>();
 
   workOrders: WorkOrder[] = [];

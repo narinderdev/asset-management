@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChanges }
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { ServiceRequestService } from '../../services/service-request.service';
+import { PermissionService } from '../../services/permission.service';
 
 export interface DashboardServiceRequestRow {
   id: string;
@@ -30,14 +31,17 @@ export class ServiceRequestTable implements OnInit, OnChanges {
   rows: DashboardServiceRequestRow[] = [];
   hasLoaded = false;
   loadingRows = Array.from({ length: 3 });
+  canEditRequests = false;
 
   constructor(
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private serviceRequestService: ServiceRequestService
+    private serviceRequestService: ServiceRequestService,
+    private permissionService: PermissionService
   ) {}
 
   ngOnInit(): void {
+    this.canEditRequests = this.permissionService.hasPermission('SERVICE_REQUEST', 'UPDATE');
     this.updateRows();
   }
 
@@ -60,6 +64,17 @@ export class ServiceRequestTable implements OnInit, OnChanges {
     });
 
     this.router.navigate(['/service-requests/view', id]);
+  }
+
+  editRequest(row: DashboardServiceRequestRow): void {
+    if (!this.canEditRequests) {
+      return;
+    }
+    const id = row.apiId ?? row.id;
+    if (!id) {
+      return;
+    }
+    this.router.navigate(['/service-requests/edit', id]);
   }
 
   trackById(_: number, item: DashboardServiceRequestRow): string {

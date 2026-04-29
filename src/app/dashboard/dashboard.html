@@ -43,7 +43,8 @@
     <app-work-order-table
       [externalWorkOrders]="recentWorkOrders()"
       [loading]="isLoading()"
-      [showEditDelete]="false"
+      [showEditDelete]="true"
+      [showDeleteAction]="false"
       [emptyMessage]="'No recent work orders.'">
     </app-work-order-table>
 

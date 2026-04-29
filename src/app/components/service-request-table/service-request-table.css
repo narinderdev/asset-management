@@ -86,7 +86,7 @@
 }
 
 .actions-col {
-  width: 70px;
+  width: 90px;
 }
 
 .icon-btn {
@@ -99,6 +99,12 @@
 .icon-btn img {
   width: 18px;
   height: 18px;
+}
+
+.icon-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .empty-state {

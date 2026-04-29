@@ -44,9 +44,20 @@
               <span class="status-pill">{{ req.status }}</span>
             </td>
             <td class="actions-col">
-              <button class="icon-btn view-btn" type="button" (click)="viewRequest(req)" aria-label="View service request">
-                <img src="assets/icons/Vector.svg" alt="View" />
-              </button>
+              <div class="icon-group">
+                <button class="icon-btn view-btn" type="button" (click)="viewRequest(req)" aria-label="View service request">
+                  <img src="assets/icons/Vector.svg" alt="View" />
+                </button>
+                <button
+                  class="icon-btn edit-btn"
+                  type="button"
+                  *ngIf="canEditRequests"
+                  (click)="editRequest(req)"
+                  aria-label="Edit service request"
+                >
+                  <img src="assets/icons/edit.svg" alt="Edit service request" />
+                </button>
+              </div>
             </td>
           </tr>
         </ng-container>
