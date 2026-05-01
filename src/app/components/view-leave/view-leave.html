@@ -28,11 +28,11 @@
       </div>
       <div class="card-row" *ngIf="leave.leaveType || leave.type">
         <div class="label">Type</div>
-        <div class="value">{{ (leave.leaveType || leave.type) | uppercase }}</div>
+        <div class="value">{{ (leave.leaveType || leave.type) | sentenceCase }}</div>
       </div>
       <div class="card-row" *ngIf="leave.status">
         <div class="label">Status</div>
-        <div class="value">{{ (leave.status || '') | uppercase }}</div>
+        <div class="value">{{ (leave.status || '') | sentenceCase }}</div>
       </div>
       <div class="card-row" *ngIf="leave.createdAt">
         <div class="label">Create Date</div>

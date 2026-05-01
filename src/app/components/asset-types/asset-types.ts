@@ -151,4 +151,12 @@ export class AssetTypesComponent implements OnInit {
   trackByType(_: number, type: AssetType): number | string | undefined {
     return type.id ?? type.code;
   }
+
+  formatLabel(value?: string): string {
+    if (!value) {
+      return '-';
+    }
+    const normalized = String(value).replace(/_/g, ' ').toLowerCase();
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+  }
 }

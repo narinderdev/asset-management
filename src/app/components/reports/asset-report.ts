@@ -126,9 +126,9 @@ export class AssetReportComponent implements OnInit {
             assetName: item.assetName ?? '-',
             location: item.location?.location ?? item.location ?? '-',
             status: item.status ?? '-',
-            statusLabel: this.formatStatus(item.status ?? '-'),
+            statusLabel: this.formatLabel(item.status ?? '-'),
             warrantyEnd: item.warrantyLifecycle?.warrantyEnd ?? '-',
-            criticality: item.criticality ?? '-',
+            criticality: this.formatLabel(item.criticality ?? '-'),
             assetType: item.assetType ?? item.assetTypeCode ?? item.assetTypeId ?? '-'
           }));
           this.totalSummary = 0;
@@ -160,8 +160,12 @@ export class AssetReportComponent implements OnInit {
     return this.totalElements > 0 ? Math.min((this.page + 1) * this.size, this.totalElements) : 0;
   }
 
-  private formatStatus(status: string): string {
-    return status.replace(/_/g, ' ');
+  formatLabel(value: string): string {
+    if (!value) {
+      return '-';
+    }
+    const normalized = String(value).replace(/_/g, ' ').toLowerCase();
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
   }
 
   toggleExportMenu(): void {
@@ -341,9 +345,9 @@ startxref
     doc.setFontSize(10);
 
     const filterLines = [
-      `Status: ${this.formatStatus(this.filterStatusText) || 'All'}`,
+      `Status: ${this.filterStatusText ? this.formatLabel(this.filterStatusText) : 'All'}`,
       `Warranty Days: ${this.filterWarrantyDays || 'All'}`,
-      `Criticality: ${this.filterCriticality || 'All'}`,
+      `Criticality: ${this.filterCriticality ? this.formatLabel(this.filterCriticality) : 'All'}`,
       `Asset Type: ${this.filterAssetTypeId || 'All'}`
     ];
     doc.setFontSize(9);

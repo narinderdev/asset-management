@@ -48,7 +48,7 @@
             <td>{{ type.code }}</td>
             <td>{{ type.name }}</td>
             <td>{{ type.assetCategory }}</td>
-            <td>{{ type.defaultCriticality }}</td>
+            <td>{{ formatLabel(type.defaultCriticality) }}</td>
             <td>{{ type.defaultGlAccount }}</td>
             <td>
               <span class="pill" [class.pill-yes]="type.insuranceRequired" [class.pill-no]="!type.insuranceRequired">

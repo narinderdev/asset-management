@@ -4,13 +4,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TechnicianService } from '../../services/technician.service';
 import { Loader } from '../loader/loader';
 import { finalize, take } from 'rxjs/operators';
+import { SentenceCasePipe } from '../../pipes/sentence-case.pipe';
 
 @Component({
   standalone: true,
   selector: 'app-view-leave',
   templateUrl: './view-leave.html',
   styleUrls: ['./view-leave.css'],
-  imports: [CommonModule, Loader]
+  imports: [CommonModule, Loader, SentenceCasePipe]
 })
 export class ViewLeaveComponent implements OnInit {
   technicianId?: string;

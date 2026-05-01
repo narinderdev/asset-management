@@ -144,7 +144,8 @@ export class InventoryAuditLogsComponent implements OnInit, OnDestroy {
     if (!value) {
       return '--';
     }
-    return value.replace(/_/g, ' ');
+    const normalized = value.replace(/_/g, ' ').toLowerCase();
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
   }
 
   toggleExportMenu(): void {

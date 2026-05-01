@@ -4,13 +4,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TechnicianService } from '../../services/technician.service';
 import { Loader } from '../loader/loader';
 import { take, finalize } from 'rxjs/operators';
+import { SentenceCasePipe } from '../../pipes/sentence-case.pipe';
 
 @Component({
   standalone: true,
   selector: 'app-view-holiday',
   templateUrl: './view-holiday.html',
   styleUrls: ['./view-holiday.css'],
-  imports: [CommonModule, Loader]
+  imports: [CommonModule, Loader, SentenceCasePipe]
 })
 export class ViewHolidayComponent implements OnInit {
   holidayId?: string;

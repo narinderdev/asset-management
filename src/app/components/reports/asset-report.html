@@ -16,7 +16,7 @@
     </select>
     <select [(ngModel)]="filterCriticality" (ngModelChange)="onFilterChange()" aria-label="Criticality">
       <option value="">Criticality</option>
-      <option *ngFor="let c of criticalityOptions" [value]="c">{{ c }}</option>
+      <option *ngFor="let c of criticalityOptions" [value]="c">{{ formatLabel(c) }}</option>
     </select>
     <select [(ngModel)]="filterAssetTypeId" (ngModelChange)="onFilterChange()" aria-label="Asset type">
       <option value="">Asset Type</option>

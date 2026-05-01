@@ -149,6 +149,14 @@ export class InventoryComponent implements OnInit {
     return Math.min((this.currentPage + 1) * this.itemsPerPage, this.totalInventory);
   }
 
+  formatLabel(value?: string): string {
+    if (!value) {
+      return 'Unknown';
+    }
+    const normalized = value.replace(/_/g, ' ').toLowerCase();
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+  }
+
   private mapItem(item: {
     id?: number;
     itemId?: string;
@@ -166,7 +174,7 @@ export class InventoryComponent implements OnInit {
       id: item.id,
       itemId: item.itemId ?? '—',
       itemName: item.itemName ?? 'Unnamed Item',
-      category: item.category ?? 'Unknown',
+      category: this.formatLabel(item.category),
       manufacturer: item.manufacturer ?? 'Unknown',
       stockLevel,
       reorderPoint,

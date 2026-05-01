@@ -103,9 +103,9 @@ export class WorkOrderReportComponent implements OnInit {
               : w.assignedTechnicianName
               ? 'Technician'
               : '',
-            priority: w.priority ?? '-',
+            priority: this.formatLabel(w.priority ?? '-'),
             status: w.status ?? '-',
-            statusLabel: this.formatStatus(w.status ?? '-')
+            statusLabel: this.formatLabel(w.status ?? '-')
           }));
           this.totalSummary = 0;
           this.isLoading = false;
@@ -130,8 +130,12 @@ export class WorkOrderReportComponent implements OnInit {
     return this.totalElements > 0 ? Math.min((this.page + 1) * this.size, this.totalElements) : 0;
   }
 
-  private formatStatus(status: string): string {
-    return status.replace(/_/g, ' ');
+  private formatLabel(value: string): string {
+    if (!value) {
+      return '-';
+    }
+    const normalized = String(value).replace(/_/g, ' ').toLowerCase();
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
   }
 
   toggleExportMenu(): void {
@@ -232,7 +236,7 @@ export class WorkOrderReportComponent implements OnInit {
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(10);
 
-    const filterLine = `Status: ${this.formatStatus(this.filterStatus || 'All')}`;
+    const filterLine = `Status: ${this.formatLabel(this.filterStatus || 'All')}`;
     doc.setFontSize(9);
     doc.text(filterLine, margin, 60);
 
