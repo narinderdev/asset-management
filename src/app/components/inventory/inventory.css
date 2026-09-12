@@ -15,6 +15,12 @@
   margin-bottom: 24px;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -113,6 +119,21 @@
 
 .create-service-btn:hover {
   background-color: #2c7ddb;
+}
+
+.import-inventory-btn {
+  background: #ffffff;
+  color: #1d4ed8;
+  border: 1px solid #93c5fd;
+  padding: 12px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.import-inventory-btn:hover {
+  background: #eff6ff;
 }
 
 .table-wrapper {
@@ -309,6 +330,141 @@
 .pager-info {
   font-size: 14px;
   color: #4b5563;
+}
+
+.import-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 16px;
+}
+
+.import-modal {
+  width: min(100%, 640px);
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.import-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.import-modal-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.import-modal-close {
+  border: none;
+  background: transparent;
+  font-size: 30px;
+  line-height: 1;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.import-modal-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.import-info {
+  border: 1px solid #93c5fd;
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-left: 4px solid #3b82f6;
+  padding: 12px 14px;
+  border-radius: 6px;
+}
+
+.import-template-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.excel-template-btn,
+.csv-template-btn,
+.select-file-btn,
+.upload-btn {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.excel-template-btn:hover,
+.csv-template-btn:hover,
+.select-file-btn:hover {
+  background: #f8fafc;
+}
+
+.upload-btn {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+  font-weight: 600;
+}
+
+.upload-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.selected-file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.remove-selected-file-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.validation-errors {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.validation-errors-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.validation-errors ul {
+  margin: 0;
+  padding-left: 18px;
 }
 
 .skeleton-row td {

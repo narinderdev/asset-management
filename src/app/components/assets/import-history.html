@@ -1,0 +1,132 @@
+<div class="import-history-page">
+  <div class="import-history-card">
+    <div class="import-history-header">
+      <div class="header-left">
+        <button class="back-icon-btn" (click)="goBack()" aria-label="Back to Assets" title="Back to Assets">
+          <span aria-hidden="true">&#8592;</span>
+        </button>
+        <h1>Import History</h1>
+      </div>
+      <button class="refresh-btn" type="button" (click)="refreshHistory()" [disabled]="isLoading" title="Refresh">
+        Refresh
+      </button>
+    </div>
+
+    <div class="table-wrap" *ngIf="!isLoading; else loadingState">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Job ID</th>
+            <th>File Name</th>
+            <th>Import Type</th>
+            <th>Status</th>
+            <th>Progress %</th>
+            <th>Created By</th>
+            <th>Completed At</th>
+            <th>Committed At</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="rows.length === 0">
+            <td colspan="9" class="empty-row">No import history found.</td>
+          </tr>
+          <tr *ngFor="let row of rows">
+            <td>{{ row.jobId ?? row.id ?? '-' }}</td>
+            <td class="file-name">{{ row.fileName ?? '-' }}</td>
+            <td>{{ row.importType ?? '-' }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="'status-' + (row.status || '').toLowerCase()">
+                {{ row.status ?? '-' }}
+              </span>
+            </td>
+            <td>{{ row.progressPercentage ?? 0 }}</td>
+            <td>{{ row.createdBy ?? '-' }}</td>
+            <td>{{ row.completedAt ? (row.completedAt | date: 'dd MMM yyyy, hh:mm a') : '-' }}</td>
+            <td>{{ row.committedAt ? (row.committedAt | date: 'dd MMM yyyy, hh:mm a') : '-' }}</td>
+            <td class="actions-cell">
+              <button class="action-icon" type="button" aria-label="View import" title="View import" (click)="viewImport(row)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #loadingState>
+      <div class="loading">Loading import history...</div>
+    </ng-template>
+  </div>
+
+  <div class="report-modal-overlay" *ngIf="isViewModalOpen" (click)="closeViewModal()">
+    <div class="report-modal" role="dialog" aria-modal="true" aria-labelledby="import-report-title" (click)="$event.stopPropagation()">
+      <div class="report-modal-header">
+        <h2 id="import-report-title">Import Job Report</h2>
+        <button class="report-modal-close" (click)="closeViewModal()" aria-label="Close report modal">x</button>
+      </div>
+
+      <div class="report-modal-body" *ngIf="!isViewModalLoading; else reportLoadingState">
+        <div class="report-summary-grid" *ngIf="selectedSummary as summary; else noSummaryState">
+          <div><span class="label">Job ID</span><span class="value">{{ summary.jobId ?? '-' }}</span></div>
+          <div><span class="label">File Name</span><span class="value">{{ summary.fileName ?? '-' }}</span></div>
+          <div><span class="label">Import Type</span><span class="value">{{ summary.importType ?? '-' }}</span></div>
+          <div><span class="label">Status</span><span class="value">{{ summary.status ?? '-' }}</span></div>
+          <div><span class="label">Total Rows</span><span class="value">{{ summary.totalRows ?? 0 }}</span></div>
+          <div><span class="label">Processed Rows</span><span class="value">{{ summary.processedRows ?? 0 }}</span></div>
+          <div><span class="label">Success</span><span class="value">{{ summary.successCount ?? 0 }}</span></div>
+          <div><span class="label">Failed</span><span class="value">{{ summary.failedCount ?? 0 }}</span></div>
+          <div><span class="label">Skipped</span><span class="value">{{ summary.skippedCount ?? 0 }}</span></div>
+          <div><span class="label">Already Exists</span><span class="value">{{ summary.alreadyExistsCount ?? 0 }}</span></div>
+          <div><span class="label">Progress %</span><span class="value">{{ summary.progressPercentage ?? 0 }}</span></div>
+          <div><span class="label">Created By</span><span class="value">{{ summary.createdBy ?? '-' }}</span></div>
+          <div><span class="label">Started At</span><span class="value">{{ formatApiDateTime(summary.startedAt) }}</span></div>
+          <div><span class="label">Completed At</span><span class="value">{{ formatApiDateTime(summary.completedAt) }}</span></div>
+          <div><span class="label">Committed At</span><span class="value">{{ formatApiDateTime(summary.committedAt) }}</span></div>
+        </div>
+
+        <h3 class="rows-title">Row Results</h3>
+        <div class="report-rows-wrap">
+          <table class="report-rows-table">
+            <thead>
+              <tr>
+                <th>Row #</th>
+                <th>External Key</th>
+                <th>Status</th>
+                <th>Created Entity ID</th>
+                <th>Message</th>
+                <th>Errors</th>
+                <th>Warnings</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="selectedRows.length === 0">
+                <td colspan="7" class="empty-row">No row results found.</td>
+              </tr>
+              <tr *ngFor="let item of selectedRows">
+                <td>{{ item.rowNumber ?? '-' }}</td>
+                <td>{{ item.externalKey ?? '-' }}</td>
+                <td>{{ item.status ?? '-' }}</td>
+                <td>{{ item.createdEntityId ?? '-' }}</td>
+                <td>{{ item.message ?? '-' }}</td>
+                <td>{{ formatIssueMap(item.errors) }}</td>
+                <td>{{ formatIssueMap(item.warnings) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <ng-template #reportLoadingState>
+        <div class="report-loading">Loading report...</div>
+      </ng-template>
+
+      <ng-template #noSummaryState>
+        <div class="report-empty">No report summary available.</div>
+      </ng-template>
+    </div>
+  </div>
+</div>

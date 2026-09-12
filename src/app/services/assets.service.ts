@@ -355,6 +355,101 @@ export interface AssetCreateResponse {
   };
 }
 
+export interface AssetImportUploadResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: {
+    fileName?: string;
+    invalidRows?: number;
+    jobId?: number;
+    totalRows?: number;
+    validRows?: number;
+  };
+}
+
+export interface AssetImportValidationResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: {
+    invalidRows?: number;
+    jobId?: number;
+    totalRows?: number;
+    validRows?: number;
+    status?: string;
+    rowResults?: Array<{
+      rowNumber?: number;
+      status?: string;
+      errors?: Array<{ field?: string; message?: string }>;
+      warnings?: Array<{ field?: string; message?: string }>;
+      assetTag?: string | null;
+      externalKey?: string | null;
+    }>;
+  };
+}
+
+export interface ImportHistoryRow {
+  id?: number;
+  jobId?: number;
+  importType?: string;
+  status?: string;
+  fileName?: string;
+  totalRows?: number;
+  processedRows?: number;
+  successCount?: number;
+  failedCount?: number;
+  skippedCount?: number;
+  alreadyExistsCount?: number;
+  progressPercentage?: number;
+  validRows?: number;
+  invalidRows?: number;
+  startedAt?: string;
+  completedAt?: string;
+  committedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  createdBy?: string;
+}
+
+export interface ImportJobReportRow {
+  rowNumber?: number;
+  externalKey?: string;
+  status?: string;
+  createdEntityId?: number;
+  message?: string;
+  errors?: Array<Record<string, string>>;
+  warnings?: Array<Record<string, string>>;
+}
+
+export interface ImportJobReportSummary {
+  jobId?: number;
+  fileName?: string;
+  importType?: string;
+  status?: string;
+  totalRows?: number;
+  processedRows?: number;
+  successCount?: number;
+  failedCount?: number;
+  skippedCount?: number;
+  alreadyExistsCount?: number;
+  progressPercentage?: number;
+  committedAt?: string;
+  startedAt?: string;
+  completedAt?: string;
+  createdBy?: string;
+}
+
+export interface ImportJobReportResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: {
+    summary?: ImportJobReportSummary;
+    rows?: ImportJobReportRow[];
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -569,5 +664,116 @@ export class AssetsService {
     });
 
     return this.http.patch<AssetDetailResponse>(`${this.apiUrl}/${id}`, payload, { headers });
+  }
+
+  importAssets(
+    file: File,
+    companyId: number
+  ): Observable<AssetImportUploadResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    const formData = new FormData();
+    formData.append('file', file);
+    const params = new HttpParams().set('companyId', String(companyId));
+
+    return this.http.post<AssetImportUploadResponse>(
+      `${environment.apiUrl}/api/imports/assets/upload`,
+      formData,
+      { headers, params }
+    );
+  }
+
+  validateImport(jobId: number, companyId: number): Observable<AssetImportValidationResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    const params = new HttpParams().set('companyId', String(companyId));
+
+    return this.http.post<AssetImportValidationResponse>(
+      `${environment.apiUrl}/api/imports/assets/${jobId}/validate`,
+      {},
+      { headers, params }
+    );
+  }
+
+  commitImport(jobId: number, companyId: number): Observable<{ statusCode?: number; status?: string; message?: string }> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    const params = new HttpParams().set('companyId', String(companyId));
+
+    return this.http.post<{ statusCode?: number; status?: string; message?: string }>(
+      `${environment.apiUrl}/api/imports/assets/${jobId}/commit`,
+      {},
+      { headers, params }
+    );
+  }
+
+  fetchImportTemplateFields(companyId: number): Observable<{
+    statusCode?: number;
+    status?: string;
+    message?: string;
+    data?: {
+      allFields?: string[];
+      optionalFields?: string[];
+      requiredFields?: string[];
+      supportedFileTypes?: string[];
+    };
+  }> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    const params = new HttpParams().set('companyId', String(companyId));
+
+    return this.http.get<{
+      statusCode?: number;
+      status?: string;
+      message?: string;
+      data?: {
+        allFields?: string[];
+        optionalFields?: string[];
+        requiredFields?: string[];
+        supportedFileTypes?: string[];
+      };
+    }>(`${environment.apiUrl}/api/imports/assets/template`, { headers, params });
+  }
+
+  fetchImportHistory(params: {
+    companyId: number;
+    importType?: string;
+    status?: string;
+    page?: number;
+    size?: number;
+  }): Observable<any> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+
+    let httpParams = new HttpParams().set('companyId', String(params.companyId));
+    if (params.importType) httpParams = httpParams.set('importType', params.importType);
+    if (params.status) httpParams = httpParams.set('status', params.status);
+    if (typeof params.page === 'number') httpParams = httpParams.set('page', String(params.page));
+    if (typeof params.size === 'number') httpParams = httpParams.set('size', String(params.size));
+
+    return this.http.get<any>(`${environment.apiUrl}/api/imports/history`, {
+      headers,
+      params: httpParams
+    });
+  }
+
+  fetchImportJobReport(jobId: number, companyId: number, status?: string): Observable<ImportJobReportResponse> {
+    const headers = new HttpHeaders({
+      'ngrok-skip-browser-warning': 'true'
+    });
+    let params = new HttpParams().set('companyId', String(companyId));
+    if (status) {
+      params = params.set('status', status);
+    }
+
+    return this.http.get<ImportJobReportResponse>(`${environment.apiUrl}/api/imports/jobs/${jobId}/report`, {
+      headers,
+      params
+    });
   }
 }

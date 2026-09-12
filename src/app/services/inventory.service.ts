@@ -291,6 +291,44 @@ export interface InventoryReportResponse {
   };
 }
 
+export interface InventoryImportUploadResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: {
+    fileName?: string;
+    invalidRows?: number;
+    jobId?: number;
+    totalRows?: number;
+    validRows?: number;
+    rowResults?: Array<{
+      rowNumber?: number;
+      status?: string;
+      errors?: Array<{ field?: string; message?: string }>;
+      warnings?: Array<{ field?: string; message?: string }>;
+    }>;
+  };
+}
+
+export interface InventoryImportValidationResponse {
+  statusCode?: number;
+  status?: string;
+  message?: string;
+  data?: {
+    invalidRows?: number;
+    jobId?: number;
+    totalRows?: number;
+    validRows?: number;
+    status?: string;
+    rowResults?: Array<{
+      rowNumber?: number;
+      status?: string;
+      errors?: Array<{ field?: string; message?: string }>;
+      warnings?: Array<{ field?: string; message?: string }>;
+    }>;
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class InventoryService {
   private readonly apiUrl = `${environment.apiUrl}/api/inventory-items`;
@@ -453,6 +491,68 @@ export class InventoryService {
       .set('pageable.size', String(size));
 
     return this.http.get<InventoryAuditLogListResponse>(this.inventoryAuditLogUrl, { headers, params });
+  }
+
+  importInventory(file: File, companyId: number): Observable<InventoryImportUploadResponse> {
+    const headers = this.buildAuthHeaders();
+    const formData = new FormData();
+    formData.append('file', file);
+    const params = new HttpParams().set('companyId', String(companyId));
+
+    return this.http.post<InventoryImportUploadResponse>(
+      `${environment.apiUrl}/api/imports/inventory/upload`,
+      formData,
+      { headers, params }
+    );
+  }
+
+  validateInventoryImport(jobId: number, companyId: number): Observable<InventoryImportValidationResponse> {
+    const headers = this.buildAuthHeaders();
+    const params = new HttpParams().set('companyId', String(companyId));
+
+    return this.http.post<InventoryImportValidationResponse>(
+      `${environment.apiUrl}/api/imports/inventory/${jobId}/validate`,
+      {},
+      { headers, params }
+    );
+  }
+
+  commitInventoryImport(jobId: number, companyId: number): Observable<BaseApiResponse> {
+    const headers = this.buildAuthHeaders();
+    const params = new HttpParams().set('companyId', String(companyId));
+
+    return this.http.post<BaseApiResponse>(
+      `${environment.apiUrl}/api/imports/inventory/${jobId}/commit`,
+      {},
+      { headers, params }
+    );
+  }
+
+  fetchInventoryImportTemplateFields(companyId: number): Observable<{
+    statusCode?: number;
+    status?: string;
+    message?: string;
+    data?: {
+      allFields?: string[];
+      optionalFields?: string[];
+      requiredFields?: string[];
+      supportedFileTypes?: string[];
+    };
+  }> {
+    const headers = this.buildAuthHeaders();
+    const params = new HttpParams().set('companyId', String(companyId));
+
+    return this.http.get<{
+      statusCode?: number;
+      status?: string;
+      message?: string;
+      data?: {
+        allFields?: string[];
+        optionalFields?: string[];
+        requiredFields?: string[];
+        supportedFileTypes?: string[];
+      };
+    }>(`${environment.apiUrl}/api/imports/inventory/template`, { headers, params });
   }
 
   searchInventoryAuditLogs(

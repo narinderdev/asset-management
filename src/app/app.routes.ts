@@ -31,6 +31,7 @@ import { CreateServiceContractComponent } from './components/service-contract/cr
 import { FailureCodeComponent } from './components/failure-code/failure-code';
 import { CreateFailureCodeComponent } from './components/failure-code/create-failure-code';
 import { ViewAssetComponent } from './components/view-asset/view-asset';
+import { ImportHistoryComponent } from './components/assets/import-history';
 import { ViewServiceRequestComponent } from './components/view-service-request/view-service-request';
 import { ViewWorkOrderComponent } from './components/view-work-order/view-work-order';
 import { TechnicianComponent } from './components/technician/technician';
@@ -116,6 +117,7 @@ export const routes: Routes = [
   { path: 'assets/types/view/:id', component: ViewAssetTypeComponent, canActivate: [AuthGuard] },
   { path: 'assets/types', component: AssetTypesComponent, canActivate: [AuthGuard] },
   { path: 'assets', component: AssetsComponent, canActivate: [AuthGuard] },
+  { path: 'assets/import-history', component: ImportHistoryComponent, canActivate: [AuthGuard] },
   { path: 'assets/view/:id', component: ViewAssetComponent, canActivate: [AuthGuard] },
   { path: 'service-requests/create', component: CreateServiceRequestComponent, canActivate: [AuthGuard] },
   { path: 'service-requests/edit/:id', component: CreateServiceRequestComponent, canActivate: [AuthGuard] },

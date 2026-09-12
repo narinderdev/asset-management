@@ -1,10 +1,25 @@
 ﻿<div class="preventive-wrapper">
   <div class="preventive-header">
     <h1 class="preventive-title">Parts & Inventory Management</h1>
-    <button
-      class="create-service-btn"
-      *ngIf="canCreateInventory"
-      (click)="addInventoryItem()">+ Add Item</button>
+    <div class="header-actions">
+      <button
+        class="create-service-btn"
+        *ngIf="canCreateInventory"
+        (click)="addInventoryItem()">+ Add Item</button>
+      <button
+        class="import-inventory-btn"
+        *ngIf="canCreateInventory"
+        (click)="openImportModal()"
+      >
+        Import Inventory
+      </button>
+      <button
+        class="import-inventory-btn"
+        (click)="openImportHistory()"
+      >
+        Import History
+      </button>
+    </div>
   </div>
 
   <div class="table-status" *ngIf="errorMessage">
@@ -117,6 +132,81 @@
     <button class="pager-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1 || isLoading">
       Next
     </button>
+  </div>
+</div>
+
+<div class="import-modal-overlay" *ngIf="isImportModalOpen" (click)="closeImportModal()">
+  <div class="import-modal" role="dialog" aria-modal="true" aria-labelledby="import-title" (click)="$event.stopPropagation()">
+    <div class="import-modal-header">
+      <h2 id="import-title">Import Inventory</h2>
+      <button class="import-modal-close" (click)="closeImportModal()" aria-label="Close import modal">x</button>
+    </div>
+
+    <div class="import-modal-body">
+      <div class="import-info">Download the template first to see the required format</div>
+
+      <div class="import-template-actions">
+        <button class="excel-template-btn" (click)="downloadTemplate('xlsx')">Excel Template</button>
+        <button class="csv-template-btn" (click)="downloadTemplate('csv')">CSV Template</button>
+      </div>
+
+      <div class="selected-file" *ngIf="selectedImportFile">
+        <span>Selected: {{ selectedImportFile.name }}</span>
+        <button
+          type="button"
+          class="remove-selected-file-btn"
+          (click)="clearSelectedImportFile(importFileInput)"
+          [disabled]="isImporting"
+          aria-label="Remove selected file"
+          title="Remove selected file"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18"></path>
+            <path d="M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <input
+        #importFileInput
+        type="file"
+        accept=".csv,.xlsx,.xls"
+        (change)="onImportFileSelected($event)"
+        [disabled]="isImporting"
+        style="display: none;"
+      />
+
+      <button class="select-file-btn" *ngIf="!selectedImportFile" (click)="importFileInput.click()" [disabled]="isImporting">
+        Select File
+      </button>
+
+      <button
+        class="upload-btn"
+        (click)="submitImport()"
+        [disabled]="(!selectedImportFile && importStage !== 'ready') || isImporting"
+      >
+        {{
+          importStage === 'uploading'
+            ? 'Uploading...'
+            : importStage === 'validating'
+              ? 'Validating...'
+              : importStage === 'committing'
+                ? 'Confirming...'
+                : importStage === 'ready'
+                  ? 'Confirm'
+                  : 'Upload'
+        }}
+      </button>
+
+      <div class="validation-errors" *ngIf="validationErrors.length > 0">
+        <div class="validation-errors-title">Validation Errors</div>
+        <ul>
+          <li *ngFor="let err of validationErrors">
+            Row {{ err.rowNumber }} - {{ err.field }}: {{ err.message }}
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 </div>
 </div>
